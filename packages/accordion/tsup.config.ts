@@ -1,0 +1,17 @@
+import { defineConfig } from 'tsup';
+import { copyFileSync, mkdirSync } from 'node:fs';
+
+export default defineConfig({
+  entry: ['src/index.ts', 'src/lazy.ts'],
+  format: ['esm', 'cjs'],
+  dts: true,
+  clean: true,
+  treeshake: true,
+  splitting: true,
+  target: 'es2018',
+  external: ['react', '@knotui/core'],
+  onSuccess: async () => {
+    mkdirSync('dist', { recursive: true });
+    copyFileSync('src/accordion.css', 'dist/styles.css');
+  },
+});

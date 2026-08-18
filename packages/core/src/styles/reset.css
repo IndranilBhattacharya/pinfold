@@ -1,0 +1,50 @@
+/* Knot UI — scoped reset. Applies only inside `.knot`, never to the host app. */
+.knot,
+.knot *,
+.knot *::before,
+.knot *::after {
+  box-sizing: border-box;
+}
+
+.knot {
+  font-family: var(--knot-font-sans);
+  color: var(--knot-color-text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.knot :where(button) {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.knot :where(h1, h2, h3, h4, h5, h6, p) {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.knot :where(:focus-visible) {
+  outline: var(--knot-focus-width) solid var(--knot-color-ring);
+  outline-offset: var(--knot-focus-offset);
+  border-radius: var(--knot-radius-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .knot,
+  .knot * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Forced-colors (Windows High Contrast): keep state affordances visible. */
+@media (forced-colors: active) {
+  .knot :where([data-state="open"]) {
+    forced-color-adjust: none;
+  }
+}
