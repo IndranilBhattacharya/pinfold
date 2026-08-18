@@ -9,18 +9,26 @@ npx knotui add accordion      # or: npm install @knotui/core @knotui/accordion
 ```jsx
 import '@knotui/core/styles.css';
 import '@knotui/accordion/styles.css';
-import { Accordion } from '@knotui/accordion';
+import { useAccordion } from '@knotui/accordion';
 
-<Accordion
-  items={[
-    { title: 'Shipping', content: 'Ships in 2 days.' },
-    { title: 'Returns', content: '30 days, no questions.', badge: 'New' },
-  ]}
-  variant="separated"
-  mode="multiple"
-/>
+function Faq() {
+  const faq = useAccordion({
+    items: [
+      { title: 'Shipping', content: 'Ships in 2 days.' },
+      { title: 'Returns', content: '30 days, no questions.', badge: 'New' },
+    ],
+    variant: 'separated',
+    mode: 'multiple',
+  });
+
+  return faq.render();
+}
 ```
 
+`faq` is also the controller: `faq.value`, `faq.toggle(id)`, `faq.openAll()`,
+`faq.isOpen(id)`, `faq.focusItem(i)`.
+
+Prefer a tag? `<Accordion {...sameConfig} />` is a one-line wrapper over the hook.
 Lazy: `import { Accordion } from '@knotui/accordion/lazy';`
 
 ## Config
@@ -32,16 +40,28 @@ Lazy: `import { Accordion } from '@knotui/accordion/lazy';`
 - **appearance** — `variant` (`solid` `outline` `separated` `filled` `ghost`),
   `size`, `tone`, `radius`, `indicator` (`chevron` `plus` `caret` `none` | node),
   `indicatorPosition`, `headingLevel`, `animate`, `dividers`
-- **escape hatches** — `classNames`, `slotProps`, `render`, keyed by slot:
+- **dimensions** — `dimensions: { width, minWidth, maxWidth, height, maxHeight, gap,
+  paddingX, paddingY, panelPaddingX, panelPaddingY, panelMaxHeight, fontSize,
+  titleSize, descriptionSize, iconSize, indicatorSize, borderWidth, radius, duration }`.
+  Numbers are px, strings pass through (`'50%'`, `'18rem'`, `clamp()`). Each key
+  overrides only itself — the `size` preset still covers the rest.
+- **escape hatches** — `classNames`, `styles`, `slotProps`, `render`, keyed by slot:
   `root item header trigger icon label title description badge indicator panel content`
 
 Each item: `{ id?, title, content?, description?, icon?, badge?, disabled?, defaultOpen? }`
 
-## Headless
+## Your own markup
 
 ```jsx
-const api = useAccordion({ items, mode: 'multiple' });
-// api.items · api.value · api.toggle(id) · api.openAll() · api.getTriggerProps(item)
+const faq = useAccordion({ items, mode: 'multiple' });
+<dl {...faq.getRootProps()}>
+  {faq.items.map((item) => (
+    <div key={item.id} {...faq.getItemProps(item)}>
+      <dt><button {...faq.getTriggerProps(item)}>{item.config.title}</button></dt>
+      <dd {...faq.getPanelProps(item)} hidden={!item.open}>{item.config.content}</dd>
+    </div>
+  ))}
+</dl>
 ```
 
 ## Accessibility

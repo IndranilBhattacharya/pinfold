@@ -3,8 +3,9 @@ import { cn, mergeProps } from './utils';
 import type { PropsBag, SlotOverrides } from './types';
 
 /**
- * Fold a slot's `classNames` and `slotProps` overrides into the behaviour
- * props a component generated. Handlers chain, classes concatenate.
+ * Fold a slot's `classNames`, `styles` and `slotProps` overrides into the
+ * behaviour props a component generated. Handlers chain, classes concatenate,
+ * styles merge.
  */
 export function slotProps<Slot extends string, State>(
   overrides: SlotOverrides<Slot, State> | undefined,
@@ -13,8 +14,11 @@ export function slotProps<Slot extends string, State>(
 ): PropsBag {
   if (!overrides) return base;
   const extraClass = overrides.classNames?.[slot];
-  const withClass = extraClass ? { ...base, className: cn(base.className, extraClass) } : base;
-  return mergeProps(withClass, overrides.slotProps?.[slot]);
+  const extraStyle = overrides.styles?.[slot];
+  let next = base;
+  if (extraClass) next = { ...next, className: cn(next.className, extraClass) };
+  if (extraStyle) next = { ...next, style: { ...next.style, ...extraStyle } };
+  return mergeProps(next, overrides.slotProps?.[slot]);
 }
 
 /**

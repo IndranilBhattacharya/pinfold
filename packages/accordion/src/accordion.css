@@ -1,37 +1,65 @@
 /* Knot UI — accordion.
-   Every value resolves through a core token, so themes and palettes swap
-   without touching this file. Animation is pure CSS (grid-template-rows),
-   so there is no height measuring and no layout thrash. */
+   Two-layer variables: the `size` preset writes the `*-base` vars, and the
+   `dimensions` config writes `--knot-accordion-*` which wins through the
+   var() fallback. That is why one dimension can be overridden without
+   abandoning the preset for the rest.
+   Animation is pure CSS (grid-template-rows) — no height measuring. */
 
 .knot-accordion {
-  --knot-acc-pad-x: var(--knot-space-4);
-  --knot-acc-pad-y: var(--knot-space-3);
-  --knot-acc-font: var(--knot-text-md);
-  --knot-acc-gap: 0px;
+  /* preset layer (set by [data-size]) */
+  --knot-acc-pad-x-base: var(--knot-space-4);
+  --knot-acc-pad-y-base: var(--knot-space-3);
+  --knot-acc-font-base: var(--knot-text-md);
+  --knot-acc-radius-base: var(--knot-radius-lg);
+  --knot-acc-gap-base: 0px;
+
+  /* config layer (set by `dimensions`) */
+  --knot-acc-pad-x: var(--knot-accordion-padding-x, var(--knot-acc-pad-x-base));
+  --knot-acc-pad-y: var(--knot-accordion-padding-y, var(--knot-acc-pad-y-base));
+  --knot-acc-panel-pad-x: var(--knot-accordion-panel-padding-x, var(--knot-acc-pad-x));
+  --knot-acc-panel-pad-y: var(--knot-accordion-panel-padding-y, var(--knot-acc-pad-y));
+  --knot-acc-font: var(--knot-accordion-font-size, var(--knot-acc-font-base));
+  --knot-acc-title: var(--knot-accordion-title-size, inherit);
+  --knot-acc-desc: var(--knot-accordion-description-size, var(--knot-text-sm));
+  --knot-acc-icon: var(--knot-accordion-icon-size, 1.5em);
+  --knot-acc-ind: var(--knot-accordion-indicator-size, 1em);
+  --knot-acc-radius: var(--knot-accordion-radius, var(--knot-acc-radius-base));
+  --knot-acc-gap: var(--knot-accordion-gap, var(--knot-acc-gap-base));
+  --knot-acc-border: var(--knot-accordion-border-width, 1px);
+  --knot-acc-duration: var(--knot-accordion-duration, var(--knot-duration-md));
+
   --knot-acc-accent: var(--knot-color-accent);
-  --knot-acc-radius: var(--knot-radius-lg);
-  --knot-acc-duration: var(--knot-duration-md);
 
   display: flex;
   flex-direction: column;
   gap: var(--knot-acc-gap);
-  width: 100%;
+  width: var(--knot-accordion-width, 100%);
+  min-width: var(--knot-accordion-min-width, 0);
+  max-width: var(--knot-accordion-max-width, none);
+  height: var(--knot-accordion-height, auto);
+  max-height: var(--knot-accordion-max-height, none);
   font-size: var(--knot-acc-font);
   color: var(--knot-color-text);
 }
 
+/* `dimensions.maxHeight` caps the root and scrolls the rows. */
+.knot-accordion[data-clamp] {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 /* ------------------------------------------------------------------ sizes */
 .knot-accordion[data-size='sm'] {
-  --knot-acc-pad-x: var(--knot-space-3);
-  --knot-acc-pad-y: var(--knot-space-2);
-  --knot-acc-font: var(--knot-text-sm);
-  --knot-acc-radius: var(--knot-radius-md);
+  --knot-acc-pad-x-base: var(--knot-space-3);
+  --knot-acc-pad-y-base: var(--knot-space-2);
+  --knot-acc-font-base: var(--knot-text-sm);
+  --knot-acc-radius-base: var(--knot-radius-md);
 }
 .knot-accordion[data-size='lg'] {
-  --knot-acc-pad-x: var(--knot-space-5);
-  --knot-acc-pad-y: var(--knot-space-4);
-  --knot-acc-font: var(--knot-text-lg);
-  --knot-acc-radius: var(--knot-radius-xl);
+  --knot-acc-pad-x-base: var(--knot-space-5);
+  --knot-acc-pad-y-base: var(--knot-space-4);
+  --knot-acc-font-base: var(--knot-text-lg);
+  --knot-acc-radius-base: var(--knot-radius-xl);
 }
 
 /* ------------------------------------------------------------------ tones */
@@ -41,32 +69,48 @@
 .knot-accordion[data-tone='danger'] { --knot-acc-accent: var(--knot-danger-500); }
 .knot-accordion[data-tone='info'] { --knot-acc-accent: var(--knot-info-500); }
 
+/* ------------------------------------------------------------------- item */
+/* Rounded rows clip their own children, so a hover fill can never square off
+   over the border. Radius cascades item → header → trigger. */
+.knot-accordion__item {
+  overflow: hidden;
+  border-radius: var(--knot-acc-item-radius, 0);
+}
+.knot-accordion__header,
+.knot-accordion__trigger {
+  border-radius: inherit;
+}
+
 /* --------------------------------------------------------------- variants */
 /* solid — one bordered card, rows divided by hairlines */
 .knot-accordion[data-variant='solid'] {
   background: var(--knot-color-surface);
-  border: 1px solid var(--knot-color-border);
+  border: var(--knot-acc-border) solid var(--knot-color-border);
   border-radius: var(--knot-acc-radius);
   overflow: hidden;
   box-shadow: var(--knot-shadow-sm);
 }
 .knot-accordion[data-variant='solid'][data-dividers] .knot-accordion__item + .knot-accordion__item {
-  border-top: 1px solid var(--knot-color-border);
+  border-top: var(--knot-acc-border) solid var(--knot-color-border);
 }
 
-/* outline — each row is its own bordered box, stacked flush */
-.knot-accordion[data-variant='outline'] .knot-accordion__item {
-  border: 1px solid var(--knot-color-border);
-  border-radius: var(--knot-acc-radius);
+/* outline — each row is its own bordered box */
+.knot-accordion[data-variant='outline'] {
+  --knot-acc-gap-base: var(--knot-space-2);
 }
-.knot-accordion[data-variant='outline'] { --knot-acc-gap: var(--knot-space-2); }
+.knot-accordion[data-variant='outline'] .knot-accordion__item {
+  --knot-acc-item-radius: var(--knot-acc-radius);
+  border: var(--knot-acc-border) solid var(--knot-color-border);
+}
 
 /* separated — cards with air and elevation */
-.knot-accordion[data-variant='separated'] { --knot-acc-gap: var(--knot-space-3); }
+.knot-accordion[data-variant='separated'] {
+  --knot-acc-gap-base: var(--knot-space-3);
+}
 .knot-accordion[data-variant='separated'] .knot-accordion__item {
+  --knot-acc-item-radius: var(--knot-acc-radius);
   background: var(--knot-color-surface);
-  border: 1px solid var(--knot-color-border);
-  border-radius: var(--knot-acc-radius);
+  border: var(--knot-acc-border) solid var(--knot-color-border);
   box-shadow: var(--knot-shadow-sm);
   transition: box-shadow var(--knot-duration-md) var(--knot-ease),
     border-color var(--knot-duration-md) var(--knot-ease);
@@ -77,18 +121,24 @@
 }
 
 /* filled — tinted rows, no borders */
-.knot-accordion[data-variant='filled'] { --knot-acc-gap: var(--knot-space-2); }
+.knot-accordion[data-variant='filled'] {
+  --knot-acc-gap-base: var(--knot-space-2);
+}
 .knot-accordion[data-variant='filled'] .knot-accordion__item {
+  --knot-acc-item-radius: var(--knot-acc-radius);
   background: var(--knot-color-bg-subtle);
-  border-radius: var(--knot-acc-radius);
 }
 .knot-accordion[data-variant='filled'] .knot-accordion__item[data-state='open'] {
   background: color-mix(in oklch, var(--knot-acc-accent) 8%, var(--knot-color-bg-subtle));
 }
 
 /* ghost — text only, hover reveals the row */
+.knot-accordion[data-variant='ghost'] .knot-accordion__item {
+  --knot-acc-item-radius: var(--knot-acc-radius);
+}
 .knot-accordion[data-variant='ghost'][data-dividers] .knot-accordion__item + .knot-accordion__item {
-  border-top: 1px solid var(--knot-color-border);
+  border-top: var(--knot-acc-border) solid var(--knot-color-border);
+  border-radius: 0;
 }
 
 /* ----------------------------------------------------------------- header */
@@ -108,7 +158,6 @@
   line-height: var(--knot-leading-tight);
   text-align: start;
   color: var(--knot-color-text);
-  border-radius: inherit;
   transition: background-color var(--knot-duration-fast) var(--knot-ease),
     color var(--knot-duration-fast) var(--knot-ease);
 }
@@ -124,7 +173,14 @@
 .knot-accordion__trigger[data-disabled] {
   color: var(--knot-color-text-subtle);
   cursor: not-allowed;
+}
+.knot-accordion__trigger[data-disabled]:hover {
   background: none;
+}
+
+/* Keep the focus ring inside the clipping box. */
+.knot-accordion__trigger:focus-visible {
+  outline-offset: calc(-1 * var(--knot-focus-width) - 1px);
 }
 
 .knot-accordion[data-indicator-position='start'] .knot-accordion__trigger {
@@ -137,8 +193,8 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 1.5em;
-  height: 1.5em;
+  width: var(--knot-acc-icon);
+  height: var(--knot-acc-icon);
   color: var(--knot-acc-accent);
 }
 
@@ -151,11 +207,12 @@
 }
 
 .knot-accordion__title {
+  font-size: var(--knot-acc-title);
   overflow-wrap: anywhere;
 }
 
 .knot-accordion__description {
-  font-size: var(--knot-text-sm);
+  font-size: var(--knot-acc-desc);
   font-weight: var(--knot-weight-normal);
   color: var(--knot-color-text-muted);
 }
@@ -175,6 +232,7 @@
   flex: none;
   align-items: center;
   justify-content: center;
+  font-size: var(--knot-acc-ind);
   color: var(--knot-color-text-muted);
   transition: transform var(--knot-acc-duration) var(--knot-ease),
     color var(--knot-duration-fast) var(--knot-ease);
@@ -190,7 +248,8 @@
   transform-origin: center;
   transition: opacity var(--knot-acc-duration) var(--knot-ease);
 }
-.knot-accordion__trigger[data-state='open'] .knot-accordion__indicator:has(.knot-accordion__indicator-bar) {
+.knot-accordion__trigger[data-state='open']
+  .knot-accordion__indicator:has(.knot-accordion__indicator-bar) {
   transform: none;
 }
 .knot-accordion__trigger[data-state='open'] .knot-accordion__indicator-bar {
@@ -208,8 +267,8 @@
 
 .knot-accordion__panel[data-state='closed'] {
   grid-template-rows: 0fr;
-  /* Removes closed content from the a11y tree and from tab order,
-     after the collapse finishes. */
+  /* Removes closed content from the a11y tree and the tab order once the
+     collapse finishes. */
   visibility: hidden;
 }
 
@@ -227,16 +286,21 @@
   overflow: hidden;
 }
 
+/* `dimensions.panelMaxHeight` caps the open panel and scrolls the rest. */
+.knot-accordion[data-scroll] .knot-accordion__panel[data-state='open'] .knot-accordion__panel-inner {
+  max-height: var(--knot-accordion-panel-max-height);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .knot-accordion__content {
-  padding: 0 var(--knot-acc-pad-x) var(--knot-acc-pad-y);
+  padding: 0 var(--knot-acc-panel-pad-x) var(--knot-acc-panel-pad-y);
 }
 
 .knot-accordion[data-indicator-position='start'] .knot-accordion__content {
-  padding-inline-start: calc(var(--knot-acc-pad-x) + 1.5em + var(--knot-space-3));
+  padding-inline-start: calc(var(--knot-acc-panel-pad-x) + var(--knot-acc-icon) + var(--knot-space-3));
 }
 
-/* Browsers without :has() still collapse correctly — they only lose the
-   plus-glyph morph, which the rotate fallback covers. */
 @supports not (color: color-mix(in oklch, red, blue)) {
   .knot-accordion__badge {
     background: var(--knot-color-bg-subtle);

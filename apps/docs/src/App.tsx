@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { KnotProvider, useAccordionRamp } from './theme';
-import { Accordion, useAccordion } from '@knotui/accordion';
+import { useAccordion } from '@knotui/accordion';
+import type { AccordionConfig, AccordionVariant } from '@knotui/accordion';
 import { Playground } from './Playground';
 
 const FAQ = [
@@ -55,13 +56,57 @@ const JSX_WAY = `<Accordion type="single" collapsible>
   </AccordionItem>
 </Accordion>`;
 
-const KNOT_WAY = `<Accordion
-  items={[
+const KNOT_WAY = `const faq = useAccordion({
+  items: [
     { title: 'Shipping', content: 'Ships in 2 days.' },
     { title: 'Returns', content: '30 days, no questions.' },
-  ]}
-  variant="separated"
-/>`;
+  ],
+  variant: 'separated',
+});
+
+return faq.render();`;
+
+const WAYS: Array<[string, string]> = [
+  [
+    'hook — the default',
+    `const faq = useAccordion({ items });
+
+return faq.render();`,
+  ],
+  [
+    'hook + your own dimensions and classes',
+    `const faq = useAccordion({
+  items,
+  variant: 'separated',
+  dimensions: { paddingX: 24, gap: 12, radius: 16 },
+  classNames: { trigger: 'font-semibold' },
+  styles: { panel: { background: '#0000000a' } },
+});
+
+return faq.render();`,
+  ],
+  [
+    'hook — control it from outside',
+    `const faq = useAccordion({ items, mode: 'multiple' });
+
+<button onClick={faq.openAll}>Expand all</button>
+{faq.render()}
+// faq.value · faq.toggle(id) · faq.isOpen(id)`,
+  ],
+  [
+    'hook — your markup, our behaviour',
+    `const faq = useAccordion({ items });
+
+<dl {...faq.getRootProps()}>
+  {faq.items.map((item) => (
+    <div key={item.id} {...faq.getItemProps(item)}>
+      <dt><button {...faq.getTriggerProps(item)}>{item.config.title}</button></dt>
+      <dd {...faq.getPanelProps(item)}>{item.config.content}</dd>
+    </div>
+  ))}
+</dl>`,
+  ],
+];
 
 export function App() {
   const [theme, setTheme] = React.useState<'light' | 'dark'>('dark');
@@ -148,6 +193,18 @@ export function App() {
         </Section>
 
         <Section
+          id="ways"
+          title="One hook, four levels"
+          lede="Start with render(). Reach further only when you need to — the config object never changes shape."
+        >
+          <div className="dx-compare">
+            {WAYS.map(([label, code]) => (
+              <Code key={label} label={label} tone={label.endsWith('default') ? 'accent' : 'muted'} code={code} />
+            ))}
+          </div>
+        </Section>
+
+        <Section
           id="variants"
           title="Variants"
           lede="Five surface treatments, three sizes, six tones, four indicators. Every combination is a valid, accessible accordion."
@@ -156,7 +213,7 @@ export function App() {
             {(['solid', 'outline', 'separated', 'filled', 'ghost'] as const).map((variant) => (
               <figure key={variant} className="dx-card">
                 <figcaption>{variant}</figcaption>
-                <Accordion
+                <Demo
                   variant={variant}
                   items={FAQ.slice(0, 3)}
                   defaultValue={['what']}
@@ -165,8 +222,17 @@ export function App() {
               </figure>
             ))}
             <figure className="dx-card">
+              <figcaption>dimensions — nothing about size is locked</figcaption>
+              <Demo
+                variant="outline"
+                items={FAQ.slice(0, 3)}
+                defaultValue={['what']}
+                dimensions={{ paddingX: 24, paddingY: 18, gap: 14, radius: 20, fontSize: 15, indicatorSize: 20 }}
+              />
+            </figure>
+            <figure className="dx-card">
               <figcaption>rich rows — icons, badges, descriptions</figcaption>
-              <Accordion
+              <Demo
                 variant="separated"
                 mode="multiple"
                 tone="success"
@@ -216,6 +282,11 @@ export function App() {
       </main>
     </KnotProvider>
   );
+}
+
+/** Every demo on this page renders from the hook — there is no <Accordion> tag. */
+function Demo(config: AccordionConfig & { variant?: AccordionVariant }) {
+  return useAccordion(config).render();
 }
 
 function Section({
@@ -297,7 +368,14 @@ const API_ROWS: Array<[string, string, string]> = [
   ['indicator', "'chevron' | 'plus' | 'caret' | 'none' | ReactNode", 'trailing glyph'],
   ['headingLevel', '1–6', 'heading level around each trigger. Default 3'],
   ['unmountClosed', 'boolean', 'drop closed content from the DOM. Default false'],
-  ['classNames / slotProps / render', 'per slot', 'escape hatches for all 12 slots'],
+  [
+    'dimensions',
+    'AccordionDimensions',
+    'width, minWidth, maxWidth, height, maxHeight, gap, paddingX/Y, panelPaddingX/Y, panelMaxHeight, fontSize, titleSize, descriptionSize, iconSize, indicatorSize, borderWidth, radius, duration. Numbers are px, strings pass through',
+  ],
+  ['classNames', 'Partial<Record<Slot, string>>', 'add your own class to any of the 12 slots'],
+  ['styles', 'Partial<Record<Slot, CSSProperties>>', 'inline style per slot'],
+  ['slotProps / render', 'per slot', 'merge DOM props, or replace a slot entirely'],
 ];
 
 function ApiTable() {
