@@ -1,6 +1,7 @@
 import type * as React from 'react';
 import type {
   KnotDir,
+  Length,
   KnotOrientation,
   KnotRadius,
   KnotSize,
@@ -66,6 +67,39 @@ export interface AccordionBehaviourConfig {
   unmountClosed?: boolean;
 }
 
+/**
+ * Explicit sizing. Numbers are px, strings pass through (`'50%'`, `'18rem'`,
+ * `'clamp(20rem, 40vw, 32rem)'`). Each key overrides the value the `size`
+ * preset would have chosen, so you can take one dimension and leave the rest.
+ */
+export interface AccordionDimensions {
+  width?: Length;
+  minWidth?: Length;
+  maxWidth?: Length;
+  height?: Length;
+  maxHeight?: Length;
+  /** Space between rows (outline / separated / filled variants). */
+  gap?: Length;
+  /** Trigger padding. */
+  paddingX?: Length;
+  paddingY?: Length;
+  /** Panel padding. Defaults to the trigger padding. */
+  panelPaddingX?: Length;
+  panelPaddingY?: Length;
+  /** Cap the open panel and let it scroll past that. */
+  panelMaxHeight?: Length;
+  fontSize?: Length;
+  titleSize?: Length;
+  descriptionSize?: Length;
+  iconSize?: Length;
+  indicatorSize?: Length;
+  borderWidth?: Length;
+  /** Corner radius as a length — overrides the `radius` token preset. */
+  radius?: Length;
+  /** Open/close transition duration, e.g. `'320ms'`. */
+  duration?: Length;
+}
+
 export interface AccordionAppearanceConfig {
   variant?: AccordionVariant;
   size?: KnotSize;
@@ -81,6 +115,8 @@ export interface AccordionAppearanceConfig {
   animate?: boolean;
   /** Full-width dividers between rows (solid/ghost variants). Default true. */
   dividers?: boolean;
+  /** Explicit sizing, per dimension. Overrides the `size` preset. */
+  dimensions?: AccordionDimensions;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -101,7 +137,26 @@ export interface AccordionItemState {
   panelId: string;
 }
 
+/** Appearance after provider defaults are folded in. Internal, but typed. */
+export interface ResolvedAppearance {
+  variant: AccordionVariant;
+  size: KnotSize;
+  tone: KnotTone;
+  radius: KnotRadius;
+  indicator: AccordionIndicator | React.ReactNode;
+  indicatorPosition: 'start' | 'end';
+  headingLevel: number;
+  animate: boolean;
+  dividers: boolean;
+  unmountClosed: boolean;
+}
+
 export interface AccordionApi {
+  /**
+   * The finished, accessible accordion. Call it and return it — this is the
+   * hook-first path, where you write no component markup at all.
+   */
+  render: () => React.ReactElement;
   items: AccordionItemState[];
   value: string[];
   isOpen: (id: string) => boolean;

@@ -17,13 +17,18 @@ export type PropsBag = Record<string, any>;
  *
  * - `classNames` — append a class to one slot.
  * - `slotProps`  — merge arbitrary DOM props into one slot (event handlers chain).
+ * - `styles`     — inline style for one slot.
  * - `render`     — replace one slot's element entirely, keeping its behaviour props.
  */
 export interface SlotOverrides<Slot extends string, State = unknown> {
   classNames?: Partial<Record<Slot, string>>;
+  styles?: Partial<Record<Slot, React.CSSProperties>>;
   slotProps?: Partial<Record<Slot, PropsBag>>;
   render?: Partial<Record<Slot, SlotRenderer<State>>>;
 }
+
+/** A CSS length. Numbers are px, strings pass through (`'50%'`, `'12rem'`, `calc()`). */
+export type Length = number | string;
 
 export type SlotRenderer<State = unknown> = (args: {
   /** Behaviour props (ARIA, handlers, refs). Spread these or accessibility breaks. */

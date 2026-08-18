@@ -2,6 +2,7 @@ import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Accordion } from './Accordion';
+import { useAccordion } from './useAccordion';
 
 const items = [
   { id: 'a', title: 'First', content: 'One' },
@@ -83,6 +84,38 @@ describe('Accordion', () => {
 
     fireEvent.keyDown(third, { key: 'Home' });
     expect(document.activeElement).toBe(first);
+  });
+
+  it('renders straight from the hook, with no component in the tree', () => {
+    function Faq() {
+      const faq = useAccordion({ items, defaultValue: ['a'] });
+      return faq.render();
+    }
+    render(<Faq />);
+    expect(triggers()[0]).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('First')).toBeTruthy();
+  });
+
+  it('maps dimensions onto CSS custom properties', () => {
+    render(
+      <Accordion
+        items={items}
+        slotProps={{ root: { 'data-testid': 'root' } }}
+        dimensions={{ paddingX: 24, maxWidth: '32rem', panelMaxHeight: 200 }}
+      />,
+    );
+    const root = screen.getByTestId('root');
+
+    expect(root.style.getPropertyValue('--knot-accordion-padding-x')).toBe('24px');
+    expect(root.style.getPropertyValue('--knot-accordion-max-width')).toBe('32rem');
+    expect(root.style.getPropertyValue('--knot-accordion-panel-max-height')).toBe('200px');
+    // panelMaxHeight opts the panel into scrolling
+    expect(root).toHaveAttribute('data-scroll');
+  });
+
+  it('applies per-slot inline styles', () => {
+    render(<Accordion items={items} styles={{ trigger: { letterSpacing: '2px' } }} />);
+    expect(triggers()[0].style.letterSpacing).toBe('2px');
   });
 
   it('honours controlled value and slot overrides', () => {

@@ -9,11 +9,23 @@ import {
   useId,
   useKnot,
 } from '@knotui/core';
-import type { AccordionApi, AccordionConfig, AccordionItemState } from './types';
+import { renderAccordion } from './AccordionView';
+import type {
+  AccordionApi,
+  AccordionConfig,
+  AccordionItemState,
+  ResolvedAppearance,
+} from './types';
 
 /**
- * The whole accordion, as data. Render it yourself with the `getXProps`
- * getters, or hand the same config to `<Accordion />` and render nothing.
+ * The accordion, as a hook. This is the primary API — there is no markup to
+ * write:
+ *
+ *   const faq = useAccordion({ items, variant: 'separated' });
+ *   return faq.render();
+ *
+ * The same object also exposes state (`faq.value`, `faq.toggle(id)`) and prop
+ * getters, so you can drop to your own elements whenever you need to.
  *
  * Implements the WAI-ARIA Accordion pattern: button triggers inside headings,
  * `aria-expanded` / `aria-controls`, panels as labelled regions, and
@@ -33,8 +45,22 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
     dir = ctx.dir,
     loop = true,
     id: idProp,
-    headingLevel = 3,
   } = config;
+
+  // Appearance falls back to the provider, then to the framework default.
+  const appearance: ResolvedAppearance = {
+    variant: config.variant ?? 'solid',
+    size: config.size ?? ctx.size,
+    tone: config.tone ?? ctx.tone,
+    radius: config.radius ?? ctx.radius,
+    indicator: config.indicator ?? 'chevron',
+    indicatorPosition: config.indicatorPosition ?? 'end',
+    headingLevel: config.headingLevel ?? 3,
+    animate: config.animate ?? !ctx.disableAnimation,
+    dividers: config.dividers ?? true,
+    unmountClosed: config.unmountClosed ?? false,
+  };
+  const headingLevel = appearance.headingLevel;
 
   const baseId = useId(idProp);
   const triggerRefs = React.useRef<Array<HTMLElement | null>>([]);
@@ -101,6 +127,7 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
   });
 
   const api: AccordionApi = {
+    render: () => renderAccordion(api, config, appearance),
     items: state,
     value,
     isOpen,

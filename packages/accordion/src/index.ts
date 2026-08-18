@@ -6,6 +6,7 @@ export { Accordion } from './Accordion';
 export { useAccordion } from './useAccordion';
 export type {
   AccordionConfig,
+  AccordionDimensions,
   AccordionApi,
   AccordionItemConfig,
   AccordionItemState,

@@ -31,21 +31,35 @@ Twelve rows is sixty lines of nesting. It is not diffable, not serialisable, not
 storable in a CMS, and a language model gets the nesting wrong more often than it
 gets the content wrong.
 
-## The Knot way
+## The Knot way — a hook, not a tag
 
 ```jsx
-import { Accordion } from '@knotui/accordion';
+import { useAccordion } from '@knotui/accordion';
 
-<Accordion
-  items={[
-    { title: 'Shipping', content: 'Ships in 2 days.' },
-    { title: 'Returns', content: '30 days, no questions.' },
-  ]}
-  variant="separated"
-/>
+function Faq() {
+  const faq = useAccordion({
+    items: [
+      { title: 'Shipping', content: 'Ships in 2 days.' },
+      { title: 'Returns', content: '30 days, no questions.' },
+    ],
+    variant: 'separated',
+  });
+
+  return faq.render();
+}
 ```
 
-Same accessibility. Same visual result. The component *is* the config.
+Same accessibility, same visual result, no markup. The hook is the API — the
+`<Accordion />` tag exists only as a one-line wrapper for people who want one.
+
+The same object is also the controller:
+
+```jsx
+faq.value            // ['0']
+faq.toggle('0')      // open/close from anywhere
+faq.openAll()        // ...in multiple mode
+faq.isOpen('0')
+```
 
 ## Install
 
@@ -63,33 +77,55 @@ npx knotui theme --preset emerald --radius lg
 npx knotui theme --hue 274 --gray 264 --intensity 1.15
 ```
 
-## Three levels of control
+## Levels of control
 
-| Level | You write | You get |
+One hook, four levels. The config object never changes shape as you go deeper.
+
+| Level | You add | You get |
 | --- | --- | --- |
-| **Config** | `<Accordion items={…} variant="separated" />` | Everything, styled, accessible |
-| **Slots** | `classNames`, `slotProps`, `render` per slot | Your markup for one part, our behaviour |
-| **Headless** | `useAccordion(config)` | State + prop getters, zero markup |
+| **1 — render** | `faq.render()` | everything, styled, accessible |
+| **2 — dimensions** | `dimensions: { paddingX: 24 }` | exact sizing, preset kept for the rest |
+| **3 — slots** | `classNames`, `styles`, `slotProps`, `render` | your classes or your markup for one part |
+| **4 — getters** | `getRootProps`, `getTriggerProps`, … | your elements, our behaviour and ARIA |
 
 ```jsx
-// Level 2 — swap one slot, keep every ARIA attribute
-<Accordion
-  items={items}
-  classNames={{ trigger: 'my-trigger' }}
-  render={{ indicator: ({ state }) => <Spinner spinning={state.open} /> }}
-/>
+// 2 — every dimension is configurable. Numbers are px, strings pass through.
+useAccordion({
+  items,
+  dimensions: {
+    width: '100%', maxWidth: '40rem', gap: 12, radius: 16,
+    paddingX: 24, paddingY: 18, panelPaddingX: 24,
+    fontSize: 15, titleSize: 16, descriptionSize: 13,
+    iconSize: 22, indicatorSize: 20, borderWidth: 1,
+    panelMaxHeight: '18rem',   // caps and scrolls the open panel
+    maxHeight: '32rem',        // caps and scrolls the whole accordion
+    duration: '240ms',
+  },
+});
 
-// Level 3 — bring your own elements
-const api = useAccordion({ items, mode: 'multiple' });
-<dl {...api.getRootProps()}>
-  {api.items.map((item) => (
-    <div key={item.id} {...api.getItemProps(item)}>
-      <dt><button {...api.getTriggerProps(item)}>{item.config.title}</button></dt>
-      <dd {...api.getPanelProps(item)} hidden={!item.open}>{item.config.content}</dd>
+// 3 — your classes, your inline styles, or your element, per slot
+useAccordion({
+  items,
+  classNames: { trigger: 'font-semibold uppercase', panel: 'prose' },
+  styles: { title: { letterSpacing: '0.01em' } },
+  slotProps: { root: { 'data-analytics': 'faq' } },
+  render: { indicator: ({ props, state }) => <Chevron {...props} open={state.open} /> },
+});
+
+// 4 — bring your own elements; every ARIA attribute comes from the getters
+const faq = useAccordion({ items, mode: 'multiple' });
+<dl {...faq.getRootProps()}>
+  {faq.items.map((item) => (
+    <div key={item.id} {...faq.getItemProps(item)}>
+      <dt><button {...faq.getTriggerProps(item)}>{item.config.title}</button></dt>
+      <dd {...faq.getPanelProps(item)} hidden={!item.open}>{item.config.content}</dd>
     </div>
   ))}
 </dl>
 ```
+
+Slots are named, not guessed: `root item header trigger icon label title
+description badge indicator panel content`.
 
 ## Why it stays small and fast
 

@@ -5,19 +5,24 @@ the next twelve components without inventing a single decision.
 
 ---
 
-## 1. The three-layer rule
+## 1. The layering rule
 
-Each component is exactly three files' worth of concerns, in this order:
+Each component splits into these concerns, in this order:
 
 | Layer | File | Owns | Never touches |
 | --- | --- | --- | --- |
-| Behaviour | `use<Name>.ts` | state, keyboard, ARIA, prop getters | class names, markup |
-| Presentation | `<Name>.tsx` | markup, slots, variants | state logic |
+| Behaviour | `use<Name>.tsx` | state, keyboard, ARIA, prop getters, `render()` | class names, markup |
+| Presentation | `<Name>View.tsx` | markup, slots, variants — a plain function, not a component | state logic |
 | Style | `<name>.css` | tokens → CSS | JS |
+| Courtesy | `<Name>.tsx` | `useName(config).render()`, one line | anything else |
+
+**The hook is the API.** `use<Name>()` returns `render()` alongside state and
+getters, so a consumer never has to write a tag. The `<Name />` component is a
+one-line wrapper kept for people who prefer JSX — it must add nothing.
 
 If the hook mentions a class name, the layering is broken. If the component
 computes state, the layering is broken. This split is what makes the same
-component usable at all three control levels.
+component usable at every level of control without a second code path.
 
 ---
 
@@ -39,12 +44,16 @@ Rules:
    `options` — never `children`.
 2. **Everything optional except data.** A component with only its data prop must
    render something correct and good-looking.
-3. **Controlled and uncontrolled from one hook.** `value` + `defaultValue` +
+3. **Every measurement is configurable.** Ship a `dimensions` object covering
+   width, height, padding, gap, radius, font sizes, icon sizes, border width and
+   duration. Numbers are px, strings pass through. It layers *over* the `size`
+   preset, so overriding one dimension keeps the preset for the rest.
+4. **Controlled and uncontrolled from one hook.** `value` + `defaultValue` +
    `onValueChange`, resolved by `useControllableState`. Never two code paths.
-4. **JSON-safe defaults.** Every behaviour option must be expressible in plain
+5. **JSON-safe defaults.** Every behaviour option must be expressible in plain
    JSON — strings, numbers, booleans, arrays. Functions are opt-in extras, never
    required. This is what lets a CMS or a language model drive the component.
-5. **Appearance inherits.** `size`, `tone`, `radius`, `dir` default from
+6. **Appearance inherits.** `size`, `tone`, `radius`, `dir` default from
    `useKnot()` (the provider) so an app themes once.
 
 ---
@@ -79,6 +88,7 @@ Each slot is reachable three ways, and every component supports all three:
 
 ```jsx
 classNames={{ trigger: 'px-6' }}                       // add a class
+styles={{ trigger: { letterSpacing: '2px' } }}         // inline style
 slotProps={{ panel: { 'data-analytics': 'faq' } }}     // merge DOM props
 render={{ indicator: ({ props, state }) => <X {...props} open={state.open} /> }}  // replace
 ```
@@ -100,15 +110,22 @@ them, accessibility breaks — that is documented, not defended against.
 - Class names are BEM: `.knot-<component>__<slot>`, state via `[data-*]`.
 - **Every value comes from a core token.** No literal colors, no magic pixels
   outside the component's own local vars.
-- Local vars are declared once at the component root and derived by variant:
+- Sizing is **two-layer**. `[data-size]` writes the `*-base` preset; the
+  `dimensions` config writes `--knot-<component>-<key>` via `dimensionVars()`,
+  and wins through the `var()` fallback:
 
 ```css
-.knot-accordion { --knot-acc-pad-x: var(--knot-space-4); }
-.knot-accordion[data-size='lg'] { --knot-acc-pad-x: var(--knot-space-5); }
+.knot-accordion { --knot-acc-pad-x-base: var(--knot-space-4); }
+.knot-accordion[data-size='lg'] { --knot-acc-pad-x-base: var(--knot-space-5); }
+.knot-accordion { --knot-acc-pad-x: var(--knot-accordion-padding-x, var(--knot-acc-pad-x-base)); }
 ```
 
-  Overriding one custom property re-skins the whole component. That is the
-  supported theming path — not CSS overrides fighting specificity.
+  That is what lets a consumer override one measurement without losing the preset
+  for the others. Overriding a custom property is the supported theming path —
+  never CSS overrides fighting specificity.
+- **Rounded containers clip.** Any element with a radius sets `overflow: hidden`
+  and its children inherit the radius (`item → header → trigger`). Without this a
+  hover or active fill renders as a rectangle crossing the rounded border.
 - The root always carries `knot` so the scoped reset applies.
 - Animate with CSS only. Prefer `grid-template-rows`, `transform`, `opacity`,
   `clip-path`. Never measure heights in JS.
@@ -158,9 +175,10 @@ packages/<name>/
   package.json      exports ".", "./lazy", "./styles.css"
   tsup.config.ts    esm + cjs + dts, copies the CSS to dist/styles.css
   src/
-    types.ts        config, state, api, slot union
-    use<Name>.ts    behaviour
-    <Name>.tsx      presentation
+    types.ts        config, dimensions, state, api, slot union
+    use<Name>.tsx   behaviour + render()
+    <Name>View.tsx  markup (plain function)
+    <Name>.tsx      one-line tag wrapper
     <name>.css      style
     index.ts        public surface
     lazy.ts         createLazyComponent wrapper
@@ -182,11 +200,14 @@ packages/<name>/
 
 1. `cp -r packages/accordion packages/<name>` and rename everything.
 2. Write `types.ts` first. The config object is the API; get it right before code.
-3. Implement `use<Name>.ts` against the APG pattern. Reuse `nextIndexFromKey`,
-   `useControllableState`, `useId`, `useEvent` — do not re-derive them.
-4. Implement `<Name>.tsx` with `slotProps` / `renderSlot` for every slot.
-5. Write `<name>.css` using only tokens; add variants as `[data-variant='…']`.
-6. Tests: ARIA wiring, each mode, keyboard map, disabled, controlled, slot overrides.
+3. Implement `use<Name>.tsx` against the APG pattern, returning `render()`. Reuse
+   `nextIndexFromKey`, `useControllableState`, `useId`, `useEvent`, `dimensionVars`
+   — do not re-derive them.
+4. Implement `<Name>View.tsx` with `slotProps` / `renderSlot` for every slot.
+5. Write `<name>.css` using only tokens; variants as `[data-variant='…']`; the
+   two-layer sizing chain for every dimension.
+6. Tests: ARIA wiring, each mode, keyboard map, disabled, controlled, slot
+   overrides, dimensions → custom properties.
 7. Register it in `packages/cli/registry.json` (move it out of `planned`).
 8. Add a section to `apps/docs/src/App.tsx`.
 9. `npm test && npm run typecheck && npm run build`.
