@@ -1,0 +1,31 @@
+{
+  "$schema": "https://knotui.dev/registry.schema.json",
+  "version": 1,
+  "core": { "package": "@knotui/core", "styles": "@knotui/core/styles.css" },
+  "components": [
+    {
+      "name": "accordion",
+      "package": "@knotui/accordion",
+      "styles": "@knotui/accordion/styles.css",
+      "status": "stable",
+      "description": "Collapsible disclosure rows. WAI-ARIA accordion pattern.",
+      "variants": ["solid", "outline", "separated", "filled", "ghost"],
+      "hook": "useAccordion",
+      "snippet": "<Accordion items={[{ title: 'Shipping', content: 'Ships in 2 days.' }]} />"
+    }
+  ],
+  "planned": [
+    "tabs",
+    "dialog",
+    "select",
+    "combobox",
+    "data-grid",
+    "calendar",
+    "date-picker",
+    "toast",
+    "tooltip",
+    "command",
+    "form",
+    "tree"
+  ]
+}

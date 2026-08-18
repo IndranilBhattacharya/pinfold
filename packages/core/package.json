@@ -1,0 +1,32 @@
+{
+  "name": "@knotui/core",
+  "version": "0.1.0",
+  "description": "Knot UI core — tokens, theme engine and headless primitives for configuration-driven React UI.",
+  "keywords": ["react", "ui", "headless", "hooks", "design-system", "accessibility", "aria", "config-driven"],
+  "license": "MIT",
+  "sideEffects": ["*.css"],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./tokens.css": "./dist/tokens.css",
+    "./reset.css": "./dist/reset.css",
+    "./package.json": "./package.json"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "publishConfig": { "access": "public" }
+}

@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "paths": {
+      "@knotui/core": ["packages/core/src/index.ts"],
+      "@knotui/accordion": ["packages/accordion/src/index.ts"]
+    }
+  },
+  "include": ["packages/*/src", "apps/*/src", "vitest.setup.ts"]
+}
