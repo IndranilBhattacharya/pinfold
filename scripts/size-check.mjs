@@ -9,12 +9,19 @@
 import { gzipSync } from 'node:zlib';
 import { readFileSync, existsSync } from 'node:fs';
 
-/** Gzipped kB ceilings. Raise deliberately, in a commit that says why. */
+/**
+ * Gzipped kB ceilings. Raise deliberately, in a commit that says why.
+ *
+ * 2026-08-19: core CSS 4 -> 5 and accordion 4 -> 5. The CSS grew when every
+ * rule moved inside a cascade layer (which is what lets Tailwind utilities win
+ * for free); the accordion grew for sub-components, unstyled mode, per-row
+ * overrides and state-function config fields.
+ */
 const BUDGETS = [
   ['packages/core/dist/index.js', 4],
   ['packages/core/dist/palette.js', 4],
-  ['packages/core/dist/styles.css', 4],
-  ['packages/accordion/dist/index.js', 4],
+  ['packages/core/dist/styles.css', 5],
+  ['packages/accordion/dist/index.js', 5],
   ['packages/accordion/dist/styles.css', 3],
 ];
 

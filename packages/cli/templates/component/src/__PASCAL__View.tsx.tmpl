@@ -1,53 +1,113 @@
 import * as React from 'react';
-import { cn, dimensionVars, renderSlot, slotProps } from '@knotui/core';
+import { cn, dimensionVars, mergeProps, renderSlot, resolveNode, slotProps } from '@knotui/core';
 import type {
   Resolved__PASCAL__Appearance,
   __PASCAL__Api,
   __PASCAL__Config,
   __PASCAL__ItemState,
+  __PASCAL__Node,
+  __PASCAL__RootProps,
   __PASCAL__Slot,
 } from './types';
 
 const B = 'knot-__NAME__';
 
 /**
- * Pure markup. Not a component and not a hook — `use__PASCAL__().render()`
- * calls it, which keeps the hook the primary API.
+ * Everything the markup needs, gathered once per render.
+ *
+ * These are plain functions rather than components on purpose: the hook owns
+ * rendering, so `use__PASCAL__()` can hand back a component instead of being
+ * called by one.
  */
-export function render__PASCAL__(
-  api: __PASCAL__Api,
-  config: __PASCAL__Config,
-  a: Resolved__PASCAL__Appearance,
-): React.ReactElement {
-  const slot = <S extends __PASCAL__Slot>(name: S, base: Record<string, any>) =>
-    slotProps<__PASCAL__Slot, __PASCAL__ItemState>(config, name, base);
+export interface ViewContext {
+  api: __PASCAL__Api;
+  config: __PASCAL__Config;
+  a: Resolved__PASCAL__Appearance;
+}
 
-  const rootProps = api.getRootProps(
-    slot('root', {
-      className: cn('knot', B, config.className),
-      style: { ...dimensionVars('__NAME__', config.dimensions), ...config.style },
-      'data-variant': a.variant,
-      'data-size': a.size,
-      'data-tone': a.tone,
-      'data-knot-radius': a.radius,
-      'data-animate': a.animate ? '' : undefined,
-    }),
+/** Component class, unless the consumer opted out of our stylesheet. */
+const cls = (ctx: ViewContext, name: string) => (ctx.a.unstyled ? undefined : name);
+
+/**
+ * Fold three layers of overrides into one props bag, in ascending priority:
+ * the component's own class, the root config's slot overrides, then the row's
+ * own overrides.
+ */
+function slot<S extends __PASCAL__Slot>(
+  ctx: ViewContext,
+  name: S,
+  base: Record<string, any>,
+  item?: __PASCAL__ItemState,
+): Record<string, any> {
+  const merged = slotProps<__PASCAL__Slot, __PASCAL__ItemState>(ctx.config, name, base);
+
+  const perItem = item?.config;
+  if (!perItem?.classNames?.[name] && !perItem?.styles?.[name]) return merged;
+
+  return mergeProps(merged, {
+    className: perItem.classNames?.[name],
+    style: perItem.styles?.[name],
+  });
+}
+
+export function renderRoot(ctx: ViewContext, rootProps?: __PASCAL__RootProps): React.ReactElement {
+  const { api, config, a } = ctx;
+
+  const props = api.getRootProps(
+    mergeProps(
+      slot(ctx, 'root', {
+        className: a.unstyled ? config.className : cn('knot', B, config.className),
+        style: { ...dimensionVars('__NAME__', config.dimensions), ...config.style },
+        'data-variant': a.variant,
+        'data-size': a.size,
+        'data-tone': a.tone,
+        'data-knot-radius': a.radius,
+        'data-animate': a.animate ? '' : undefined,
+        'data-unstyled': a.unstyled ? '' : undefined,
+      }),
+      rootProps as Record<string, any>,
+    ),
   );
 
-  return (
-    <div {...rootProps}>
-      {api.items.map((item) => {
-        const itemProps = api.getItemProps(item, slot('item', { className: `${B}__item` }));
+  return <div {...props}>{api.items.map((item) => renderItem(ctx, item))}</div>;
+}
 
-        return renderSlot<__PASCAL__Slot, __PASCAL__ItemState>(
-          config,
-          'item',
-          { ...itemProps, key: item.id },
-          item,
-          <span {...slot('label', { className: `${B}__label` })}>{item.config.label}</span>,
-          (props, children) => <button {...props}>{children}</button>,
-        );
-      })}
-    </div>
+export function renderItem(
+  ctx: ViewContext,
+  item: __PASCAL__ItemState,
+  extra?: Record<string, any>,
+): React.ReactElement {
+  const { api, config } = ctx;
+
+  const props = api.getItemProps(
+    item,
+    mergeProps(slot(ctx, 'item', { className: cls(ctx, `${B}__item`) }, item), extra ?? {}),
+  );
+
+  const label = (
+    <span {...slot(ctx, 'label', { className: cls(ctx, `${B}__label`) }, item)}>
+      {resolveNode(item.config.label as __PASCAL__Node, item)}
+    </span>
+  );
+
+  if (config.renderItem) {
+    return (
+      <React.Fragment key={item.id}>
+        {config.renderItem({ state: item, props, children: label })}
+      </React.Fragment>
+    );
+  }
+
+  return (
+    <React.Fragment key={item.id}>
+      {renderSlot<__PASCAL__Slot, __PASCAL__ItemState>(
+        config,
+        'item',
+        props,
+        item,
+        label,
+        (p, children) => <button {...p}>{children}</button>,
+      )}
+    </React.Fragment>
   );
 }

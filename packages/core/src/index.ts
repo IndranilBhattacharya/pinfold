@@ -1,4 +1,12 @@
-export { cn, dataAttr, ariaAttr, composeRefs, mergeProps } from './utils';
+export {
+  cn,
+  dataAttr,
+  ariaAttr,
+  composeRefs,
+  mergeProps,
+  resolveNode,
+  type Slottable,
+} from './utils';
 export {
   useId,
   useEvent,
@@ -13,6 +21,7 @@ export { dimensionVars } from './dimensions';
 export { __DEV__, warnOnce, resetWarnings } from './dev';
 export { KnotProvider, useKnot, type KnotProviderProps, type KnotContextValue } from './provider';
 export { createLazyComponent, type LazyOptions } from './lazy';
+export { useKnotComponent, useStableParts, type KnotComponent } from './component';
 export type {
   KnotSize,
   KnotRadius,

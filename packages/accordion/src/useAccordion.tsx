@@ -8,26 +8,38 @@ import {
   useEvent,
   useId,
   useKnot,
+  useKnotComponent,
+  useStableParts,
   warnOnce,
   __DEV__,
 } from '@knotui/core';
-import { renderAccordion } from './AccordionView';
+import {
+  renderHeader,
+  renderIndicator,
+  renderItem,
+  renderPanel,
+  renderRoot,
+  type ViewContext,
+} from './AccordionView';
 import type {
   AccordionApi,
   AccordionConfig,
   AccordionItemState,
+  AccordionPartProps,
+  AccordionRootProps,
+  AccordionState,
   ResolvedAppearance,
 } from './types';
 
 /**
- * The accordion, as a hook. This is the primary API — there is no markup to
- * write:
+ * The accordion, as a hook that hands back a component.
  *
- *   const faq = useAccordion({ items, variant: 'separated' });
- *   return faq.render();
+ *   const Faq = useAccordion({ items });
+ *   return <Faq className="mt-8" />;
  *
- * The same object also exposes state (`faq.value`, `faq.toggle(id)`) and prop
- * getters, so you can drop to your own elements whenever you need to.
+ * The same value is the controller (`Faq.toggle(id)`, `Faq.value`) and carries
+ * its own parts (`<Faq.Trigger id="a" />`) for layouts the config cannot
+ * express. One object, three levels of commitment.
  *
  * Implements the WAI-ARIA Accordion pattern: button triggers inside headings,
  * `aria-expanded` / `aria-controls`, panels as labelled regions, and
@@ -61,13 +73,14 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
     animate: config.animate ?? !ctx.disableAnimation,
     dividers: config.dividers ?? true,
     unmountClosed: config.unmountClosed ?? false,
+    unstyled: config.unstyled ?? false,
   };
   const headingLevel = appearance.headingLevel;
 
   const baseId = useId(idProp);
+  const triggerRefs = React.useRef<Array<HTMLElement | null>>([]);
 
   if (__DEV__) validate(config, baseId, idProp);
-  const triggerRefs = React.useRef<Array<HTMLElement | null>>([]);
 
   const items = React.useMemo<Omit<AccordionItemState, 'open'>[]>(
     () =>
@@ -130,8 +143,11 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
     focusItem(next);
   });
 
-  const api: AccordionApi = {
-    render: () => renderAccordion(api, config, appearance),
+  // Rendering reads through this ref so the returned component keeps a stable
+  // identity while always seeing the current config and state.
+  const viewRef = React.useRef<ViewContext>(null as unknown as ViewContext);
+
+  const accordionState: AccordionState = {
     items: state,
     value,
     isOpen,
@@ -147,6 +163,7 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
       setValue([]);
     }),
     focusItem,
+    render: (props?: AccordionRootProps) => renderRoot(viewRef.current, props),
 
     getRootProps: (props) =>
       mergeProps(
@@ -216,6 +233,55 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
       ),
   };
 
+  // Sub-components are built once: a fresh identity each render would make
+  // React tear down and rebuild every panel mid-animation.
+  const parts = useStableParts(() => {
+    const pick = (props: AccordionPartProps): AccordionItemState | undefined => {
+      const rows = viewRef.current.api.items;
+      const found =
+        props.index != null
+          ? rows[props.index]
+          : props.id != null
+            ? rows.find((row) => row.id === props.id)
+            : rows[0];
+      warnOnce(
+        __DEV__ && !found,
+        `Accordion: no row matches ${JSON.stringify(props.id ?? props.index)}. ` +
+          'Sub-components address a row by `id` or `index`.',
+      );
+      return found;
+    };
+
+    const box = (props: AccordionPartProps) => ({ className: props.className, style: props.style });
+
+    return {
+      Item: (props: AccordionPartProps) => {
+        const item = pick(props);
+        return item ? renderItem(viewRef.current, item, box(props)) : null;
+      },
+      Trigger: (props: AccordionPartProps) => {
+        const item = pick(props);
+        return item ? renderHeader(viewRef.current, item, box(props), props.children) : null;
+      },
+      Panel: (props: AccordionPartProps) => {
+        const item = pick(props);
+        return item ? <>{renderPanel(viewRef.current, item, box(props), props.children)}</> : null;
+      },
+      Indicator: (props: AccordionPartProps) => {
+        const item = pick(props);
+        return item ? <>{renderIndicator(viewRef.current, item, box(props))}</> : null;
+      },
+    };
+  });
+
+  const api = useKnotComponent<AccordionState & typeof parts, AccordionRootProps>(
+    'Accordion',
+    { ...accordionState, ...parts },
+    (props) => renderRoot(viewRef.current, props),
+  );
+
+  viewRef.current = { api, config, a: appearance };
+
   return api;
 }
 
@@ -258,7 +324,10 @@ function validate(config: AccordionConfig, baseId: string, idProp?: string): voi
   // React <18 has no useId, so the fallback counter differs between the server
   // render and the client hydration pass.
   warnOnce(
-    !idProp && !(React as any).useId && typeof document !== 'undefined' && !!document.querySelector('[data-reactroot]'),
+    !idProp &&
+      !(React as any).useId &&
+      typeof document !== 'undefined' &&
+      !!document.querySelector('[data-reactroot]'),
     `Accordion: hydrating on React <18 without an explicit \`id\`. Ids like ` +
       `"${baseId}" will not match the server output. Pass \`id\` for SSR.`,
   );

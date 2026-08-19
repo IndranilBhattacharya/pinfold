@@ -1,13 +1,15 @@
 import type * as React from 'react';
 import type {
+  KnotComponent,
   KnotDir,
-  Length,
   KnotOrientation,
   KnotRadius,
   KnotSize,
   KnotTone,
+  Length,
   PropsBag,
   SlotOverrides,
+  Slottable,
 } from '@knotui/core';
 
 export type AccordionSlot =
@@ -24,24 +26,43 @@ export type AccordionSlot =
   | 'panel'
   | 'content';
 
-export type AccordionVariant = 'solid' | 'outline' | 'separated' | 'ghost' | 'filled';
-export type AccordionIndicator = 'chevron' | 'plus' | 'caret' | 'none';
+export type AccordionVariant = 'solid' | 'outline' | 'separated' | 'filled' | 'ghost';
+export type AccordionIndicator = 'chevron' | 'plus' | 'caret' | 'arrow' | 'none';
 
-/** One row of the accordion. This is the JSON a consumer (or an LLM) writes. */
+/** Runtime state of a single row. Passed to every function-valued config field. */
+export interface AccordionItemState {
+  id: string;
+  index: number;
+  open: boolean;
+  disabled: boolean;
+  config: AccordionItemConfig;
+  triggerId: string;
+  panelId: string;
+}
+
+/** Anything renderable in a row: a node, or a function of the row's live state. */
+export type AccordionNode = Slottable<AccordionItemState>;
+
+/** One row of the accordion. This is the JSON a consumer — or a model — writes. */
 export interface AccordionItemConfig {
   /** Stable key. Falls back to the array index when omitted. */
   id?: string;
-  title: React.ReactNode;
-  content?: React.ReactNode;
+  title: AccordionNode;
+  content?: AccordionNode;
   /** Secondary line under the title. */
-  description?: React.ReactNode;
+  description?: AccordionNode;
   /** Leading visual — icon, avatar, anything. */
-  icon?: React.ReactNode;
+  icon?: AccordionNode;
   /** Trailing chip rendered before the indicator. */
-  badge?: React.ReactNode;
+  badge?: AccordionNode;
+  /** Overrides the accordion-wide indicator for this row only. */
+  indicator?: AccordionIndicator | AccordionNode;
   disabled?: boolean;
   /** Open on first render (uncontrolled only). */
   defaultOpen?: boolean;
+  /** Per-row class and style overrides, same slot names as the root config. */
+  classNames?: Partial<Record<AccordionSlot, string>>;
+  styles?: Partial<Record<AccordionSlot, React.CSSProperties>>;
 }
 
 export interface AccordionBehaviourConfig {
@@ -105,8 +126,8 @@ export interface AccordionAppearanceConfig {
   size?: KnotSize;
   tone?: KnotTone;
   radius?: KnotRadius;
-  /** Built-in indicator glyph, or your own node. Default `chevron`. */
-  indicator?: AccordionIndicator | React.ReactNode;
+  /** Built-in glyph, your own node, or a function of the row's state. */
+  indicator?: AccordionIndicator | AccordionNode;
   /** Which edge the indicator sits on. Default `end`. */
   indicatorPosition?: 'start' | 'end';
   /** Heading level wrapping each trigger. Default 3. */
@@ -117,6 +138,12 @@ export interface AccordionAppearanceConfig {
   dividers?: boolean;
   /** Explicit sizing, per dimension. Overrides the `size` preset. */
   dimensions?: AccordionDimensions;
+  /**
+   * Drop every Knot class so no bundled CSS applies, keeping the behaviour,
+   * ARIA and `data-*` state hooks. For Tailwind or your own stylesheet:
+   * style entirely through `classNames`.
+   */
+  unstyled?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -124,39 +151,52 @@ export interface AccordionAppearanceConfig {
 export interface AccordionConfig
   extends AccordionBehaviourConfig,
     AccordionAppearanceConfig,
-    SlotOverrides<AccordionSlot, AccordionItemState> {}
-
-/** Runtime state of a single row, handed to slot renderers. */
-export interface AccordionItemState {
-  id: string;
-  index: number;
-  open: boolean;
-  disabled: boolean;
-  config: AccordionItemConfig;
-  triggerId: string;
-  panelId: string;
+    SlotOverrides<AccordionSlot, AccordionItemState> {
+  /** Replace an entire row. The last resort before dropping to prop getters. */
+  renderItem?: (args: {
+    state: AccordionItemState;
+    /** Root props for the row. Spread them or state styling breaks. */
+    props: PropsBag;
+    /** The default header, if you only want to swap the body around it. */
+    header: React.ReactNode;
+    /** The default panel. */
+    panel: React.ReactNode;
+  }) => React.ReactNode;
 }
 
-/** Appearance after provider defaults are folded in. Internal, but typed. */
+/** Appearance after provider defaults are folded in. */
 export interface ResolvedAppearance {
   variant: AccordionVariant;
   size: KnotSize;
   tone: KnotTone;
   radius: KnotRadius;
-  indicator: AccordionIndicator | React.ReactNode;
+  indicator: AccordionIndicator | AccordionNode;
   indicatorPosition: 'start' | 'end';
   headingLevel: number;
   animate: boolean;
   dividers: boolean;
   unmountClosed: boolean;
+  unstyled: boolean;
 }
 
-export interface AccordionApi {
-  /**
-   * The finished, accessible accordion. Call it and return it — this is the
-   * hook-first path, where you write no component markup at all.
-   */
-  render: () => React.ReactElement;
+/** Props accepted by `<Accordion />` itself, merged onto the root element. */
+export interface AccordionRootProps {
+  className?: string;
+  style?: React.CSSProperties;
+  children?: never;
+  [key: `data-${string}`]: unknown;
+}
+
+/** Addressing a single row from a sub-component. */
+export interface AccordionPartProps {
+  id?: string;
+  index?: number;
+  className?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+}
+
+export interface AccordionState {
   items: AccordionItemState[];
   value: string[];
   isOpen: (id: string) => boolean;
@@ -165,11 +205,31 @@ export interface AccordionApi {
   toggle: (id: string) => void;
   openAll: () => void;
   closeAll: () => void;
-  /** Move DOM focus to a header by index (used by keyboard nav, exposed for tests). */
+  /** Move DOM focus to a header by index. */
   focusItem: (index: number) => void;
+  /** Equivalent to `<Accordion />`, for callers who prefer a call. */
+  render: (props?: AccordionRootProps) => React.ReactElement;
   getRootProps: (props?: PropsBag) => PropsBag;
   getItemProps: (item: AccordionItemState, props?: PropsBag) => PropsBag;
   getHeaderProps: (item: AccordionItemState, props?: PropsBag) => PropsBag;
   getTriggerProps: (item: AccordionItemState, props?: PropsBag) => PropsBag;
   getPanelProps: (item: AccordionItemState, props?: PropsBag) => PropsBag;
 }
+
+/** The sub-components for hand-laid-out accordions. */
+export interface AccordionParts {
+  /** One complete row: header plus panel. */
+  Item: (props: AccordionPartProps) => React.ReactElement | null;
+  /** Just the heading and its button. `children` replaces the default label. */
+  Trigger: (props: AccordionPartProps) => React.ReactElement | null;
+  /** Just the collapsible region. `children` replaces the configured content. */
+  Panel: (props: AccordionPartProps) => React.ReactElement | null;
+  /** Just the open/closed glyph. */
+  Indicator: (props: AccordionPartProps) => React.ReactElement | null;
+}
+
+/**
+ * What `useAccordion()` returns: a component you render, that is also the
+ * controller, that also carries its parts.
+ */
+export type AccordionApi = KnotComponent<AccordionState & AccordionParts, AccordionRootProps>;

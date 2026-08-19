@@ -11,8 +11,8 @@ import '@knotui/core/styles.css';
 import '@knotui/accordion/styles.css';
 import { useAccordion } from '@knotui/accordion';
 
-function Faq() {
-  const faq = useAccordion({
+function Support() {
+  const Faq = useAccordion({
     items: [
       { title: 'Shipping', content: 'Ships in 2 days.' },
       { title: 'Returns', content: '30 days, no questions.', badge: 'New' },
@@ -21,12 +21,13 @@ function Faq() {
     mode: 'multiple',
   });
 
-  return faq.render();
+  return <Faq className="mt-6" />;
 }
 ```
 
-`faq` is also the controller: `faq.value`, `faq.toggle(id)`, `faq.openAll()`,
-`faq.isOpen(id)`, `faq.focusItem(i)`.
+`Faq` is also the controller — `Faq.value`, `Faq.toggle(id)`, `Faq.openAll()`,
+`Faq.isOpen(id)`, `Faq.focusItem(i)` — and carries its parts:
+`<Faq.Item id>`, `<Faq.Trigger id>`, `<Faq.Panel id>`, `<Faq.Indicator id>`.
 
 Prefer a tag? `<Accordion {...sameConfig} />` is a one-line wrapper over the hook.
 Lazy: `import { Accordion } from '@knotui/accordion/lazy';`
@@ -48,7 +49,12 @@ Lazy: `import { Accordion } from '@knotui/accordion/lazy';`
 - **escape hatches** — `classNames`, `styles`, `slotProps`, `render`, keyed by slot:
   `root item header trigger icon label title description badge indicator panel content`
 
-Each item: `{ id?, title, content?, description?, icon?, badge?, disabled?, defaultOpen? }`
+Each item: `{ id?, title, content?, description?, icon?, badge?, indicator?, disabled?,
+defaultOpen?, classNames?, styles? }`. Every renderable field also accepts a
+function of the row state: `title: (s) => s.open ? 'Hide' : 'Show'`.
+
+Styling with Tailwind? Utilities override Knot automatically (cascade layer), or
+pass `unstyled: true` to drop our classes entirely and keep only the behaviour.
 
 ## Your own markup
 

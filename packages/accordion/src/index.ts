@@ -1,15 +1,21 @@
 /* Styles ship separately so SSR and CJS never choke on a CSS import:
      import '@knotui/accordion/styles.css';
-   `npx knotui add accordion` wires this up for you. */
+   `npx knotui add accordion` wires this up for you.
+   Using Tailwind or your own stylesheet? Pass `unstyled: true` and skip it. */
 
 export { Accordion } from './Accordion';
 export { useAccordion } from './useAccordion';
 export type {
   AccordionConfig,
-  AccordionDimensions,
   AccordionApi,
+  AccordionState,
+  AccordionParts,
+  AccordionPartProps,
+  AccordionRootProps,
+  AccordionDimensions,
   AccordionItemConfig,
   AccordionItemState,
+  AccordionNode,
   AccordionSlot,
   AccordionVariant,
   AccordionIndicator,

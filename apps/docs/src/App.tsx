@@ -2,6 +2,7 @@ import * as React from 'react';
 import { DEFAULT_PALETTE, KnotProvider, useLiveTheme, type Palette } from './theme';
 import { PaletteStudio } from './PaletteStudio';
 import { useAccordion } from '@knotui/accordion';
+import { resolveNode } from '@knotui/core';
 import type { AccordionConfig, AccordionVariant } from '@knotui/accordion';
 import { Playground } from './Playground';
 
@@ -57,7 +58,7 @@ const JSX_WAY = `<Accordion type="single" collapsible>
   </AccordionItem>
 </Accordion>`;
 
-const KNOT_WAY = `const faq = useAccordion({
+const KNOT_WAY = `const Faq = useAccordion({
   items: [
     { title: 'Shipping', content: 'Ships in 2 days.' },
     { title: 'Returns', content: '30 days, no questions.' },
@@ -65,47 +66,96 @@ const KNOT_WAY = `const faq = useAccordion({
   variant: 'separated',
 });
 
-return faq.render();`;
+return <Faq />;`;
 
 const WAYS: Array<[string, string]> = [
   [
-    'hook — the default',
-    `const faq = useAccordion({ items });
+    '1 — a tag, from a hook',
+    `const Faq = useAccordion({ items });
 
-return faq.render();`,
+return (
+  <main className="mx-auto max-w-2xl py-12">
+    <h1>Questions</h1>
+    <Faq />          {/* sits in your layout like any element */}
+  </main>
+);`,
   ],
   [
-    'hook + your own dimensions and classes',
-    `const faq = useAccordion({
-  items,
-  variant: 'separated',
-  dimensions: { paddingX: 24, gap: 12, radius: 16 },
-  classNames: { trigger: 'font-semibold' },
-  styles: { panel: { background: '#0000000a' } },
-});
+    '2 — the same value is the controller',
+    `const Faq = useAccordion({ items, mode: 'multiple' });
 
-return faq.render();`,
+<button onClick={Faq.openAll}>Expand all</button>
+<Faq className="mt-4" />
+
+// Faq.value · Faq.toggle(id) · Faq.isOpen(id) · Faq.focusItem(0)`,
   ],
   [
-    'hook — control it from outside',
-    `const faq = useAccordion({ items, mode: 'multiple' });
-
-<button onClick={faq.openAll}>Expand all</button>
-{faq.render()}
-// faq.value · faq.toggle(id) · faq.isOpen(id)`,
+    '3 — configure every part, including the parts you draw',
+    `const Faq = useAccordion({
+  items: [{
+    title: (s) => <b>{s.open ? 'Hide' : 'Show'} shipping</b>,
+    description: 'Updated today',
+    icon: <TruckIcon />,
+    badge: (s) => (s.open ? 'reading' : null),
+    content: (s) => <ShippingTable id={s.id} />,
+    indicator: 'plus',                       // per row
+    classNames: { trigger: 'font-semibold' },// per row
+  }],
+  indicator: (s) => <Caret open={s.open} />, // for every row
+  render: { title: ({ children }) => <h4>{children}</h4> },
+  renderItem: ({ props, header, panel }) => (
+    <div {...props} className="rounded-2xl border p-2">{header}{panel}</div>
+  ),
+});`,
   ],
   [
-    'hook — your markup, our behaviour',
-    `const faq = useAccordion({ items });
+    '4 — parts, for layouts config cannot express',
+    `const Faq = useAccordion({ items });
 
-<dl {...faq.getRootProps()}>
-  {faq.items.map((item) => (
-    <div key={item.id} {...faq.getItemProps(item)}>
-      <dt><button {...faq.getTriggerProps(item)}>{item.config.title}</button></dt>
-      <dd {...faq.getPanelProps(item)}>{item.config.content}</dd>
-    </div>
+<div className="grid grid-cols-2 gap-6">
+  {Faq.items.map((item) => (
+    <section key={item.id} className="rounded-2xl border p-4">
+      <Faq.Trigger id={item.id}>{item.config.title}</Faq.Trigger>
+      <Faq.Panel id={item.id} />
+    </section>
   ))}
-</dl>`,
+</div>
+// Every ARIA attribute still comes from the hook.`,
+  ],
+];
+
+const TAILWIND_WAYS: Array<[string, string]> = [
+  [
+    'utilities just win — no plugin, no !important',
+    `// Knot CSS lives in the \`knot\` cascade layer. Unlayered utilities beat
+// layered rules at any specificity, so nothing has to be fought.
+<Faq
+  className="mt-8 max-w-2xl"
+  classNames={{ trigger: 'px-6 text-base' }}
+/>`,
+  ],
+  [
+    'or drop our CSS entirely',
+    `const Faq = useAccordion({
+  items,
+  unstyled: true,                 // no Knot classes, no stylesheet needed
+  classNames: {
+    root: 'divide-y divide-line rounded-xl border border-line',
+    trigger: 'flex w-full justify-between px-5 py-4 hover:bg-surface-hover open:text-primary-600',
+    panel: 'grid transition-all duration-300 ease-knot-out closed:grid-rows-[0fr] open:grid-rows-[1fr]',
+    content: 'overflow-hidden px-5 pb-4 text-content-muted',
+  },
+});`,
+  ],
+  [
+    'one palette, both systems',
+    `// tailwind.config.js  (v4: @import "@knotui/tailwind/theme.css")
+module.exports = { presets: [require('@knotui/tailwind')] };
+
+// bg-primary-600  text-content-muted  border-line  rounded-lg  shadow-md
+// all resolve to --knot-* vars, so \`npx knotui theme\` moves both.
+// State variants map to the data-* Knot already exposes:
+//   open:  closed:  selected:  disabled-row:  group-open:  knot-dark:`,
   ],
 ];
 
@@ -126,6 +176,7 @@ export function App() {
           <nav className="dx-nav">
             <a href="#playground">Playground</a>
             <a href="#palette">Palette</a>
+            <a href="#tailwind">Tailwind</a>
             <a href="#variants">Variants</a>
             <a href="#headless">Headless</a>
             <a href="#api">API</a>
@@ -310,6 +361,27 @@ function Code({ label, code, tone }: { label: string; code: string; tone: 'muted
   );
 }
 
+/** Parts in a layout the config could not express. */
+function CompositionDemo() {
+  const Faq = useAccordion({
+    items: FAQ.slice(0, 4),
+    mode: 'multiple',
+    defaultValue: ['what'],
+    variant: 'ghost',
+  });
+
+  return (
+    <div className="dx-compose">
+      {Faq.items.map((item) => (
+        <section key={item.id} className="dx-compose__card" data-state={item.open ? 'open' : 'closed'}>
+          <Faq.Trigger id={item.id} className="dx-compose__trigger" />
+          <Faq.Panel id={item.id} />
+        </section>
+      ))}
+    </div>
+  );
+}
+
 /** Proves the hook is genuinely markup-free: this renders a definition list. */
 function HeadlessDemo() {
   const api = useAccordion({ items: FAQ.slice(0, 3), mode: 'multiple', defaultValue: ['what'] });
@@ -321,11 +393,11 @@ function HeadlessDemo() {
           <div key={item.id} {...api.getItemProps(item)}>
             <dt {...api.getHeaderProps(item, { className: 'dx-dt' })}>
               <button {...api.getTriggerProps(item, { className: 'dx-dt__btn' })}>
-                <span>{item.open ? '−' : '+'}</span> {item.config.title}
+                <span>{item.open ? '−' : '+'}</span> {resolveNode(item.config.title, item)}
               </button>
             </dt>
             <dd {...api.getPanelProps(item, { className: 'dx-dd' })} hidden={!item.open}>
-              {item.config.content}
+              {resolveNode(item.config.content, item)}
             </dd>
           </div>
         ))}

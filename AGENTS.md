@@ -5,18 +5,25 @@ components. Humans: read `ARCHITECTURE.md` instead.
 
 ## Using Knot UI in an app
 
-Every component is a hook taking one flat config object. Emit data, not nested JSX.
+Every component is a hook taking one flat config object. The hook returns a
+component. Emit data, not nested JSX.
 
 ```jsx
 import { useAccordion } from '@knotui/accordion';
 
-const faq = useAccordion({ items: [{ title: string, content: node }], variant: 'separated' });
-return faq.render();
+const Faq = useAccordion({ items: [{ title: node, content: node }], variant: 'separated' });
+return <Faq className="mt-6" />;
 ```
 
+The returned value is also the controller (`Faq.value`, `Faq.toggle(id)`) and
+carries parts (`<Faq.Trigger id>`, `<Faq.Panel id>`) for custom layouts.
+
 Rules:
-- Prefer the hook. `<Accordion {...config} />` exists but is only `useAccordion(config).render()`.
+- Call the hook at the top of the component; render `<Faq />` inside ordinary layout JSX.
 - Never write compound children (`<AccordionItem>`, `<AccordionTrigger>`). They do not exist.
+- `<Accordion {...config} />` also exists; it is a one-line wrapper over the hook.
+- Any renderable field accepts a node **or** a function of the row's state: `title: (s) => ...`.
+- Tailwind: utilities override Knot CSS automatically (cascade layer). For full control pass `unstyled: true` and style through `classNames`.
 - Styles are imported once in the app entry: `@knotui/core/styles.css`, then `@knotui/<name>/styles.css`.
 - Wrap the app in `<KnotProvider theme radius dir size tone>` only to set global defaults. It is optional.
 - Code-split with `@knotui/<name>/lazy`.
@@ -37,7 +44,7 @@ radius?: 'none' | 'sm' | 'md' | 'lg' | 'full'
 indicator?: 'chevron' | 'plus' | 'caret' | 'none' | ReactNode
 indicatorPosition?: 'start' | 'end'             // default 'end'
 headingLevel?: 1..6                             // default 3
-animate?: boolean  dividers?: boolean  className?  style?
+animate?: boolean  dividers?: boolean  unstyled?: boolean  className?  style?
 dimensions?: {                                  // number = px, string passes through
   width, minWidth, maxWidth, height, maxHeight, gap,
   paddingX, paddingY, panelPaddingX, panelPaddingY, panelMaxHeight,
@@ -48,15 +55,26 @@ classNames?: Partial<Record<Slot, string>>
 styles?: Partial<Record<Slot, CSSProperties>>
 slotProps?: Partial<Record<Slot, object>>
 render?: Partial<Record<Slot, ({ props, state, children }) => ReactNode>>
+renderItem?: ({ state, props, header, panel }) => ReactNode
 
 Slot = root|item|header|trigger|icon|label|title|description|badge|indicator|panel|content
+
+// Per row, inside items[]:
+{ id?, title, content?, description?, icon?, badge?, indicator?, disabled?,
+  defaultOpen?, classNames?, styles? }
+// title/content/description/icon/badge/indicator each accept
+//   ReactNode | ((state: AccordionItemState) => ReactNode)
 ```
 
-`useAccordion(config)` returns
-`{ render, items, value, isOpen, open, close, toggle, openAll, closeAll, focusItem,
+`useAccordion(config)` returns a component carrying
+`{ items, value, isOpen, open, close, toggle, openAll, closeAll, focusItem, render,
+Item, Trigger, Panel, Indicator,
 getRootProps, getItemProps, getHeaderProps, getTriggerProps, getPanelProps }`.
-`render()` is the finished UI. Getters take `(item, extraProps?)` and must be
-spread onto your own elements if you build the markup yourself.
+
+Render it as `<Faq />` (it accepts `className`, `style` and `data-*`), or call
+`Faq.render()`. Parts take `id` or `index`; `Trigger` and `Panel` accept
+`children` to replace their contents. Getters take `(item, extraProps?)` and must
+be spread onto your own elements if you build the markup yourself.
 
 ## Theming from code
 
@@ -85,7 +103,10 @@ Hard constraints:
 - JS must not import CSS. `tsup` copies `<name>.css` to `dist/styles.css`.
 - Every CSS value comes from a `--knot-*` token. Class names: `.knot-<comp>__<slot>`. State via `[data-state]`/`[data-disabled]`, never `.is-*`.
 - Sizing is two-layer: `[data-size]` writes `--knot-<c>-<x>-base`, and `dimensionVars()` writes `--knot-<component>-<kebab-key>` which wins via `var(fallback)`. Expose a `dimensions` config for every visible measurement.
-- Rounded containers set `overflow: hidden` and cascade radius (`item → header → trigger`) so hover/active fills cannot square off over a border.
+- Rounded containers cascade radius (`item → header → trigger`) instead of clipping with `overflow: hidden`, which would also cut off the focus ring.
+- All component CSS lives inside `@layer knot.components` so consumer CSS and Tailwind utilities win without `!important`.
+- The hook returns a component via `useKnotComponent`, and parts via `useStableParts`. Never build either inline — a fresh identity per render remounts the subtree.
+- Support `unstyled`: drop the component's own classes, keep ARIA and `data-*`.
 - Animate in CSS only (`grid-template-rows`, `transform`, `opacity`). No height measurement.
 - Follow the matching WAI-ARIA APG pattern. `aria-disabled`, not `disabled`. Hidden content leaves the a11y tree and tab order.
 - Config must be JSON-expressible; callbacks optional.

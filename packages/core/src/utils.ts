@@ -11,6 +11,22 @@ export function cn(...parts: Array<string | false | null | undefined>): string {
   return out;
 }
 
+/**
+ * A slot value that may be static or derived from live state.
+ *
+ * Every renderable field in a Knot config accepts both, so a caret can react to
+ * `open` without the consumer dropping down to a full slot override.
+ */
+export type Slottable<State, T = React.ReactNode> = T | ((state: State) => T);
+
+/** Resolve a `Slottable` against the current state. */
+export function resolveNode<State, T>(
+  value: Slottable<State, T> | undefined,
+  state: State,
+): T | undefined {
+  return typeof value === 'function' ? (value as (s: State) => T)(state) : value;
+}
+
 /** `data-*` attributes render when true and vanish when false. */
 export function dataAttr(condition: unknown): '' | undefined {
   return condition ? '' : undefined;

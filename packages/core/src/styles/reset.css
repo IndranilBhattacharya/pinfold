@@ -1,106 +1,110 @@
 /* Knot UI — scoped reset. Applies only inside `.knot`, never to the host app.
    A library that resets the page is a library that fights its host. */
 
-.knot,
-.knot *,
-.knot *::before,
-.knot *::after {
-  box-sizing: border-box;
-}
+@layer knot.reset {
 
-.knot {
-  font-family: var(--knot-font-sans);
-  font-size: var(--knot-text-md);
-  line-height: var(--knot-leading-normal);
-  color: var(--knot-color-text);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  /* Proportional digits jump as numbers change; tabular ones do not. */
-  font-variant-numeric: tabular-nums;
-}
-
-.knot :where(button, input, select, textarea) {
-  font: inherit;
-  color: inherit;
-  letter-spacing: inherit;
-  margin: 0;
-}
-
-.knot :where(button) {
-  background: none;
-  border: 0;
-  cursor: pointer;
-  /* Kills the 300ms tap delay and the grey flash on touch devices. */
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.knot :where(h1, h2, h3, h4, h5, h6, p, figure, dl, dd) {
-  margin: 0;
-  font-size: inherit;
-  font-weight: inherit;
-}
-
-.knot :where(img, svg, video, canvas) {
-  display: block;
-  max-width: 100%;
-}
-
-.knot :where(svg) {
-  flex: none;
-}
-
-.knot ::selection {
-  background: var(--knot-color-selection);
-}
-
-/* Two-tone focus ring, visible on any surface. `outline` stays as the
-   forced-colors fallback since box-shadow is dropped in that mode. */
-.knot :where(:focus-visible) {
-  outline: var(--knot-focus-width) solid transparent;
-  outline-offset: var(--knot-focus-offset);
-  box-shadow: var(--knot-focus-ring);
-  border-radius: var(--knot-radius-xs);
-}
-
-/* Scrollbars inside Knot surfaces follow the palette instead of the OS. */
-.knot :where(*) {
-  scrollbar-width: thin;
-  scrollbar-color: var(--knot-color-border-strong) transparent;
-}
-.knot :where(*)::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-.knot :where(*)::-webkit-scrollbar-thumb {
-  background: var(--knot-color-border-strong);
-  border: 3px solid transparent;
-  border-radius: var(--knot-radius-full);
-  background-clip: content-box;
-}
-.knot :where(*)::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-@media (prefers-reduced-motion: reduce) {
   .knot,
-  .knot * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  .knot *,
+  .knot *::before,
+  .knot *::after {
+    box-sizing: border-box;
   }
-}
 
-/* Forced colors (Windows High Contrast): the OS owns colour, so drop our
-   decoration and let system colours through. */
-@media (forced-colors: active) {
+  .knot {
+    font-family: var(--knot-font-sans);
+    font-size: var(--knot-text-md);
+    line-height: var(--knot-leading-normal);
+    color: var(--knot-color-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Proportional digits jump as numbers change; tabular ones do not. */
+    font-variant-numeric: tabular-nums;
+  }
+
+  .knot :where(button, input, select, textarea) {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    margin: 0;
+  }
+
+  .knot :where(button) {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    /* Kills the 300ms tap delay and the grey flash on touch devices. */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .knot :where(h1, h2, h3, h4, h5, h6, p, figure, dl, dd) {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  .knot :where(img, svg, video, canvas) {
+    display: block;
+    max-width: 100%;
+  }
+
+  .knot :where(svg) {
+    flex: none;
+  }
+
+  .knot ::selection {
+    background: var(--knot-color-selection);
+  }
+
+  /* Two-tone focus ring, visible on any surface. `outline` stays as the
+     forced-colors fallback since box-shadow is dropped in that mode. */
   .knot :where(:focus-visible) {
-    outline-color: Highlight;
-    box-shadow: none;
+    outline: var(--knot-focus-width) solid transparent;
+    outline-offset: var(--knot-focus-offset);
+    box-shadow: var(--knot-focus-ring);
+    border-radius: var(--knot-radius-xs);
   }
-  .knot :where([data-state="open"], [data-state="selected"]) {
-    forced-color-adjust: none;
+
+  /* Scrollbars inside Knot surfaces follow the palette instead of the OS. */
+  .knot :where(*) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--knot-color-border-strong) transparent;
   }
+  .knot :where(*)::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  .knot :where(*)::-webkit-scrollbar-thumb {
+    background: var(--knot-color-border-strong);
+    border: 3px solid transparent;
+    border-radius: var(--knot-radius-full);
+    background-clip: content-box;
+  }
+  .knot :where(*)::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .knot,
+    .knot * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Forced colors (Windows High Contrast): the OS owns colour, so drop our
+     decoration and let system colours through. */
+  @media (forced-colors: active) {
+    .knot :where(:focus-visible) {
+      outline-color: Highlight;
+      box-shadow: none;
+    }
+    .knot :where([data-state="open"], [data-state="selected"]) {
+      forced-color-adjust: none;
+    }
+  }
+
 }
