@@ -1,0 +1,43 @@
+# @knotui/__NAME__
+
+Knot UI __NAME__ — one config object, or one hook.
+
+```bash
+npx knotui add __NAME__
+```
+
+```jsx
+import '@knotui/core/styles.css';
+import '@knotui/__NAME__/styles.css';
+import { use__PASCAL__ } from '@knotui/__NAME__';
+
+function Demo() {
+  const __CAMEL__ = use__PASCAL__({
+    items: [{ label: 'One' }, { label: 'Two' }],
+    variant: 'solid',
+  });
+
+  return __CAMEL__.render();
+}
+```
+
+## Config
+
+`items` is the only required key.
+
+- **behaviour** — `value`/`defaultValue`/`onValueChange`, `orientation`, `dir`, `loop`, `id`
+- **appearance** — `variant`, `size`, `tone`, `radius`, `animate`
+- **dimensions** — `width`, `maxWidth`, `gap`, `paddingX`, `paddingY`, `fontSize`,
+  `radius`, `borderWidth`, `duration`. Numbers are px, strings pass through.
+- **escape hatches** — `classNames`, `styles`, `slotProps`, `render`, keyed by slot:
+  `root item label`
+
+## Status
+
+Scaffolded by `npx knotui new __NAME__`. Before publishing:
+
+1. Implement the matching [WAI-ARIA pattern](https://www.w3.org/WAI/ARIA/apg/patterns/).
+2. Extend the keyboard map and tests to match it.
+3. Register in `packages/cli/registry.json`.
+
+MIT

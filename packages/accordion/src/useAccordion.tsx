@@ -8,6 +8,8 @@ import {
   useEvent,
   useId,
   useKnot,
+  warnOnce,
+  __DEV__,
 } from '@knotui/core';
 import { renderAccordion } from './AccordionView';
 import type {
@@ -63,6 +65,8 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
   const headingLevel = appearance.headingLevel;
 
   const baseId = useId(idProp);
+
+  if (__DEV__) validate(config, baseId, idProp);
   const triggerRefs = React.useRef<Array<HTMLElement | null>>([]);
 
   const items = React.useMemo<Omit<AccordionItemState, 'open'>[]>(
@@ -213,4 +217,49 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
   };
 
   return api;
+}
+
+/**
+ * Dev-only config sanity checks. Every one of these is a mistake that would
+ * otherwise show up as odd behaviour rather than an error.
+ */
+function validate(config: AccordionConfig, baseId: string, idProp?: string): void {
+  const { items, mode = 'single', value, defaultValue, collapsible = true } = config;
+
+  warnOnce(!Array.isArray(items), 'Accordion: `items` must be an array.');
+  if (!Array.isArray(items)) return;
+
+  const ids = items.map((item, i) => item.id ?? String(i));
+  const duplicates = ids.filter((id, i) => ids.indexOf(id) !== i);
+  warnOnce(
+    duplicates.length > 0,
+    `Accordion: duplicate item id ${JSON.stringify(duplicates[0])}. ` +
+      'Ids must be unique — panels and triggers are wired together by id.',
+  );
+
+  warnOnce(
+    mode === 'single' && (value?.length ?? 0) > 1,
+    'Accordion: `mode: "single"` was given more than one open id in `value`. ' +
+      'Only the first will be honoured.',
+  );
+
+  warnOnce(
+    mode === 'single' && !collapsible && (value ?? defaultValue ?? []).length === 0,
+    'Accordion: `collapsible: false` with nothing open means the user can never ' +
+      'open a row by keyboard from a closed state. Provide a `defaultValue`.',
+  );
+
+  warnOnce(
+    value !== undefined && config.onValueChange === undefined,
+    'Accordion: `value` was passed without `onValueChange`, so the accordion is ' +
+      'frozen. Use `defaultValue` for uncontrolled behaviour.',
+  );
+
+  // React <18 has no useId, so the fallback counter differs between the server
+  // render and the client hydration pass.
+  warnOnce(
+    !idProp && !(React as any).useId && typeof document !== 'undefined' && !!document.querySelector('[data-reactroot]'),
+    `Accordion: hydrating on React <18 without an explicit \`id\`. Ids like ` +
+      `"${baseId}" will not match the server output. Pass \`id\` for SSR.`,
+  );
 }

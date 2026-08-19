@@ -58,9 +58,23 @@ getRootProps, getItemProps, getHeaderProps, getTriggerProps, getPanelProps }`.
 `render()` is the finished UI. Getters take `(item, extraProps?)` and must be
 spread onto your own elements if you build the markup yourself.
 
+## Theming from code
+
+```js
+import { createTheme } from '@knotui/core/palette';
+createTheme({ primary: 'emerald', accent: 'amber', neutral: 264, intensity: 1.1, radius: 'lg' });
+// -> { vars, css, ramps, contrast }
+```
+Roles: primary, accent, neutral, success, warning, danger, info. Each is an
+11-step ramp (50…950) from one OKLCH hue. Hue accepts a name or 0–360.
+Never hand-write a colour: override `--knot-*` tokens or regenerate the theme.
+
 ## Building a new Knot UI component
 
-Copy `packages/accordion`. Four files, strictly layered:
+Start with `npx knotui new <name>` — it scaffolds a package that already passes
+the conformance suite. Then implement the WAI-ARIA pattern.
+
+Four files, strictly layered:
 `use<Name>.tsx` (state/ARIA/getters, returns `render`) · `<Name>View.tsx` (pure
 markup function, not a component) · `<name>.css` (tokens) · `<Name>.tsx` (one-line
 tag wrapper). The hook is the API; the tag is a courtesy.
@@ -76,8 +90,29 @@ Hard constraints:
 - Follow the matching WAI-ARIA APG pattern. `aria-disabled`, not `disabled`. Hidden content leaves the a11y tree and tab order.
 - Config must be JSON-expressible; callbacks optional.
 
+- Dev-only `warnOnce()` diagnostics for duplicate ids, frozen controlled state,
+  and impossible config combinations. They must vanish under `NODE_ENV=production`.
+
 Then: register in `packages/cli/registry.json`, add a docs section in
-`apps/docs/src/App.tsx`, and run `npm test && npm run typecheck && npm run build`.
+`apps/docs/src/App.tsx`, and run `npm run verify` (typecheck + tests + build +
+gzip budget).
 
 Tests must cover: ARIA wiring, every mode, the full keyboard map, disabled,
-controlled vs uncontrolled, and slot overrides.
+controlled vs uncontrolled, slot overrides — plus `describeKnotConformance`
+from `@knotui/testing`, which is not optional:
+
+```tsx
+describeKnotConformance({
+  name: 'tabs',
+  slots: ['root', 'list', 'tab', 'panel'],
+  optionalSlots: ['icon'],
+  dimension: { key: 'paddingX', value: 24 },
+  cssFile: 'packages/tabs/src/tabs.css',
+  render: (config) => <Tabs items={items} {...config} />,
+});
+```
+
+It fails the build on: a missing `knot`/`knot-<name>` root class, a slot that
+ignores `classNames`/`styles`/`slotProps`, dimensions that never reach CSS, a
+`disabled` attribute, an unnamed control, a hard-coded colour in the stylesheet,
+or a class outside the `knot-<name>` namespace.

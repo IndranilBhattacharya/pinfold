@@ -1,0 +1,13 @@
+import type * as React from 'react';
+import { use__PASCAL__ } from './use__PASCAL__';
+import type { __PASCAL__Config } from './types';
+
+/**
+ * Thin JSX wrapper over `use__PASCAL__().render()`, for people who prefer a
+ * tag. It adds nothing the hook does not already do.
+ */
+export function __PASCAL__(config: __PASCAL__Config): React.ReactElement {
+  return use__PASCAL__(config).render();
+}
+
+__PASCAL__.displayName = '__PASCAL__';

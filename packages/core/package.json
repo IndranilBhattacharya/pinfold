@@ -1,10 +1,21 @@
 {
   "name": "@knotui/core",
   "version": "0.1.0",
-  "description": "Knot UI core — tokens, theme engine and headless primitives for configuration-driven React UI.",
-  "keywords": ["react", "ui", "headless", "hooks", "design-system", "accessibility", "aria", "config-driven"],
+  "description": "Knot UI core \u2014 tokens, theme engine and headless primitives for configuration-driven React UI.",
+  "keywords": [
+    "react",
+    "ui",
+    "headless",
+    "hooks",
+    "design-system",
+    "accessibility",
+    "aria",
+    "config-driven"
+  ],
   "license": "MIT",
-  "sideEffects": ["*.css"],
+  "sideEffects": [
+    "*.css"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -18,9 +29,16 @@
     "./styles.css": "./dist/styles.css",
     "./tokens.css": "./dist/tokens.css",
     "./reset.css": "./dist/reset.css",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./palette": {
+      "types": "./dist/palette.d.ts",
+      "import": "./dist/palette.js",
+      "require": "./dist/palette.cjs"
+    }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch"
@@ -28,5 +46,7 @@
   "peerDependencies": {
     "react": ">=16.8.0"
   },
-  "publishConfig": { "access": "public" }
+  "publishConfig": {
+    "access": "public"
+  }
 }

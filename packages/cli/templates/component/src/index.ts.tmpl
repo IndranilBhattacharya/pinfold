@@ -1,0 +1,17 @@
+/* Styles ship separately so SSR and CJS never choke on a CSS import:
+     import '@knotui/__NAME__/styles.css';
+   `npx knotui add __NAME__` wires this up for you. */
+
+export { __PASCAL__ } from './__PASCAL__';
+export { use__PASCAL__ } from './use__PASCAL__';
+export type {
+  __PASCAL__Config,
+  __PASCAL__Api,
+  __PASCAL__Dimensions,
+  __PASCAL__ItemConfig,
+  __PASCAL__ItemState,
+  __PASCAL__Slot,
+  __PASCAL__Variant,
+} from './types';
+
+export { __PASCAL__ as default } from './__PASCAL__';
