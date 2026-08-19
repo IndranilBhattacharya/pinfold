@@ -1,0 +1,94 @@
+import type * as React from 'react';
+import type {
+  KnotDir,
+  KnotOrientation,
+  KnotRadius,
+  KnotSize,
+  KnotTone,
+  Length,
+  PropsBag,
+  SlotOverrides,
+} from '@knotui/core';
+
+/** Name every visual part. Consumers target these by name; do not rename later. */
+export type __PASCAL__Slot = 'root' | 'item' | 'label';
+
+export type __PASCAL__Variant = 'solid' | 'outline' | 'ghost';
+
+/** One row of data. This is the JSON a consumer — or a model — writes. */
+export interface __PASCAL__ItemConfig {
+  id?: string;
+  label: React.ReactNode;
+  disabled?: boolean;
+}
+
+export interface __PASCAL__BehaviourConfig {
+  items: __PASCAL__ItemConfig[];
+  /** Controlled selection. */
+  value?: string | null;
+  defaultValue?: string | null;
+  onValueChange?: (value: string | null) => void;
+  orientation?: KnotOrientation;
+  dir?: KnotDir;
+  loop?: boolean;
+  /** Id prefix — set it for deterministic SSR markup. */
+  id?: string;
+}
+
+/** Numbers are px, strings pass through. Overrides the `size` preset per key. */
+export interface __PASCAL__Dimensions {
+  width?: Length;
+  maxWidth?: Length;
+  gap?: Length;
+  paddingX?: Length;
+  paddingY?: Length;
+  fontSize?: Length;
+  radius?: Length;
+  borderWidth?: Length;
+  duration?: Length;
+}
+
+export interface __PASCAL__AppearanceConfig {
+  variant?: __PASCAL__Variant;
+  size?: KnotSize;
+  tone?: KnotTone;
+  radius?: KnotRadius;
+  animate?: boolean;
+  dimensions?: __PASCAL__Dimensions;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export interface __PASCAL__Config
+  extends __PASCAL__BehaviourConfig,
+    __PASCAL__AppearanceConfig,
+    SlotOverrides<__PASCAL__Slot, __PASCAL__ItemState> {}
+
+export interface __PASCAL__ItemState {
+  id: string;
+  index: number;
+  selected: boolean;
+  disabled: boolean;
+  config: __PASCAL__ItemConfig;
+}
+
+/** Appearance after provider defaults are folded in. */
+export interface Resolved__PASCAL__Appearance {
+  variant: __PASCAL__Variant;
+  size: KnotSize;
+  tone: KnotTone;
+  radius: KnotRadius;
+  animate: boolean;
+}
+
+export interface __PASCAL__Api {
+  /** The finished, accessible component. Call it and return it. */
+  render: () => React.ReactElement;
+  items: __PASCAL__ItemState[];
+  value: string | null;
+  select: (id: string) => void;
+  clear: () => void;
+  focusItem: (index: number) => void;
+  getRootProps: (props?: PropsBag) => PropsBag;
+  getItemProps: (item: __PASCAL__ItemState, props?: PropsBag) => PropsBag;
+}

@@ -1,0 +1,53 @@
+import * as React from 'react';
+import { cn, dimensionVars, renderSlot, slotProps } from '@knotui/core';
+import type {
+  Resolved__PASCAL__Appearance,
+  __PASCAL__Api,
+  __PASCAL__Config,
+  __PASCAL__ItemState,
+  __PASCAL__Slot,
+} from './types';
+
+const B = 'knot-__NAME__';
+
+/**
+ * Pure markup. Not a component and not a hook — `use__PASCAL__().render()`
+ * calls it, which keeps the hook the primary API.
+ */
+export function render__PASCAL__(
+  api: __PASCAL__Api,
+  config: __PASCAL__Config,
+  a: Resolved__PASCAL__Appearance,
+): React.ReactElement {
+  const slot = <S extends __PASCAL__Slot>(name: S, base: Record<string, any>) =>
+    slotProps<__PASCAL__Slot, __PASCAL__ItemState>(config, name, base);
+
+  const rootProps = api.getRootProps(
+    slot('root', {
+      className: cn('knot', B, config.className),
+      style: { ...dimensionVars('__NAME__', config.dimensions), ...config.style },
+      'data-variant': a.variant,
+      'data-size': a.size,
+      'data-tone': a.tone,
+      'data-knot-radius': a.radius,
+      'data-animate': a.animate ? '' : undefined,
+    }),
+  );
+
+  return (
+    <div {...rootProps}>
+      {api.items.map((item) => {
+        const itemProps = api.getItemProps(item, slot('item', { className: `${B}__item` }));
+
+        return renderSlot<__PASCAL__Slot, __PASCAL__ItemState>(
+          config,
+          'item',
+          { ...itemProps, key: item.id },
+          item,
+          <span {...slot('label', { className: `${B}__label` })}>{item.config.label}</span>,
+          (props, children) => <button {...props}>{children}</button>,
+        );
+      })}
+    </div>
+  );
+}

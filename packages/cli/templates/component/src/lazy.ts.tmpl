@@ -1,0 +1,11 @@
+import { createLazyComponent } from '@knotui/core';
+import type { __PASCAL__Config } from './types';
+
+/** Code-split entry point: nothing loads until the component first renders. */
+export const __PASCAL__ = createLazyComponent<__PASCAL__Config>(
+  () => import('./index').then((m) => ({ default: m.__PASCAL__ })),
+  { displayName: 'Lazy__PASCAL__' },
+);
+
+export type { __PASCAL__Config } from './types';
+export default __PASCAL__;

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { describeKnotConformance } from '@knotui/testing';
 import { Accordion } from './Accordion';
 import { useAccordion } from './useAccordion';
 
@@ -138,4 +139,26 @@ describe('Accordion', () => {
     rerender(<Accordion items={items} value={['b']} />);
     expect(triggers()[1]).toHaveAttribute('aria-expanded', 'true');
   });
+});
+
+describeKnotConformance({
+  name: 'accordion',
+  slots: [
+    'root', 'item', 'header', 'trigger', 'icon', 'label',
+    'title', 'description', 'badge', 'indicator', 'panel', 'content',
+  ],
+  // These render only when an item supplies them.
+  optionalSlots: ['icon', 'badge', 'description'],
+  dimension: { key: 'paddingX', value: 24 },
+  cssFile: 'packages/accordion/src/accordion.css',
+  render: (config) => (
+    <Accordion
+      items={[
+        { id: 'a', title: 'First', content: 'One', description: 'sub', badge: 'New', icon: <i /> },
+        { id: 'b', title: 'Second', content: 'Two' },
+      ]}
+      defaultValue={['a']}
+      {...config}
+    />
+  ),
 });

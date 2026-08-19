@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { KnotProvider, useAccordionRamp } from './theme';
+import { DEFAULT_PALETTE, KnotProvider, useLiveTheme, type Palette } from './theme';
+import { PaletteStudio } from './PaletteStudio';
 import { useAccordion } from '@knotui/accordion';
 import type { AccordionConfig, AccordionVariant } from '@knotui/accordion';
 import { Playground } from './Playground';
@@ -109,13 +110,13 @@ return faq.render();`,
 ];
 
 export function App() {
-  const [theme, setTheme] = React.useState<'light' | 'dark'>('dark');
-  const [hue, setHue] = React.useState(274);
-  const [radius, setRadius] = React.useState<'none' | 'sm' | 'md' | 'lg' | 'full'>('lg');
-  useAccordionRamp(hue, theme, radius);
+  const [mode, setMode] = React.useState<'light' | 'dark'>('dark');
+  const [palette, setPalette] = React.useState<Palette>(DEFAULT_PALETTE);
+  const theme = useLiveTheme(palette, mode);
+  const radius = (palette.radius ?? 'lg') as 'none' | 'sm' | 'md' | 'lg' | 'full';
 
   return (
-    <KnotProvider theme={theme} radius={radius}>
+    <KnotProvider theme={mode} radius={radius}>
       <header className="dx-header">
         <div className="dx-wrap dx-header__inner">
           <a className="dx-logo" href="#top">
@@ -124,40 +125,21 @@ export function App() {
           </a>
           <nav className="dx-nav">
             <a href="#playground">Playground</a>
+            <a href="#palette">Palette</a>
             <a href="#variants">Variants</a>
             <a href="#headless">Headless</a>
             <a href="#api">API</a>
           </nav>
           <div className="dx-controls">
-            <label className="dx-control">
-              <span>Hue</span>
-              <input
-                type="range"
-                min={0}
-                max={360}
-                value={hue}
-                onChange={(e) => setHue(+e.target.value)}
-                aria-label="Brand hue"
-              />
-            </label>
-            <select
-              className="dx-select"
-              value={radius}
-              onChange={(e) => setRadius(e.target.value as typeof radius)}
-              aria-label="Corner radius"
-            >
-              {['none', 'sm', 'md', 'lg', 'full'].map((r) => (
-                <option key={r} value={r}>
-                  radius: {r}
-                </option>
-              ))}
-            </select>
+            <a className="dx-btn" href="#palette">
+              Palette studio
+            </a>
             <button
               className="dx-icon-btn"
-              onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
-              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+              onClick={() => setMode((t) => (t === 'dark' ? 'light' : 'dark'))}
+              aria-label={`Switch to ${mode === 'dark' ? 'light' : 'dark'} theme`}
             >
-              {theme === 'dark' ? '☾' : '☀'}
+              {mode === 'dark' ? '☾' : '☀'}
             </button>
           </div>
         </div>
@@ -190,6 +172,14 @@ export function App() {
           lede="Edit the config. The component is the config — nothing else to learn."
         >
           <Playground />
+        </Section>
+
+        <Section
+          id="palette"
+          title="Palette studio"
+          lede="Seven roles, eleven steps each, generated from hue angles in OKLCH. The sliders run the same createTheme() the CLI runs, so the command underneath reproduces exactly what you see — including the sRGB fallbacks for browsers without OKLCH."
+        >
+          <PaletteStudio palette={palette} onChange={setPalette} theme={theme} />
         </Section>
 
         <Section

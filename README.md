@@ -69,12 +69,33 @@ npx knotui add accordion   # one component at a time, like shadcn
 npx knotui add all         # or the lot
 ```
 
-`init` writes `src/knot-theme.css` with an OKLCH ramp generated from your brand
-hue, and wires the CSS imports into your entry file. Re-tint at any time:
+## Colour is a first-class configuration surface
+
+Seven roles — `primary`, `accent`, `neutral`, `success`, `warning`, `danger`,
+`info` — each an eleven-step ramp generated from a single OKLCH hue angle.
+Perceptually uniform, so rotating a hue keeps the steps evenly spaced instead of
+producing the muddy middles you get from HSL.
 
 ```bash
-npx knotui theme --preset emerald --radius lg
-npx knotui theme --hue 274 --gray 264 --intensity 1.15
+npx knotui palette                                   # preview every hue, in colour
+npx knotui theme --primary emerald --accent amber    # two-tone brand
+npx knotui theme --primary 274 --neutral 264 --intensity 1.15
+npx knotui theme --check                             # WCAG 2.2 contrast report
+```
+
+Every generated stylesheet ships **sRGB hex first and OKLCH behind `@supports`**,
+so browsers without OKLCH get the right colour rather than a broken one. Chroma
+that falls outside sRGB is gamut-mapped by bisection, not clipped.
+
+The same engine is importable at runtime — the CLI has no private maths:
+
+```js
+import { createTheme, contrastRatio } from '@knotui/core/palette';
+
+const theme = createTheme({ primary: 'emerald', accent: 'amber', radius: 'lg' });
+theme.vars;      // { '--knot-primary-500': '#009b60', … }  spread into a style prop
+theme.css;       // the stylesheet the CLI writes
+theme.contrast;  // WCAG report per role and step
 ```
 
 ## Levels of control
@@ -165,19 +186,47 @@ apps/docs            live documentation, runs off source       (private)
 
 ```bash
 npm install       # once
-npm run docs      # live docs at http://localhost:5180
-npm test          # accordion behaviour + a11y assertions
-npm run build     # all publishable packages
+npm run docs      # live docs + palette studio at http://localhost:5180
+npm run verify    # typecheck, tests, build, bundle budget
+npm run size      # gzip report per published entry point
 ```
+
+Current budget, gzipped:
+
+| Entry | Size | Ceiling |
+| --- | --- | --- |
+| `@knotui/core` | 2.67 kB | 4 kB |
+| `@knotui/core/palette` | 2.67 kB | 4 kB |
+| core CSS (reset + tokens) | 3.93 kB | 4 kB |
+| `@knotui/accordion` | 3.40 kB | 4 kB |
+| accordion CSS | 2.86 kB | 3 kB |
+
+CI fails the build when any of them is exceeded — "lightweight" is a test here,
+not a claim.
 
 ## Roadmap
 
 `tabs` · `dialog` · `select` · `combobox` · `data-grid` · `calendar` ·
 `date-picker` · `toast` · `tooltip` · `command` · `form` · `tree`
 
-Adding one is a mechanical exercise — the contract is written down in
-[ARCHITECTURE.md](./ARCHITECTURE.md), and [AGENTS.md](./AGENTS.md) is the
-condensed version for language models.
+Adding one is deliberately mechanical:
+
+```bash
+npx knotui new tabs     # scaffolds the package, already passing conformance
+```
+
+The scaffold arrives with the layering, the dimensions plumbing, the dev
+diagnostics and a wired-up conformance suite. What is left is the WAI-ARIA
+pattern itself.
+
+`@knotui/testing` asserts the invariants that make fifty components feel like
+one library — block naming, all four escape hatches on every slot, dimensions
+reaching CSS, `aria-disabled` instead of `disabled`, accessible names, and
+**zero hard-coded colours in component CSS**. A component that drifts fails CI
+rather than shipping.
+
+The contract is written down in [ARCHITECTURE.md](./ARCHITECTURE.md);
+[AGENTS.md](./AGENTS.md) is the condensed version for language models.
 
 ## License
 

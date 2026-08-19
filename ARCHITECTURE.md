@@ -135,6 +135,48 @@ them, accessibility breaks — that is documented, not defended against.
 
 ---
 
+## 5b. Colour
+
+Colour is generated, never hand-picked. `@knotui/core/palette` is React-free and
+dependency-free so the CLI, the build and the runtime share one implementation.
+
+- **Seven roles** — primary, accent, neutral, success, warning, danger, info —
+  each an eleven-step ramp from a single OKLCH hue angle.
+- **One tuned lightness/chroma curve**, shared by every role. Only the hue moves,
+  which is why any hue produces an evenly stepped, usable ramp.
+- **Neutrals inherit the brand hue** by default. Pure grey next to a saturated
+  brand reads as dead.
+- **Every value is emitted twice**: sRGB hex for reach, OKLCH behind `@supports`
+  for fidelity. Out-of-gamut chroma is bisection-mapped, never clipped.
+- **Dark mode flips the semantic layer only.** The ramps are untouched, so a
+  consumer who overrode `--knot-primary-500` keeps their brand in both themes.
+- **Contrast is reported, not assumed.** `createTheme().contrast` and
+  `npx knotui theme --check` give WCAG 2.2 ratios per role and step.
+
+A literal colour in a component stylesheet is a bug: it cannot follow the
+palette, dark mode, or a consumer override. The conformance suite fails the
+build on one.
+
+---
+
+## 5c. Aesthetic invariants
+
+The details that separate a component library from a design system:
+
+- **Two-layer shadows**, tinted with the neutral ramp. A tight contact shadow
+  plus a wide ambient one. Untinted black over a tinted surface reads as dirt.
+- **`--knot-highlight`**, a hairline inset top edge on raised surfaces.
+- **Interaction surfaces carry the brand.** Hover mixes ~6% accent into the
+  surface rather than going grey, so a control reads as alive.
+- **Two-tone focus ring** — a gap in the page colour, then the ring — so focus
+  stays visible on any surface, including one matching the ring hue. Nothing
+  may clip it: containers round their children rather than `overflow: hidden`.
+- **Decelerating easing** (`--knot-ease-out`) for anything that appears;
+  content settles ~35% behind its container so motion reads as physical.
+- Reduced motion and forced colors are handled in CSS, once, in the reset.
+
+---
+
 ## 6. Accessibility gate
 
 A component is not done until:
@@ -198,7 +240,7 @@ packages/<name>/
 
 ## 9. Adding a component — the checklist
 
-1. `cp -r packages/accordion packages/<name>` and rename everything.
+1. `npx knotui new <name>` (or `cp -r packages/accordion packages/<name>`).
 2. Write `types.ts` first. The config object is the API; get it right before code.
 3. Implement `use<Name>.tsx` against the APG pattern, returning `render()`. Reuse
    `nextIndexFromKey`, `useControllableState`, `useId`, `useEvent`, `dimensionVars`
@@ -210,7 +252,11 @@ packages/<name>/
    overrides, dimensions → custom properties.
 7. Register it in `packages/cli/registry.json` (move it out of `planned`).
 8. Add a section to `apps/docs/src/App.tsx`.
-9. `npm test && npm run typecheck && npm run build`.
+9. Add `describeKnotConformance` from `@knotui/testing` — not optional.
+10. `npm run verify` (typecheck, tests, build, gzip budget).
+
+Step 1 is automated: `npx knotui new <name>` produces steps 1, 4, 6 and 9
+already wired, passing 14 tests before you write a line.
 
 ---
 

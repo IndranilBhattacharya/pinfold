@@ -13,6 +13,7 @@ export default defineConfig({
       { find: '@knotui/core/reset.css', replacement: pkg('core/src/styles/reset.css') },
       { find: '@knotui/core/styles.css', replacement: pkg('core/src/styles/tokens.css') },
       { find: '@knotui/accordion/styles.css', replacement: pkg('accordion/src/accordion.css') },
+      { find: '@knotui/core/palette', replacement: pkg('core/src/palette.ts') },
       { find: '@knotui/core', replacement: pkg('core/src/index.ts') },
       { find: '@knotui/accordion', replacement: pkg('accordion/src/index.ts') },
     ],

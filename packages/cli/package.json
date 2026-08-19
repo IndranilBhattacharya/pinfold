@@ -1,16 +1,35 @@
 {
   "name": "knotui",
   "version": "0.1.0",
-  "description": "Knot UI CLI — scaffold themes and install components one at a time.",
-  "keywords": ["knotui", "cli", "ui", "react", "design-system"],
+  "description": "Knot UI CLI \u2014 scaffold themes and install components one at a time.",
+  "keywords": [
+    "knotui",
+    "cli",
+    "ui",
+    "react",
+    "design-system"
+  ],
   "license": "MIT",
   "type": "module",
-  "bin": { "knotui": "bin/knotui.mjs" },
-  "files": ["bin", "registry.json"],
+  "bin": {
+    "knotui": "bin/knotui.mjs"
+  },
+  "files": [
+    "bin",
+    "templates",
+    "registry.json"
+  ],
   "scripts": {
     "build": "node -e \"process.exit(0)\"",
     "start": "node bin/knotui.mjs"
   },
-  "engines": { "node": ">=16" },
-  "publishConfig": { "access": "public" }
+  "engines": {
+    "node": ">=16"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@knotui/core": "0.1.0"
+  }
 }

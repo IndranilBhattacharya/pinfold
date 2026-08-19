@@ -1,0 +1,97 @@
+/* Knot UI — __NAME__.
+   Two-layer variables: [data-size] writes the `*-base` preset, `dimensions`
+   writes --knot-__NAME__-* which wins through the var() fallback.
+   Every value resolves to a core token — a literal colour here would be
+   invisible to the palette, to dark mode and to consumer overrides, and the
+   conformance suite fails the build if one appears. */
+
+.knot-__NAME__ {
+  --knot-__CAMEL__-pad-x-base: var(--knot-space-4);
+  --knot-__CAMEL__-pad-y-base: var(--knot-space-2);
+  --knot-__CAMEL__-font-base: var(--knot-text-md);
+  --knot-__CAMEL__-radius-base: var(--knot-radius-md);
+  --knot-__CAMEL__-gap-base: var(--knot-space-2);
+
+  --knot-__CAMEL__-pad-x: var(--knot-__NAME__-padding-x, var(--knot-__CAMEL__-pad-x-base));
+  --knot-__CAMEL__-pad-y: var(--knot-__NAME__-padding-y, var(--knot-__CAMEL__-pad-y-base));
+  --knot-__CAMEL__-font: var(--knot-__NAME__-font-size, var(--knot-__CAMEL__-font-base));
+  --knot-__CAMEL__-radius: var(--knot-__NAME__-radius, var(--knot-__CAMEL__-radius-base));
+  --knot-__CAMEL__-gap: var(--knot-__NAME__-gap, var(--knot-__CAMEL__-gap-base));
+  --knot-__CAMEL__-border: var(--knot-__NAME__-border-width, 1px);
+  --knot-__CAMEL__-duration: var(--knot-__NAME__-duration, var(--knot-duration-fast));
+  --knot-__CAMEL__-accent: var(--knot-color-accent);
+
+  display: flex;
+  gap: var(--knot-__CAMEL__-gap);
+  width: var(--knot-__NAME__-width, auto);
+  max-width: var(--knot-__NAME__-max-width, none);
+  font-size: var(--knot-__CAMEL__-font);
+  color: var(--knot-color-text);
+}
+
+.knot-__NAME__[data-orientation='vertical'] {
+  flex-direction: column;
+}
+
+/* ------------------------------------------------------------------ sizes */
+.knot-__NAME__[data-size='sm'] {
+  --knot-__CAMEL__-pad-x-base: var(--knot-space-3);
+  --knot-__CAMEL__-pad-y-base: var(--knot-space-1);
+  --knot-__CAMEL__-font-base: var(--knot-text-sm);
+}
+.knot-__NAME__[data-size='lg'] {
+  --knot-__CAMEL__-pad-x-base: var(--knot-space-5);
+  --knot-__CAMEL__-pad-y-base: var(--knot-space-3);
+  --knot-__CAMEL__-font-base: var(--knot-text-lg);
+}
+
+/* ------------------------------------------------------------------ tones */
+.knot-__NAME__[data-tone='neutral'] { --knot-__CAMEL__-accent: var(--knot-color-text); }
+.knot-__NAME__[data-tone='success'] { --knot-__CAMEL__-accent: var(--knot-success-500); }
+.knot-__NAME__[data-tone='warning'] { --knot-__CAMEL__-accent: var(--knot-warning-500); }
+.knot-__NAME__[data-tone='danger'] { --knot-__CAMEL__-accent: var(--knot-danger-500); }
+.knot-__NAME__[data-tone='info'] { --knot-__CAMEL__-accent: var(--knot-info-500); }
+
+/* ------------------------------------------------------------------- item */
+.knot-__NAME____item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--knot-space-2);
+  padding: var(--knot-__CAMEL__-pad-y) var(--knot-__CAMEL__-pad-x);
+  font-weight: var(--knot-weight-medium);
+  color: var(--knot-color-text-muted);
+  border-radius: var(--knot-__CAMEL__-radius);
+  transition: background-color var(--knot-__CAMEL__-duration) var(--knot-ease),
+    color var(--knot-__CAMEL__-duration) var(--knot-ease);
+}
+
+.knot-__NAME__[data-variant='outline'] .knot-__NAME____item {
+  border: var(--knot-__CAMEL__-border) solid var(--knot-color-border);
+}
+
+.knot-__NAME____item:hover {
+  background: var(--knot-color-surface-hover);
+  color: var(--knot-color-text);
+}
+
+.knot-__NAME____item[data-state='selected'] {
+  color: var(--knot-__CAMEL__-accent);
+  background: var(--knot-color-surface-selected);
+}
+
+.knot-__NAME____item[data-disabled] {
+  color: var(--knot-color-text-disabled);
+  cursor: not-allowed;
+}
+.knot-__NAME____item[data-disabled]:hover {
+  background: none;
+}
+
+.knot-__NAME____item:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+
+.knot-__NAME____label {
+  min-width: 0;
+}
