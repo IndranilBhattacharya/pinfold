@@ -8,24 +8,34 @@ import {
   useEvent,
   useId,
   useKnot,
+  useKnotComponent,
+  useStableParts,
   warnOnce,
   __DEV__,
 } from '@knotui/core';
-import { render__PASCAL__ } from './__PASCAL__View';
+import { renderItem, renderRoot, type ViewContext } from './__PASCAL__View';
 import type {
   Resolved__PASCAL__Appearance,
   __PASCAL__Api,
   __PASCAL__Config,
   __PASCAL__ItemState,
+  __PASCAL__PartProps,
+  __PASCAL__RootProps,
+  __PASCAL__State,
 } from './types';
 
 /**
  * TODO: implement the matching WAI-ARIA Authoring Practices pattern.
  * https://www.w3.org/WAI/ARIA/apg/patterns/
  *
- * What ships here is the Knot skeleton: controllable state, roving focus,
- * prop getters, dev diagnostics and `render()`. Replace the roles and keyboard
- * map with the ones your pattern requires, then delete this comment.
+ * What ships here is the Knot skeleton: controllable state, roving focus, prop
+ * getters, dev diagnostics, and a hook that returns a component:
+ *
+ *   const Thing = use__PASCAL__({ items });
+ *   return <Thing className="mt-4" />;
+ *
+ * Replace the roles and keyboard map with the ones your pattern requires, then
+ * delete this comment.
  */
 export function use__PASCAL__(config: __PASCAL__Config): __PASCAL__Api {
   const ctx = useKnot();
@@ -46,6 +56,7 @@ export function use__PASCAL__(config: __PASCAL__Config): __PASCAL__Api {
     tone: config.tone ?? ctx.tone,
     radius: config.radius ?? ctx.radius,
     animate: config.animate ?? !ctx.disableAnimation,
+    unstyled: config.unstyled ?? false,
   };
 
   const baseId = useId(idProp);
@@ -83,13 +94,17 @@ export function use__PASCAL__(config: __PASCAL__Config): __PASCAL__Api {
     focusItem(next);
   });
 
-  const api: __PASCAL__Api = {
-    render: () => render__PASCAL__(api, config, appearance),
+  // Rendering reads through this ref so the returned component keeps a stable
+  // identity while always seeing the current config and state.
+  const viewRef = React.useRef<ViewContext>(null as unknown as ViewContext);
+
+  const state: __PASCAL__State = {
     items,
     value,
     select,
     clear: useEvent(() => setValue(null)),
     focusItem,
+    render: (props?: __PASCAL__RootProps) => renderRoot(viewRef.current, props),
 
     getRootProps: (props) =>
       mergeProps({ 'data-knot': '__NAME__', 'data-orientation': orientation, dir }, props),
@@ -118,6 +133,36 @@ export function use__PASCAL__(config: __PASCAL__Config): __PASCAL__Api {
         props,
       ),
   };
+
+  // Built once: a fresh identity each render would make React tear down and
+  // rebuild the subtree on every parent update.
+  const parts = useStableParts(() => {
+    const pick = (props: __PASCAL__PartProps): __PASCAL__ItemState | undefined => {
+      const rows = viewRef.current.api.items;
+      return props.index != null
+        ? rows[props.index]
+        : props.id != null
+          ? rows.find((row) => row.id === props.id)
+          : rows[0];
+    };
+
+    return {
+      Item: (props: __PASCAL__PartProps) => {
+        const item = pick(props);
+        return item
+          ? renderItem(viewRef.current, item, { className: props.className, style: props.style })
+          : null;
+      },
+    };
+  });
+
+  const api = useKnotComponent<__PASCAL__State & typeof parts, __PASCAL__RootProps>(
+    '__PASCAL__',
+    { ...state, ...parts },
+    (props) => renderRoot(viewRef.current, props),
+  );
+
+  viewRef.current = { api, config, a: appearance };
 
   return api;
 }

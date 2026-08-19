@@ -14,9 +14,10 @@ const items = [
 const buttons = () => screen.getAllByRole('button');
 
 describe('__PASCAL__', () => {
-  it('renders straight from the hook', () => {
+  it('renders as a component returned from the hook', () => {
     function Demo() {
-      return use__PASCAL__({ items, defaultValue: 'a' }).render();
+      const Thing = use__PASCAL__({ items, defaultValue: 'a' });
+      return <Thing className="layout-class" />;
     }
     render(<Demo />);
     expect(buttons()[0]).toHaveAttribute('data-state', 'selected');
@@ -60,5 +61,6 @@ describeKnotConformance({
   slots: ['root', 'item', 'label'],
   dimension: { key: 'paddingX', value: 24 },
   cssFile: 'packages/__NAME__/src/__NAME__.css',
+  hook: { use: use__PASCAL__ as any, config: { items } },
   render: (config) => <__PASCAL__ items={items} defaultValue="a" {...config} />,
 });

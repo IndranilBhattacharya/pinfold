@@ -31,13 +31,13 @@ Twelve rows is sixty lines of nesting. It is not diffable, not serialisable, not
 storable in a CMS, and a language model gets the nesting wrong more often than it
 gets the content wrong.
 
-## The Knot way — a hook, not a tag
+## The Knot way — a hook that gives you a tag
 
 ```jsx
 import { useAccordion } from '@knotui/accordion';
 
-function Faq() {
-  const faq = useAccordion({
+function Support() {
+  const Faq = useAccordion({
     items: [
       { title: 'Shipping', content: 'Ships in 2 days.' },
       { title: 'Returns', content: '30 days, no questions.' },
@@ -45,21 +45,28 @@ function Faq() {
     variant: 'separated',
   });
 
-  return faq.render();
+  return (
+    <main className="mx-auto max-w-2xl py-12">
+      <h1>Support</h1>
+      <Faq />
+    </main>
+  );
 }
 ```
 
-Same accessibility, same visual result, no markup. The hook is the API — the
-`<Accordion />` tag exists only as a one-line wrapper for people who want one.
+One line of config per row, and a self-closing tag that drops into ordinary
+layout JSX. No provider, no compound children, no wrapper components.
 
-The same object is also the controller:
+The value the hook returns is three things at once:
 
 ```jsx
-faq.value            // ['0']
-faq.toggle('0')      // open/close from anywhere
-faq.openAll()        // ...in multiple mode
-faq.isOpen('0')
+<Faq className="mt-6" />        // 1. a component
+Faq.toggle('shipping')          // 2. the controller — value, open, close, openAll, focusItem
+<Faq.Panel id="shipping" />     // 3. its parts, for layouts config cannot express
 ```
+
+Its identity is stable across renders, so React never remounts the subtree and
+focus, scroll position and in-flight transitions all survive.
 
 ## Install
 
@@ -104,10 +111,36 @@ One hook, four levels. The config object never changes shape as you go deeper.
 
 | Level | You add | You get |
 | --- | --- | --- |
-| **1 — render** | `faq.render()` | everything, styled, accessible |
+| **1 — render** | `<Faq />` | everything, styled, accessible |
 | **2 — dimensions** | `dimensions: { paddingX: 24 }` | exact sizing, preset kept for the rest |
 | **3 — slots** | `classNames`, `styles`, `slotProps`, `render` | your classes or your markup for one part |
-| **4 — getters** | `getRootProps`, `getTriggerProps`, … | your elements, our behaviour and ARIA |
+| **4 — parts** | `<Faq.Trigger id>`, `<Faq.Panel id>` | your layout, our behaviour and ARIA |
+| **5 — getters** | `getRootProps`, `getTriggerProps`, … | your elements, entirely |
+
+Nothing about level 1 has to be abandoned to reach level 4. The config object
+never changes shape, and no level is a different API.
+
+### Where config stops, and what happens then
+
+Config is the right shape for repeated rows: an accordion, tabs, a menu, a data
+grid. It is the wrong shape for a page layout, and we do not pretend otherwise —
+so the parts exist, and they are ordinary API rather than an escape hatch:
+
+```jsx
+const Faq = useAccordion({ items });
+
+<div className="grid grid-cols-2 gap-6">
+  {Faq.items.map((item) => (
+    <section key={item.id} className="rounded-2xl border p-4">
+      <Faq.Trigger id={item.id}>{item.config.title}</Faq.Trigger>
+      <Faq.Panel id={item.id} />
+    </section>
+  ))}
+</div>
+```
+
+Every ARIA attribute still comes from the hook. You laid out the page; you did
+not reimplement the accordion.
 
 ```jsx
 // 2 — every dimension is configurable. Numbers are px, strings pass through.
@@ -124,13 +157,26 @@ useAccordion({
   },
 });
 
-// 3 — your classes, your inline styles, or your element, per slot
+// 3 — every visible part is configurable, per accordion or per row.
+// Any renderable field also accepts a function of the row's live state.
 useAccordion({
-  items,
-  classNames: { trigger: 'font-semibold uppercase', panel: 'prose' },
+  items: [{
+    title: (s) => <b>{s.open ? 'Hide' : 'Show'} shipping</b>,
+    description: 'Updated today',
+    icon: <TruckIcon />,
+    badge: (s) => (s.open ? 'reading' : null),
+    content: (s) => <ShippingTable id={s.id} />,
+    indicator: 'plus',                          // this row only
+    classNames: { trigger: 'font-semibold' },   // this row only
+  }],
+  indicator: (s) => <Caret open={s.open} />,    // every row
+  classNames: { trigger: 'uppercase', panel: 'prose' },
   styles: { title: { letterSpacing: '0.01em' } },
   slotProps: { root: { 'data-analytics': 'faq' } },
-  render: { indicator: ({ props, state }) => <Chevron {...props} open={state.open} /> },
+  render: { title: ({ children }) => <h4>{children}</h4> },
+  renderItem: ({ props, header, panel }) => (
+    <div {...props} className="rounded-2xl border p-2">{header}{panel}</div>
+  ),
 });
 
 // 4 — bring your own elements; every ARIA attribute comes from the getters
@@ -147,6 +193,48 @@ const faq = useAccordion({ items, mode: 'multiple' });
 
 Slots are named, not guessed: `root item header trigger icon label title
 description badge indicator panel content`.
+
+## Tailwind
+
+Knot's CSS ships inside a `knot` [cascade layer](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer).
+Unlayered CSS — which is every Tailwind utility — beats a layered rule at any
+specificity, regardless of import order. So utilities simply win:
+
+```jsx
+<Faq className="mt-8 max-w-2xl" classNames={{ trigger: 'px-6 text-base' }} />
+```
+
+No plugin, no `!important`, no `tailwind-merge`, no import-order rule.
+
+Prefer to own the styling completely? `unstyled` drops every Knot class and its
+stylesheet, leaving the behaviour, the ARIA and the `data-*` state hooks:
+
+```jsx
+const Faq = useAccordion({
+  items,
+  unstyled: true,
+  classNames: {
+    root: 'divide-y divide-line rounded-xl border border-line',
+    trigger: 'flex w-full justify-between px-5 py-4 hover:bg-surface-hover open:text-primary-600',
+    panel: 'grid transition-all duration-300 ease-knot-out closed:grid-rows-[0fr] open:grid-rows-[1fr]',
+    content: 'overflow-hidden px-5 pb-4 text-content-muted',
+  },
+});
+```
+
+And `@knotui/tailwind` puts the palette in Tailwind's own scale, so one theme
+command moves both systems:
+
+```js
+// tailwind.config.js  ·  v4: @import "@knotui/tailwind/theme.css";
+module.exports = { presets: [require('@knotui/tailwind')] };
+```
+
+`bg-primary-600` · `text-content-muted` · `border-line` · `rounded-lg` ·
+`shadow-md` · `ease-knot-out` — all resolving to `--knot-*` variables. The
+`open:`, `closed:`, `selected:`, `disabled-row:` and `knot-dark:` variants map
+to the `data-*` attributes Knot already exposes, so there is no class toggling
+to write.
 
 ## Why it stays small and fast
 
@@ -180,6 +268,8 @@ For the accordion that means:
 ```
 packages/core        tokens, theme engine, primitives          @knotui/core
 packages/accordion   first component                           @knotui/accordion
+packages/tailwind    Tailwind v3 preset and v4 theme           @knotui/tailwind
+packages/testing     the conformance contract                  @knotui/testing
 packages/cli         zero-dependency installer + theme engine  knotui
 apps/docs            live documentation, runs off source       (private)
 ```
@@ -195,11 +285,11 @@ Current budget, gzipped:
 
 | Entry | Size | Ceiling |
 | --- | --- | --- |
-| `@knotui/core` | 2.67 kB | 4 kB |
+| `@knotui/core` | 2.82 kB | 4 kB |
 | `@knotui/core/palette` | 2.67 kB | 4 kB |
-| core CSS (reset + tokens) | 3.93 kB | 4 kB |
-| `@knotui/accordion` | 3.40 kB | 4 kB |
-| accordion CSS | 2.86 kB | 3 kB |
+| core CSS (reset + tokens) | 4.13 kB | 5 kB |
+| `@knotui/accordion` | 4.18 kB | 5 kB |
+| accordion CSS | 2.90 kB | 3 kB |
 
 CI fails the build when any of them is exceeded — "lightweight" is a test here,
 not a claim.

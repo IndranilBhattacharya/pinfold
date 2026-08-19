@@ -1,5 +1,6 @@
 import type * as React from 'react';
 import type {
+  KnotComponent,
   KnotDir,
   KnotOrientation,
   KnotRadius,
@@ -8,6 +9,7 @@ import type {
   Length,
   PropsBag,
   SlotOverrides,
+  Slottable,
 } from '@knotui/core';
 
 /** Name every visual part. Consumers target these by name; do not rename later. */
@@ -15,16 +17,30 @@ export type __PASCAL__Slot = 'root' | 'item' | 'label';
 
 export type __PASCAL__Variant = 'solid' | 'outline' | 'ghost';
 
+/** Runtime state of one row. Passed to every function-valued config field. */
+export interface __PASCAL__ItemState {
+  id: string;
+  index: number;
+  selected: boolean;
+  disabled: boolean;
+  config: __PASCAL__ItemConfig;
+}
+
+/** Anything renderable: a node, or a function of the row's live state. */
+export type __PASCAL__Node = Slottable<__PASCAL__ItemState>;
+
 /** One row of data. This is the JSON a consumer — or a model — writes. */
 export interface __PASCAL__ItemConfig {
   id?: string;
-  label: React.ReactNode;
+  label: __PASCAL__Node;
   disabled?: boolean;
+  /** Per-row class and style overrides, same slot names as the root config. */
+  classNames?: Partial<Record<__PASCAL__Slot, string>>;
+  styles?: Partial<Record<__PASCAL__Slot, React.CSSProperties>>;
 }
 
 export interface __PASCAL__BehaviourConfig {
   items: __PASCAL__ItemConfig[];
-  /** Controlled selection. */
   value?: string | null;
   defaultValue?: string | null;
   onValueChange?: (value: string | null) => void;
@@ -55,6 +71,8 @@ export interface __PASCAL__AppearanceConfig {
   radius?: KnotRadius;
   animate?: boolean;
   dimensions?: __PASCAL__Dimensions;
+  /** Drop every Knot class so you can style purely with Tailwind or your own CSS. */
+  unstyled?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -62,14 +80,13 @@ export interface __PASCAL__AppearanceConfig {
 export interface __PASCAL__Config
   extends __PASCAL__BehaviourConfig,
     __PASCAL__AppearanceConfig,
-    SlotOverrides<__PASCAL__Slot, __PASCAL__ItemState> {}
-
-export interface __PASCAL__ItemState {
-  id: string;
-  index: number;
-  selected: boolean;
-  disabled: boolean;
-  config: __PASCAL__ItemConfig;
+    SlotOverrides<__PASCAL__Slot, __PASCAL__ItemState> {
+  /** Replace an entire row. The last resort before dropping to prop getters. */
+  renderItem?: (args: {
+    state: __PASCAL__ItemState;
+    props: PropsBag;
+    children: React.ReactNode;
+  }) => React.ReactNode;
 }
 
 /** Appearance after provider defaults are folded in. */
@@ -79,16 +96,48 @@ export interface Resolved__PASCAL__Appearance {
   tone: KnotTone;
   radius: KnotRadius;
   animate: boolean;
+  unstyled: boolean;
 }
 
-export interface __PASCAL__Api {
-  /** The finished, accessible component. Call it and return it. */
-  render: () => React.ReactElement;
+/** Props accepted by the component itself, merged onto the root element. */
+export interface __PASCAL__RootProps {
+  className?: string;
+  style?: React.CSSProperties;
+  children?: never;
+  [key: `data-${string}`]: unknown;
+}
+
+/** Addressing a single row from a sub-component. */
+export interface __PASCAL__PartProps {
+  id?: string;
+  index?: number;
+  className?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+}
+
+export interface __PASCAL__State {
   items: __PASCAL__ItemState[];
   value: string | null;
   select: (id: string) => void;
   clear: () => void;
   focusItem: (index: number) => void;
+  /** Equivalent to rendering the component, for callers who prefer a call. */
+  render: (props?: __PASCAL__RootProps) => React.ReactElement;
   getRootProps: (props?: PropsBag) => PropsBag;
   getItemProps: (item: __PASCAL__ItemState, props?: PropsBag) => PropsBag;
 }
+
+/** Sub-components for hand-laid-out layouts the config cannot express. */
+export interface __PASCAL__Parts {
+  Item: (props: __PASCAL__PartProps) => React.ReactElement | null;
+}
+
+/**
+ * What `use__PASCAL__()` returns: a component you render, that is also the
+ * controller, that also carries its parts.
+ */
+export type __PASCAL__Api = KnotComponent<
+  __PASCAL__State & __PASCAL__Parts,
+  __PASCAL__RootProps
+>;

@@ -16,9 +16,30 @@ Each component splits into these concerns, in this order:
 | Style | `<name>.css` | tokens → CSS | JS |
 | Courtesy | `<Name>.tsx` | `useName(config).render()`, one line | anything else |
 
-**The hook is the API.** `use<Name>()` returns `render()` alongside state and
-getters, so a consumer never has to write a tag. The `<Name />` component is a
-one-line wrapper kept for people who prefer JSX — it must add nothing.
+**The hook returns a component.** `use<Name>(config)` hands back a value that
+is simultaneously:
+
+1. a **component** — `<Faq />`, accepting `className`, `style` and `data-*`, so it
+   drops into ordinary layout JSX with no wrapper;
+2. the **controller** — `Faq.value`, `Faq.toggle(id)`, `Faq.focusItem(0)`;
+3. a set of **parts** — `<Faq.Trigger id>`, `<Faq.Panel id>` — for layouts the
+   config cannot express.
+
+Build both with `useKnotComponent` and `useStableParts` from core. **Identity
+stability is not optional**: a component created fresh each render is a new
+element type to React, which unmounts and remounts the whole subtree, discarding
+focus, scroll position and every running transition. The conformance suite tests
+for it.
+
+The standalone `<Name />` export is a one-line wrapper for one-off usage; it must
+add nothing.
+
+### Where the config model stops
+
+Config fits repeated, uniform rows. It does not fit page layout, and pretending
+otherwise is what earns a library its "leaky abstraction" reviews. So the ladder
+out is first-class, not an escape hatch: parts carry the ARIA, the consumer
+carries the layout. A component is not finished until its parts are exported.
 
 If the hook mentions a class name, the layering is broken. If the component
 computes state, the layering is broken. This split is what makes the same
@@ -48,12 +69,16 @@ Rules:
    width, height, padding, gap, radius, font sizes, icon sizes, border width and
    duration. Numbers are px, strings pass through. It layers *over* the `size`
    preset, so overriding one dimension keeps the preset for the rest.
-4. **Controlled and uncontrolled from one hook.** `value` + `defaultValue` +
+4. **Every visible part is configurable.** Anything renderable — title, icon,
+   badge, body, indicator — accepts a node *or* a function of the row's live
+   state, and can be set per component or per row. Ship `render` per slot and
+   `renderItem` for the whole row, so no customisation requires forking.
+5. **Controlled and uncontrolled from one hook.** `value` + `defaultValue` +
    `onValueChange`, resolved by `useControllableState`. Never two code paths.
-5. **JSON-safe defaults.** Every behaviour option must be expressible in plain
+6. **JSON-safe defaults.** Every behaviour option must be expressible in plain
    JSON — strings, numbers, booleans, arrays. Functions are opt-in extras, never
    required. This is what lets a CMS or a language model drive the component.
-6. **Appearance inherits.** `size`, `tone`, `radius`, `dir` default from
+7. **Appearance inherits.** `size`, `tone`, `radius`, `dir` default from
    `useKnot()` (the provider) so an app themes once.
 
 ---
@@ -126,7 +151,15 @@ them, accessibility breaks — that is documented, not defended against.
 - **Rounded containers clip.** Any element with a radius sets `overflow: hidden`
   and its children inherit the radius (`item → header → trigger`). Without this a
   hover or active fill renders as a rectangle crossing the rounded border.
-- The root always carries `knot` so the scoped reset applies.
+- **Everything lives in a cascade layer** — `@layer knot.tokens`, `knot.reset`,
+  `knot.components`. Unlayered CSS beats a layered rule at any specificity, so a
+  consumer's stylesheet and every Tailwind utility override us for free: no
+  `!important`, no plugin, no import-order rule, no `tailwind-merge`.
+- **`unstyled` is mandatory on every component.** It drops the component's own
+  classes and leaves behaviour, ARIA and `data-*` intact, so Knot can be used as
+  a headless library with a palette. Style then flows entirely through
+  `classNames`, which is how Tailwind-first teams will adopt it.
+- The root always carries `knot` so the scoped reset applies (unless `unstyled`).
 - Animate with CSS only. Prefer `grid-template-rows`, `transform`, `opacity`,
   `clip-path`. Never measure heights in JS.
 - Every component ships its own CSS file, copied to `dist/styles.css` by `tsup`.

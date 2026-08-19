@@ -1,0 +1,19 @@
+{
+  "name": "@knotui/tailwind",
+  "version": "0.1.0",
+  "description": "Tailwind preset and theme for Knot UI — the brand palette as utilities.",
+  "keywords": ["tailwind", "tailwindcss", "preset", "knotui", "design-tokens"],
+  "license": "MIT",
+  "main": "./preset.cjs",
+  "exports": {
+    ".": "./preset.cjs",
+    "./preset": "./preset.cjs",
+    "./theme.css": "./theme.css",
+    "./package.json": "./package.json"
+  },
+  "files": ["preset.cjs", "theme.css"],
+  "scripts": { "build": "node -e \"process.exit(0)\"" },
+  "peerDependencies": { "tailwindcss": ">=3" },
+  "peerDependenciesMeta": { "tailwindcss": { "optional": true } },
+  "publishConfig": { "access": "public" }
+}

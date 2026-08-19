@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { render as rtlRender, type RenderResult } from '@testing-library/react';
-import type * as React from 'react';
+import { fireEvent, render as rtlRender, type RenderResult } from '@testing-library/react';
+import * as React from 'react';
 
 export interface ConformanceOptions {
   /** Component name in kebab-case, e.g. `accordion`. Drives the expected classes. */
@@ -26,6 +26,14 @@ export interface ConformanceOptions {
    * one). Listed here so their absence is not treated as a failure.
    */
   optionalSlots?: readonly string[];
+  /**
+   * The component's hook, plus a minimal config. When given, the suite proves
+   * the hook returns a renderable component whose identity survives re-renders.
+   */
+  hook?: {
+    use: (config: Record<string, unknown>) => unknown;
+    config: Record<string, unknown>;
+  };
 }
 
 const BLOCK = (name: string) => `knot-${name}`;
@@ -39,7 +47,7 @@ const BLOCK = (name: string) => `knot-${name}`;
  * focusable disabled controls — are tests, not documentation.
  */
 export function describeKnotConformance(options: ConformanceOptions): void {
-  const { name, slots, render, dimension, cssFile, optionalSlots = [] } = options;
+  const { name, slots, render, dimension, cssFile, hook, optionalSlots = [] } = options;
   const block = BLOCK(name);
 
   describe(`${name} — Knot UI conformance`, () => {
@@ -105,6 +113,51 @@ export function describeKnotConformance(options: ConformanceOptions): void {
       expect(container.querySelectorAll('[tabindex="-1"][aria-disabled="true"]')).toHaveLength(0);
     });
 
+    it('drops its own classes in unstyled mode, keeping behaviour and state', () => {
+      // The Tailwind path: no bundled CSS, but ARIA and `data-*` intact so
+      // utilities can key off state.
+      const { container } = rtlRender(
+        render({ unstyled: true, className: 'probe-layout' }),
+      );
+      const root = container.querySelector('.probe-layout') as HTMLElement | null;
+
+      expect(root).toBeTruthy();
+      expect(root!.className).not.toContain(block);
+      expect(root!.getAttribute('data-variant')).toBeTruthy();
+      expect(root!.hasAttribute('data-unstyled')).toBe(true);
+    });
+
+    if (hook) {
+      const { use, config: hookConfig } = hook;
+
+      it('returns a component from its hook whose identity is stable', () => {
+        // A new component type per render remounts the subtree, discarding
+        // focus, scroll position and in-flight transitions.
+        const seen: unknown[] = [];
+
+        function Harness() {
+          const [, force] = React.useState(0);
+          const Component = use(hookConfig) as React.ComponentType<any>;
+          seen.push(Component);
+          return (
+            <div>
+              <button data-testid="knot-conformance-rerender" onClick={() => force((n) => n + 1)}>
+                rerender
+              </button>
+              <Component />
+            </div>
+          );
+        }
+
+        const { getByTestId, container } = rtlRender(<Harness />);
+        expect(typeof seen[0]).toBe('function');
+        expect(container.querySelector(`.${block}`)).toBeTruthy();
+
+        fireEvent.click(getByTestId('knot-conformance-rerender'));
+        expect(new Set(seen).size).toBe(1);
+      });
+    }
+
     it('gives every interactive control an accessible name', () => {
       const { container } = rtlRender(render({}));
       for (const el of Array.from(container.querySelectorAll('button, [role="button"]'))) {
@@ -127,7 +180,8 @@ export function describeKnotConformance(options: ConformanceOptions): void {
       });
 
       it('namespaces every class it defines', () => {
-        const css = stripComments(readFileSync(cssPath, 'utf8'));
+        // `@layer knot.components` is a layer path, not a class selector.
+        const css = stripComments(readFileSync(cssPath, 'utf8')).replace(/@layer[^;{]*/g, '');
         const classes = [...css.matchAll(/\.([a-zA-Z][\w-]*)/g)].map((m) => m[1]);
         const stray = [...new Set(classes)].filter((cl) => cl !== 'knot' && !cl.startsWith(block));
         expect(stray).toEqual([]);
