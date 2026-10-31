@@ -27,7 +27,7 @@ The shadcn registry and the AI docs inside the package are **Planned** (A7).
 - Tokens map onto shadcn's CSS variables (`--primary`, `--background`, …) as an opt-in, so Lumae components look at home in shadcn apps (A5).
 
 ## Release process (D-18)
-- Changesets for versioning and changelogs.
-- Publish from GitHub Actions with **npm trusted publishing** (OIDC) and `--provenance`. No long-lived tokens.
+- Changesets for versioning and changelogs (**Planned**, before the first publish).
+- Publish from GitHub Actions (`.github/workflows/release.yml`, manual trigger) with **npm trusted publishing** (OIDC) and `--provenance`. No long-lived tokens. The very first publish of each package is manual (a package must exist before a trusted publisher can be attached).
 - Owner account: 2FA with passkeys. Packages have no install scripts. A release fails if a runtime dependency appears.
 - Pre-release tags (`next`) for internal feedback before each stable release.

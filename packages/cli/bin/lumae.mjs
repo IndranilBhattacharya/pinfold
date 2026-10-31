@@ -288,11 +288,15 @@ function scaffold(argv) {
 
   // The exports map drives tsup entries and the webpack-4 stubs, so this is the only wiring needed.
   const pkg = JSON.parse(readFileSync(pkgFile, 'utf8'));
-  const sub = (p) => ({ types: `./dist/${p}.d.ts`, import: `./dist/${p}.js`, require: `./dist/${p}.cjs` });
+  // Nested conditions: ESM and CJS each get their own types (.d.ts / .d.cts).
+  const sub = (p) => ({
+    import: { types: `./dist/${p}.d.ts`, default: `./dist/${p}.js` },
+    require: { types: `./dist/${p}.d.cts`, default: `./dist/${p}.cjs` },
+  });
   const { ['./package.json']: pkgJson, ...rest } = pkg.exports;
   pkg.exports = { ...rest, [`./${name}`]: sub(`${name}/index`), [`./${name}/lazy`]: sub(`${name}/lazy`), './package.json': pkgJson };
-  pkg.typesVersions['*'][name] = [`./dist/${name}/index.d.ts`];
-  pkg.typesVersions['*'][`${name}/lazy`] = [`./dist/${name}/lazy.d.ts`];
+  pkg.typesVersions['*'][name] = [`./dist/${name}/index.d.cts`];
+  pkg.typesVersions['*'][`${name}/lazy`] = [`./dist/${name}/lazy.d.cts`];
   pkg.files = [...new Set([...pkg.files, name])];
   writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + '\n');
 

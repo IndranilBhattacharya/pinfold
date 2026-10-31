@@ -12,23 +12,40 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./palette": {
-      "types": "./dist/palette.d.ts",
-      "import": "./dist/palette.js",
-      "require": "./dist/palette.cjs"
+      "import": {
+        "types": "./dist/palette.d.ts",
+        "default": "./dist/palette.js"
+      },
+      "require": {
+        "types": "./dist/palette.d.cts",
+        "default": "./dist/palette.cjs"
+      }
     },
     "./package.json": "./package.json"
   },
   "typesVersions": {
-    "*": { "palette": ["./dist/palette.d.ts"] }
+    "*": {
+      "palette": [
+        "./dist/palette.d.cts"
+      ]
+    }
   },
   "files": ["dist", "palette"],
   "scripts": {
     "build": "tsup && node ../../scripts/subpath-stubs.mjs"
   },
-  "publishConfig": { "access": "public", "provenance": true }
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

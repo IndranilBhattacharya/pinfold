@@ -20,7 +20,12 @@ for (const [key, target] of Object.entries(exports)) {
   writeFileSync(
     join(sub, 'package.json'),
     JSON.stringify(
-      { private: true, main: rel(target.require), module: rel(target.import), types: rel(target.types) },
+      {
+        private: true,
+        main: rel(target.require.default),
+        module: rel(target.import.default),
+        types: rel(target.require.types),
+      },
       null,
       2,
     ) + '\n',

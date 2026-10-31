@@ -5,8 +5,9 @@ Read [AGENTS.md](AGENTS.md) first. Its rules bind humans and AI agents alike.
 ## Setup
 ```bash
 npm install
-npm run verify      # typecheck, tests, build, gzip budget
+npm run verify      # typecheck, tests, build, gzip budget, published types (attw)
 npm run test:watch
+npm run smoke -- --pm npm --react 19 --ts 5.6.3   # pack, install and use the real tarballs
 ```
 Requirements: Node 20 or newer, npm 10 or newer.
 The docs, playground and palette studio live in the sibling repo [`../lumae-site`](../lumae-site).

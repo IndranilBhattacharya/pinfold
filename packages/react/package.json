@@ -12,26 +12,45 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./accordion": {
-      "types": "./dist/accordion/index.d.ts",
-      "import": "./dist/accordion/index.js",
-      "require": "./dist/accordion/index.cjs"
+      "import": {
+        "types": "./dist/accordion/index.d.ts",
+        "default": "./dist/accordion/index.js"
+      },
+      "require": {
+        "types": "./dist/accordion/index.d.cts",
+        "default": "./dist/accordion/index.cjs"
+      }
     },
     "./accordion/lazy": {
-      "types": "./dist/accordion/lazy.d.ts",
-      "import": "./dist/accordion/lazy.js",
-      "require": "./dist/accordion/lazy.cjs"
+      "import": {
+        "types": "./dist/accordion/lazy.d.ts",
+        "default": "./dist/accordion/lazy.js"
+      },
+      "require": {
+        "types": "./dist/accordion/lazy.d.cts",
+        "default": "./dist/accordion/lazy.cjs"
+      }
     },
     "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
-      "accordion": ["./dist/accordion/index.d.ts"],
-      "accordion/lazy": ["./dist/accordion/lazy.d.ts"]
+      "accordion": [
+        "./dist/accordion/index.d.cts"
+      ],
+      "accordion/lazy": [
+        "./dist/accordion/lazy.d.cts"
+      ]
     }
   },
   "files": ["dist", "accordion"],
@@ -44,5 +63,8 @@
   "peerDependencies": {
     "react": ">=18"
   },
-  "publishConfig": { "access": "public", "provenance": true }
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

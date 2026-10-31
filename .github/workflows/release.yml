@@ -1,0 +1,40 @@
+name: Release
+
+# Manual only: a human decides when to publish. D-18.
+# Prerequisite: each package has npm trusted publishing configured for this
+# repository and workflow (npmjs.com → package → Settings → Trusted publisher).
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'npm dist-tag (next for pre-releases, latest for stable)'
+        required: true
+        default: next
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write # OIDC token for npm trusted publishing + provenance
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run verify
+      - name: Refuse to publish a runtime dependency
+        run: |
+          node -e '
+            for (const p of ["core", "css", "react"]) {
+              const deps = Object.keys(require(`./packages/${p}/package.json`).dependencies ?? {});
+              const extra = deps.filter((d) => !d.startsWith("@lumae/"));
+              if (extra.length) { console.error(`@lumae/${p} has runtime deps: ${extra}`); process.exit(1); }
+            }'
+      - run: npm publish --provenance --access public --tag ${{ inputs.tag }} -w @lumae/core -w @lumae/css -w @lumae/react -w lumae
