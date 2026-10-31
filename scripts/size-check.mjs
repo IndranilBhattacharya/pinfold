@@ -8,9 +8,29 @@
  */
 import { gzipSync } from 'node:zlib';
 import { readFileSync, existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+
+/**
+ * An entry plus every relative chunk it statically imports: with code splitting,
+ * the entry file alone undercounts what a consumer actually downloads.
+ */
+function withChunks(file, seen = new Set()) {
+  if (seen.has(file)) return seen;
+  seen.add(file);
+  if (file.endsWith('.js')) {
+    const code = readFileSync(file, 'utf8');
+    for (const [, rel] of code.matchAll(/(?:import|export)[^'"]*?from\s*['"](\.{1,2}\/[^'"]+)['"]/g)) {
+      withChunks(join(dirname(file), rel), seen);
+    }
+  }
+  return seen;
+}
 
 /**
  * Gzipped kB ceilings. Raise deliberately, in a commit that says why.
+ *
+ * 2026-10-31: re-layout into core/css/react. Entry sizes now include the
+ * shared chunks they import. Core is framework-free and smaller (4 -> 3).
  *
  * 2026-08-19: core CSS 4 -> 5 and accordion 4 -> 5. The CSS grew when every
  * rule moved inside a cascade layer (which is what lets Tailwind utilities win
@@ -18,11 +38,12 @@ import { readFileSync, existsSync } from 'node:fs';
  * overrides and state-function config fields.
  */
 const BUDGETS = [
-  ['packages/core/dist/index.js', 4],
+  ['packages/core/dist/index.js', 3],
   ['packages/core/dist/palette.js', 4],
-  ['packages/core/dist/styles.css', 5],
-  ['packages/accordion/dist/index.js', 5],
-  ['packages/accordion/dist/styles.css', 3],
+  ['packages/react/dist/index.js', 3],
+  ['packages/react/dist/accordion/index.js', 6],
+  ['packages/css/dist/core.css', 5],
+  ['packages/css/dist/accordion.css', 3],
 ];
 
 const strict = process.argv.includes('--strict');
@@ -37,7 +58,7 @@ for (const [file, budget] of BUDGETS) {
     console.log(`  ${'—'.padStart(6)}   ${String(budget).padStart(5)}kB  ${file}  (not built)`);
     continue;
   }
-  const size = kb(gzipSync(readFileSync(file)).length);
+  const size = kb(gzipSync(Buffer.concat([...withChunks(file)].map((f) => readFileSync(f)))).length);
   total += size;
   const over = size > budget;
   failed = failed || over;

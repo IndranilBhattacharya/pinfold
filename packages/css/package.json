@@ -1,0 +1,26 @@
+{
+  "name": "@lumae/css",
+  "version": "0.1.0",
+  "description": "Lumae styles: tokens, reset and per-component CSS in cascade layers, plus the Tailwind v3 preset and v4 theme. Framework-free.",
+  "author": "Indranil Bhattacharya",
+  "keywords": ["lumae", "css", "design-tokens", "tailwind", "tailwindcss", "oklch", "cascade-layers"],
+  "license": "MIT",
+  "sideEffects": ["*.css"],
+  "exports": {
+    "./core.css": "./dist/core.css",
+    "./reset.css": "./dist/reset.css",
+    "./tokens.css": "./dist/tokens.css",
+    "./all.css": "./dist/all.css",
+    "./accordion.css": "./dist/accordion.css",
+    "./tailwind.css": "./dist/tailwind.css",
+    "./tailwind": "./tailwind/preset.cjs",
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "tailwind"],
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "peerDependencies": { "tailwindcss": ">=3" },
+  "peerDependenciesMeta": { "tailwindcss": { "optional": true } },
+  "publishConfig": { "access": "public", "provenance": true }
+}

@@ -1,5 +1,4 @@
-import type * as React from 'react';
-import type { PropsBag } from './types';
+import type { PropsBag, Ref } from './types';
 
 /** Join truthy class names. Deliberately tiny — no `clsx` dependency. */
 export function cn(...parts: Array<string | false | null | undefined>): string {
@@ -17,7 +16,7 @@ export function cn(...parts: Array<string | false | null | undefined>): string {
  * Every renderable field in a Lumae config accepts both, so a caret can react to
  * `open` without the consumer dropping down to a full slot override.
  */
-export type Slottable<State, T = React.ReactNode> = T | ((state: State) => T);
+export type Slottable<State, T = unknown> = T | ((state: State) => T);
 
 /** Resolve a `Slottable` against the current state. */
 export function resolveNode<State, T>(
@@ -37,12 +36,12 @@ export function ariaAttr(condition: unknown): 'true' | undefined {
   return condition ? 'true' : undefined;
 }
 
-export function composeRefs<T>(...refs: Array<React.Ref<T> | undefined>) {
+export function composeRefs<T>(...refs: Array<Ref<T> | undefined>) {
   return (node: T | null) => {
     for (let i = 0; i < refs.length; i++) {
       const ref = refs[i];
       if (typeof ref === 'function') ref(node);
-      else if (ref) (ref as React.MutableRefObject<T | null>).current = node;
+      else if (ref) ref.current = node;
     }
   };
 }

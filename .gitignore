@@ -5,3 +5,8 @@ dist
 .DS_Store
 .env*
 coverage
+
+# generated subpath stubs (scripts/subpath-stubs.mjs)
+/packages/core/palette/
+/packages/react/*/
+!/packages/react/src/

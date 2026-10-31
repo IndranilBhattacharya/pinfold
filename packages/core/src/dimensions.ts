@@ -1,4 +1,3 @@
-import type * as React from 'react';
 import type { Length } from './types';
 
 /**
@@ -14,7 +13,7 @@ import type { Length } from './types';
 export function dimensionVars<D extends object>(
   component: string,
   dimensions: D | undefined,
-): React.CSSProperties | undefined {
+): Record<string, string> | undefined {
   if (!dimensions) return undefined;
   const out: Record<string, string> = {};
   for (const [key, raw] of Object.entries(dimensions)) {
@@ -22,7 +21,7 @@ export function dimensionVars<D extends object>(
     if (value === undefined || value === null || value === '') continue;
     out[`--lumae-${component}-${kebab(key)}`] = typeof value === 'number' ? `${value}px` : value;
   }
-  return out as React.CSSProperties;
+  return out;
 }
 
 const kebab = (s: string) => s.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());

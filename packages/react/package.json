@@ -1,0 +1,48 @@
+{
+  "name": "@lumae/react",
+  "version": "0.1.0",
+  "description": "Lumae for React: hooks-first, config-driven, accessible components. One subpath per component.",
+  "author": "Indranil Bhattacharya",
+  "keywords": ["react", "ui", "components", "accordion", "hooks", "accessibility", "aria", "design-system", "lumae"],
+  "license": "MIT",
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./accordion": {
+      "types": "./dist/accordion/index.d.ts",
+      "import": "./dist/accordion/index.js",
+      "require": "./dist/accordion/index.cjs"
+    },
+    "./accordion/lazy": {
+      "types": "./dist/accordion/lazy.d.ts",
+      "import": "./dist/accordion/lazy.js",
+      "require": "./dist/accordion/lazy.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "accordion": ["./dist/accordion/index.d.ts"],
+      "accordion/lazy": ["./dist/accordion/lazy.d.ts"]
+    }
+  },
+  "files": ["dist", "accordion"],
+  "scripts": {
+    "build": "tsup && node ../../scripts/subpath-stubs.mjs"
+  },
+  "dependencies": {
+    "@lumae/core": "0.1.0"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "publishConfig": { "access": "public", "provenance": true }
+}

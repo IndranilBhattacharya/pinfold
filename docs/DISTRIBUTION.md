@@ -1,7 +1,7 @@
 # Distribution
 
-Status: **Planned (A1, A7).** Today the packages are `@lumae/core`, `@lumae/accordion`,
-`@lumae/tailwind`, `@lumae/testing` and `lumae`, and none are published.
+Status: the four packages below exist in this repo and build; none are published yet.
+The shadcn registry and the AI docs inside the package are **Planned** (A7).
 
 ## Packages (D-05)
 | Package | Contents | Imports |

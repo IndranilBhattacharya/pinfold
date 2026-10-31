@@ -1,15 +1,20 @@
 import { defineConfig } from 'vitest/config';
 import { resolve } from 'node:path';
 
+const src = (p: string) => resolve(__dirname, 'packages', p);
+
 export default defineConfig({
-  // Classic runtime everywhere, so the source stays React 16.8-compatible.
+  // Classic runtime everywhere: works in every consumer toolchain.
   esbuild: { jsx: 'transform' },
   resolve: {
-    alias: {
-      '@lumae/core': resolve(__dirname, 'packages/core/src/index.ts'),
-      '@lumae/accordion': resolve(__dirname, 'packages/accordion/src/index.ts'),
-      '@lumae/testing': resolve(__dirname, 'packages/testing/src/index.ts'),
-    },
+    // Exact-match regexes: '@lumae/react' must not swallow '@lumae/react/accordion'.
+    alias: [
+      { find: /^@lumae\/core$/, replacement: src('core/src/index.ts') },
+      { find: /^@lumae\/core\/palette$/, replacement: src('core/src/palette.ts') },
+      { find: /^@lumae\/react$/, replacement: src('react/src/index.ts') },
+      { find: /^@lumae\/react\/([a-z-]+)$/, replacement: src('react/src/$1/index.ts') },
+      { find: /^@lumae\/testing$/, replacement: src('testing/src/index.ts') },
+    ],
   },
   test: {
     environment: 'jsdom',
