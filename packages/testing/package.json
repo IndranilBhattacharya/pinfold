@@ -1,5 +1,6 @@
 {
   "name": "@lumae/testing",
+  "private": true,
   "version": "0.1.0",
   "description": "Lumae conformance suite — the contract every component must pass.",
   "author": "Indranil Bhattacharya",
@@ -12,7 +13,7 @@
   "scripts": { "build": "node -e \"process.exit(0)\"" },
   "peerDependencies": {
     "@testing-library/react": ">=14",
-    "react": ">=16.8.0",
+    "react": ">=18",
     "vitest": ">=1"
   },
   "publishConfig": { "access": "public" }

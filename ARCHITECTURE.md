@@ -8,11 +8,12 @@ the next twelve components without inventing a single decision.
 
 ---
 
-## 0. Layers and packages (D-04, D-05). Planned for A1
+## 0. Layers and packages (D-04, D-05)
 
 ```
-@lumae/core    no framework: <name>.logic.ts, store, keyboard nav, ids, palette, <name>.meta.ts, config types
-@lumae/css     tokens.css, reset.css, styles/<pack>.css, <name>.css
+@lumae/core    no framework: utils, variants, keyboard nav, dimensions, dev warnings, palette, types
+               (Planned: <name>.logic.ts in A2, store in A1, <name>.meta.ts in A3)
+@lumae/css     tokens.css, reset.css, <name>.css, Tailwind v3 preset + v4 theme (Planned: styles/<pack>.css in A5)
 @lumae/react   use<Name>, define<Name>, <Name> tag, <Name>View, LumaeProvider, defineConfig
 lumae          CLI
 ```
@@ -264,7 +265,7 @@ A component is not done until:
 
 | Rule | Why |
 | --- | --- |
-| `peerDependencies: react >=18` (A1; the code still says `>=16.8`) | Native `useId` and `useSyncExternalStore`, no shims, deterministic SSR ids |
+| `peerDependencies: react >=18` | Native `useId` and `useSyncExternalStore`, no shims, deterministic SSR ids |
 | Must work with the React Compiler on and off | Both eras of React |
 | Classic JSX runtime (`jsx: "react"`) in the build | Works in every toolchain. Keep it unless D-06 changes. |
 | No `react-dom` import in components | Keeps non-DOM renderers viable |
@@ -303,11 +304,10 @@ From it we generate:
 
 ## 8. Package shape
 
-Target (A1):
 ```
 packages/
-  core/    src/<name>.logic.ts  src/<name>.meta.ts  src/palette.ts  src/store.ts …   @lumae/core
-  css/     src/tokens.css  src/reset.css  src/styles/*.css  src/<name>.css         @lumae/css
+  core/    src/{utils,variants,navigation,dimensions,dev,palette,types}.ts            @lumae/core
+  css/     src/{tokens,reset,<name>}.css  tailwind/{preset.cjs,theme.css}  build.mjs  @lumae/css
   react/   src/<name>/{use<Name>.tsx,<Name>View.tsx,<Name>.tsx,define<Name>.ts,index.ts}  @lumae/react
   cli/                                                                              lumae
   testing/ (private)                                                                conformance
@@ -322,7 +322,11 @@ packages/
 "peerDependencies": { "react": ">=18" }
 ```
 
-Current (until the A1 re-layout): `packages/{core,accordion,tailwind,testing,cli}`, with one package per component.
+- The React package's `exports` map is the single source of truth: tsup builds one entry per
+  export, and `scripts/subpath-stubs.mjs` writes a stub folder per subpath (`accordion/package.json`)
+  for bundlers that ignore `exports` (webpack 4). `npx lumae new <name>` adds the export.
+- Code splitting keeps shared modules (provider, hooks) in common chunks, so every subpath sees one
+  React context. `scripts/size-check.mjs` budgets each entry together with the chunks it imports.
 
 ---
 

@@ -44,7 +44,7 @@ Owner: Indranil Bhattacharya. MIT.
 
 | Area | Rule |
 |---|---|
-| React | Floor `react >=18` (decided; A1 updates `peerDependencies`). Use native `useId` and `useSyncExternalStore`. No `react-dom` import inside components. Must work with and without the React Compiler. |
+| React | Floor `react >=18`. Use native `useId` and `useSyncExternalStore`. No `react-dom` import inside components. Must work with and without the React Compiler. |
 | Dependencies | Zero runtime dependencies in published packages. Dev dependencies are fine. The CLI may use dependencies, because they never reach the app bundle. |
 | Layers | `core` (logic, no framework) and `css` never import React or any other framework. The React layer owns hooks, views, `define*` and tags. |
 | API | Hooks first: `use<Name>(config)` returns a stable component that is also the controller and carries the parts. `define<Name>(config)` is the non-hook twin for Server Components. `<Name {...config}/>` is the courtesy tag. No compound children. |
@@ -63,7 +63,7 @@ Owner: Indranil Bhattacharya. MIT.
 
 ## 4. Multi-framework readiness (architecture only)
 
-Packages (target, A1): `@lumae/core` (logic, store, keyboard, palette, meta, types), `@lumae/css`,
+Packages: `@lumae/core` (logic, store, keyboard, palette, meta, types), `@lumae/css`,
 `@lumae/react` (subpath per component: `@lumae/react/accordion`), and `lumae` (CLI).
 A future `@lumae/vue` or `@lumae/angular` reuses `core` and `css` from npm, under the same
 npm org. So: **put behaviour rules in `core`, never in hooks**; keep meta and types framework-free.
@@ -102,7 +102,7 @@ Conformance fails the build on:
 ## 6. Current API reference
 
 ```jsx
-import { useAccordion } from '@lumae/accordion';
+import { useAccordion } from '@lumae/react/accordion';
 const Faq = useAccordion({ items: [{ title, content }], variant: 'separated' });
 return <Faq className="mt-6" />;
 // Faq is also the controller (Faq.value, Faq.toggle(id), Faq.openAll()) and carries parts (<Faq.Trigger id>, <Faq.Panel id>).

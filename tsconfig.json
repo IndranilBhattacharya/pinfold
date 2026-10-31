@@ -6,8 +6,9 @@
     "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
     "paths": {
       "@lumae/core": ["packages/core/src/index.ts"],
-      "@lumae/accordion": ["packages/accordion/src/index.ts"],
       "@lumae/core/palette": ["packages/core/src/palette.ts"],
+      "@lumae/react": ["packages/react/src/index.ts"],
+      "@lumae/react/*": ["packages/react/src/*/index.ts"],
       "@lumae/testing": ["packages/testing/src/index.ts"]
     }
   },

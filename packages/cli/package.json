@@ -25,7 +25,7 @@
     "start": "node bin/lumae.mjs"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "publishConfig": {
     "access": "public"

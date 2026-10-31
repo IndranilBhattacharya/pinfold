@@ -7,7 +7,7 @@
  *   npx lumae theme --primary emerald    regenerate the palette
  *   npx lumae theme --check              WCAG contrast report for the palette
  *   npx lumae palette                    preview every built-in hue
- *   npx lumae new <name>                 scaffold a new component package
+ *   npx lumae new <name>                 scaffold a new component (contributors, repo root)
  *   npx lumae list                       show the component registry
  *
  * The palette maths lives in `@lumae/core/palette` — one implementation shared
@@ -184,7 +184,7 @@ async function init(argv) {
   console.log(`\n  ${c.ok('created')} ${CONFIG_FILE}`);
   emitTheme(cfg);
 
-  install([REGISTRY.core.package], { dryRun: flag(argv, 'dry-run') });
+  install(REGISTRY.core.packages, { dryRun: flag(argv, 'dry-run') });
 
   const entry = flag(argv, 'dry-run') ? null : findEntry();
   const local = './' + cfg.cssPath.split('/').pop();
@@ -243,7 +243,7 @@ function add(argv) {
   }
   if (found.length === 0) return;
 
-  install(found.map((f) => f.package), { dryRun: flag(argv, 'dry-run') });
+  install(REGISTRY.core.packages, { dryRun: flag(argv, 'dry-run') });
 
   const entryFile = flag(argv, 'dry-run') ? null : findEntry();
   for (const f of found) {
@@ -261,31 +261,46 @@ function add(argv) {
 }
 
 /**
- * Scaffold a component package from the templates. This is the seam an agent
- * (or a human) starts from: the four files already carry the layering,
- * the conformance test and the token discipline the architecture requires.
+ * Scaffold a component inside the Lumae monorepo (contributors only). This is
+ * the seam an agent or a human starts from: the files already carry the
+ * layering, the conformance test and the token discipline ARCHITECTURE.md
+ * requires. Writes the React adapter, the stylesheet, and the subpath export.
  */
 function scaffold(argv) {
   const [name] = positional(argv);
   if (!name) return fail('name required. Try `npx lumae new tabs`.');
   if (!/^[a-z][a-z0-9-]*$/.test(name)) return fail('name must be kebab-case, e.g. `date-picker`.');
 
-  const out = arg(argv, 'dir', join('packages', name));
-  if (existsSync(out)) return fail(`${out} already exists.`);
+  const root = arg(argv, 'root', '.');
+  const reactDir = join(root, 'packages', 'react', 'src', name);
+  const cssFile = join(root, 'packages', 'css', 'src', `${name}.css`);
+  const pkgFile = join(root, 'packages', 'react', 'package.json');
+  if (!existsSync(pkgFile)) return fail('run this from the Lumae repo root (or pass --root).');
+  if (existsSync(reactDir) || existsSync(cssFile)) return fail(`${name} already exists.`);
   if (!existsSync(TEMPLATES)) return fail('templates missing — run this from an installed lumae.');
 
   const pascal = name.replace(/(^|-)([a-z])/g, (_, __, ch) => ch.toUpperCase());
   const camel = pascal[0].toLowerCase() + pascal.slice(1);
   const tokens = { NAME: name, PASCAL: pascal, CAMEL: camel };
 
-  copyTemplates(TEMPLATES, out, tokens);
-  console.log(`\n  ${c.ok('created')} ${out}\n`);
-  console.log('  ' + c.dim('src/types.ts        config, dimensions, state, api, slots'));
-  console.log('  ' + c.dim(`src/use${pascal}.tsx${' '.repeat(Math.max(0, 8 - pascal.length))} behaviour + render()`));
-  console.log('  ' + c.dim(`src/${pascal}View.tsx${' '.repeat(Math.max(0, 5 - pascal.length))} markup, slots`));
-  console.log('  ' + c.dim(`src/${name}.css`));
-  console.log('  ' + c.dim(`src/${name}.test.tsx   conformance suite, already wired`));
-  console.log(`\n  Next: implement the WAI-ARIA pattern, then ${c.accent('npm test')}\n`);
+  copyTemplates(join(TEMPLATES, 'react'), reactDir, tokens);
+  writeFileSync(cssFile, applyTokens(readFileSync(join(TEMPLATES, 'css', '__NAME__.css.tmpl'), 'utf8'), tokens));
+
+  // The exports map drives tsup entries and the webpack-4 stubs, so this is the only wiring needed.
+  const pkg = JSON.parse(readFileSync(pkgFile, 'utf8'));
+  const sub = (p) => ({ types: `./dist/${p}.d.ts`, import: `./dist/${p}.js`, require: `./dist/${p}.cjs` });
+  const { ['./package.json']: pkgJson, ...rest } = pkg.exports;
+  pkg.exports = { ...rest, [`./${name}`]: sub(`${name}/index`), [`./${name}/lazy`]: sub(`${name}/lazy`), './package.json': pkgJson };
+  pkg.typesVersions['*'][name] = [`./dist/${name}/index.d.ts`];
+  pkg.typesVersions['*'][`${name}/lazy`] = [`./dist/${name}/lazy.d.ts`];
+  pkg.files = [...new Set([...pkg.files, name])];
+  writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + '\n');
+
+  console.log(`\n  ${c.ok('created')} ${reactDir}`);
+  console.log(`  ${c.ok('created')} ${cssFile}`);
+  console.log(`  ${c.ok('wired')}   @lumae/react/${name} in packages/react/package.json\n`);
+  console.log(`  Next: write docs/components/${name}.md (owner sign-off), implement the WAI-ARIA`);
+  console.log(`  pattern, register it in packages/cli/registry.json, then ${c.accent('npm run verify')}\n`);
 }
 
 function copyTemplates(from, to, tokens) {
@@ -325,7 +340,7 @@ function help() {
            [--success|--warning|--danger|--info <hue>]
            [--intensity 1.1] [--radius lg] [--check]
   ${c.accent('palette')}  [--check]                preview every built-in hue
-  ${c.accent('new')}      <name> [--dir path]      scaffold a component package
+  ${c.accent('new')}      <name> [--root path]     scaffold a component (repo contributors)
   ${c.accent('list')}
 
   Hues: ${c.dim(Object.keys(HUES).join(', '))}

@@ -1,38 +1,33 @@
 # @lumae/core
 
-Tokens, theme engine and the six primitives every Lumae component is built from.
-Zero dependencies, React ≥ 16.8.
+The framework-free layer of [Lumae](../../README.md): the
+helpers, keyboard rules and OKLCH palette engine that every Lumae adapter shares. No React,
+no dependencies. A test fails the build if a framework import ever appears here.
 
-```bash
-npm install @lumae/core
-```
-
-```js
-import '@lumae/core/styles.css';   // reset + tokens
-```
+Most apps never install this directly. `@lumae/react` depends on it.
 
 ## Exports
 
 | | |
 | --- | --- |
-| `LumaeProvider` / `useLumae` | global `theme`, `radius`, `dir`, `size`, `tone` defaults |
-| `useControllableState` | one hook for controlled + uncontrolled |
-| `useEvent` | stable callback identity, fresh closure |
-| `useId` | SSR-safe, works before React 18 |
-| `mergeProps` / `cn` / `composeRefs` | prop merging with handler chaining |
-| `variants` | `cva`-style class resolution in 20 lines |
-| `nextIndexFromKey` | WAI-ARIA roving focus key map |
-| `slotProps` / `renderSlot` | the per-slot escape hatches |
-| `createLazyComponent` | dynamic import + Suspense in one call |
+| `cn`, `mergeProps`, `composeRefs` | class joining and prop merging (handlers chain, styles merge) |
+| `variants` | `cva`-style class resolution |
+| `nextIndexFromKey` | the WAI-ARIA roving-focus key map (orientation, RTL, loop) |
+| `dimensionVars` | `dimensions` config → `--lumae-<component>-*` custom properties |
+| `resolveNode`, `dataAttr`, `ariaAttr` | slot value and attribute helpers |
+| `warnOnce`, `__DEV__` | dev-only diagnostics, stripped in production |
 
-## Theming
+## Palette
 
-Everything resolves through CSS custom properties. Override any of them:
+```js
+import { createTheme, contrastRatio } from '@lumae/core/palette';
 
-```css
-:root { --lumae-primary-500: oklch(0.66 0.16 152); --lumae-radius-scale: 1.5; }
+const theme = createTheme({ primary: 'emerald', accent: 'amber', radius: 'lg' });
+theme.vars;      // { '--lumae-primary-500': '#009b60', … }
+theme.css;       // the stylesheet `npx lumae theme` writes
+theme.contrast;  // WCAG report per role and step
 ```
 
-Or generate a full OKLCH ramp: `npx lumae theme --preset emerald --radius lg`.
+Seven roles × eleven OKLCH steps, gamut-mapped, with sRGB hex fallbacks.
 
-MIT
+MIT © Indranil Bhattacharya

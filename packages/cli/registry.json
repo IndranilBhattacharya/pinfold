@@ -1,12 +1,15 @@
 {
   "$schema": "https://lumae.indranildev.in/registry.schema.json",
   "version": 1,
-  "core": { "package": "@lumae/core", "styles": "@lumae/core/styles.css" },
+  "core": {
+    "packages": ["@lumae/react", "@lumae/css"],
+    "styles": "@lumae/css/core.css"
+  },
   "components": [
     {
       "name": "accordion",
-      "package": "@lumae/accordion",
-      "styles": "@lumae/accordion/styles.css",
+      "import": "@lumae/react/accordion",
+      "styles": "@lumae/css/accordion.css",
       "status": "stable",
       "description": "Collapsible disclosure rows. WAI-ARIA accordion pattern.",
       "variants": ["solid", "outline", "separated", "filled", "ghost"],
@@ -14,18 +17,5 @@
       "snippet": "<Accordion items={[{ title: 'Shipping', content: 'Ships in 2 days.' }]} />"
     }
   ],
-  "planned": [
-    "tabs",
-    "dialog",
-    "select",
-    "combobox",
-    "data-grid",
-    "calendar",
-    "date-picker",
-    "toast",
-    "tooltip",
-    "command",
-    "form",
-    "tree"
-  ]
+  "planned": ["tabs", "dialog", "select", "combobox", "data-grid", "calendar", "date-picker", "toast", "tooltip", "command", "form", "tree"]
 }

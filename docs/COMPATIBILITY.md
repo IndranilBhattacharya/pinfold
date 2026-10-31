@@ -1,7 +1,8 @@
 # Compatibility
 
-Target support (D-06, D-14). Marked **Planned** until A1/A4 put each row under CI.
-Today the code still declares `react >=16.8` and builds ESM and CJS from `packages/*`.
+Supported targets (D-06, D-14). Shipped: `@lumae/react` declares `react >=18` and builds ES2018
+ESM + CJS + `.d.ts`, with `typesVersions` and a stub folder per subpath. The CI matrix that
+proves each row lands in A1; SSR test apps in A4.
 
 | Area | Supported | How it's verified |
 |---|---|---|
