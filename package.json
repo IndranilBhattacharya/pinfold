@@ -14,9 +14,12 @@
     "clean": "rimraf packages/*/dist",
     "size": "node scripts/size-check.mjs",
     "size:strict": "node scripts/size-check.mjs --strict",
-    "verify": "npm run typecheck && npm test && npm run build && npm run size:strict"
+    "verify": "npm run typecheck && npm test && npm run build && npm run size:strict && npm run types:check",
+    "types:check": "attw --pack packages/core && attw --pack packages/react",
+    "smoke": "node scripts/consumer-smoke.mjs"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@babel/core": "^8.0.10",
     "@babel/plugin-syntax-jsx": "^8.0.1",
     "@testing-library/dom": "^10.4.0",

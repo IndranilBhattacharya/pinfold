@@ -3,18 +3,99 @@ name: CI
 on:
   push: { branches: [main] }
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify:
+    name: verify (typecheck · tests · build · size · published types)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
+        with: { node-version: 22, cache: npm }
       - run: npm ci
-      - run: npm run typecheck
+      - run: npm run verify
+
+  # D-06 / COMPATIBILITY.md: every OS × Node × React. The test suite includes the
+  # React Compiler suite, so each leg runs compiled and uncompiled consumers.
+  matrix:
+    name: ${{ matrix.os }} · node ${{ matrix.node }} · react ${{ matrix.react }}
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [20, 22, 24]
+        react: [18, 19]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ matrix.node }}', cache: npm }
+      - run: npm ci
+      - run: npm i --no-save react@${{ matrix.react }} react-dom@${{ matrix.react }} @types/react@${{ matrix.react }} @types/react-dom@${{ matrix.react }}
       - run: npm test
       - run: npm run build
-      - run: npm run size:strict
+      - run: node scripts/consumer-smoke.mjs --pm npm --react ${{ matrix.react }}
+
+  # Early warning for the next React major. Informational: never blocks a merge.
+  react-canary:
+    name: react canary (informational)
+    needs: verify
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm i --no-save react@canary react-dom@canary
+      - run: npm test
+
+  # The packed tarballs, installed by each package manager (Yarn = Plug'n'Play).
+  package-managers:
+    name: install · ${{ matrix.pm }}
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        pm: [pnpm, yarn, bun]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - if: matrix.pm == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - if: matrix.pm == 'yarn'
+        run: corepack enable && corepack prepare yarn@stable --activate
+      - if: matrix.pm == 'bun'
+        uses: oven-sh/setup-bun@v2
+      - run: node scripts/consumer-smoke.mjs --pm ${{ matrix.pm }} --react 19
+
+  # Published .d.ts files under node10, node16 and (TS 5+) bundler resolution.
+  typescript:
+    name: types · typescript ${{ matrix.ts }}
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        ts: ['4.7.4', '5.0.4', 'latest']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/consumer-smoke.mjs --pm npm --react 18 --ts ${{ matrix.ts }}

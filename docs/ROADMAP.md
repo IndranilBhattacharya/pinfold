@@ -3,7 +3,7 @@
 **Rule:** the owner signs off after each milestone. Agents never start the next one on their own (AGENTS.md §2).
 Milestones A1–A9 apply to the **accordion only**. Component #2 starts after A9.
 
-Current milestone: **A1 (not started).** Step 0 (the repo split and the docs) is done.
+Current milestone: **A1 done locally; awaiting a green CI run on GitHub and the owner's sign-off.** Next: A2.
 
 ## Component lifecycle
 
@@ -19,14 +19,14 @@ Current milestone: **A1 (not started).** Step 0 (the repo split and the docs) is
 - [x] Re-layout the packages: `core` (no framework), `css`, `react` (subpaths), `cli`, and `testing` (private).
 - [x] React 18 floor: set `peerDependencies`, delete the `useId` shim (`packages/react/src/hooks.ts`), and delete the React <18 hydration warning in `useAccordion.tsx`.
 - [x] React Compiler: write a failing test where a compiled consumer shows stale `<Faq />`. Fix it with a store subscription (`useSyncExternalStore`) in `useLumaeComponent`.
-- [ ] CI matrix:
-  - Windows, macOS and Linux × Node 20, 22 and 24 × React 18, 19 and canary, each with and without the compiler.
-  - Install checks with npm, pnpm, Yarn PnP and bun.
-  - Type checks of the published `.d.ts` against TypeScript 4.7 and 5.x.
-  - A test that fails if `core` or `css` imports a framework.
+- [x] CI matrix (`.github/workflows/ci.yml`):
+  - Windows, macOS and Linux × Node 20, 22 and 24 × React 18 and 19; canary informational. Every leg runs the React Compiler suite (compiled + uncompiled consumers).
+  - Packed-tarball installs with npm, pnpm, Yarn PnP and bun (`scripts/consumer-smoke.mjs`): ESM import, CJS require, server render.
+  - Published `.d.ts` under TypeScript 4.7, 5.0 and latest (node10, node16, bundler), plus `attw` in `npm run verify`.
+  - `framework-isolation.test.ts` fails if `core` or `css` imports a framework.
 - [x] Packaging: ESM and CJS, `typesVersions`, a stub folder per subpath (generated from `exports`), `sideEffects`.
-- [ ] Release safety: trusted publishing (OIDC), provenance, Dependabot, OpenSSF Scorecard.
-- [ ] Lint that bans removed React APIs (`defaultProps` on function components, string refs, `findDOMNode`, legacy context).
+- [x] Release safety: manual `release.yml` (OIDC trusted publishing, `--provenance`, refuses runtime deps), Dependabot, OpenSSF Scorecard. Trusted publishers are configured on npmjs.com after the first manual publish.
+- [x] Ban removed React APIs (`banned-apis.test.ts`: defaultProps, propTypes, legacy context, findDOMNode, string refs, UNSAFE_, react-dom imports). Compiler compatibility is proven at runtime (`accordion.compiler.test.tsx`) rather than by the compiler lint, which would flag the library's intentional render-time ref writes.
 
 ## A2 · Logic split
 - [ ] Move the accordion's rules to `core/accordion.logic.ts` as pure functions: toggle, the single/collapsible rules, the keyboard map.
