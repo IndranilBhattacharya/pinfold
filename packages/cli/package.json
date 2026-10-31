@@ -1,10 +1,10 @@
 {
-  "name": "knotui",
+  "name": "lumae",
   "version": "0.1.0",
-  "description": "Knot UI CLI \u2014 scaffold themes and install components one at a time.",
+  "description": "Lumae CLI \u2014 scaffold themes and install components one at a time.",
   "author": "Indranil Bhattacharya",
   "keywords": [
-    "knotui",
+    "lumae",
     "cli",
     "ui",
     "react",
@@ -13,7 +13,7 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "knotui": "bin/knotui.mjs"
+    "lumae": "bin/lumae.mjs"
   },
   "files": [
     "bin",
@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "build": "node -e \"process.exit(0)\"",
-    "start": "node bin/knotui.mjs"
+    "start": "node bin/lumae.mjs"
   },
   "engines": {
     "node": ">=16"
@@ -31,6 +31,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@knotui/core": "0.1.0"
+    "@lumae/core": "0.1.0"
   }
 }

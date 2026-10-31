@@ -1,7 +1,7 @@
 {
-  "name": "@knotui/testing",
+  "name": "@lumae/testing",
   "version": "0.1.0",
-  "description": "Knot UI conformance suite — the contract every component must pass.",
+  "description": "Lumae conformance suite — the contract every component must pass.",
   "author": "Indranil Bhattacharya",
   "license": "MIT",
   "type": "module",

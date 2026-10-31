@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { useIsomorphicLayoutEffect } from './hooks';
-import type { KnotDir, KnotRadius, KnotSize, KnotTheme, KnotTone } from './types';
+import type { LumaeDir, LumaeRadius, LumaeSize, LumaeTheme, LumaeTone } from './types';
 
-export interface KnotContextValue {
-  theme: KnotTheme;
-  radius: KnotRadius;
-  dir: KnotDir;
-  size: KnotSize;
-  tone: KnotTone;
+export interface LumaeContextValue {
+  theme: LumaeTheme;
+  radius: LumaeRadius;
+  dir: LumaeDir;
+  size: LumaeSize;
+  tone: LumaeTone;
   /** Disable every component transition, e.g. in tests or on low-power devices. */
   disableAnimation: boolean;
 }
 
-const DEFAULTS: KnotContextValue = {
+const DEFAULTS: LumaeContextValue = {
   theme: 'system',
   radius: 'md',
   dir: 'ltr',
@@ -21,17 +21,17 @@ const DEFAULTS: KnotContextValue = {
   disableAnimation: false,
 };
 
-const KnotContext = React.createContext<KnotContextValue>(DEFAULTS);
+const LumaeContext = React.createContext<LumaeContextValue>(DEFAULTS);
 
 /** Component-level defaults. Every component calls this; the provider is optional. */
-export function useKnot(): KnotContextValue {
-  return React.useContext(KnotContext);
+export function useLumae(): LumaeContextValue {
+  return React.useContext(LumaeContext);
 }
 
-export interface KnotProviderProps extends Partial<KnotContextValue> {
+export interface LumaeProviderProps extends Partial<LumaeContextValue> {
   children?: React.ReactNode;
   /**
-   * Write `data-knot-theme` / `data-knot-radius` onto `<html>` instead of a
+   * Write `data-lumae-theme` / `data-lumae-radius` onto `<html>` instead of a
    * wrapper element. Use this when portals (dialogs, tooltips) must inherit
    * the theme. Default: false.
    */
@@ -39,11 +39,11 @@ export interface KnotProviderProps extends Partial<KnotContextValue> {
   className?: string;
 }
 
-export function KnotProvider(props: KnotProviderProps): React.ReactElement {
+export function LumaeProvider(props: LumaeProviderProps): React.ReactElement {
   const { children, applyToDocument = false, className, ...overrides } = props;
-  const parent = React.useContext(KnotContext);
+  const parent = React.useContext(LumaeContext);
 
-  const value = React.useMemo<KnotContextValue>(
+  const value = React.useMemo<LumaeContextValue>(
     () => ({ ...parent, ...stripUndefined(overrides) }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [parent, overrides.theme, overrides.radius, overrides.dir, overrides.size, overrides.tone, overrides.disableAnimation],
@@ -52,14 +52,14 @@ export function KnotProvider(props: KnotProviderProps): React.ReactElement {
   useIsomorphicLayoutEffect(() => {
     if (!applyToDocument) return;
     const el = document.documentElement;
-    const prevTheme = el.getAttribute('data-knot-theme');
-    const prevRadius = el.getAttribute('data-knot-radius');
-    if (value.theme === 'system') el.removeAttribute('data-knot-theme');
-    else el.setAttribute('data-knot-theme', value.theme);
-    el.setAttribute('data-knot-radius', value.radius);
+    const prevTheme = el.getAttribute('data-lumae-theme');
+    const prevRadius = el.getAttribute('data-lumae-radius');
+    if (value.theme === 'system') el.removeAttribute('data-lumae-theme');
+    else el.setAttribute('data-lumae-theme', value.theme);
+    el.setAttribute('data-lumae-radius', value.radius);
     return () => {
-      restore(el, 'data-knot-theme', prevTheme);
-      restore(el, 'data-knot-radius', prevRadius);
+      restore(el, 'data-lumae-theme', prevTheme);
+      restore(el, 'data-lumae-radius', prevRadius);
     };
   }, [applyToDocument, value.theme, value.radius]);
 
@@ -67,16 +67,16 @@ export function KnotProvider(props: KnotProviderProps): React.ReactElement {
     children
   ) : (
     <div
-      className={className ? 'knot ' + className : 'knot'}
+      className={className ? 'lumae ' + className : 'lumae'}
       dir={value.dir}
-      data-knot-theme={value.theme === 'system' ? undefined : value.theme}
-      data-knot-radius={value.radius}
+      data-lumae-theme={value.theme === 'system' ? undefined : value.theme}
+      data-lumae-radius={value.radius}
     >
       {children}
     </div>
   );
 
-  return <KnotContext.Provider value={value}>{body}</KnotContext.Provider>;
+  return <LumaeContext.Provider value={value}>{body}</LumaeContext.Provider>;
 }
 
 function restore(el: Element, attr: string, prev: string | null) {

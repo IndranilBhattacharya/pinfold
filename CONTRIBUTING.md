@@ -8,7 +8,7 @@ npm install
 npm run verify      # typecheck, tests, build, gzip budget
 npm run test:watch
 ```
-Requirements: Node 20 or newer, and npm 10 or newer (npm 8 has a known workspace install crash).
+Requirements: Node 20 or newer, npm 10 or newer.
 The docs, playground and palette studio live in the sibling repo [`../lumae-site`](../lumae-site).
 
 ## What to contribute
@@ -17,7 +17,7 @@ The docs, playground and palette studio live in the sibling repo [`../lumae-site
 - Docs corrections. Planned behaviour must be labelled **Planned**.
 
 ## Rules
-- Follow [ARCHITECTURE.md](ARCHITECTURE.md). The conformance suite (`@knotui/testing` today, `@lumae/testing` after A1) must pass.
+- Follow [ARCHITECTURE.md](ARCHITECTURE.md). The conformance suite (`@lumae/testing`) must pass.
 - Zero runtime dependencies. `core` and `css` never import a framework.
 - Update the docs in the same pull request as the behaviour change.
 - Commits use conventional prefixes: `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`.

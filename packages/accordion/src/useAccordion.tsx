@@ -7,12 +7,12 @@ import {
   useControllableState,
   useEvent,
   useId,
-  useKnot,
-  useKnotComponent,
+  useLumae,
+  useLumaeComponent,
   useStableParts,
   warnOnce,
   __DEV__,
-} from '@knotui/core';
+} from '@lumae/core';
 import {
   renderHeader,
   renderIndicator,
@@ -46,7 +46,7 @@ import type {
  * Arrow/Home/End navigation between headers.
  */
 export function useAccordion(config: AccordionConfig): AccordionApi {
-  const ctx = useKnot();
+  const ctx = useLumae();
   const {
     items: itemConfigs,
     mode = 'single',
@@ -168,7 +168,7 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
     getRootProps: (props) =>
       mergeProps(
         {
-          'data-knot': 'accordion',
+          'data-lumae': 'accordion',
           'data-orientation': orientation,
           'data-mode': mode,
           dir,
@@ -274,7 +274,7 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
     };
   });
 
-  const api = useKnotComponent<AccordionState & typeof parts, AccordionRootProps>(
+  const api = useLumaeComponent<AccordionState & typeof parts, AccordionRootProps>(
     'Accordion',
     { ...accordionState, ...parts },
     (props) => renderRoot(viewRef.current, props),

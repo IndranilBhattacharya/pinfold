@@ -6,9 +6,9 @@ export default defineConfig({
   esbuild: { jsx: 'transform' },
   resolve: {
     alias: {
-      '@knotui/core': resolve(__dirname, 'packages/core/src/index.ts'),
-      '@knotui/accordion': resolve(__dirname, 'packages/accordion/src/index.ts'),
-      '@knotui/testing': resolve(__dirname, 'packages/testing/src/index.ts'),
+      '@lumae/core': resolve(__dirname, 'packages/core/src/index.ts'),
+      '@lumae/accordion': resolve(__dirname, 'packages/accordion/src/index.ts'),
+      '@lumae/testing': resolve(__dirname, 'packages/testing/src/index.ts'),
     },
   },
   test: {

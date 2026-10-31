@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspace=@knotui/core && npm run build --workspace=@knotui/accordion && npm run build --workspace=knotui",
+    "build": "npm run build --workspace=@lumae/core && npm run build --workspace=@lumae/accordion && npm run build --workspace=lumae",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty",

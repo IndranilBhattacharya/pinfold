@@ -17,7 +17,7 @@ export function warnOnce(condition: unknown, message: string): void {
   if (!__DEV__ || !condition || seen.has(message)) return;
   seen.add(message);
   // eslint-disable-next-line no-console
-  console.warn(`[knotui] ${message}`);
+  console.warn(`[lumae] ${message}`);
 }
 
 /** Test hook — lets a suite assert the same warning twice. */

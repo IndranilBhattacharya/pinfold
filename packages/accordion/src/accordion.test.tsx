@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { describeKnotConformance } from '@knotui/testing';
+import { describeLumaeConformance } from '@lumae/testing';
 import { Accordion } from './Accordion';
 import { useAccordion } from './useAccordion';
 
@@ -107,9 +107,9 @@ describe('Accordion', () => {
     );
     const root = screen.getByTestId('root');
 
-    expect(root.style.getPropertyValue('--knot-accordion-padding-x')).toBe('24px');
-    expect(root.style.getPropertyValue('--knot-accordion-max-width')).toBe('32rem');
-    expect(root.style.getPropertyValue('--knot-accordion-panel-max-height')).toBe('200px');
+    expect(root.style.getPropertyValue('--lumae-accordion-padding-x')).toBe('24px');
+    expect(root.style.getPropertyValue('--lumae-accordion-max-width')).toBe('32rem');
+    expect(root.style.getPropertyValue('--lumae-accordion-panel-max-height')).toBe('200px');
     // panelMaxHeight opts the panel into scrolling
     expect(root).toHaveAttribute('data-scroll');
   });
@@ -161,7 +161,7 @@ describe('Accordion — component from hook', () => {
     render(<Harness />);
     const root = screen.getByTestId('root');
     expect(root.classList.contains('layout-class')).toBe(true);
-    expect(root.classList.contains('knot-accordion')).toBe(true);
+    expect(root.classList.contains('lumae-accordion')).toBe(true);
   });
 
   it('keeps a stable component identity across parent re-renders', () => {
@@ -273,7 +273,7 @@ describe('Accordion — composition and customisation', () => {
     expect(screen.getByTestId('row-a')).toHaveAttribute('data-state', 'closed');
   });
 
-  it('drops every Knot class in unstyled mode but keeps behaviour', () => {
+  it('drops every Lumae class in unstyled mode but keeps behaviour', () => {
     render(
       <Accordion
         items={items}
@@ -295,7 +295,7 @@ describe('Accordion — composition and customisation', () => {
   });
 });
 
-describeKnotConformance({
+describeLumaeConformance({
   name: 'accordion',
   slots: [
     'root', 'item', 'header', 'trigger', 'icon', 'label',

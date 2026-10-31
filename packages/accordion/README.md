@@ -1,15 +1,15 @@
-# @knotui/accordion
+# @lumae/accordion
 
 A complete WAI-ARIA accordion from one config object — or one hook.
 
 ```bash
-npx knotui add accordion      # or: npm install @knotui/core @knotui/accordion
+npx lumae add accordion      # or: npm install @lumae/core @lumae/accordion
 ```
 
 ```jsx
-import '@knotui/core/styles.css';
-import '@knotui/accordion/styles.css';
-import { useAccordion } from '@knotui/accordion';
+import '@lumae/core/styles.css';
+import '@lumae/accordion/styles.css';
+import { useAccordion } from '@lumae/accordion';
 
 function Support() {
   const Faq = useAccordion({
@@ -30,7 +30,7 @@ function Support() {
 `<Faq.Item id>`, `<Faq.Trigger id>`, `<Faq.Panel id>`, `<Faq.Indicator id>`.
 
 Prefer a tag? `<Accordion {...sameConfig} />` is a one-line wrapper over the hook.
-Lazy: `import { Accordion } from '@knotui/accordion/lazy';`
+Lazy: `import { Accordion } from '@lumae/accordion/lazy';`
 
 ## Config
 
@@ -53,7 +53,7 @@ Each item: `{ id?, title, content?, description?, icon?, badge?, indicator?, dis
 defaultOpen?, classNames?, styles? }`. Every renderable field also accepts a
 function of the row state: `title: (s) => s.open ? 'Hide' : 'Show'`.
 
-Styling with Tailwind? Utilities override Knot automatically (cascade layer), or
+Styling with Tailwind? Utilities override Lumae automatically (cascade layer), or
 pass `unstyled: true` to drop our classes entirely and keep only the behaviour.
 
 ## Your own markup

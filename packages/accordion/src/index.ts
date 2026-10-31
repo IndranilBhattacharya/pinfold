@@ -1,6 +1,6 @@
 /* Styles ship separately so SSR and CJS never choke on a CSS import:
-     import '@knotui/accordion/styles.css';
-   `npx knotui add accordion` wires this up for you.
+     import '@lumae/accordion/styles.css';
+   `npx lumae add accordion` wires this up for you.
    Using Tailwind or your own stylesheet? Pass `unstyled: true` and skip it. */
 
 export { Accordion } from './Accordion';

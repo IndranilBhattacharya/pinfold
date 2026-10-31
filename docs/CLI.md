@@ -1,6 +1,6 @@
 # CLI: `npx lumae`
 
-Status: **Planned (A6).** Today's `packages/cli/bin/knotui.mjs` has `init`, `add`, `theme`,
+Status: **Planned (A6).** Today's `packages/cli/bin/lumae.mjs` has `init`, `add`, `theme`,
 `palette` and `new`, and has no dependencies. A6 rebuilds it to this spec. The prompts use
 `@clack/prompts`; CLI dependencies never reach the app bundle.
 

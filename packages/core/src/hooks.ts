@@ -14,10 +14,10 @@ export function useId(provided?: string): string {
   if (nativeUseId) {
     // eslint-disable-next-line react-hooks/rules-of-hooks -- branch is constant per build
     const generated = nativeUseId();
-    return provided || 'knot-' + generated.replace(/:/g, '');
+    return provided || 'lumae-' + generated.replace(/:/g, '');
   }
   // eslint-disable-next-line react-hooks/rules-of-hooks -- branch is constant per build
-  const [fallback] = React.useState(() => 'knot-' + ++uid);
+  const [fallback] = React.useState(() => 'lumae-' + ++uid);
   return provided || fallback;
 }
 

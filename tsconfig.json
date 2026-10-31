@@ -5,10 +5,10 @@
     "baseUrl": ".",
     "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
     "paths": {
-      "@knotui/core": ["packages/core/src/index.ts"],
-      "@knotui/accordion": ["packages/accordion/src/index.ts"],
-      "@knotui/core/palette": ["packages/core/src/palette.ts"],
-      "@knotui/testing": ["packages/testing/src/index.ts"]
+      "@lumae/core": ["packages/core/src/index.ts"],
+      "@lumae/accordion": ["packages/accordion/src/index.ts"],
+      "@lumae/core/palette": ["packages/core/src/palette.ts"],
+      "@lumae/testing": ["packages/testing/src/index.ts"]
     }
   },
   "include": ["packages/*/src", "vitest.setup.ts"]

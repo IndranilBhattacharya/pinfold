@@ -19,16 +19,16 @@ export { nextIndexFromKey, type ListNavOptions } from './navigation';
 export { slotProps, renderSlot } from './slots';
 export { dimensionVars } from './dimensions';
 export { __DEV__, warnOnce, resetWarnings } from './dev';
-export { KnotProvider, useKnot, type KnotProviderProps, type KnotContextValue } from './provider';
+export { LumaeProvider, useLumae, type LumaeProviderProps, type LumaeContextValue } from './provider';
 export { createLazyComponent, type LazyOptions } from './lazy';
-export { useKnotComponent, useStableParts, type KnotComponent } from './component';
+export { useLumaeComponent, useStableParts, type LumaeComponent } from './component';
 export type {
-  KnotSize,
-  KnotRadius,
-  KnotTone,
-  KnotOrientation,
-  KnotDir,
-  KnotTheme,
+  LumaeSize,
+  LumaeRadius,
+  LumaeTone,
+  LumaeOrientation,
+  LumaeDir,
+  LumaeTheme,
   PropsBag,
   Length,
   SlotOverrides,

@@ -1,297 +1,297 @@
-/* Knot UI — design tokens.
+/* Lumae — design tokens.
    Single source of truth. Components style themselves only through these vars,
    so a palette swap, a dark-mode flip and a consumer override all work through
    the same mechanism instead of three competing ones.
 
-   Colour is authored in OKLCH for perceptual evenness. `npx knotui theme`
+   Colour is authored in OKLCH for perceptual evenness. `npx lumae theme`
    regenerates the ramps and also writes sRGB hex fallbacks for browsers
    without OKLCH support. */
 
-/* Everything ships inside the `knot` cascade layer. Unlayered CSS — including
+/* Everything ships inside the `lumae` cascade layer. Unlayered CSS — including
    every Tailwind utility — beats a layered rule regardless of source order or
    specificity, so `className="px-6"` just works with no `!important` and no
    plugin. */
-@layer knot.tokens {
+@layer lumae.tokens {
 
   :root {
     color-scheme: light dark;
 
     /* ---------------------------------------------------------------- ramps */
-    --knot-primary-50: oklch(0.977 0.014 274);
-    --knot-primary-100: oklch(0.946 0.033 274);
-    --knot-primary-200: oklch(0.902 0.063 274);
-    --knot-primary-300: oklch(0.828 0.111 274);
-    --knot-primary-400: oklch(0.714 0.163 274);
-    --knot-primary-500: oklch(0.606 0.201 274);
-    --knot-primary-600: oklch(0.541 0.223 274);
-    --knot-primary-700: oklch(0.491 0.216 274);
-    --knot-primary-800: oklch(0.432 0.181 274);
-    --knot-primary-900: oklch(0.380 0.146 274);
-    --knot-primary-950: oklch(0.283 0.101 274);
+    --lumae-primary-50: oklch(0.977 0.014 274);
+    --lumae-primary-100: oklch(0.946 0.033 274);
+    --lumae-primary-200: oklch(0.902 0.063 274);
+    --lumae-primary-300: oklch(0.828 0.111 274);
+    --lumae-primary-400: oklch(0.714 0.163 274);
+    --lumae-primary-500: oklch(0.606 0.201 274);
+    --lumae-primary-600: oklch(0.541 0.223 274);
+    --lumae-primary-700: oklch(0.491 0.216 274);
+    --lumae-primary-800: oklch(0.432 0.181 274);
+    --lumae-primary-900: oklch(0.380 0.146 274);
+    --lumae-primary-950: oklch(0.283 0.101 274);
 
     /* `accent` defaults to the brand ramp; the CLI can give it its own hue. */
-    --knot-accent-300: var(--knot-primary-300);
-    --knot-accent-400: var(--knot-primary-400);
-    --knot-accent-500: var(--knot-primary-500);
-    --knot-accent-600: var(--knot-primary-600);
-    --knot-accent-700: var(--knot-primary-700);
+    --lumae-accent-300: var(--lumae-primary-300);
+    --lumae-accent-400: var(--lumae-primary-400);
+    --lumae-accent-500: var(--lumae-primary-500);
+    --lumae-accent-600: var(--lumae-primary-600);
+    --lumae-accent-700: var(--lumae-primary-700);
 
-    --knot-neutral-50: oklch(0.985 0.002 274);
-    --knot-neutral-100: oklch(0.967 0.003 274);
-    --knot-neutral-200: oklch(0.928 0.006 274);
-    --knot-neutral-300: oklch(0.872 0.010 274);
-    --knot-neutral-400: oklch(0.707 0.015 274);
-    --knot-neutral-500: oklch(0.551 0.019 274);
-    --knot-neutral-600: oklch(0.446 0.021 274);
-    --knot-neutral-700: oklch(0.373 0.023 274);
-    --knot-neutral-800: oklch(0.279 0.023 274);
-    --knot-neutral-900: oklch(0.210 0.021 274);
-    --knot-neutral-950: oklch(0.145 0.017 274);
+    --lumae-neutral-50: oklch(0.985 0.002 274);
+    --lumae-neutral-100: oklch(0.967 0.003 274);
+    --lumae-neutral-200: oklch(0.928 0.006 274);
+    --lumae-neutral-300: oklch(0.872 0.010 274);
+    --lumae-neutral-400: oklch(0.707 0.015 274);
+    --lumae-neutral-500: oklch(0.551 0.019 274);
+    --lumae-neutral-600: oklch(0.446 0.021 274);
+    --lumae-neutral-700: oklch(0.373 0.023 274);
+    --lumae-neutral-800: oklch(0.279 0.023 274);
+    --lumae-neutral-900: oklch(0.210 0.021 274);
+    --lumae-neutral-950: oklch(0.145 0.017 274);
 
-    --knot-success-100: oklch(0.946 0.033 158);
-    --knot-success-300: oklch(0.828 0.111 158);
-    --knot-success-500: oklch(0.606 0.201 158);
-    --knot-success-700: oklch(0.491 0.216 158);
-    --knot-success-900: oklch(0.380 0.146 158);
+    --lumae-success-100: oklch(0.946 0.033 158);
+    --lumae-success-300: oklch(0.828 0.111 158);
+    --lumae-success-500: oklch(0.606 0.201 158);
+    --lumae-success-700: oklch(0.491 0.216 158);
+    --lumae-success-900: oklch(0.380 0.146 158);
 
-    --knot-warning-100: oklch(0.946 0.033 78);
-    --knot-warning-300: oklch(0.828 0.111 78);
-    --knot-warning-500: oklch(0.606 0.201 78);
-    --knot-warning-700: oklch(0.491 0.216 78);
-    --knot-warning-900: oklch(0.380 0.146 78);
+    --lumae-warning-100: oklch(0.946 0.033 78);
+    --lumae-warning-300: oklch(0.828 0.111 78);
+    --lumae-warning-500: oklch(0.606 0.201 78);
+    --lumae-warning-700: oklch(0.491 0.216 78);
+    --lumae-warning-900: oklch(0.380 0.146 78);
 
-    --knot-danger-100: oklch(0.946 0.033 27);
-    --knot-danger-300: oklch(0.828 0.111 27);
-    --knot-danger-500: oklch(0.606 0.201 27);
-    --knot-danger-700: oklch(0.491 0.216 27);
-    --knot-danger-900: oklch(0.380 0.146 27);
+    --lumae-danger-100: oklch(0.946 0.033 27);
+    --lumae-danger-300: oklch(0.828 0.111 27);
+    --lumae-danger-500: oklch(0.606 0.201 27);
+    --lumae-danger-700: oklch(0.491 0.216 27);
+    --lumae-danger-900: oklch(0.380 0.146 27);
 
-    --knot-info-100: oklch(0.946 0.033 245);
-    --knot-info-300: oklch(0.828 0.111 245);
-    --knot-info-500: oklch(0.606 0.201 245);
-    --knot-info-700: oklch(0.491 0.216 245);
-    --knot-info-900: oklch(0.380 0.146 245);
+    --lumae-info-100: oklch(0.946 0.033 245);
+    --lumae-info-300: oklch(0.828 0.111 245);
+    --lumae-info-500: oklch(0.606 0.201 245);
+    --lumae-info-700: oklch(0.491 0.216 245);
+    --lumae-info-900: oklch(0.380 0.146 245);
 
     /* ------------------------------------------------------------ semantics */
-    --knot-color-bg: var(--knot-neutral-50);
-    --knot-color-bg-subtle: var(--knot-neutral-100);
-    --knot-color-surface: oklch(1 0 0);
-    --knot-color-surface-raised: oklch(1 0 0);
-    --knot-color-surface-sunken: var(--knot-neutral-100);
+    --lumae-color-bg: var(--lumae-neutral-50);
+    --lumae-color-bg-subtle: var(--lumae-neutral-100);
+    --lumae-color-surface: oklch(1 0 0);
+    --lumae-color-surface-raised: oklch(1 0 0);
+    --lumae-color-surface-sunken: var(--lumae-neutral-100);
 
     /* Interaction surfaces carry a trace of the brand, so hover reads as
        "this control is alive" rather than "this control turned grey". */
-    --knot-color-surface-hover: color-mix(in oklch, var(--knot-color-accent) 6%, var(--knot-color-surface));
-    --knot-color-surface-active: color-mix(in oklch, var(--knot-color-accent) 11%, var(--knot-color-surface));
-    --knot-color-surface-selected: color-mix(in oklch, var(--knot-color-accent) 14%, var(--knot-color-surface));
+    --lumae-color-surface-hover: color-mix(in oklch, var(--lumae-color-accent) 6%, var(--lumae-color-surface));
+    --lumae-color-surface-active: color-mix(in oklch, var(--lumae-color-accent) 11%, var(--lumae-color-surface));
+    --lumae-color-surface-selected: color-mix(in oklch, var(--lumae-color-accent) 14%, var(--lumae-color-surface));
 
-    --knot-color-border: var(--knot-neutral-200);
-    --knot-color-border-strong: var(--knot-neutral-300);
-    --knot-color-border-accent: color-mix(in oklch, var(--knot-color-accent) 45%, var(--knot-color-border));
+    --lumae-color-border: var(--lumae-neutral-200);
+    --lumae-color-border-strong: var(--lumae-neutral-300);
+    --lumae-color-border-accent: color-mix(in oklch, var(--lumae-color-accent) 45%, var(--lumae-color-border));
 
-    --knot-color-text: var(--knot-neutral-900);
-    --knot-color-text-muted: var(--knot-neutral-600);
-    --knot-color-text-subtle: var(--knot-neutral-500);
-    --knot-color-text-disabled: var(--knot-neutral-400);
+    --lumae-color-text: var(--lumae-neutral-900);
+    --lumae-color-text-muted: var(--lumae-neutral-600);
+    --lumae-color-text-subtle: var(--lumae-neutral-500);
+    --lumae-color-text-disabled: var(--lumae-neutral-400);
 
-    --knot-color-accent: var(--knot-accent-600);
-    --knot-color-accent-hover: var(--knot-accent-700);
-    --knot-color-accent-subtle: color-mix(in oklch, var(--knot-color-accent) 10%, transparent);
-    --knot-color-accent-contrast: oklch(1 0 0);
+    --lumae-color-accent: var(--lumae-accent-600);
+    --lumae-color-accent-hover: var(--lumae-accent-700);
+    --lumae-color-accent-subtle: color-mix(in oklch, var(--lumae-color-accent) 10%, transparent);
+    --lumae-color-accent-contrast: oklch(1 0 0);
 
-    --knot-color-ring: var(--knot-accent-500);
-    --knot-color-overlay: color-mix(in oklch, var(--knot-neutral-950) 45%, transparent);
-    --knot-color-selection: color-mix(in oklch, var(--knot-color-accent) 22%, transparent);
+    --lumae-color-ring: var(--lumae-accent-500);
+    --lumae-color-overlay: color-mix(in oklch, var(--lumae-neutral-950) 45%, transparent);
+    --lumae-color-selection: color-mix(in oklch, var(--lumae-color-accent) 22%, transparent);
 
     /* --------------------------------------------------------------- depth */
     /* Shadows are tinted with the neutral ramp, never neutral black — untinted
        black over a tinted surface reads as dirt. Two layers: a tight contact
        shadow plus a wide ambient one. */
-    --knot-shadow-color: var(--knot-neutral-900);
-    --knot-shadow-xs: 0 1px 1px color-mix(in oklch, var(--knot-shadow-color) 5%, transparent);
-    --knot-shadow-sm:
-      0 1px 2px color-mix(in oklch, var(--knot-shadow-color) 6%, transparent),
-      0 1px 3px -1px color-mix(in oklch, var(--knot-shadow-color) 6%, transparent);
-    --knot-shadow-md:
-      0 2px 4px -1px color-mix(in oklch, var(--knot-shadow-color) 7%, transparent),
-      0 8px 20px -6px color-mix(in oklch, var(--knot-shadow-color) 10%, transparent);
-    --knot-shadow-lg:
-      0 4px 8px -2px color-mix(in oklch, var(--knot-shadow-color) 8%, transparent),
-      0 16px 40px -12px color-mix(in oklch, var(--knot-shadow-color) 14%, transparent);
-    --knot-shadow-xl:
-      0 8px 16px -4px color-mix(in oklch, var(--knot-shadow-color) 10%, transparent),
-      0 32px 72px -20px color-mix(in oklch, var(--knot-shadow-color) 18%, transparent);
+    --lumae-shadow-color: var(--lumae-neutral-900);
+    --lumae-shadow-xs: 0 1px 1px color-mix(in oklch, var(--lumae-shadow-color) 5%, transparent);
+    --lumae-shadow-sm:
+      0 1px 2px color-mix(in oklch, var(--lumae-shadow-color) 6%, transparent),
+      0 1px 3px -1px color-mix(in oklch, var(--lumae-shadow-color) 6%, transparent);
+    --lumae-shadow-md:
+      0 2px 4px -1px color-mix(in oklch, var(--lumae-shadow-color) 7%, transparent),
+      0 8px 20px -6px color-mix(in oklch, var(--lumae-shadow-color) 10%, transparent);
+    --lumae-shadow-lg:
+      0 4px 8px -2px color-mix(in oklch, var(--lumae-shadow-color) 8%, transparent),
+      0 16px 40px -12px color-mix(in oklch, var(--lumae-shadow-color) 14%, transparent);
+    --lumae-shadow-xl:
+      0 8px 16px -4px color-mix(in oklch, var(--lumae-shadow-color) 10%, transparent),
+      0 32px 72px -20px color-mix(in oklch, var(--lumae-shadow-color) 18%, transparent);
 
     /* Hairline highlight along the top edge of a raised surface. The detail that
        separates "a box" from "a surface". */
-    --knot-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 60%, transparent);
+    --lumae-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 60%, transparent);
 
     /* ---------------------------------------------------------------- focus */
-    --knot-focus-width: 2px;
-    --knot-focus-offset: 2px;
+    --lumae-focus-width: 2px;
+    --lumae-focus-offset: 2px;
     /* Two-tone ring: a gap in the page colour, then the ring. Stays visible on
        any surface, including one that matches the ring hue. */
-    --knot-focus-ring:
-      0 0 0 var(--knot-focus-offset) var(--knot-color-bg),
-      0 0 0 calc(var(--knot-focus-offset) + var(--knot-focus-width)) var(--knot-color-ring);
+    --lumae-focus-ring:
+      0 0 0 var(--lumae-focus-offset) var(--lumae-color-bg),
+      0 0 0 calc(var(--lumae-focus-offset) + var(--lumae-focus-width)) var(--lumae-color-ring);
 
     /* ---------------------------------------------------------------- shape */
-    --knot-radius-scale: 1;
-    --knot-radius-xs: calc(0.25rem * var(--knot-radius-scale));
-    --knot-radius-sm: calc(0.375rem * var(--knot-radius-scale));
-    --knot-radius-md: calc(0.5rem * var(--knot-radius-scale));
-    --knot-radius-lg: calc(0.75rem * var(--knot-radius-scale));
-    --knot-radius-xl: calc(1rem * var(--knot-radius-scale));
-    --knot-radius-2xl: calc(1.5rem * var(--knot-radius-scale));
-    --knot-radius-full: 9999px;
+    --lumae-radius-scale: 1;
+    --lumae-radius-xs: calc(0.25rem * var(--lumae-radius-scale));
+    --lumae-radius-sm: calc(0.375rem * var(--lumae-radius-scale));
+    --lumae-radius-md: calc(0.5rem * var(--lumae-radius-scale));
+    --lumae-radius-lg: calc(0.75rem * var(--lumae-radius-scale));
+    --lumae-radius-xl: calc(1rem * var(--lumae-radius-scale));
+    --lumae-radius-2xl: calc(1.5rem * var(--lumae-radius-scale));
+    --lumae-radius-full: 9999px;
 
     /* -------------------------------------------------------------- spacing */
-    --knot-space-1: 0.25rem;
-    --knot-space-2: 0.5rem;
-    --knot-space-3: 0.75rem;
-    --knot-space-4: 1rem;
-    --knot-space-5: 1.25rem;
-    --knot-space-6: 1.5rem;
-    --knot-space-8: 2rem;
-    --knot-space-10: 2.5rem;
+    --lumae-space-1: 0.25rem;
+    --lumae-space-2: 0.5rem;
+    --lumae-space-3: 0.75rem;
+    --lumae-space-4: 1rem;
+    --lumae-space-5: 1.25rem;
+    --lumae-space-6: 1.5rem;
+    --lumae-space-8: 2rem;
+    --lumae-space-10: 2.5rem;
 
     /* ----------------------------------------------------------- typography */
-    --knot-font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    --lumae-font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
       "Helvetica Neue", Arial, sans-serif;
-    --knot-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    --knot-text-xs: 0.75rem;
-    --knot-text-sm: 0.875rem;
-    --knot-text-md: 1rem;
-    --knot-text-lg: 1.125rem;
-    --knot-text-xl: 1.375rem;
-    --knot-leading-tight: 1.3;
-    --knot-leading-normal: 1.55;
-    --knot-weight-normal: 400;
-    --knot-weight-medium: 500;
-    --knot-weight-semibold: 600;
+    --lumae-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --lumae-text-xs: 0.75rem;
+    --lumae-text-sm: 0.875rem;
+    --lumae-text-md: 1rem;
+    --lumae-text-lg: 1.125rem;
+    --lumae-text-xl: 1.375rem;
+    --lumae-leading-tight: 1.3;
+    --lumae-leading-normal: 1.55;
+    --lumae-weight-normal: 400;
+    --lumae-weight-medium: 500;
+    --lumae-weight-semibold: 600;
     /* Larger text needs tighter tracking to look optically even. */
-    --knot-tracking-tight: -0.011em;
-    --knot-tracking-normal: 0em;
-    --knot-tracking-wide: 0.02em;
+    --lumae-tracking-tight: -0.011em;
+    --lumae-tracking-normal: 0em;
+    --lumae-tracking-wide: 0.02em;
 
     /* --------------------------------------------------------------- motion */
-    --knot-duration-fast: 120ms;
-    --knot-duration-md: 200ms;
-    --knot-duration-slow: 320ms;
+    --lumae-duration-fast: 120ms;
+    --lumae-duration-md: 200ms;
+    --lumae-duration-slow: 320ms;
     /* Decelerating curve — fast start, soft landing. Reads as responsive. */
-    --knot-ease: cubic-bezier(0.32, 0.72, 0, 1);
-    --knot-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --knot-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --lumae-ease: cubic-bezier(0.32, 0.72, 0, 1);
+    --lumae-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --lumae-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
     /* One gentle overshoot, for things that appear rather than move. */
-    --knot-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --lumae-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
     /* ---------------------------------------------------------------- layer */
-    --knot-z-dropdown: 1000;
-    --knot-z-sticky: 1100;
-    --knot-z-overlay: 1200;
-    --knot-z-modal: 1300;
-    --knot-z-toast: 1400;
-    --knot-z-tooltip: 1500;
+    --lumae-z-dropdown: 1000;
+    --lumae-z-sticky: 1100;
+    --lumae-z-overlay: 1200;
+    --lumae-z-modal: 1300;
+    --lumae-z-toast: 1400;
+    --lumae-z-tooltip: 1500;
   }
 
   /* Dark palette. Only the semantic layer flips — the ramps stay identical, so a
-     consumer who overrode `--knot-primary-500` keeps their brand in both themes. */
+     consumer who overrode `--lumae-primary-500` keeps their brand in both themes. */
   @media (prefers-color-scheme: dark) {
-    :root:not([data-knot-theme="light"]) {
-      --knot-color-bg: var(--knot-neutral-950);
-      --knot-color-bg-subtle: oklch(0.178 0.019 274);
-      --knot-color-surface: oklch(0.196 0.020 274);
-      --knot-color-surface-raised: oklch(0.232 0.021 274);
-      --knot-color-surface-sunken: oklch(0.165 0.018 274);
-      --knot-color-border: oklch(0.286 0.023 274);
-      --knot-color-border-strong: oklch(0.352 0.024 274);
-      --knot-color-text: var(--knot-neutral-100);
-      --knot-color-text-muted: var(--knot-neutral-400);
-      --knot-color-text-subtle: var(--knot-neutral-500);
-      --knot-color-text-disabled: var(--knot-neutral-600);
+    :root:not([data-lumae-theme="light"]) {
+      --lumae-color-bg: var(--lumae-neutral-950);
+      --lumae-color-bg-subtle: oklch(0.178 0.019 274);
+      --lumae-color-surface: oklch(0.196 0.020 274);
+      --lumae-color-surface-raised: oklch(0.232 0.021 274);
+      --lumae-color-surface-sunken: oklch(0.165 0.018 274);
+      --lumae-color-border: oklch(0.286 0.023 274);
+      --lumae-color-border-strong: oklch(0.352 0.024 274);
+      --lumae-color-text: var(--lumae-neutral-100);
+      --lumae-color-text-muted: var(--lumae-neutral-400);
+      --lumae-color-text-subtle: var(--lumae-neutral-500);
+      --lumae-color-text-disabled: var(--lumae-neutral-600);
       /* Dark surfaces need a lighter, slightly less saturated accent to hold
          contrast without glowing. */
-      --knot-color-accent: var(--knot-accent-400);
-      --knot-color-accent-hover: var(--knot-accent-300);
-      --knot-color-accent-contrast: var(--knot-neutral-950);
-      --knot-color-ring: var(--knot-accent-400);
-      --knot-shadow-color: oklch(0 0 0);
-      --knot-shadow-xs: 0 1px 1px color-mix(in oklch, var(--knot-shadow-color) 30%, transparent);
-      --knot-shadow-sm:
-        0 1px 2px color-mix(in oklch, var(--knot-shadow-color) 40%, transparent),
-        0 1px 3px -1px color-mix(in oklch, var(--knot-shadow-color) 40%, transparent);
-      --knot-shadow-md:
-        0 2px 4px -1px color-mix(in oklch, var(--knot-shadow-color) 45%, transparent),
-        0 8px 20px -6px color-mix(in oklch, var(--knot-shadow-color) 50%, transparent);
-      --knot-shadow-lg:
-        0 4px 8px -2px color-mix(in oklch, var(--knot-shadow-color) 50%, transparent),
-        0 16px 40px -12px color-mix(in oklch, var(--knot-shadow-color) 55%, transparent);
-      --knot-shadow-xl:
-        0 8px 16px -4px color-mix(in oklch, var(--knot-shadow-color) 55%, transparent),
-        0 32px 72px -20px color-mix(in oklch, var(--knot-shadow-color) 60%, transparent);
-      --knot-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 8%, transparent);
+      --lumae-color-accent: var(--lumae-accent-400);
+      --lumae-color-accent-hover: var(--lumae-accent-300);
+      --lumae-color-accent-contrast: var(--lumae-neutral-950);
+      --lumae-color-ring: var(--lumae-accent-400);
+      --lumae-shadow-color: oklch(0 0 0);
+      --lumae-shadow-xs: 0 1px 1px color-mix(in oklch, var(--lumae-shadow-color) 30%, transparent);
+      --lumae-shadow-sm:
+        0 1px 2px color-mix(in oklch, var(--lumae-shadow-color) 40%, transparent),
+        0 1px 3px -1px color-mix(in oklch, var(--lumae-shadow-color) 40%, transparent);
+      --lumae-shadow-md:
+        0 2px 4px -1px color-mix(in oklch, var(--lumae-shadow-color) 45%, transparent),
+        0 8px 20px -6px color-mix(in oklch, var(--lumae-shadow-color) 50%, transparent);
+      --lumae-shadow-lg:
+        0 4px 8px -2px color-mix(in oklch, var(--lumae-shadow-color) 50%, transparent),
+        0 16px 40px -12px color-mix(in oklch, var(--lumae-shadow-color) 55%, transparent);
+      --lumae-shadow-xl:
+        0 8px 16px -4px color-mix(in oklch, var(--lumae-shadow-color) 55%, transparent),
+        0 32px 72px -20px color-mix(in oklch, var(--lumae-shadow-color) 60%, transparent);
+      --lumae-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 8%, transparent);
     }
   }
 
-  [data-knot-theme="dark"] {
-    --knot-color-bg: var(--knot-neutral-950);
-    --knot-color-bg-subtle: oklch(0.178 0.019 274);
-    --knot-color-surface: oklch(0.196 0.020 274);
-    --knot-color-surface-raised: oklch(0.232 0.021 274);
-    --knot-color-surface-sunken: oklch(0.165 0.018 274);
-    --knot-color-border: oklch(0.286 0.023 274);
-    --knot-color-border-strong: oklch(0.352 0.024 274);
-    --knot-color-text: var(--knot-neutral-100);
-    --knot-color-text-muted: var(--knot-neutral-400);
-    --knot-color-text-subtle: var(--knot-neutral-500);
-    --knot-color-text-disabled: var(--knot-neutral-600);
-    --knot-color-accent: var(--knot-accent-400);
-    --knot-color-accent-hover: var(--knot-accent-300);
-    --knot-color-accent-contrast: var(--knot-neutral-950);
-    --knot-color-ring: var(--knot-accent-400);
-    --knot-shadow-color: oklch(0 0 0);
-    --knot-shadow-xs: 0 1px 1px color-mix(in oklch, var(--knot-shadow-color) 30%, transparent);
-    --knot-shadow-sm:
-      0 1px 2px color-mix(in oklch, var(--knot-shadow-color) 40%, transparent),
-      0 1px 3px -1px color-mix(in oklch, var(--knot-shadow-color) 40%, transparent);
-    --knot-shadow-md:
-      0 2px 4px -1px color-mix(in oklch, var(--knot-shadow-color) 45%, transparent),
-      0 8px 20px -6px color-mix(in oklch, var(--knot-shadow-color) 50%, transparent);
-    --knot-shadow-lg:
-      0 4px 8px -2px color-mix(in oklch, var(--knot-shadow-color) 50%, transparent),
-      0 16px 40px -12px color-mix(in oklch, var(--knot-shadow-color) 55%, transparent);
-    --knot-shadow-xl:
-      0 8px 16px -4px color-mix(in oklch, var(--knot-shadow-color) 55%, transparent),
-      0 32px 72px -20px color-mix(in oklch, var(--knot-shadow-color) 60%, transparent);
-    --knot-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 8%, transparent);
+  [data-lumae-theme="dark"] {
+    --lumae-color-bg: var(--lumae-neutral-950);
+    --lumae-color-bg-subtle: oklch(0.178 0.019 274);
+    --lumae-color-surface: oklch(0.196 0.020 274);
+    --lumae-color-surface-raised: oklch(0.232 0.021 274);
+    --lumae-color-surface-sunken: oklch(0.165 0.018 274);
+    --lumae-color-border: oklch(0.286 0.023 274);
+    --lumae-color-border-strong: oklch(0.352 0.024 274);
+    --lumae-color-text: var(--lumae-neutral-100);
+    --lumae-color-text-muted: var(--lumae-neutral-400);
+    --lumae-color-text-subtle: var(--lumae-neutral-500);
+    --lumae-color-text-disabled: var(--lumae-neutral-600);
+    --lumae-color-accent: var(--lumae-accent-400);
+    --lumae-color-accent-hover: var(--lumae-accent-300);
+    --lumae-color-accent-contrast: var(--lumae-neutral-950);
+    --lumae-color-ring: var(--lumae-accent-400);
+    --lumae-shadow-color: oklch(0 0 0);
+    --lumae-shadow-xs: 0 1px 1px color-mix(in oklch, var(--lumae-shadow-color) 30%, transparent);
+    --lumae-shadow-sm:
+      0 1px 2px color-mix(in oklch, var(--lumae-shadow-color) 40%, transparent),
+      0 1px 3px -1px color-mix(in oklch, var(--lumae-shadow-color) 40%, transparent);
+    --lumae-shadow-md:
+      0 2px 4px -1px color-mix(in oklch, var(--lumae-shadow-color) 45%, transparent),
+      0 8px 20px -6px color-mix(in oklch, var(--lumae-shadow-color) 50%, transparent);
+    --lumae-shadow-lg:
+      0 4px 8px -2px color-mix(in oklch, var(--lumae-shadow-color) 50%, transparent),
+      0 16px 40px -12px color-mix(in oklch, var(--lumae-shadow-color) 55%, transparent);
+    --lumae-shadow-xl:
+      0 8px 16px -4px color-mix(in oklch, var(--lumae-shadow-color) 55%, transparent),
+      0 32px 72px -20px color-mix(in oklch, var(--lumae-shadow-color) 60%, transparent);
+    --lumae-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 8%, transparent);
   }
 
-  /* Radius presets, set by the CLI or by <KnotProvider radius>. */
-  [data-knot-radius="none"] { --knot-radius-scale: 0; }
-  [data-knot-radius="sm"] { --knot-radius-scale: 0.6; }
-  [data-knot-radius="md"] { --knot-radius-scale: 1; }
-  [data-knot-radius="lg"] { --knot-radius-scale: 1.5; }
-  [data-knot-radius="full"] { --knot-radius-scale: 2.4; }
+  /* Radius presets, set by the CLI or by <LumaeProvider radius>. */
+  [data-lumae-radius="none"] { --lumae-radius-scale: 0; }
+  [data-lumae-radius="sm"] { --lumae-radius-scale: 0.6; }
+  [data-lumae-radius="md"] { --lumae-radius-scale: 1; }
+  [data-lumae-radius="lg"] { --lumae-radius-scale: 1.5; }
+  [data-lumae-radius="full"] { --lumae-radius-scale: 2.4; }
 
   /* Density presets scale spacing without touching type size. */
-  [data-knot-density="compact"] { --knot-density: 0.8; }
-  [data-knot-density="comfortable"] { --knot-density: 1; }
-  [data-knot-density="spacious"] { --knot-density: 1.25; }
+  [data-lumae-density="compact"] { --lumae-density: 0.8; }
+  [data-lumae-density="comfortable"] { --lumae-density: 1; }
+  [data-lumae-density="spacious"] { --lumae-density: 1.25; }
 
   /* Browsers without color-mix get flat approximations rather than nothing. */
   @supports not (color: color-mix(in oklch, red, blue)) {
     :root {
-      --knot-color-surface-hover: var(--knot-neutral-100);
-      --knot-color-surface-active: var(--knot-neutral-200);
-      --knot-color-surface-selected: var(--knot-neutral-200);
-      --knot-color-border-accent: var(--knot-color-accent);
-      --knot-color-accent-subtle: var(--knot-primary-50);
-      --knot-color-overlay: var(--knot-neutral-900);
-      --knot-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-      --knot-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.1);
-      --knot-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.14);
-      --knot-shadow-xl: 0 32px 72px rgba(0, 0, 0, 0.18);
-      --knot-highlight: none;
+      --lumae-color-surface-hover: var(--lumae-neutral-100);
+      --lumae-color-surface-active: var(--lumae-neutral-200);
+      --lumae-color-surface-selected: var(--lumae-neutral-200);
+      --lumae-color-border-accent: var(--lumae-color-accent);
+      --lumae-color-accent-subtle: var(--lumae-primary-50);
+      --lumae-color-overlay: var(--lumae-neutral-900);
+      --lumae-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+      --lumae-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.1);
+      --lumae-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.14);
+      --lumae-shadow-xl: 0 32px 72px rgba(0, 0, 0, 0.18);
+      --lumae-highlight: none;
     }
   }
 

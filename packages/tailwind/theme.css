@@ -1,87 +1,87 @@
-/* Knot UI — Tailwind CSS v4 theme.
+/* Lumae — Tailwind CSS v4 theme.
  *
  *   @import "tailwindcss";
- *   @import "@knotui/core/styles.css";
- *   @import "@knotui/tailwind/theme.css";
+ *   @import "@lumae/core/styles.css";
+ *   @import "@lumae/tailwind/theme.css";
  *
- * Maps Knot tokens onto Tailwind's `--color-*` / `--radius-*` namespaces, so
- * `bg-primary-600` and `rounded-lg` follow `npx knotui theme`, dark mode and any
+ * Maps Lumae tokens onto Tailwind's `--color-*` / `--radius-*` namespaces, so
+ * `bg-primary-600` and `rounded-lg` follow `npx lumae theme`, dark mode and any
  * runtime override. For Tailwind v3, use the preset instead.
  */
 
 @theme inline {
-  --color-primary-50: var(--knot-primary-50);
-  --color-primary-100: var(--knot-primary-100);
-  --color-primary-200: var(--knot-primary-200);
-  --color-primary-300: var(--knot-primary-300);
-  --color-primary-400: var(--knot-primary-400);
-  --color-primary-500: var(--knot-primary-500);
-  --color-primary-600: var(--knot-primary-600);
-  --color-primary-700: var(--knot-primary-700);
-  --color-primary-800: var(--knot-primary-800);
-  --color-primary-900: var(--knot-primary-900);
-  --color-primary-950: var(--knot-primary-950);
+  --color-primary-50: var(--lumae-primary-50);
+  --color-primary-100: var(--lumae-primary-100);
+  --color-primary-200: var(--lumae-primary-200);
+  --color-primary-300: var(--lumae-primary-300);
+  --color-primary-400: var(--lumae-primary-400);
+  --color-primary-500: var(--lumae-primary-500);
+  --color-primary-600: var(--lumae-primary-600);
+  --color-primary-700: var(--lumae-primary-700);
+  --color-primary-800: var(--lumae-primary-800);
+  --color-primary-900: var(--lumae-primary-900);
+  --color-primary-950: var(--lumae-primary-950);
 
-  --color-neutral-50: var(--knot-neutral-50);
-  --color-neutral-100: var(--knot-neutral-100);
-  --color-neutral-200: var(--knot-neutral-200);
-  --color-neutral-300: var(--knot-neutral-300);
-  --color-neutral-400: var(--knot-neutral-400);
-  --color-neutral-500: var(--knot-neutral-500);
-  --color-neutral-600: var(--knot-neutral-600);
-  --color-neutral-700: var(--knot-neutral-700);
-  --color-neutral-800: var(--knot-neutral-800);
-  --color-neutral-900: var(--knot-neutral-900);
-  --color-neutral-950: var(--knot-neutral-950);
+  --color-neutral-50: var(--lumae-neutral-50);
+  --color-neutral-100: var(--lumae-neutral-100);
+  --color-neutral-200: var(--lumae-neutral-200);
+  --color-neutral-300: var(--lumae-neutral-300);
+  --color-neutral-400: var(--lumae-neutral-400);
+  --color-neutral-500: var(--lumae-neutral-500);
+  --color-neutral-600: var(--lumae-neutral-600);
+  --color-neutral-700: var(--lumae-neutral-700);
+  --color-neutral-800: var(--lumae-neutral-800);
+  --color-neutral-900: var(--lumae-neutral-900);
+  --color-neutral-950: var(--lumae-neutral-950);
 
-  --color-accent: var(--knot-color-accent);
-  --color-accent-300: var(--knot-accent-300);
-  --color-accent-400: var(--knot-accent-400);
-  --color-accent-500: var(--knot-accent-500);
-  --color-accent-600: var(--knot-accent-600);
-  --color-accent-700: var(--knot-accent-700);
+  --color-accent: var(--lumae-color-accent);
+  --color-accent-300: var(--lumae-accent-300);
+  --color-accent-400: var(--lumae-accent-400);
+  --color-accent-500: var(--lumae-accent-500);
+  --color-accent-600: var(--lumae-accent-600);
+  --color-accent-700: var(--lumae-accent-700);
 
-  --color-success-500: var(--knot-success-500);
-  --color-warning-500: var(--knot-warning-500);
-  --color-danger-500: var(--knot-danger-500);
-  --color-info-500: var(--knot-info-500);
+  --color-success-500: var(--lumae-success-500);
+  --color-warning-500: var(--lumae-warning-500);
+  --color-danger-500: var(--lumae-danger-500);
+  --color-info-500: var(--lumae-info-500);
 
-  --color-bg: var(--knot-color-bg);
-  --color-bg-subtle: var(--knot-color-bg-subtle);
-  --color-surface: var(--knot-color-surface);
-  --color-surface-raised: var(--knot-color-surface-raised);
-  --color-surface-hover: var(--knot-color-surface-hover);
-  --color-surface-selected: var(--knot-color-surface-selected);
-  --color-content: var(--knot-color-text);
-  --color-content-muted: var(--knot-color-text-muted);
-  --color-content-subtle: var(--knot-color-text-subtle);
-  --color-line: var(--knot-color-border);
-  --color-line-strong: var(--knot-color-border-strong);
+  --color-bg: var(--lumae-color-bg);
+  --color-bg-subtle: var(--lumae-color-bg-subtle);
+  --color-surface: var(--lumae-color-surface);
+  --color-surface-raised: var(--lumae-color-surface-raised);
+  --color-surface-hover: var(--lumae-color-surface-hover);
+  --color-surface-selected: var(--lumae-color-surface-selected);
+  --color-content: var(--lumae-color-text);
+  --color-content-muted: var(--lumae-color-text-muted);
+  --color-content-subtle: var(--lumae-color-text-subtle);
+  --color-line: var(--lumae-color-border);
+  --color-line-strong: var(--lumae-color-border-strong);
 
-  --radius-xs: var(--knot-radius-xs);
-  --radius-sm: var(--knot-radius-sm);
-  --radius-md: var(--knot-radius-md);
-  --radius-lg: var(--knot-radius-lg);
-  --radius-xl: var(--knot-radius-xl);
-  --radius-2xl: var(--knot-radius-2xl);
+  --radius-xs: var(--lumae-radius-xs);
+  --radius-sm: var(--lumae-radius-sm);
+  --radius-md: var(--lumae-radius-md);
+  --radius-lg: var(--lumae-radius-lg);
+  --radius-xl: var(--lumae-radius-xl);
+  --radius-2xl: var(--lumae-radius-2xl);
 
-  --font-sans: var(--knot-font-sans);
-  --font-mono: var(--knot-font-mono);
+  --font-sans: var(--lumae-font-sans);
+  --font-mono: var(--lumae-font-mono);
 
-  --shadow-xs: var(--knot-shadow-xs);
-  --shadow-sm: var(--knot-shadow-sm);
-  --shadow-md: var(--knot-shadow-md);
-  --shadow-lg: var(--knot-shadow-lg);
-  --shadow-xl: var(--knot-shadow-xl);
+  --shadow-xs: var(--lumae-shadow-xs);
+  --shadow-sm: var(--lumae-shadow-sm);
+  --shadow-md: var(--lumae-shadow-md);
+  --shadow-lg: var(--lumae-shadow-lg);
+  --shadow-xl: var(--lumae-shadow-xl);
 
-  --ease-knot: var(--knot-ease);
-  --ease-knot-out: var(--knot-ease-out);
-  --ease-knot-spring: var(--knot-ease-spring);
+  --ease-lumae: var(--lumae-ease);
+  --ease-lumae-out: var(--lumae-ease-out);
+  --ease-lumae-spring: var(--lumae-ease-spring);
 }
 
-/* Variants matching the `data-*` state Knot components expose. */
+/* Variants matching the `data-*` state Lumae components expose. */
 @custom-variant open (&[data-state="open"]);
 @custom-variant closed (&[data-state="closed"]);
 @custom-variant selected (&[data-state="selected"]);
 @custom-variant disabled-row (&[data-disabled]);
-@custom-variant knot-dark (&:is([data-knot-theme="dark"] *));
+@custom-variant lumae-dark (&:is([data-lumae-theme="dark"] *));

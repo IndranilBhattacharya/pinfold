@@ -7,12 +7,12 @@ import {
   useControllableState,
   useEvent,
   useId,
-  useKnot,
-  useKnotComponent,
+  useLumae,
+  useLumaeComponent,
   useStableParts,
   warnOnce,
   __DEV__,
-} from '@knotui/core';
+} from '@lumae/core';
 import { renderItem, renderRoot, type ViewContext } from './__PASCAL__View';
 import type {
   Resolved__PASCAL__Appearance,
@@ -28,7 +28,7 @@ import type {
  * TODO: implement the matching WAI-ARIA Authoring Practices pattern.
  * https://www.w3.org/WAI/ARIA/apg/patterns/
  *
- * What ships here is the Knot skeleton: controllable state, roving focus, prop
+ * What ships here is the Lumae skeleton: controllable state, roving focus, prop
  * getters, dev diagnostics, and a hook that returns a component:
  *
  *   const Thing = use__PASCAL__({ items });
@@ -38,7 +38,7 @@ import type {
  * delete this comment.
  */
 export function use__PASCAL__(config: __PASCAL__Config): __PASCAL__Api {
-  const ctx = useKnot();
+  const ctx = useLumae();
   const {
     items: itemConfigs,
     value: controlled,
@@ -107,7 +107,7 @@ export function use__PASCAL__(config: __PASCAL__Config): __PASCAL__Api {
     render: (props?: __PASCAL__RootProps) => renderRoot(viewRef.current, props),
 
     getRootProps: (props) =>
-      mergeProps({ 'data-knot': '__NAME__', 'data-orientation': orientation, dir }, props),
+      mergeProps({ 'data-lumae': '__NAME__', 'data-orientation': orientation, dir }, props),
 
     getItemProps: (item, props) =>
       mergeProps(
@@ -156,7 +156,7 @@ export function use__PASCAL__(config: __PASCAL__Config): __PASCAL__Api {
     };
   });
 
-  const api = useKnotComponent<__PASCAL__State & typeof parts, __PASCAL__RootProps>(
+  const api = useLumaeComponent<__PASCAL__State & typeof parts, __PASCAL__RootProps>(
     '__PASCAL__',
     { ...state, ...parts },
     (props) => renderRoot(viewRef.current, props),
