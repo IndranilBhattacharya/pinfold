@@ -1,126 +1,82 @@
 # AGENTS.md
 
-Token-efficient spec for language models generating Knot UI code or new Knot UI
-components. Humans: read `ARCHITECTURE.md` instead.
+Binding rules for every AI agent and contributor working in this repo. Read this
+file first, every session. Dense by design: no filler.
 
-## Using Knot UI in an app
+Product: **Lumae**, a hooks-first, config-driven React UI library.
+Owner: Indranil Bhattacharya. MIT.
 
-Every component is a hook taking one flat config object. The hook returns a
-component. Emit data, not nested JSX.
+## 0. Status: read before touching code
 
-```jsx
-import { useAccordion } from '@knotui/accordion';
+- **Pre-release, pre-A1.** The code still uses the old working name: packages are
+  `@knotui/*`, CSS uses `knot-`/`--knot-*`, the provider is `KnotProvider`, and the CLI is `knotui`. Milestone A1 renames
+  all of it to `lumae`. Until then, **write new code with the current names**, and
+  write **docs with the target names** (`@lumae/*`), labelling unbuilt behaviour **Planned**.
+- Only one component exists (accordion). Milestones A1–A9 harden it end to end
+  before a second component starts. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
-const Faq = useAccordion({ items: [{ title: node, content: node }], variant: 'separated' });
-return <Faq className="mt-6" />;
-```
+## 1. Mandatory reading order
 
-The returned value is also the controller (`Faq.value`, `Faq.toggle(id)`) and
-carries parts (`<Faq.Trigger id>`, `<Faq.Panel id>`) for custom layouts.
+1. `AGENTS.md` (this file)
+2. [docs/DECISIONS.md](docs/DECISIONS.md): locked decisions, with the reason and the rejected alternatives for each
+3. [ARCHITECTURE.md](ARCHITECTURE.md): the contract every component follows
+4. [docs/ROADMAP.md](docs/ROADMAP.md): the current milestone and its checklist
+5. The spec of the component you touch, e.g. [docs/components/accordion.md](docs/components/accordion.md)
+6. When relevant: [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md), [docs/CLI.md](docs/CLI.md),
+   [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md), [docs/STRATEGY.md](docs/STRATEGY.md), [docs/VISION.md](docs/VISION.md)
 
-Rules:
-- Call the hook at the top of the component; render `<Faq />` inside ordinary layout JSX.
-- Never write compound children (`<AccordionItem>`, `<AccordionTrigger>`). They do not exist.
-- `<Accordion {...config} />` also exists; it is a one-line wrapper over the hook.
-- Any renderable field accepts a node **or** a function of the row's state: `title: (s) => ...`.
-- Tailwind: utilities override Knot CSS automatically (cascade layer). For full control pass `unstyled: true` and style through `classNames`.
-- Styles are imported once in the app entry: `@knotui/core/styles.css`, then `@knotui/<name>/styles.css`.
-- Wrap the app in `<KnotProvider theme radius dir size tone>` only to set global defaults. It is optional.
-- Code-split with `@knotui/<name>/lazy`.
+## 2. Process rules (non-negotiable)
 
-### Accordion config
+1. **Locked decisions are locked.** Changing anything in `docs/DECISIONS.md` needs the
+   owner's explicit approval in the conversation. Then append a dated entry; never
+   rewrite history.
+2. **Milestone gate.** Work only inside the current milestone. Do not start the next
+   milestone, or a new component, without the owner's sign-off.
+3. **Docs move with code.** Any behaviour change updates the spec, ARCHITECTURE or AGENTS
+   in the same change. Docs describe planned behaviour as **Planned** until it ships.
+4. **Spec before build.** A new component needs a researched spec in
+   `docs/components/<name>.md`, signed off by the owner, before any code. Each component
+   has its own config, events and metadata. Only the design-system base is shared.
+5. **No public mention of other frameworks in this repo's README or package docs.**
+   The architecture supports them (§4); announcing them is the site's job.
+6. `npm run verify` must pass before you call work done. Report failures with their output.
+7. Never `git push`, publish to npm, or change CI secrets unless the owner asks.
 
-```ts
-items: Array<{ id?, title, content?, description?, icon?, badge?, disabled?, defaultOpen? }>  // required
-mode?: 'single' | 'multiple'                    // default 'single'
-collapsible?: boolean                           // default true
-value?: string[]  defaultValue?: string[]  onValueChange?(ids)  onItemToggle?(id, open)
-orientation?: 'vertical' | 'horizontal'  dir?: 'ltr' | 'rtl'  loop?: boolean  id?: string
-unmountClosed?: boolean                         // default false
-variant?: 'solid' | 'outline' | 'separated' | 'filled' | 'ghost'   // default 'solid'
-size?: 'sm' | 'md' | 'lg'
-tone?: 'primary' | 'neutral' | 'success' | 'warning' | 'danger' | 'info'
-radius?: 'none' | 'sm' | 'md' | 'lg' | 'full'
-indicator?: 'chevron' | 'plus' | 'caret' | 'none' | ReactNode
-indicatorPosition?: 'start' | 'end'             // default 'end'
-headingLevel?: 1..6                             // default 3
-animate?: boolean  dividers?: boolean  unstyled?: boolean  className?  style?
-dimensions?: {                                  // number = px, string passes through
-  width, minWidth, maxWidth, height, maxHeight, gap,
-  paddingX, paddingY, panelPaddingX, panelPaddingY, panelMaxHeight,
-  fontSize, titleSize, descriptionSize, iconSize, indicatorSize,
-  borderWidth, radius, duration
-}
-classNames?: Partial<Record<Slot, string>>
-styles?: Partial<Record<Slot, CSSProperties>>
-slotProps?: Partial<Record<Slot, object>>
-render?: Partial<Record<Slot, ({ props, state, children }) => ReactNode>>
-renderItem?: ({ state, props, header, panel }) => ReactNode
+## 3. Hard constraints
 
-Slot = root|item|header|trigger|icon|label|title|description|badge|indicator|panel|content
+| Area | Rule |
+|---|---|
+| React | Floor `react >=18` (decided; A1 updates `peerDependencies`). Use native `useId` and `useSyncExternalStore`. No `react-dom` import inside components. Must work with and without the React Compiler. |
+| Dependencies | Zero runtime dependencies in published packages. Dev dependencies are fine. The CLI may use dependencies, because they never reach the app bundle. |
+| Layers | `core` (logic, no framework) and `css` never import React or any other framework. The React layer owns hooks, views, `define*` and tags. |
+| API | Hooks first: `use<Name>(config)` returns a stable component that is also the controller and carries the parts. `define<Name>(config)` is the non-hook twin for Server Components. `<Name {...config}/>` is the courtesy tag. No compound children. |
+| Config | One flat object. Data first (`items`, `columns`, `options`), never `children`. Only the data is required. Behaviour options must be expressible as plain JSON. Callbacks are optional. |
+| Escape-hatch ladder | Every component exposes all of: config, then `classNames`/`styles`/`slotProps`, then slot `render` and `renderItem`, then parts, then prop getters. |
+| Styling | Every CSS value comes from a token. No literal colours. BEM class names `.lumae-<comp>__<slot>`. State through `[data-state]`, `[data-disabled]`, never `.is-*`. All CSS inside `@layer lumae.*`. JS never imports CSS. `unstyled` drops the classes but keeps ARIA and `data-*`. |
+| Sizing | Width defaults to 100% of the parent. Heights, padding and type come from the size scale. Two-layer sizing: the `[data-size]` preset, overridden by `dimensions`. |
+| Responsive | Container queries, not viewport media queries, for layout. Fluid `clamp()` type tokens. A per-slot overflow policy (`wrap` \| `truncate` \| `{ lines }`). Touch targets of 44px or more under `pointer: coarse`. |
+| Motion | CSS only (`grid-template-rows`, `transform`, `opacity`). No height measurement. Honour `prefers-reduced-motion`. |
+| Rounded corners | Children cascade the radius. Never clip with `overflow: hidden`, which also cuts off the focus ring. |
+| Accessibility | Follow the matching WAI-ARIA APG pattern. Use `aria-disabled`, never `disabled`. Hidden content leaves the accessibility tree and the tab order. A visible `:focus-visible` ring. Handle `forced-colors`. |
+| SSR | No `window` or `document` at import time. Deterministic ids. The server HTML contains all content (panels mounted by default). `'use client'` is preserved in the build. |
+| JS and TS | Ship ES2018 ESM and CJS plus `.d.ts`. JSDoc on every public field. A dev-only config validator for JS users, stripped from production. |
+| Diagnostics | Dev-only `warnOnce()` for duplicate ids, frozen controlled state and impossible combinations. These must vanish under `NODE_ENV=production`. |
+| Identity | Build the returned component and parts only with `useKnotComponent`/`useStableParts`. A fresh identity each render remounts the whole subtree. |
 
-// Per row, inside items[]:
-{ id?, title, content?, description?, icon?, badge?, indicator?, disabled?,
-  defaultOpen?, classNames?, styles? }
-// title/content/description/icon/badge/indicator each accept
-//   ReactNode | ((state: AccordionItemState) => ReactNode)
-```
+## 4. Multi-framework readiness (architecture only)
 
-`useAccordion(config)` returns a component carrying
-`{ items, value, isOpen, open, close, toggle, openAll, closeAll, focusItem, render,
-Item, Trigger, Panel, Indicator,
-getRootProps, getItemProps, getHeaderProps, getTriggerProps, getPanelProps }`.
+Packages (target, A1): `@lumae/core` (logic, store, keyboard, palette, meta, types), `@lumae/css`,
+`@lumae/react` (subpath per component: `@lumae/react/accordion`), and `lumae` (CLI).
+A future `@lumae/vue` or `@lumae/angular` reuses `core` and `css` from npm, under the same
+npm org. So: **put behaviour rules in `core`, never in hooks**; keep meta and types framework-free.
+No Vue or Angular code is built now.
 
-Render it as `<Faq />` (it accepts `className`, `style` and `data-*`), or call
-`Faq.render()`. Parts take `id` or `index`; `Trigger` and `Panel` accept
-`children` to replace their contents. Getters take `(item, extraProps?)` and must
-be spread onto your own elements if you build the markup yourself.
+## 5. Adding or changing a component: checklist
 
-## Theming from code
-
-```js
-import { createTheme } from '@knotui/core/palette';
-createTheme({ primary: 'emerald', accent: 'amber', neutral: 264, intensity: 1.1, radius: 'lg' });
-// -> { vars, css, ramps, contrast }
-```
-Roles: primary, accent, neutral, success, warning, danger, info. Each is an
-11-step ramp (50…950) from one OKLCH hue. Hue accepts a name or 0–360.
-Never hand-write a colour: override `--knot-*` tokens or regenerate the theme.
-
-## Building a new Knot UI component
-
-Start with `npx knotui new <name>` — it scaffolds a package that already passes
-the conformance suite. Then implement the WAI-ARIA pattern.
-
-Four files, strictly layered:
-`use<Name>.tsx` (state/ARIA/getters, returns `render`) · `<Name>View.tsx` (pure
-markup function, not a component) · `<name>.css` (tokens) · `<Name>.tsx` (one-line
-tag wrapper). The hook is the API; the tag is a courtesy.
-
-Hard constraints:
-- React ≥ 16.8. No `useId`/`useSyncExternalStore`/`useTransition`/`use`. Classic JSX runtime. No `react-dom` import.
-- Zero runtime dependencies. Use core's `cn`, `mergeProps`, `variants`, `useControllableState`, `useEvent`, `useId`, `nextIndexFromKey`, `slotProps`, `renderSlot`.
-- JS must not import CSS. `tsup` copies `<name>.css` to `dist/styles.css`.
-- Every CSS value comes from a `--knot-*` token. Class names: `.knot-<comp>__<slot>`. State via `[data-state]`/`[data-disabled]`, never `.is-*`.
-- Sizing is two-layer: `[data-size]` writes `--knot-<c>-<x>-base`, and `dimensionVars()` writes `--knot-<component>-<kebab-key>` which wins via `var(fallback)`. Expose a `dimensions` config for every visible measurement.
-- Rounded containers cascade radius (`item → header → trigger`) instead of clipping with `overflow: hidden`, which would also cut off the focus ring.
-- All component CSS lives inside `@layer knot.components` so consumer CSS and Tailwind utilities win without `!important`.
-- The hook returns a component via `useKnotComponent`, and parts via `useStableParts`. Never build either inline — a fresh identity per render remounts the subtree.
-- Support `unstyled`: drop the component's own classes, keep ARIA and `data-*`.
-- Animate in CSS only (`grid-template-rows`, `transform`, `opacity`). No height measurement.
-- Follow the matching WAI-ARIA APG pattern. `aria-disabled`, not `disabled`. Hidden content leaves the a11y tree and tab order.
-- Config must be JSON-expressible; callbacks optional.
-
-- Dev-only `warnOnce()` diagnostics for duplicate ids, frozen controlled state,
-  and impossible config combinations. They must vanish under `NODE_ENV=production`.
-
-Then: register in `packages/cli/registry.json`, add a docs section in
-`apps/docs/src/App.tsx`, and run `npm run verify` (typecheck + tests + build +
-gzip budget).
-
-Tests must cover: ARIA wiring, every mode, the full keyboard map, disabled,
-controlled vs uncontrolled, slot overrides — plus `describeKnotConformance`
-from `@knotui/testing`, which is not optional:
+1. The spec exists and is signed off (`docs/components/<name>.md`).
+2. `npx knotui new <name>` scaffolds a package that already passes conformance.
+3. Write the types first, then the core logic, then the hook (`use<Name>`), the view (a plain function), the CSS, and the tag.
+4. Tests cover ARIA wiring, every mode, the full keyboard map, disabled, controlled versus uncontrolled, slot overrides, and dimensions reaching CSS. Then add `describeKnotConformance` (mandatory):
 
 ```tsx
 describeKnotConformance({
@@ -132,8 +88,52 @@ describeKnotConformance({
   render: (config) => <Tabs items={items} {...config} />,
 });
 ```
+Conformance fails the build on:
+- a missing root class
+- a slot that ignores `classNames`, `styles` or `slotProps`
+- a dimension that never reaches CSS
+- a `disabled` attribute
+- an unnamed control
+- a hard-coded colour
+- a class outside the component's namespace
 
-It fails the build on: a missing `knot`/`knot-<name>` root class, a slot that
-ignores `classNames`/`styles`/`slotProps`, dimensions that never reach CSS, a
-`disabled` attribute, an unnamed control, a hard-coded colour in the stylesheet,
-or a class outside the `knot-<name>` namespace.
+5. Register it in `packages/cli/registry.json`. Update its spec and the site repo
+   (`../lumae-site`) if the site documents it.
+6. Run `npm run verify` (typecheck, tests, build, gzip budget).
+
+## 6. Current API reference (pre-A1 names)
+
+```jsx
+import { useAccordion } from '@knotui/accordion';
+const Faq = useAccordion({ items: [{ title, content }], variant: 'separated' });
+return <Faq className="mt-6" />;
+// Faq is also the controller (Faq.value, Faq.toggle(id), Faq.openAll()) and carries parts (<Faq.Trigger id>, <Faq.Panel id>).
+```
+
+```ts
+items: Array<{ id?, title, content?, description?, icon?, badge?, indicator?, disabled?, defaultOpen?, classNames?, styles? }>  // required
+mode?: 'single' | 'multiple'          // 'single'
+collapsible?: boolean                 // true
+value?, defaultValue?: string[]   onValueChange?(ids)   onItemToggle?(id, open)
+orientation?: 'vertical'|'horizontal'   dir?: 'ltr'|'rtl'   loop?: boolean   id?: string
+unmountClosed?: boolean               // false
+variant?: 'solid'|'outline'|'separated'|'filled'|'ghost'   // 'solid'
+size?: 'sm'|'md'|'lg'   tone?: 'primary'|'neutral'|'success'|'warning'|'danger'|'info'
+radius?: 'none'|'sm'|'md'|'lg'|'full'
+indicator?: 'chevron'|'plus'|'caret'|'arrow'|'none'|ReactNode   indicatorPosition?: 'start'|'end'
+headingLevel?: 1..6 (3)   animate?, dividers?, unstyled?: boolean   className?, style?
+dimensions?: { width, minWidth, maxWidth, height, maxHeight, gap, paddingX, paddingY,
+  panelPaddingX, panelPaddingY, panelMaxHeight, fontSize, titleSize, descriptionSize,
+  iconSize, indicatorSize, borderWidth, radius, duration }   // number = px
+classNames?, styles?, slotProps?, render?: per Slot   renderItem?({ state, props, header, panel })
+Slot = root|item|header|trigger|icon|label|title|description|badge|indicator|panel|content
+// Renderable fields accept ReactNode | ((state) => ReactNode).
+```
+The returned value carries `items, value, isOpen, open, close, toggle, openAll, closeAll, focusItem, render,
+Item, Trigger, Panel, Indicator, getRootProps, getItemProps, getHeaderProps, getTriggerProps, getPanelProps`.
+
+Theming: `createTheme({ primary, accent, neutral, intensity, radius })` from `@knotui/core/palette`
+returns `{ vars, css, ramps, contrast }`. It covers 7 roles × 11 OKLCH steps. Never hand-write a colour.
+
+Planned API (A3/A4): `defineAccordion`, `defineConfig`, `lazy`, `hiddenUntilFound`,
+`onBeforeChange`, `mountPanels`, `syncWithHash`, `fields`. See the accordion spec.

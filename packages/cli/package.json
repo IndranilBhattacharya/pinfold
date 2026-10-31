@@ -2,6 +2,7 @@
   "name": "knotui",
   "version": "0.1.0",
   "description": "Knot UI CLI \u2014 scaffold themes and install components one at a time.",
+  "author": "Indranil Bhattacharya",
   "keywords": [
     "knotui",
     "cli",

@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use or build on Lumae, please cite it as below."
+title: "Lumae: a hooks-first, config-driven React UI library"
+type: software
+authors:
+  - family-names: "Bhattacharya"
+    given-names: "Indranil"
+license: MIT
+keywords:
+  - react
+  - ui-library
+  - design-system
+  - accessibility
+  - config-driven

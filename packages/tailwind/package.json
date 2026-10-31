@@ -2,6 +2,7 @@
   "name": "@knotui/tailwind",
   "version": "0.1.0",
   "description": "Tailwind preset and theme for Knot UI — the brand palette as utilities.",
+  "author": "Indranil Bhattacharya",
   "keywords": ["tailwind", "tailwindcss", "preset", "knotui", "design-tokens"],
   "license": "MIT",
   "main": "./preset.cjs",
