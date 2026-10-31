@@ -2,13 +2,14 @@ import * as React from 'react';
 import { ariaAttr, dataAttr, mergeProps, nextIndexFromKey, warnOnce, __DEV__ } from '@lumae/core';
 import { useControllableState, useEvent, useId } from '../hooks';
 import { useLumae } from '../provider';
-import { useLumaeComponent, useStableParts } from '../component';
+import { useLumaeComponent } from '../component';
 import { renderItem, renderRoot, type ViewContext } from './__PASCAL__View';
 import type {
   Resolved__PASCAL__Appearance,
   __PASCAL__Api,
   __PASCAL__Config,
   __PASCAL__ItemState,
+  __PASCAL__Parts,
   __PASCAL__PartProps,
   __PASCAL__RootProps,
   __PASCAL__State,
@@ -124,9 +125,9 @@ export function use__PASCAL__(config: __PASCAL__Config): __PASCAL__Api {
       ),
   };
 
-  // Built once: a fresh identity each render would make React tear down and
-  // rebuild the subtree on every parent update.
-  const parts = useStableParts(() => {
+  // Built once (inside useLumaeComponent): a fresh identity each render would
+  // make React tear down and rebuild the subtree on every parent update.
+  const buildParts = () => {
     const pick = (props: __PASCAL__PartProps): __PASCAL__ItemState | undefined => {
       const rows = viewRef.current.api.items;
       return props.index != null
@@ -144,12 +145,13 @@ export function use__PASCAL__(config: __PASCAL__Config): __PASCAL__Api {
           : null;
       },
     };
-  });
+  };
 
-  const api = useLumaeComponent<__PASCAL__State & typeof parts, __PASCAL__RootProps>(
+  const api = useLumaeComponent<__PASCAL__State, __PASCAL__RootProps, __PASCAL__Parts>(
     '__PASCAL__',
-    { ...state, ...parts },
+    state,
     (props) => renderRoot(viewRef.current, props),
+    buildParts,
   );
 
   viewRef.current = { api, config, a: appearance };

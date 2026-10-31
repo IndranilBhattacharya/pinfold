@@ -17,5 +17,5 @@ export {
 } from './hooks';
 export { slotProps, renderSlot } from './slots';
 export { createLazyComponent, type LazyOptions } from './lazy';
-export { useLumaeComponent, useStableParts, type LumaeComponent } from './component';
+export { useLumaeComponent, type LumaeComponent } from './component';
 export type { SlotOverrides, SlotRenderer, Slottable } from './types';

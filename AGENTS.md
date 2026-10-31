@@ -59,7 +59,7 @@ Owner: Indranil Bhattacharya. MIT.
 | SSR | No `window` or `document` at import time. Deterministic ids. The server HTML contains all content (panels mounted by default). `'use client'` is preserved in the build. |
 | JS and TS | Ship ES2018 ESM and CJS plus `.d.ts`. JSDoc on every public field. A dev-only config validator for JS users, stripped from production. |
 | Diagnostics | Dev-only `warnOnce()` for duplicate ids, frozen controlled state and impossible combinations. These must vanish under `NODE_ENV=production`. |
-| Identity | Build the returned component and parts only with `useLumaeComponent`/`useStableParts`. A fresh identity each render remounts the whole subtree. |
+| Identity | Build the returned component and its parts only with `useLumaeComponent(name, api, render, buildParts)`. A fresh identity each render remounts the whole subtree; its store subscription keeps them fresh under the React Compiler. |
 
 ## 4. Multi-framework readiness (architecture only)
 

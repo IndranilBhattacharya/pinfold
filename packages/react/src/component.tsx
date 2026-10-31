@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useIsomorphicLayoutEffect } from './hooks';
 
 /**
  * A component that is also its own controller.
@@ -11,42 +12,82 @@ import * as React from 'react';
 export type LumaeComponent<Api, Props> = ((props: Props) => React.ReactElement | null) &
   Api & { displayName?: string };
 
-/**
- * Turn a render function plus an API object into a stable component.
- *
- * Identity stability is the whole point. A component created fresh on every
- * render is a *new element type* to React, which unmounts and remounts the
- * entire subtree on each parent update — losing focus, selection, scroll
- * position and every running transition. So the function is created once and
- * reads the current render through a ref; only the attached API is refreshed.
- */
-export function useLumaeComponent<Api extends object, Props extends object>(
-  displayName: string,
-  api: Api,
-  render: (props: Props) => React.ReactElement | null,
-): LumaeComponent<Api, Props> {
-  const renderRef = React.useRef(render);
-  renderRef.current = render;
+type Part = (props: any) => React.ReactElement | null;
 
-  const ref = React.useRef<LumaeComponent<Api, Props> | null>(null);
-  if (ref.current === null) {
-    const Component = ((props: Props) => renderRef.current(props)) as LumaeComponent<Api, Props>;
-    Component.displayName = displayName;
-    ref.current = Component;
-  }
-
-  // Mutating the same function object keeps identity while the API stays live.
-  return Object.assign(ref.current, api, { displayName });
+/** Per-instance render counter the returned component and its parts subscribe to. */
+interface RenderStore {
+  version: number;
+  listeners: Set<() => void>;
 }
 
 /**
- * Create the sub-components a compound API exposes, once.
+ * Turn a render function plus an API object (and optional parts) into a
+ * stable component.
  *
- * Same reasoning as above: `<Accordion.Panel />` must be the same type on every
- * render or React tears the panel down mid-animation.
+ * Identity stability: a component created fresh on every render is a *new
+ * element type* to React, which remounts the whole subtree on each parent
+ * update, losing focus, selection, scroll position and running transitions.
+ * So the component and its parts are created once and read the current
+ * render through a ref.
+ *
+ * Freshness: because the identity never changes, a memoising parent (the
+ * React Compiler, `React.memo`, a cached element) may skip re-rendering it.
+ * So every hook render bumps a version, and after commit the component and
+ * each part re-render through `useSyncExternalStore` if they have not yet
+ * seen it. In the ordinary case they already rendered with the parent, the
+ * snapshot matches, and React does no extra work.
  */
-export function useStableParts<T extends Record<string, unknown>>(build: () => T): T {
-  const ref = React.useRef<T | null>(null);
-  if (ref.current === null) ref.current = build();
-  return ref.current;
+export function useLumaeComponent<
+  Api extends object,
+  Props extends object,
+  Parts extends { [K in keyof Parts]: Part } = {},
+>(
+  displayName: string,
+  api: Api,
+  render: (props: Props) => React.ReactElement | null,
+  buildParts?: () => Parts,
+): LumaeComponent<Api & Parts, Props> {
+  const renderRef = React.useRef(render);
+  renderRef.current = render;
+
+  const ref = React.useRef<{ store: RenderStore; Component: LumaeComponent<Api & Parts, Props> } | null>(null);
+  if (ref.current === null) {
+    const store: RenderStore = { version: 0, listeners: new Set() };
+    const subscribe = (listener: () => void) => {
+      store.listeners.add(listener);
+      return () => {
+        store.listeners.delete(listener);
+      };
+    };
+    const snapshot = () => store.version;
+    const useFresh = () => React.useSyncExternalStore(subscribe, snapshot, snapshot);
+
+    const Component = ((props: Props) => {
+      useFresh();
+      return renderRef.current(props);
+    }) as LumaeComponent<Api & Parts, Props>;
+    Component.displayName = displayName;
+
+    const parts = buildParts ? buildParts() : ({} as Parts);
+    for (const key of Object.keys(parts)) {
+      const part = parts[key as keyof Parts] as Part;
+      const Live: Part = (props) => {
+        useFresh();
+        return part(props);
+      };
+      (Live as { displayName?: string }).displayName = `${displayName}.${key}`;
+      (Component as unknown as Record<string, Part>)[key] = Live;
+    }
+    ref.current = { store, Component };
+  }
+
+  const { store, Component } = ref.current;
+  // This render's state is newer than anything a subscriber has rendered.
+  store.version++;
+  useIsomorphicLayoutEffect(() => {
+    store.listeners.forEach((listener) => listener());
+  });
+
+  // Mutating the same function object keeps identity while the API stays live.
+  return Object.assign(Component, api, { displayName });
 }

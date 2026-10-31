@@ -18,7 +18,7 @@ Current milestone: **A1 (not started).** Step 0 (the repo split and the docs) is
 - [x] Rename the original working name to `lumae` everywhere (packages, CSS prefix, tokens, provider, CLI) in both repos.
 - [x] Re-layout the packages: `core` (no framework), `css`, `react` (subpaths), `cli`, and `testing` (private).
 - [x] React 18 floor: set `peerDependencies`, delete the `useId` shim (`packages/react/src/hooks.ts`), and delete the React <18 hydration warning in `useAccordion.tsx`.
-- [ ] React Compiler: write a failing test where a compiled consumer shows stale `<Faq />`. Fix it with a store subscription (`useSyncExternalStore`) in `useLumaeComponent`.
+- [x] React Compiler: write a failing test where a compiled consumer shows stale `<Faq />`. Fix it with a store subscription (`useSyncExternalStore`) in `useLumaeComponent`.
 - [ ] CI matrix:
   - Windows, macOS and Linux × Node 20, 22 and 24 × React 18, 19 and canary, each with and without the compiler.
   - Install checks with npm, pnpm, Yarn PnP and bun.
