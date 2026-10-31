@@ -2,6 +2,7 @@
   "name": "@knotui/accordion",
   "version": "0.1.0",
   "description": "Knot UI accordion — a full WAI-ARIA accordion from a single config object or hook.",
+  "author": "Indranil Bhattacharya",
   "keywords": ["react", "accordion", "disclosure", "aria", "headless", "knotui"],
   "license": "MIT",
   "sideEffects": ["*.css"],

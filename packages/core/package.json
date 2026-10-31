@@ -2,6 +2,7 @@
   "name": "@knotui/core",
   "version": "0.1.0",
   "description": "Knot UI core \u2014 tokens, theme engine and headless primitives for configuration-driven React UI.",
+  "author": "Indranil Bhattacharya",
   "keywords": [
     "react",
     "ui",

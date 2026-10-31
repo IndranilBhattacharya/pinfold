@@ -11,5 +11,5 @@
       "@knotui/testing": ["packages/testing/src/index.ts"]
     }
   },
-  "include": ["packages/*/src", "apps/*/src", "vitest.setup.ts"]
+  "include": ["packages/*/src", "vitest.setup.ts"]
 }

@@ -1,20 +1,17 @@
 {
-  "name": "knotui-monorepo",
+  "name": "lumae-monorepo",
   "private": true,
   "version": "0.0.0",
-  "description": "Knot UI - configuration-driven React UI framework",
+  "description": "Lumae: config-driven, hooks-first React UI library",
   "workspaces": [
-    "packages/*",
-    "apps/*"
+    "packages/*"
   ],
   "scripts": {
     "build": "npm run build --workspace=@knotui/core && npm run build --workspace=@knotui/accordion && npm run build --workspace=knotui",
-    "dev": "npm run dev --workspace=@knotui/docs",
-    "docs": "npm run dev --workspace=@knotui/docs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty",
-    "clean": "rimraf packages/*/dist apps/*/dist",
+    "clean": "rimraf packages/*/dist",
     "size": "node scripts/size-check.mjs",
     "size:strict": "node scripts/size-check.mjs --strict",
     "verify": "npm run typecheck && npm test && npm run build && npm run size:strict"
@@ -36,5 +33,7 @@
   },
   "engines": {
     "node": ">=18"
-  }
+  },
+  "author": "Indranil Bhattacharya",
+  "license": "MIT"
 }

@@ -1,9 +1,31 @@
 # Architecture
 
-The contract every Knot UI component follows. Read this once and you can add
+The contract every Lumae component follows. Read this once and you can add
 the next twelve components without inventing a single decision.
 
+> Names: the code is still pre-A1 (`@knotui/*`, `knot-`, `KnotProvider`). This document uses the
+> target names (`@lumae/*`, `lumae-`). Sections marked **Planned** describe A1–A7 work.
+> Each decision is referenced as D-nn ([docs/DECISIONS.md](docs/DECISIONS.md)).
+
 ---
+
+## 0. Layers and packages (D-04, D-05). Planned for A1
+
+```
+@lumae/core    no framework: <name>.logic.ts, store, keyboard nav, ids, palette, <name>.meta.ts, config types
+@lumae/css     tokens.css, reset.css, styles/<pack>.css, <name>.css
+@lumae/react   use<Name>, define<Name>, <Name> tag, <Name>View, LumaeProvider, defineConfig
+lumae          CLI
+```
+
+- **Isolation rule.** `core` and `css` never import React or any other framework, and a test fails
+  the build if they do. Behaviour *rules* (what toggling does, the single/collapsible rules,
+  which key goes where) live in `core` as pure functions. The React layer only adapts them:
+  state, effects, refs, JSX.
+- **Future adapters.** `@lumae/vue` and `@lumae/angular` would depend on `core` and `css` from npm, under
+  the same org, and write only a view and an adapter. Behaviour stays identical, because there is
+  only one copy of the rules.
+- **Subpaths.** Each component has one: `@lumae/react/accordion`. Unused components add 0 bytes.
 
 ## 1. The layering rule
 
@@ -11,39 +33,57 @@ Each component splits into these concerns, in this order:
 
 | Layer | File | Owns | Never touches |
 | --- | --- | --- | --- |
-| Behaviour | `use<Name>.tsx` | state, keyboard, ARIA, prop getters, `render()` | class names, markup |
-| Presentation | `<Name>View.tsx` | markup, slots, variants — a plain function, not a component | state logic |
-| Style | `<name>.css` | tokens → CSS | JS |
-| Courtesy | `<Name>.tsx` | `useName(config).render()`, one line | anything else |
+| Rules | `core/<name>.logic.ts` | pure transitions, keyboard map, validation (Planned for A2) | React, the DOM |
+| Behaviour | `use<Name>.tsx` | state, refs, ARIA, prop getters, `render()` | class names, markup |
+| Presentation | `<Name>View.tsx` | markup, slots, variants. A plain function, not a component. | state logic |
+| Style | `<name>.css` | tokens turned into CSS | JS |
+| Server twin | `define<Name>.ts` | `define<Name>(config)` returns a component that renders the client tag (Planned for A4) | hooks |
+| Courtesy | `<Name>.tsx` | `use<Name>(config).render()`, one line | anything else |
 
-**The hook returns a component.** `use<Name>(config)` hands back a value that
-is simultaneously:
+**The hook returns a component.** `use<Name>(config)` hands back one value that is
+three things at once:
 
-1. a **component** — `<Faq />`, accepting `className`, `style` and `data-*`, so it
+1. a **component**: `<Faq />`, which accepts `className`, `style` and `data-*`, so it
    drops into ordinary layout JSX with no wrapper;
-2. the **controller** — `Faq.value`, `Faq.toggle(id)`, `Faq.focusItem(0)`;
-3. a set of **parts** — `<Faq.Trigger id>`, `<Faq.Panel id>` — for layouts the
+2. the **controller**: `Faq.value`, `Faq.toggle(id)`, `Faq.focusItem(0)`;
+3. a set of **parts**: `<Faq.Trigger id>`, `<Faq.Panel id>`, for layouts the
    config cannot express.
 
-Build both with `useKnotComponent` and `useStableParts` from core. **Identity
-stability is not optional**: a component created fresh each render is a new
-element type to React, which unmounts and remounts the whole subtree, discarding
-focus, scroll position and every running transition. The conformance suite tests
-for it.
+Build both the component and the parts with `useKnotComponent` and `useStableParts` from core.
+**Identity stability is not optional.** A component created fresh each render is a new element
+type to React, which unmounts and remounts the whole subtree, discarding focus, scroll position
+and every running transition. The conformance suite tests for it.
 
-The standalone `<Name />` export is a one-line wrapper for one-off usage; it must
-add nothing.
+**React Compiler (A1).** A stable component that reads state through a ref may be served from the
+compiler's cache and go stale. The fix: the returned component subscribes to its own state
+through `useSyncExternalStore`, so it re-renders by itself. The public API doesn't change.
 
-### Where the config model stops
+**Server Components (D-07, Planned for A4).** Hooks can't run in a Server Component, so
+`define<Name>(config)` is a plain function. It returns a component that renders the
+`'use client'` tag with the same config, adding no extra DOM. The controller and the parts are
+client-only. Function values in the config can't cross the server/client boundary (there's a dev
+warning), but server-rendered JSX nodes can. Everything in the config ends up in the page payload,
+so never put secrets in it.
 
-Config fits repeated, uniform rows. It does not fit page layout, and pretending
-otherwise is what earns a library its "leaky abstraction" reviews. So the ladder
-out is first-class, not an escape hatch: parts carry the ARIA, the consumer
-carries the layout. A component is not finished until its parts are exported.
+The standalone `<Name />` export is a one-line wrapper for one-off usage. It must add nothing.
 
-If the hook mentions a class name, the layering is broken. If the component
-computes state, the layering is broken. This split is what makes the same
-component usable at every level of control without a second code path.
+### Where the config model stops: the escape-hatch ladder (D-09)
+
+Config fits repeated, uniform rows. It doesn't fit page layout, so every component provides the
+same ladder down, enforced by conformance:
+
+1. config
+2. `classNames` / `styles` / `slotProps`
+3. slot `render` / `renderItem`
+4. parts
+5. prop getters
+
+Parts carry the ARIA, and the consumer carries the layout. A component is not finished until all
+five rungs work. When many users drop below config for the same need, that need becomes a config
+option.
+
+If the hook mentions a class name, the layering is broken. If the view computes state, the layering
+is broken.
 
 ---
 
@@ -61,25 +101,25 @@ interface <Name>Config
 
 Rules:
 
-1. **Data first.** The primary array/record is called `items`, `columns`, `rows`,
-   `options` — never `children`.
-2. **Everything optional except data.** A component with only its data prop must
-   render something correct and good-looking.
-3. **Every measurement is configurable.** Ship a `dimensions` object covering
-   width, height, padding, gap, radius, font sizes, icon sizes, border width and
-   duration. Numbers are px, strings pass through. It layers *over* the `size`
-   preset, so overriding one dimension keeps the preset for the rest.
-4. **Every visible part is configurable.** Anything renderable — title, icon,
-   badge, body, indicator — accepts a node *or* a function of the row's live
-   state, and can be set per component or per row. Ship `render` per slot and
-   `renderItem` for the whole row, so no customisation requires forking.
-5. **Controlled and uncontrolled from one hook.** `value` + `defaultValue` +
-   `onValueChange`, resolved by `useControllableState`. Never two code paths.
-6. **JSON-safe defaults.** Every behaviour option must be expressible in plain
-   JSON — strings, numbers, booleans, arrays. Functions are opt-in extras, never
-   required. This is what lets a CMS or a language model drive the component.
-7. **Appearance inherits.** `size`, `tone`, `radius`, `dir` default from
-   `useKnot()` (the provider) so an app themes once.
+1. **Data first.** The primary array or record is called `items`, `columns`, `rows` or
+   `options`, never `children`. A `fields` mapping (Planned) lets raw records in without glue code.
+2. **Everything optional except the data.** A component given only its data must render something
+   correct and good-looking, with enterprise-standard defaults.
+3. **Every measurement is configurable.** `dimensions` covers width, height, padding, gap, radius,
+   font sizes, icon sizes, border width and duration. Numbers are px; strings pass through. It
+   layers *over* the `size` preset. Width defaults to 100% of the parent.
+4. **Every visible part is configurable.** Any renderable field accepts a node or a function of the
+   row's live state, at the component or the row level.
+5. **Controlled and uncontrolled come from one hook,** via `useControllableState`.
+6. **Defaults expressible as plain JSON.** Every behaviour option can be written as plain JSON.
+   Functions are opt-in extras. This is what lets a CMS, a server component or a language model
+   drive the component.
+7. **Appearance inherits** from the global config (D-08). Precedence, highest first: component
+   config, `defaults.<component>` in `lumae.config`, the global theme, library defaults. A nested
+   `LumaeProvider` scopes a section.
+8. **Dev validation (Planned for A3).** `meta.ts` drives dev-only warnings for unknown keys, wrong
+   types and invalid enum values, because JS users have no compiler to catch them. It is stripped
+   in production.
 
 ---
 
@@ -91,7 +131,7 @@ part. Each:
 - takes an optional props bag and merges it through `mergeProps` (handlers chain,
   `className` concatenates, `style` merges, `ref` composes)
 - returns every ARIA and `data-*` attribute that part needs
-- carries `data-state`, `data-disabled`, `data-orientation` so CSS never needs a
+- carries `data-state`, `data-disabled`, `data-orientation`, so CSS never needs a
   class toggle
 
 ```ts
@@ -100,7 +140,6 @@ getTriggerProps: (item, props) =>
 ```
 
 CSS styles state through `[data-state='open']`, never through a `.is-open` class.
-That keeps the stylesheet valid for headless consumers too.
 
 ---
 
@@ -109,7 +148,7 @@ That keeps the stylesheet valid for headless consumers too.
 Name every visual part. The accordion has twelve: `root, item, header, trigger,
 icon, label, title, description, badge, indicator, panel, content`.
 
-Each slot is reachable three ways, and every component supports all three:
+Each slot is reachable three ways, and every component supports all of them:
 
 ```jsx
 classNames={{ trigger: 'px-6' }}                       // add a class
@@ -118,189 +157,201 @@ slotProps={{ panel: { 'data-analytics': 'faq' } }}     // merge DOM props
 render={{ indicator: ({ props, state }) => <X {...props} open={state.open} /> }}  // replace
 ```
 
-Implement with the two core helpers — never hand-roll:
+Implement with the two core helpers. Never hand-roll them:
 
 ```ts
 const props = slotProps(config, 'trigger', baseProps);
 renderSlot(config, 'trigger', props, itemState, children, (p, c) => <button {...p}>{c}</button>);
 ```
 
-A `render` override receives the behaviour props. If a consumer forgets to spread
-them, accessibility breaks — that is documented, not defended against.
+A `render` override receives the behaviour props. If a consumer forgets to spread them,
+accessibility breaks. That is documented, not defended against.
 
 ---
 
 ## 5. Styling contract
 
-- Class names are BEM: `.knot-<component>__<slot>`, state via `[data-*]`.
-- **Every value comes from a core token.** No literal colors, no magic pixels
-  outside the component's own local vars.
-- Sizing is **two-layer**. `[data-size]` writes the `*-base` preset; the
-  `dimensions` config writes `--knot-<component>-<key>` via `dimensionVars()`,
-  and wins through the `var()` fallback:
+- Class names are BEM: `.lumae-<component>__<slot>`. State is expressed through `[data-*]`.
+- **Every value comes from a core token.** No literal colours, and no magic pixels outside the
+  component's own local variables.
+- Sizing is **two-layer**. `[data-size]` writes the `*-base` preset. The `dimensions` config writes
+  `--lumae-<component>-<key>` via `dimensionVars()`, which wins through the `var()` fallback:
 
 ```css
-.knot-accordion { --knot-acc-pad-x-base: var(--knot-space-4); }
-.knot-accordion[data-size='lg'] { --knot-acc-pad-x-base: var(--knot-space-5); }
-.knot-accordion { --knot-acc-pad-x: var(--knot-accordion-padding-x, var(--knot-acc-pad-x-base)); }
+.lumae-accordion { --lumae-acc-pad-x-base: var(--lumae-space-4); }
+.lumae-accordion[data-size='lg'] { --lumae-acc-pad-x-base: var(--lumae-space-5); }
+.lumae-accordion { --lumae-acc-pad-x: var(--lumae-accordion-padding-x, var(--lumae-acc-pad-x-base)); }
 ```
 
-  That is what lets a consumer override one measurement without losing the preset
-  for the others. Overriding a custom property is the supported theming path —
-  never CSS overrides fighting specificity.
-- **Rounded containers clip.** Any element with a radius sets `overflow: hidden`
-  and its children inherit the radius (`item → header → trigger`). Without this a
-  hover or active fill renders as a rectangle crossing the rounded border.
-- **Everything lives in a cascade layer** — `@layer knot.tokens`, `knot.reset`,
-  `knot.components`. Unlayered CSS beats a layered rule at any specificity, so a
-  consumer's stylesheet and every Tailwind utility override us for free: no
-  `!important`, no plugin, no import-order rule, no `tailwind-merge`.
-- **`unstyled` is mandatory on every component.** It drops the component's own
-  classes and leaves behaviour, ARIA and `data-*` intact, so Knot can be used as
-  a headless library with a palette. Style then flows entirely through
-  `classNames`, which is how Tailwind-first teams will adopt it.
-- The root always carries `knot` so the scoped reset applies (unless `unstyled`).
-- Animate with CSS only. Prefer `grid-template-rows`, `transform`, `opacity`,
-  `clip-path`. Never measure heights in JS.
-- Every component ships its own CSS file, copied to `dist/styles.css` by `tsup`.
-  **JS never imports CSS** — that breaks SSR and CJS consumers. The CLI adds the
-  import to the app entry instead.
+- **Rounded containers cascade their radius; they never clip.** An element with a radius passes it
+  to its children (`item → header → trigger`), so hover and active fills follow the curve.
+  **Never use `overflow: hidden` to clip a rounded container,** because it also cuts off the focus
+  ring. (An earlier version of this doc said the opposite. That was wrong; the CSS and AGENTS.md
+  were right.)
+- **Everything lives in a cascade layer:** `@layer lumae.tokens`, `lumae.reset`, `lumae.components`.
+  Unlayered CSS beats a layered rule at any specificity, so a consumer's stylesheet and every
+  Tailwind utility override us for free. No `!important`, no plugin, no import-order rule, no
+  `tailwind-merge`.
+- **`unstyled` is mandatory on every component.** It drops the component's own classes and keeps
+  behaviour, ARIA and `data-*`.
+- The root always carries `lumae`, so the scoped reset applies (unless `unstyled`).
+- Animate with CSS only. Prefer `grid-template-rows`, `transform`, `opacity` and `clip-path`. Never
+  measure heights in JS.
+- Every component ships its own CSS file. **JS never imports CSS,** because that breaks SSR, CJS and
+  Jest consumers. The CLI adds the import to the app entry instead.
 
----
+## 5a. Responsive contract (D-11, Planned for A3)
+
+- **Container first.** The component root is a query container (`container-type: inline-size`).
+  Layout changes use `@container`, so a component behaves the same in a sidebar and in a full-width
+  page. Viewport media queries are only for user preferences.
+- **Fluid type.** Type tokens use `clamp()`. No fixed breakpoint jumps.
+- **Overflow policy per slot:** `'wrap' | 'truncate' | { lines: n }`, using `line-clamp` with an
+  ellipsis. Truncated text keeps its full value available to assistive tech, and as a `title` only
+  when it's actually truncated.
+- **Touch.** Under `@media (pointer: coarse)`, interactive targets are at least 44×44px (above the
+  WCAG 2.5.8 minimum of 24px).
+- **Defaults.** Width is 100% of the parent. Heights come from the size scale. No hard-coded widths.
 
 ## 5b. Colour
 
-Colour is generated, never hand-picked. `@knotui/core/palette` is React-free and
-dependency-free so the CLI, the build and the runtime share one implementation.
+Colour is generated, never hand-picked. `@lumae/core/palette` has no React and no dependencies, so
+the CLI, the build and the runtime share one implementation.
 
-- **Seven roles** — primary, accent, neutral, success, warning, danger, info —
-  each an eleven-step ramp from a single OKLCH hue angle.
-- **One tuned lightness/chroma curve**, shared by every role. Only the hue moves,
-  which is why any hue produces an evenly stepped, usable ramp.
-- **Neutrals inherit the brand hue** by default. Pure grey next to a saturated
-  brand reads as dead.
-- **Every value is emitted twice**: sRGB hex for reach, OKLCH behind `@supports`
-  for fidelity. Out-of-gamut chroma is bisection-mapped, never clipped.
-- **Dark mode flips the semantic layer only.** The ramps are untouched, so a
-  consumer who overrode `--knot-primary-500` keeps their brand in both themes.
-- **Contrast is reported, not assumed.** `createTheme().contrast` and
-  `npx knotui theme --check` give WCAG 2.2 ratios per role and step.
+- **Seven roles:** primary, accent, neutral, success, warning, danger, info. Each is an
+  eleven-step ramp generated from a single OKLCH hue angle.
+- **One tuned lightness and chroma curve,** shared by every role. Only the hue moves, which is why
+  any hue produces an evenly stepped, usable ramp.
+- **Neutrals inherit the brand hue** by default. Pure grey next to a saturated brand looks dead.
+- **Every value is emitted twice:** sRGB hex for reach, and OKLCH behind `@supports` for fidelity.
+  Out-of-gamut chroma is pulled back into gamut by bisection, never clipped.
+- **Dark mode flips the semantic layer only.** The ramps are untouched.
+- **Contrast is reported, not assumed:** `createTheme().contrast` and `npx lumae theme --check`.
+- **Style packs (A5)** (glass, bauhaus, brutalist, noise, soft) are token and surface recipes behind
+  `data-lumae-style`. They are never forks of the components. Each one respects `prefers-contrast`,
+  `prefers-reduced-transparency` and `forced-colors`, and must pass the contrast check.
 
-A literal colour in a component stylesheet is a bug: it cannot follow the
-palette, dark mode, or a consumer override. The conformance suite fails the
-build on one.
-
----
+A literal colour in a component stylesheet is a bug. The conformance suite fails the build on one.
 
 ## 5c. Aesthetic invariants
 
-The details that separate a component library from a design system:
-
-- **Two-layer shadows**, tinted with the neutral ramp. A tight contact shadow
-  plus a wide ambient one. Untinted black over a tinted surface reads as dirt.
-- **`--knot-highlight`**, a hairline inset top edge on raised surfaces.
-- **Interaction surfaces carry the brand.** Hover mixes ~6% accent into the
-  surface rather than going grey, so a control reads as alive.
-- **Two-tone focus ring** — a gap in the page colour, then the ring — so focus
-  stays visible on any surface, including one matching the ring hue. Nothing
-  may clip it: containers round their children rather than `overflow: hidden`.
-- **Decelerating easing** (`--knot-ease-out`) for anything that appears;
-  content settles ~35% behind its container so motion reads as physical.
-- Reduced motion and forced colors are handled in CSS, once, in the reset.
+- **Two-layer shadows,** tinted with the neutral ramp.
+- **`--lumae-highlight`,** a hairline inset top edge on raised surfaces.
+- **Interaction surfaces carry the brand.** Hover mixes about 6% accent into the surface.
+- **Two-tone focus ring.** Nothing may clip it.
+- **Decelerating easing** (`--lumae-ease-out`) for anything that appears. Content settles about 35%
+  behind its container.
+- Reduced motion and forced colours are handled in CSS, once, in the reset.
 
 ---
 
-## 6. Accessibility gate
+## 6. Accessibility gate (D-19)
 
 A component is not done until:
 
-- it implements the matching [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/) pattern
+- it implements the matching [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/patterns/) pattern
 - keyboard support is complete and tested with real key events
-- disabled means `aria-disabled` on a still-focusable control, not `disabled`
-- hidden content is out of both the a11y tree and the tab order
-- focus is visible via `:focus-visible` and the `--knot-focus-*` tokens
+- disabled means `aria-disabled` on a control that stays focusable, never `disabled`
+- hidden content is out of both the accessibility tree and the tab order
+- focus is visible via `:focus-visible` and the `--lumae-focus-*` tokens
 - `prefers-reduced-motion` and `forced-colors` are handled
-- `dir="rtl"` flips direction through logical properties and dir-aware key handling
-- contrast holds at every step of the generated palette in light and dark
+- `dir="rtl"` flips direction through logical properties and direction-aware key handling
+- contrast holds at every step of the generated palette, in light and dark mode
+- the accessibility report is generated (A9)
 
 ---
 
-## 7. Compatibility rules
-
-These are hard constraints, not preferences:
+## 7. Compatibility rules (D-06, D-14)
 
 | Rule | Why |
 | --- | --- |
-| No `useId`, `useSyncExternalStore`, `useTransition`, `use` | React 16.8 support |
-| Classic JSX runtime (`jsx: "react"`) | works before React 17 |
-| No `react-dom` import in components | keeps non-DOM renderers viable |
-| `peerDependencies: react >= 16.8.0` | never pin a major |
-| No runtime dependencies in any package | install size, supply chain |
-| ES2018 build target | old bundlers, old browsers |
+| `peerDependencies: react >=18` (A1; the code still says `>=16.8`) | Native `useId` and `useSyncExternalStore`, no shims, deterministic SSR ids |
+| Must work with the React Compiler on and off | Both eras of React |
+| Classic JSX runtime (`jsx: "react"`) in the build | Works in every toolchain. Keep it unless D-06 changes. |
+| No `react-dom` import in components | Keeps non-DOM renderers viable |
+| No runtime dependencies in any published package | Install size and supply-chain safety |
+| ES2018 output, ESM and CJS, `.d.ts`, JSDoc | Old bundlers, Jest, plain JS projects |
+| No `window` or `document` at import time | SSR |
+| `'use client'` preserved for each client module | RSC |
 
-New React APIs are read off the namespace and feature-detected — see
-`useId` in `packages/core/src/hooks.ts`.
+The full matrix is in [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
+
+## 7a. SSR, RSC and lazy loading (D-12, D-13, Planned for A4)
+
+- Server HTML contains all content: panels are mounted by default and closed with
+  `hidden="until-found"`. CI asserts every panel's text appears in the server HTML.
+- Ids are deterministic (native `useId`, or the explicit `id` prefix).
+- `lazy: 'auto' | 'eager' | 'visible' | 'idle'`. In `'auto'`, light components load eagerly and
+  heavy ones code-split their view (through `createLazyComponent`) and load once visible. The hook
+  stays the tiny state part, so the API never changes.
+
+## 7b. Metadata (D-10, Planned for A3)
+
+`core/<name>.meta.ts` is the single source of truth. It holds the shared design-system base plus
+that component's own config schema, defaults, events, keyboard map, ARIA notes, slots, CSS
+variables, data attributes and **playground controls** (shape and behaviour only, never raw sizes).
+
+From it we generate:
+- docs and prop tables
+- playground controls (site)
+- the CLI registry and the shadcn registry
+- `llms.txt`
+- the JSON schema
+- dev validation
+- the accessibility report
 
 ---
 
 ## 8. Package shape
 
+Target (A1):
 ```
-packages/<name>/
-  package.json      exports ".", "./lazy", "./styles.css"
-  tsup.config.ts    esm + cjs + dts, copies the CSS to dist/styles.css
-  src/
-    types.ts        config, dimensions, state, api, slot union
-    use<Name>.tsx   behaviour + render()
-    <Name>View.tsx  markup (plain function)
-    <Name>.tsx      one-line tag wrapper
-    <name>.css      style
-    index.ts        public surface
-    lazy.ts         createLazyComponent wrapper
-    <name>.test.tsx behaviour + a11y assertions
+packages/
+  core/    src/<name>.logic.ts  src/<name>.meta.ts  src/palette.ts  src/store.ts …   @lumae/core
+  css/     src/tokens.css  src/reset.css  src/styles/*.css  src/<name>.css         @lumae/css
+  react/   src/<name>/{use<Name>.tsx,<Name>View.tsx,<Name>.tsx,define<Name>.ts,index.ts}  @lumae/react
+  cli/                                                                              lumae
+  testing/ (private)                                                                conformance
 ```
 
 `package.json` essentials:
 
 ```jsonc
 "sideEffects": ["*.css"],   // CSS survives tree-shaking, JS does not
-"exports": { ".": …, "./lazy": …, "./styles.css": "./dist/styles.css" },
-"dependencies": { "@knotui/core": "0.1.0" },
-"peerDependencies": { "react": ">=16.8.0" }
+"exports": { "./accordion": { "types": …, "import": …, "require": … }, … },
+"typesVersions": { "*": { "accordion": ["./dist/accordion/index.d.ts"] } },
+"peerDependencies": { "react": ">=18" }
 ```
+
+Current (pre-A1): `packages/{core,accordion,tailwind,testing,cli}`, with one package per component.
 
 ---
 
-## 9. Adding a component — the checklist
+## 9. Adding a component: the checklist
 
-1. `npx knotui new <name>` (or `cp -r packages/accordion packages/<name>`).
-2. Write `types.ts` first. The config object is the API; get it right before code.
-3. Implement `use<Name>.tsx` against the APG pattern, returning `render()`. Reuse
-   `nextIndexFromKey`, `useControllableState`, `useId`, `useEvent`, `dimensionVars`
-   — do not re-derive them.
-4. Implement `<Name>View.tsx` with `slotProps` / `renderSlot` for every slot.
-5. Write `<name>.css` using only tokens; variants as `[data-variant='…']`; the
-   two-layer sizing chain for every dimension.
-6. Tests: ARIA wiring, each mode, keyboard map, disabled, controlled, slot
-   overrides, dimensions → custom properties.
-7. Register it in `packages/cli/registry.json` (move it out of `planned`).
-8. Add a section to `apps/docs/src/App.tsx`.
-9. Add `describeKnotConformance` from `@knotui/testing` — not optional.
-10. `npm run verify` (typecheck, tests, build, gzip budget).
-
-Step 1 is automated: `npx knotui new <name>` produces steps 1, 4, 6 and 9
-already wired, passing 14 tests before you write a line.
+1. The spec `docs/components/<name>.md` is researched and signed off by the owner.
+2. `npx lumae new <name>` (today: `npx knotui new`).
+3. Write `types.ts` first. The config object is the API.
+4. Write the rules in core (`<name>.logic.ts`), then `use<Name>.tsx` against the APG pattern.
+   Reuse `nextIndexFromKey`, `useControllableState`, `useId`, `useEvent` and `dimensionVars`.
+5. Write `<Name>View.tsx` with `slotProps` / `renderSlot` for every slot.
+6. Write `<name>.css` from tokens only: variants as `[data-variant='…']`, the two-layer sizing,
+   the responsive contract.
+7. Write `define<Name>` and `<name>.meta.ts`.
+8. Tests: ARIA wiring, every mode, the keyboard map, disabled, controlled, slot overrides,
+   dimensions reaching custom properties, SSR output. Add `describeKnotConformance`.
+9. Register it in `packages/cli/registry.json`. Update its section on the site (`../lumae-site`).
+10. Run `npm run verify` (typecheck, tests, build, gzip budget).
 
 ---
 
 ## 10. Why this design wins
 
-**For developers:** twelve rows of data instead of sixty lines of nesting, with
-the markup still reachable when they need it.
+**For developers:** twelve rows of data instead of sixty lines of nesting, and the JSX you return
+stays `<Faq />`, on both client and server.
 
-**For language models:** the entire API surface of a component is one JSON schema.
-A model emits data, not a nested tree it can get structurally wrong. That is why
-`AGENTS.md` exists and why every behaviour option is JSON-expressible.
+**For language models:** the whole API surface of a component is one JSON schema. A model emits
+data, not a nested tree it can get structurally wrong.
 
-**For bundles:** per-component packages, no runtime CSS, no dependencies, and
-`data-*`-driven styling that ships as static text.
+**For bundles:** subpath imports, no runtime CSS, no dependencies, and styling driven by `data-*`
+attributes that ships as static text.

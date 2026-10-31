@@ -1,0 +1,71 @@
+# Roadmap
+
+**Rule:** the owner signs off after each milestone. Agents never start the next one on their own (AGENTS.md §2).
+Milestones A1–A9 apply to the **accordion only**. Component #2 starts after A9.
+
+Current milestone: **A1 (not started).** Step 0 (the repo split and the docs) is done.
+
+## Component lifecycle
+
+1. **Research** real-world use and competitor APIs for the component.
+2. **Spec** in `docs/components/<name>.md`, covering config, defaults, events, keyboard, ARIA and playground controls. The owner signs it off.
+3. **Build** in this order: core logic, hook, view, CSS, `define*`, tag, meta.
+4. **Gate:** `npm run verify`, conformance and SSR checks all pass.
+5. **Evidence:** the accessibility report and the screen-reader pass.
+6. **Status:** experimental, then stable. The site's docs and playground are updated.
+
+## A1 · Foundation
+Prerequisite: the owner fixes the stale global npm 8 (`npm i -g npm@latest`). Until then, use `npx npm@10`.
+- [ ] Codemod `knot`/`@knotui`/`KnotProvider`/`knotui` to the `lumae` names (packages, CSS prefix, tokens, CLI). Update the site repo's aliases.
+- [ ] Re-layout the packages: `core` (no framework), `css`, `react` (subpaths), `cli`, and `testing` (private).
+- [ ] React 18 floor: set `peerDependencies`, delete the `useId` shim (`packages/core/src/hooks.ts`), and delete the React <18 hydration warning in `useAccordion.tsx`.
+- [ ] React Compiler: write a failing test where a compiled consumer shows stale `<Faq />`. Fix it with a store subscription (`useSyncExternalStore`) in `useKnotComponent`.
+- [ ] CI matrix:
+  - Windows, macOS and Linux × Node 20, 22 and 24 × React 18, 19 and canary, each with and without the compiler.
+  - Install checks with npm, pnpm, Yarn PnP and bun.
+  - Type checks of the published `.d.ts` against TypeScript 4.7 and 5.x.
+  - A test that fails if `core` or `css` imports a framework.
+- [ ] Packaging: ESM and CJS, `typesVersions`, a stub folder per subpath, `sideEffects: ["*.css"]`.
+- [ ] Release safety: trusted publishing (OIDC), provenance, Dependabot, OpenSSF Scorecard.
+- [ ] Lint that bans removed React APIs (`defaultProps` on function components, string refs, `findDOMNode`, legacy context).
+
+## A2 · Logic split
+- [ ] Move the accordion's rules to `core/accordion.logic.ts` as pure functions: toggle, the single/collapsible rules, the keyboard map.
+- [ ] Unit tests that need no DOM. The hook becomes a thin adapter, and the existing tests pass unchanged.
+
+## A3 · Accordion features
+- [ ] Add every **Planned** item in [components/accordion.md](components/accordion.md).
+- [ ] `accordion.meta.ts` and a generated JSON schema. Dev-only config validation for JS users.
+- [ ] `defineConfig`, `lumae.config.(ts|js)` and the precedence order (D-08). The `lazy` option (D-12).
+- [ ] Responsiveness: container queries, fluid type, overflow policy, touch targets. Enterprise sizing defaults (D-11).
+
+## A4 · SSR and RSC
+- [ ] Keep `'use client'` in the build output. Add `defineAccordion`. Verify the single import path, or fall back to a `/server` subpath (D-07).
+- [ ] Test apps under `fixtures/`: Next.js App Router with ISR, Next.js Pages Router, Vite SSR, React Router 7, and a JS-only webpack app.
+- [ ] Assert zero hydration warnings, complete server HTML (every panel's text) and deterministic ids.
+
+## A5 · Style packs and theming
+- [ ] Glass, bauhaus, brutalist, noise and soft, each as a token recipe behind `data-lumae-style`.
+- [ ] Each one respects `prefers-contrast`, `prefers-reduced-transparency` and `forced-colors`, and is contrast-checked in light and dark mode.
+- [ ] Export to CSS, Tailwind v4/v3 and DTCG tokens. Map onto shadcn's CSS variables.
+
+## A6 · CLI
+- [ ] `init`, `add`, `theme` and `doctor` per [CLI.md](CLI.md), with JS/TS output.
+- [ ] Tested against every A4 test app: `init`, then `add`, then build. Running `init` twice changes nothing the second time.
+
+## A7 · Distribution and AI
+- [ ] Generate the shadcn registry JSON from meta and ship it in the npm package. List it in the shadcn registry index.
+- [ ] `llms.txt`, generated AGENTS docs and the schema, all shipped in the package.
+- [ ] `npx lumae mcp`, a local MCP server.
+
+## A8 · Playground v2 (in `../lumae-site`)
+- [ ] Controls generated from meta, showing only what matters for a quick look (no raw sizes).
+- [ ] State in the URL. Copy buttons for code, CLI command and AI prompt. StackBlitz export.
+
+## A9 · Accessibility evidence
+- [ ] A per-release report generated in CI: the APG checklist from meta, the keyboard map that was tested, axe results, forced-colors and reduced-motion snapshots.
+- [ ] A manual screen-reader matrix: NVDA + Chrome, JAWS, VoiceOver + Safari, TalkBack.
+
+## After A9
+- Component #2, most likely dialog or popover, because it forces the overlay and positioning layer to exist. Then the next components, one at a time.
+- Before the public launch: the trademark search, an npm org check, the launch essay, and the shadcn index listing.
