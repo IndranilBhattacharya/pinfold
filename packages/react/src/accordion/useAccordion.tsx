@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ariaAttr, dataAttr, mergeProps, nextIndexFromKey, warnOnce, __DEV__ } from '@lumae/core';
 import { useControllableState, useEvent, useId } from '../hooks';
 import { useLumae } from '../provider';
-import { useLumaeComponent, useStableParts } from '../component';
+import { useLumaeComponent } from '../component';
 import {
   renderHeader,
   renderIndicator,
@@ -15,6 +15,7 @@ import type {
   AccordionApi,
   AccordionConfig,
   AccordionItemState,
+  AccordionParts,
   AccordionPartProps,
   AccordionRootProps,
   AccordionState,
@@ -223,9 +224,9 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
       ),
   };
 
-  // Sub-components are built once: a fresh identity each render would make
-  // React tear down and rebuild every panel mid-animation.
-  const parts = useStableParts(() => {
+  // Sub-components are built once (inside useLumaeComponent): a fresh identity
+  // each render would make React tear down and rebuild every panel mid-animation.
+  const buildParts = () => {
     const pick = (props: AccordionPartProps): AccordionItemState | undefined => {
       const rows = viewRef.current.api.items;
       const found =
@@ -262,12 +263,13 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
         return item ? <>{renderIndicator(viewRef.current, item, box(props))}</> : null;
       },
     };
-  });
+  };
 
-  const api = useLumaeComponent<AccordionState & typeof parts, AccordionRootProps>(
+  const api = useLumaeComponent<AccordionState, AccordionRootProps, AccordionParts>(
     'Accordion',
-    { ...accordionState, ...parts },
+    accordionState,
     (props) => renderRoot(viewRef.current, props),
+    buildParts,
   );
 
   viewRef.current = { api, config, a: appearance };

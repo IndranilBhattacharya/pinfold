@@ -49,14 +49,16 @@ three things at once:
 3. a set of **parts**: `<Faq.Trigger id>`, `<Faq.Panel id>`, for layouts the
    config cannot express.
 
-Build both the component and the parts with `useLumaeComponent` and `useStableParts` from core.
+Build both with one helper from `@lumae/react`: `useLumaeComponent(name, api, render, buildParts)`.
 **Identity stability is not optional.** A component created fresh each render is a new element
 type to React, which unmounts and remounts the whole subtree, discarding focus, scroll position
 and every running transition. The conformance suite tests for it.
 
-**React Compiler (A1).** A stable component that reads state through a ref may be served from the
-compiler's cache and go stale. The fix: the returned component subscribes to its own state
-through `useSyncExternalStore`, so it re-renders by itself. The public API doesn't change.
+**React Compiler.** A stable component that reads state through a ref may be served from the
+compiler's cache and go stale (reproduced in `accordion.compiler.test.tsx`, which compiles a consumer
+with the real compiler). Each hook render bumps a per-instance version; the component and every part
+subscribe through `useSyncExternalStore` and re-render after commit if they missed it. Without a
+memoising parent the snapshot already matches, so there is no extra render.
 
 **Server Components (D-07, Planned for A4).** Hooks can't run in a Server Component, so
 `define<Name>(config)` is a plain function. It returns a component that renders the
