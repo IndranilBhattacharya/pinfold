@@ -14,8 +14,8 @@ Created by **Indranil Bhattacharya**
 </div>
 
 > **Status: pre-release.** One component (accordion) is being hardened through
-> milestones A1–A9 ([roadmap](docs/ROADMAP.md)). Package names below are the
-> targets. The source still uses the working names `@knotui/*` until A1.
+> milestones A1–A9 ([roadmap](docs/ROADMAP.md)). Package subpaths such as
+> `@lumae/react/accordion` arrive with the A1 re-layout.
 > Items marked *Planned* are specified but not yet built.
 
 ---

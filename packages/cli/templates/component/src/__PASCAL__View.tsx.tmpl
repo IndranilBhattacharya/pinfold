@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dimensionVars, mergeProps, renderSlot, resolveNode, slotProps } from '@knotui/core';
+import { cn, dimensionVars, mergeProps, renderSlot, resolveNode, slotProps } from '@lumae/core';
 import type {
   Resolved__PASCAL__Appearance,
   __PASCAL__Api,
@@ -10,7 +10,7 @@ import type {
   __PASCAL__Slot,
 } from './types';
 
-const B = 'knot-__NAME__';
+const B = 'lumae-__NAME__';
 
 /**
  * Everything the markup needs, gathered once per render.
@@ -56,12 +56,12 @@ export function renderRoot(ctx: ViewContext, rootProps?: __PASCAL__RootProps): R
   const props = api.getRootProps(
     mergeProps(
       slot(ctx, 'root', {
-        className: a.unstyled ? config.className : cn('knot', B, config.className),
+        className: a.unstyled ? config.className : cn('lumae', B, config.className),
         style: { ...dimensionVars('__NAME__', config.dimensions), ...config.style },
         'data-variant': a.variant,
         'data-size': a.size,
         'data-tone': a.tone,
-        'data-knot-radius': a.radius,
+        'data-lumae-radius': a.radius,
         'data-animate': a.animate ? '' : undefined,
         'data-unstyled': a.unstyled ? '' : undefined,
       }),

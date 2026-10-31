@@ -1,11 +1,11 @@
-import { createLazyComponent } from '@knotui/core';
+import { createLazyComponent } from '@lumae/core';
 import type { AccordionConfig } from './types';
 
 /**
  * Code-split entry point. Nothing accordion-related enters the main bundle
  * until the component first renders:
  *
- *   import { Accordion } from '@knotui/accordion/lazy';
+ *   import { Accordion } from '@lumae/accordion/lazy';
  */
 export const Accordion = createLazyComponent<AccordionConfig>(
   () => import('./index').then((m) => ({ default: m.Accordion })),

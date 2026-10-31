@@ -8,7 +8,7 @@ import * as React from 'react';
  *   Accordion.toggle('faq-1');               // controls
  *   <Accordion.Panel id="faq-1" />           // composes
  */
-export type KnotComponent<Api, Props> = ((props: Props) => React.ReactElement | null) &
+export type LumaeComponent<Api, Props> = ((props: Props) => React.ReactElement | null) &
   Api & { displayName?: string };
 
 /**
@@ -20,17 +20,17 @@ export type KnotComponent<Api, Props> = ((props: Props) => React.ReactElement | 
  * position and every running transition. So the function is created once and
  * reads the current render through a ref; only the attached API is refreshed.
  */
-export function useKnotComponent<Api extends object, Props extends object>(
+export function useLumaeComponent<Api extends object, Props extends object>(
   displayName: string,
   api: Api,
   render: (props: Props) => React.ReactElement | null,
-): KnotComponent<Api, Props> {
+): LumaeComponent<Api, Props> {
   const renderRef = React.useRef(render);
   renderRef.current = render;
 
-  const ref = React.useRef<KnotComponent<Api, Props> | null>(null);
+  const ref = React.useRef<LumaeComponent<Api, Props> | null>(null);
   if (ref.current === null) {
-    const Component = ((props: Props) => renderRef.current(props)) as KnotComponent<Api, Props>;
+    const Component = ((props: Props) => renderRef.current(props)) as LumaeComponent<Api, Props>;
     Component.displayName = displayName;
     ref.current = Component;
   }

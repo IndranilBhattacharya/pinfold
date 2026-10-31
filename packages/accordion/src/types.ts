@@ -1,16 +1,16 @@
 import type * as React from 'react';
 import type {
-  KnotComponent,
-  KnotDir,
-  KnotOrientation,
-  KnotRadius,
-  KnotSize,
-  KnotTone,
+  LumaeComponent,
+  LumaeDir,
+  LumaeOrientation,
+  LumaeRadius,
+  LumaeSize,
+  LumaeTone,
   Length,
   PropsBag,
   SlotOverrides,
   Slottable,
-} from '@knotui/core';
+} from '@lumae/core';
 
 export type AccordionSlot =
   | 'root'
@@ -78,8 +78,8 @@ export interface AccordionBehaviourConfig {
   /** Fires for one item, after `onValueChange`. */
   onItemToggle?: (id: string, open: boolean) => void;
   /** Arrow-key axis for moving between headers. Default `vertical`. */
-  orientation?: KnotOrientation;
-  dir?: KnotDir;
+  orientation?: LumaeOrientation;
+  dir?: LumaeDir;
   /** Wrap focus at the ends. Default true. */
   loop?: boolean;
   /** Prefix for generated ids — set it for deterministic SSR markup. */
@@ -123,9 +123,9 @@ export interface AccordionDimensions {
 
 export interface AccordionAppearanceConfig {
   variant?: AccordionVariant;
-  size?: KnotSize;
-  tone?: KnotTone;
-  radius?: KnotRadius;
+  size?: LumaeSize;
+  tone?: LumaeTone;
+  radius?: LumaeRadius;
   /** Built-in glyph, your own node, or a function of the row's state. */
   indicator?: AccordionIndicator | AccordionNode;
   /** Which edge the indicator sits on. Default `end`. */
@@ -139,7 +139,7 @@ export interface AccordionAppearanceConfig {
   /** Explicit sizing, per dimension. Overrides the `size` preset. */
   dimensions?: AccordionDimensions;
   /**
-   * Drop every Knot class so no bundled CSS applies, keeping the behaviour,
+   * Drop every Lumae class so no bundled CSS applies, keeping the behaviour,
    * ARIA and `data-*` state hooks. For Tailwind or your own stylesheet:
    * style entirely through `classNames`.
    */
@@ -167,9 +167,9 @@ export interface AccordionConfig
 /** Appearance after provider defaults are folded in. */
 export interface ResolvedAppearance {
   variant: AccordionVariant;
-  size: KnotSize;
-  tone: KnotTone;
-  radius: KnotRadius;
+  size: LumaeSize;
+  tone: LumaeTone;
+  radius: LumaeRadius;
   indicator: AccordionIndicator | AccordionNode;
   indicatorPosition: 'start' | 'end';
   headingLevel: number;
@@ -232,4 +232,4 @@ export interface AccordionParts {
  * What `useAccordion()` returns: a component you render, that is also the
  * controller, that also carries its parts.
  */
-export type AccordionApi = KnotComponent<AccordionState & AccordionParts, AccordionRootProps>;
+export type AccordionApi = LumaeComponent<AccordionState & AccordionParts, AccordionRootProps>;

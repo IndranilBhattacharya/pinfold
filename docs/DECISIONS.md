@@ -16,7 +16,7 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
   provider `LumaeProvider`, config `lumae.config.(ts|js)`, site `lumae.indranildev.in`.
 - Why: short, invented, modern. When chosen, the unscoped npm name and `@lumae/core` were free, and a web search found no software product named Lumae.
 - Rejected names:
-  - "Knot UI": a placeholder the owner disliked.
+  - The original working name: a placeholder the owner disliked. Fully removed from code and docs on 2026-10-31.
   - "Talo": already used by TaloDev (a game backend), talo-pay and `@talo-code/talo-ui`.
   - Oru, Vinya, Velin, Ovyn, Tessra, Vyla, Lirra: candidates not chosen.
   - Uvio: an existing UX agency.
@@ -44,7 +44,7 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 **D-05 · Packages: one per layer and per framework, with a subpath per component** · 2026-10-31 · Locked
 - `@lumae/core`, `@lumae/css`, `@lumae/react` (imported as `@lumae/react/accordion`), and `lumae` (CLI).
 - Why: Radix moved to a single `radix-ui` package, and Base UI, Ark and MUI each ship a single package. Per-component packages cause version skew: two copies of core end up installed, and the provider no longer reaches every component. Subpath exports plus `sideEffects: ["*.css"]` mean an unused component adds 0 bytes to the app bundle.
-- **Supersedes** the earlier per-component packages (`@knotui/accordion`). The cost is a few hundred kB of install footprint.
+- **Supersedes** the earlier per-component packages (one package per component, e.g. an `accordion` package). The cost is a few hundred kB of install footprint.
 
 **D-06 · React floor: 18** · 2026-10-31 · Locked
 - `peerDependencies: react >=18`. CI runs React 18, 19 and canary, each with and without the React Compiler.

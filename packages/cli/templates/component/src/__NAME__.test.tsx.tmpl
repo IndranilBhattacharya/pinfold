@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describeKnotConformance } from '@knotui/testing';
+import { describeLumaeConformance } from '@lumae/testing';
 import { __PASCAL__ } from './__PASCAL__';
 import { use__PASCAL__ } from './use__PASCAL__';
 
@@ -56,7 +56,7 @@ describe('__PASCAL__', () => {
   // TODO: add the keyboard map and roles your WAI-ARIA pattern requires.
 });
 
-describeKnotConformance({
+describeLumaeConformance({
   name: '__NAME__',
   slots: ['root', 'item', 'label'],
   dimension: { key: 'paddingX', value: 24 },

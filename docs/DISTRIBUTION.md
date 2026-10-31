@@ -1,7 +1,7 @@
 # Distribution
 
-Status: **Planned (A1, A7).** Today the packages are `@knotui/core`, `@knotui/accordion`,
-`@knotui/tailwind`, `@knotui/testing` and `knotui`, and none are published.
+Status: **Planned (A1, A7).** Today the packages are `@lumae/core`, `@lumae/accordion`,
+`@lumae/tailwind`, `@lumae/testing` and `lumae`, and none are published.
 
 ## Packages (D-05)
 | Package | Contents | Imports |

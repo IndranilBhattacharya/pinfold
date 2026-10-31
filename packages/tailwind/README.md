@@ -1,34 +1,34 @@
-# @knotui/tailwind
+# @lumae/tailwind
 
-Knot UI and Tailwind, sharing one palette.
+Lumae and Tailwind, sharing one palette.
 
 ```bash
-npm install @knotui/tailwind
+npm install @lumae/tailwind
 ```
 
 **Tailwind v4** — import the theme:
 
 ```css
 @import "tailwindcss";
-@import "@knotui/core/styles.css";
-@import "@knotui/tailwind/theme.css";
+@import "@lumae/core/styles.css";
+@import "@lumae/tailwind/theme.css";
 ```
 
 **Tailwind v3** — add the preset:
 
 ```js
 // tailwind.config.js
-module.exports = { presets: [require('@knotui/tailwind')] };
+module.exports = { presets: [require('@lumae/tailwind')] };
 ```
 
 ## What you get
 
 `bg-primary-600`, `text-content-muted`, `border-line`, `rounded-lg`, `shadow-md`,
-`ease-knot-out` — all resolving to `--knot-*` custom properties, so they follow
-`npx knotui theme`, dark mode, and any runtime override. Change the brand hue
+`ease-lumae-out` — all resolving to `--lumae-*` custom properties, so they follow
+`npx lumae theme`, dark mode, and any runtime override. Change the brand hue
 once and both systems move together.
 
-State variants map to the `data-*` attributes Knot components already expose:
+State variants map to the `data-*` attributes Lumae components already expose:
 
 ```jsx
 <Faq classNames={{
@@ -37,12 +37,12 @@ State variants map to the `data-*` attributes Knot components already expose:
 }} />
 ```
 
-`open:` · `closed:` · `selected:` · `disabled-row:` · `group-open:` · `knot-dark:`
+`open:` · `closed:` · `selected:` · `disabled-row:` · `group-open:` · `lumae-dark:`
 
 ## Three ways to combine them
 
-**1. Knot styles, Tailwind for layout.** The default. Knot's CSS lives in the
-`knot` cascade layer, and unlayered Tailwind utilities beat any layered rule
+**1. Lumae styles, Tailwind for layout.** The default. Lumae's CSS lives in the
+`lumae` cascade layer, and unlayered Tailwind utilities beat any layered rule
 regardless of specificity or source order — so a utility always wins, with no
 `!important` and no `tailwind-merge`.
 
@@ -50,8 +50,8 @@ regardless of specificity or source order — so a utility always wins, with no
 <Faq className="mt-8 max-w-2xl" classNames={{ trigger: 'px-6 text-base' }} />
 ```
 
-**2. Tailwind only.** `unstyled` drops every Knot class and its CSS; behaviour,
-ARIA and `data-*` state stay. Knot becomes a headless library with a palette.
+**2. Tailwind only.** `unstyled` drops every Lumae class and its CSS; behaviour,
+ARIA and `data-*` state stay. Lumae becomes a headless library with a palette.
 
 ```jsx
 const Faq = useAccordion({
@@ -60,16 +60,16 @@ const Faq = useAccordion({
   classNames: {
     root: 'divide-y divide-line rounded-xl border border-line',
     trigger: 'flex w-full items-center justify-between px-5 py-4 hover:bg-surface-hover open:text-primary-600',
-    panel: 'grid transition-all duration-300 ease-knot-out closed:grid-rows-[0fr] open:grid-rows-[1fr]',
+    panel: 'grid transition-all duration-300 ease-lumae-out closed:grid-rows-[0fr] open:grid-rows-[1fr]',
     content: 'overflow-hidden px-5 pb-4 text-content-muted',
   },
 });
 return <Faq />;
 ```
 
-You do not need `@knotui/accordion/styles.css` in this mode.
+You do not need `@lumae/accordion/styles.css` in this mode.
 
 **3. Tokens only.** Skip the components; use the palette engine for your own
-design system. `npx knotui theme` writes plain CSS custom properties.
+design system. `npx lumae theme` writes plain CSS custom properties.
 
 MIT

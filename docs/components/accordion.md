@@ -1,6 +1,6 @@
 # Accordion: spec
 
-Status: **stable API (pre-A1 names)**. Rows marked **Planned** arrive in A3 or A4.
+Status: **stable API**. Rows marked **Planned** arrive in A3 or A4.
 Pattern: [WAI-ARIA APG Accordion](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/).
 Owner sign-off: 2026-10-31 (session plan).
 

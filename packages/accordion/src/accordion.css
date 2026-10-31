@@ -1,7 +1,7 @@
-/* Knot UI — accordion.
+/* Lumae — accordion.
 
    Two-layer variables: the `size` preset writes the `*-base` vars, and the
-   `dimensions` config writes `--knot-accordion-*` which wins through the
+   `dimensions` config writes `--lumae-accordion-*` which wins through the
    var() fallback. Overriding one measurement keeps the preset for the rest.
 
    Nothing clips. Rounded rows give their trigger the matching radius instead
@@ -9,251 +9,251 @@
    off the focus ring. Collapse is pure CSS (`grid-template-rows`) — no height
    measurement, no ResizeObserver, no layout thrash. */
 
-@layer knot.components {
+@layer lumae.components {
 
-  .knot-accordion {
+  .lumae-accordion {
     /* preset layer (set by [data-size]) */
-    --knot-acc-pad-x-base: var(--knot-space-4);
-    --knot-acc-pad-y-base: var(--knot-space-3);
-    --knot-acc-font-base: var(--knot-text-md);
-    --knot-acc-radius-base: var(--knot-radius-lg);
-    --knot-acc-gap-base: 0px;
+    --lumae-acc-pad-x-base: var(--lumae-space-4);
+    --lumae-acc-pad-y-base: var(--lumae-space-3);
+    --lumae-acc-font-base: var(--lumae-text-md);
+    --lumae-acc-radius-base: var(--lumae-radius-lg);
+    --lumae-acc-gap-base: 0px;
 
     /* config layer (set by `dimensions`) */
-    --knot-acc-pad-x: var(--knot-accordion-padding-x, var(--knot-acc-pad-x-base));
-    --knot-acc-pad-y: var(--knot-accordion-padding-y, var(--knot-acc-pad-y-base));
-    --knot-acc-panel-pad-x: var(--knot-accordion-panel-padding-x, var(--knot-acc-pad-x));
-    --knot-acc-panel-pad-y: var(--knot-accordion-panel-padding-y, var(--knot-acc-pad-y));
-    --knot-acc-font: var(--knot-accordion-font-size, var(--knot-acc-font-base));
-    --knot-acc-title: var(--knot-accordion-title-size, inherit);
-    --knot-acc-desc: var(--knot-accordion-description-size, var(--knot-text-sm));
-    --knot-acc-icon: var(--knot-accordion-icon-size, 1.5em);
-    --knot-acc-ind: var(--knot-accordion-indicator-size, 1em);
-    --knot-acc-radius: var(--knot-accordion-radius, var(--knot-acc-radius-base));
-    --knot-acc-gap: var(--knot-accordion-gap, var(--knot-acc-gap-base));
-    --knot-acc-border: var(--knot-accordion-border-width, 1px);
-    --knot-acc-duration: var(--knot-accordion-duration, var(--knot-duration-md));
+    --lumae-acc-pad-x: var(--lumae-accordion-padding-x, var(--lumae-acc-pad-x-base));
+    --lumae-acc-pad-y: var(--lumae-accordion-padding-y, var(--lumae-acc-pad-y-base));
+    --lumae-acc-panel-pad-x: var(--lumae-accordion-panel-padding-x, var(--lumae-acc-pad-x));
+    --lumae-acc-panel-pad-y: var(--lumae-accordion-panel-padding-y, var(--lumae-acc-pad-y));
+    --lumae-acc-font: var(--lumae-accordion-font-size, var(--lumae-acc-font-base));
+    --lumae-acc-title: var(--lumae-accordion-title-size, inherit);
+    --lumae-acc-desc: var(--lumae-accordion-description-size, var(--lumae-text-sm));
+    --lumae-acc-icon: var(--lumae-accordion-icon-size, 1.5em);
+    --lumae-acc-ind: var(--lumae-accordion-indicator-size, 1em);
+    --lumae-acc-radius: var(--lumae-accordion-radius, var(--lumae-acc-radius-base));
+    --lumae-acc-gap: var(--lumae-accordion-gap, var(--lumae-acc-gap-base));
+    --lumae-acc-border: var(--lumae-accordion-border-width, 1px);
+    --lumae-acc-duration: var(--lumae-accordion-duration, var(--lumae-duration-md));
 
-    --knot-acc-accent: var(--knot-color-accent);
-    --knot-acc-item-radius: 0px;
+    --lumae-acc-accent: var(--lumae-color-accent);
+    --lumae-acc-item-radius: 0px;
 
     display: flex;
     flex-direction: column;
-    gap: var(--knot-acc-gap);
-    width: var(--knot-accordion-width, 100%);
-    min-width: var(--knot-accordion-min-width, 0);
-    max-width: var(--knot-accordion-max-width, none);
-    height: var(--knot-accordion-height, auto);
-    max-height: var(--knot-accordion-max-height, none);
-    font-size: var(--knot-acc-font);
-    letter-spacing: var(--knot-tracking-tight);
-    color: var(--knot-color-text);
+    gap: var(--lumae-acc-gap);
+    width: var(--lumae-accordion-width, 100%);
+    min-width: var(--lumae-accordion-min-width, 0);
+    max-width: var(--lumae-accordion-max-width, none);
+    height: var(--lumae-accordion-height, auto);
+    max-height: var(--lumae-accordion-max-height, none);
+    font-size: var(--lumae-acc-font);
+    letter-spacing: var(--lumae-tracking-tight);
+    color: var(--lumae-color-text);
   }
 
   /* `dimensions.maxHeight` caps the root and scrolls the rows. */
-  .knot-accordion[data-clamp] {
+  .lumae-accordion[data-clamp] {
     overflow-y: auto;
     overscroll-behavior: contain;
   }
 
   /* ------------------------------------------------------------------ sizes */
-  .knot-accordion[data-size='sm'] {
-    --knot-acc-pad-x-base: var(--knot-space-3);
-    --knot-acc-pad-y-base: var(--knot-space-2);
-    --knot-acc-font-base: var(--knot-text-sm);
-    --knot-acc-radius-base: var(--knot-radius-md);
+  .lumae-accordion[data-size='sm'] {
+    --lumae-acc-pad-x-base: var(--lumae-space-3);
+    --lumae-acc-pad-y-base: var(--lumae-space-2);
+    --lumae-acc-font-base: var(--lumae-text-sm);
+    --lumae-acc-radius-base: var(--lumae-radius-md);
   }
-  .knot-accordion[data-size='lg'] {
-    --knot-acc-pad-x-base: var(--knot-space-5);
-    --knot-acc-pad-y-base: var(--knot-space-4);
-    --knot-acc-font-base: var(--knot-text-lg);
-    --knot-acc-radius-base: var(--knot-radius-xl);
+  .lumae-accordion[data-size='lg'] {
+    --lumae-acc-pad-x-base: var(--lumae-space-5);
+    --lumae-acc-pad-y-base: var(--lumae-space-4);
+    --lumae-acc-font-base: var(--lumae-text-lg);
+    --lumae-acc-radius-base: var(--lumae-radius-xl);
   }
 
   /* ------------------------------------------------------------------ tones */
-  .knot-accordion[data-tone='neutral'] { --knot-acc-accent: var(--knot-color-text); }
-  .knot-accordion[data-tone='success'] { --knot-acc-accent: var(--knot-success-500); }
-  .knot-accordion[data-tone='warning'] { --knot-acc-accent: var(--knot-warning-500); }
-  .knot-accordion[data-tone='danger'] { --knot-acc-accent: var(--knot-danger-500); }
-  .knot-accordion[data-tone='info'] { --knot-acc-accent: var(--knot-info-500); }
+  .lumae-accordion[data-tone='neutral'] { --lumae-acc-accent: var(--lumae-color-text); }
+  .lumae-accordion[data-tone='success'] { --lumae-acc-accent: var(--lumae-success-500); }
+  .lumae-accordion[data-tone='warning'] { --lumae-acc-accent: var(--lumae-warning-500); }
+  .lumae-accordion[data-tone='danger'] { --lumae-acc-accent: var(--lumae-danger-500); }
+  .lumae-accordion[data-tone='info'] { --lumae-acc-accent: var(--lumae-info-500); }
 
   /* ------------------------------------------------------------------- item */
-  .knot-accordion__item {
+  .lumae-accordion__item {
     position: relative;
-    border-radius: var(--knot-acc-item-radius);
+    border-radius: var(--lumae-acc-item-radius);
   }
-  .knot-accordion__header,
-  .knot-accordion__trigger {
+  .lumae-accordion__header,
+  .lumae-accordion__trigger {
     border-radius: inherit;
   }
 
   /* Accent edge on the open row. Scales from the centre, so it reads as the row
      opening rather than a bar appearing. */
-  .knot-accordion__item::before {
+  .lumae-accordion__item::before {
     content: '';
     position: absolute;
     inset-block: 0;
     inset-inline-start: 0;
     width: 2px;
-    background: var(--knot-acc-accent);
+    background: var(--lumae-acc-accent);
     border-start-start-radius: inherit;
     border-end-start-radius: inherit;
     transform: scaleY(0);
     opacity: 0;
-    transition: transform var(--knot-acc-duration) var(--knot-ease-out),
-      opacity var(--knot-duration-fast) linear;
+    transition: transform var(--lumae-acc-duration) var(--lumae-ease-out),
+      opacity var(--lumae-duration-fast) linear;
     pointer-events: none;
   }
-  .knot-accordion__item[data-state='open']::before {
+  .lumae-accordion__item[data-state='open']::before {
     transform: scaleY(1);
     opacity: 1;
   }
   /* Bordered rows already signal state through the border; the bar would double up. */
-  .knot-accordion[data-variant='outline'] .knot-accordion__item::before,
-  .knot-accordion[data-variant='separated'] .knot-accordion__item::before {
+  .lumae-accordion[data-variant='outline'] .lumae-accordion__item::before,
+  .lumae-accordion[data-variant='separated'] .lumae-accordion__item::before {
     content: none;
   }
 
   /* --------------------------------------------------------------- variants */
   /* solid — one card, hairline-divided rows. Corners are rounded on the parts
      that touch them rather than clipped off the container. */
-  .knot-accordion[data-variant='solid'] {
-    background: var(--knot-color-surface);
-    border: var(--knot-acc-border) solid var(--knot-color-border);
-    border-radius: var(--knot-acc-radius);
-    box-shadow: var(--knot-shadow-sm), var(--knot-highlight);
+  .lumae-accordion[data-variant='solid'] {
+    background: var(--lumae-color-surface);
+    border: var(--lumae-acc-border) solid var(--lumae-color-border);
+    border-radius: var(--lumae-acc-radius);
+    box-shadow: var(--lumae-shadow-sm), var(--lumae-highlight);
   }
-  .knot-accordion[data-variant='solid'][data-dividers] .knot-accordion__item + .knot-accordion__item {
-    border-top: var(--knot-acc-border) solid var(--knot-color-border);
+  .lumae-accordion[data-variant='solid'][data-dividers] .lumae-accordion__item + .lumae-accordion__item {
+    border-top: var(--lumae-acc-border) solid var(--lumae-color-border);
   }
-  .knot-accordion[data-variant='solid'] .knot-accordion__item:first-child .knot-accordion__trigger {
-    border-start-start-radius: var(--knot-acc-radius);
-    border-start-end-radius: var(--knot-acc-radius);
+  .lumae-accordion[data-variant='solid'] .lumae-accordion__item:first-child .lumae-accordion__trigger {
+    border-start-start-radius: var(--lumae-acc-radius);
+    border-start-end-radius: var(--lumae-acc-radius);
   }
-  .knot-accordion[data-variant='solid'] .knot-accordion__item:last-child .knot-accordion__panel {
-    border-end-start-radius: var(--knot-acc-radius);
-    border-end-end-radius: var(--knot-acc-radius);
+  .lumae-accordion[data-variant='solid'] .lumae-accordion__item:last-child .lumae-accordion__panel {
+    border-end-start-radius: var(--lumae-acc-radius);
+    border-end-end-radius: var(--lumae-acc-radius);
   }
 
   /* outline — each row is its own bordered box */
-  .knot-accordion[data-variant='outline'] {
-    --knot-acc-gap-base: var(--knot-space-2);
+  .lumae-accordion[data-variant='outline'] {
+    --lumae-acc-gap-base: var(--lumae-space-2);
   }
-  .knot-accordion[data-variant='outline'] .knot-accordion__item {
-    --knot-acc-item-radius: var(--knot-acc-radius);
-    border: var(--knot-acc-border) solid var(--knot-color-border);
-    transition: border-color var(--knot-duration-md) var(--knot-ease);
+  .lumae-accordion[data-variant='outline'] .lumae-accordion__item {
+    --lumae-acc-item-radius: var(--lumae-acc-radius);
+    border: var(--lumae-acc-border) solid var(--lumae-color-border);
+    transition: border-color var(--lumae-duration-md) var(--lumae-ease);
   }
-  .knot-accordion[data-variant='outline'] .knot-accordion__item[data-state='open'] {
-    border-color: var(--knot-color-border-accent);
+  .lumae-accordion[data-variant='outline'] .lumae-accordion__item[data-state='open'] {
+    border-color: var(--lumae-color-border-accent);
   }
 
   /* separated — cards with air and elevation */
-  .knot-accordion[data-variant='separated'] {
-    --knot-acc-gap-base: var(--knot-space-3);
+  .lumae-accordion[data-variant='separated'] {
+    --lumae-acc-gap-base: var(--lumae-space-3);
   }
-  .knot-accordion[data-variant='separated'] .knot-accordion__item {
-    --knot-acc-item-radius: var(--knot-acc-radius);
-    background: var(--knot-color-surface);
-    border: var(--knot-acc-border) solid var(--knot-color-border);
-    box-shadow: var(--knot-shadow-sm), var(--knot-highlight);
-    transition: box-shadow var(--knot-duration-md) var(--knot-ease),
-      border-color var(--knot-duration-md) var(--knot-ease),
-      transform var(--knot-duration-md) var(--knot-ease-out);
+  .lumae-accordion[data-variant='separated'] .lumae-accordion__item {
+    --lumae-acc-item-radius: var(--lumae-acc-radius);
+    background: var(--lumae-color-surface);
+    border: var(--lumae-acc-border) solid var(--lumae-color-border);
+    box-shadow: var(--lumae-shadow-sm), var(--lumae-highlight);
+    transition: box-shadow var(--lumae-duration-md) var(--lumae-ease),
+      border-color var(--lumae-duration-md) var(--lumae-ease),
+      transform var(--lumae-duration-md) var(--lumae-ease-out);
   }
-  .knot-accordion[data-variant='separated'] .knot-accordion__item:hover {
-    box-shadow: var(--knot-shadow-md), var(--knot-highlight);
+  .lumae-accordion[data-variant='separated'] .lumae-accordion__item:hover {
+    box-shadow: var(--lumae-shadow-md), var(--lumae-highlight);
   }
-  .knot-accordion[data-variant='separated'] .knot-accordion__item[data-state='open'] {
-    border-color: var(--knot-color-border-accent);
-    box-shadow: var(--knot-shadow-md), var(--knot-highlight);
+  .lumae-accordion[data-variant='separated'] .lumae-accordion__item[data-state='open'] {
+    border-color: var(--lumae-color-border-accent);
+    box-shadow: var(--lumae-shadow-md), var(--lumae-highlight);
   }
 
   /* filled — tinted rows, no borders */
-  .knot-accordion[data-variant='filled'] {
-    --knot-acc-gap-base: var(--knot-space-2);
+  .lumae-accordion[data-variant='filled'] {
+    --lumae-acc-gap-base: var(--lumae-space-2);
   }
-  .knot-accordion[data-variant='filled'] .knot-accordion__item {
-    --knot-acc-item-radius: var(--knot-acc-radius);
-    background: var(--knot-color-bg-subtle);
-    transition: background-color var(--knot-duration-md) var(--knot-ease);
+  .lumae-accordion[data-variant='filled'] .lumae-accordion__item {
+    --lumae-acc-item-radius: var(--lumae-acc-radius);
+    background: var(--lumae-color-bg-subtle);
+    transition: background-color var(--lumae-duration-md) var(--lumae-ease);
   }
-  .knot-accordion[data-variant='filled'] .knot-accordion__item[data-state='open'] {
-    background: var(--knot-color-surface-selected);
+  .lumae-accordion[data-variant='filled'] .lumae-accordion__item[data-state='open'] {
+    background: var(--lumae-color-surface-selected);
   }
 
   /* ghost — text only, hover reveals the row */
-  .knot-accordion[data-variant='ghost'] .knot-accordion__item {
-    --knot-acc-item-radius: var(--knot-acc-radius);
+  .lumae-accordion[data-variant='ghost'] .lumae-accordion__item {
+    --lumae-acc-item-radius: var(--lumae-acc-radius);
   }
-  .knot-accordion[data-variant='ghost'][data-dividers] .knot-accordion__item + .knot-accordion__item {
-    border-top: var(--knot-acc-border) solid var(--knot-color-border);
+  .lumae-accordion[data-variant='ghost'][data-dividers] .lumae-accordion__item + .lumae-accordion__item {
+    border-top: var(--lumae-acc-border) solid var(--lumae-color-border);
   }
 
   /* ----------------------------------------------------------------- header */
-  .knot-accordion__header {
+  .lumae-accordion__header {
     display: flex;
     margin: 0;
   }
 
-  .knot-accordion__trigger {
+  .lumae-accordion__trigger {
     display: flex;
     align-items: center;
-    gap: var(--knot-space-3);
+    gap: var(--lumae-space-3);
     width: 100%;
-    padding: var(--knot-acc-pad-y) var(--knot-acc-pad-x);
+    padding: var(--lumae-acc-pad-y) var(--lumae-acc-pad-x);
     font-size: inherit;
-    font-weight: var(--knot-weight-medium);
-    line-height: var(--knot-leading-tight);
+    font-weight: var(--lumae-weight-medium);
+    line-height: var(--lumae-leading-tight);
     text-align: start;
-    color: var(--knot-color-text);
-    transition: background-color var(--knot-duration-fast) var(--knot-ease),
-      color var(--knot-duration-fast) var(--knot-ease);
+    color: var(--lumae-color-text);
+    transition: background-color var(--lumae-duration-fast) var(--lumae-ease),
+      color var(--lumae-duration-fast) var(--lumae-ease);
   }
 
-  .knot-accordion__trigger:hover {
-    background: var(--knot-color-surface-hover);
+  .lumae-accordion__trigger:hover {
+    background: var(--lumae-color-surface-hover);
   }
-  .knot-accordion__trigger:active {
-    background: var(--knot-color-surface-active);
-  }
-
-  .knot-accordion__trigger[data-state='open'] {
-    color: var(--knot-acc-accent);
+  .lumae-accordion__trigger:active {
+    background: var(--lumae-color-surface-active);
   }
 
-  .knot-accordion__trigger[data-disabled] {
-    color: var(--knot-color-text-disabled);
+  .lumae-accordion__trigger[data-state='open'] {
+    color: var(--lumae-acc-accent);
+  }
+
+  .lumae-accordion__trigger[data-disabled] {
+    color: var(--lumae-color-text-disabled);
     cursor: not-allowed;
   }
-  .knot-accordion__trigger[data-disabled]:hover,
-  .knot-accordion__trigger[data-disabled]:active {
+  .lumae-accordion__trigger[data-disabled]:hover,
+  .lumae-accordion__trigger[data-disabled]:active {
     background: none;
   }
 
   /* The ring is drawn by the core reset as a box-shadow; raise the focused row
      so a neighbouring row's background cannot paint over it. */
-  .knot-accordion__trigger:focus-visible {
+  .lumae-accordion__trigger:focus-visible {
     position: relative;
     z-index: 1;
   }
 
-  .knot-accordion[data-indicator-position='start'] .knot-accordion__trigger {
+  .lumae-accordion[data-indicator-position='start'] .lumae-accordion__trigger {
     flex-direction: row-reverse;
   }
 
   /* ------------------------------------------------------------------ parts */
-  .knot-accordion__icon {
+  .lumae-accordion__icon {
     display: inline-flex;
     flex: none;
     align-items: center;
     justify-content: center;
-    width: var(--knot-acc-icon);
-    height: var(--knot-acc-icon);
-    color: var(--knot-acc-accent);
+    width: var(--lumae-acc-icon);
+    height: var(--lumae-acc-icon);
+    color: var(--lumae-acc-accent);
   }
 
-  .knot-accordion__label {
+  .lumae-accordion__label {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
@@ -261,127 +261,127 @@
     min-width: 0;
   }
 
-  .knot-accordion__title {
-    font-size: var(--knot-acc-title);
+  .lumae-accordion__title {
+    font-size: var(--lumae-acc-title);
     overflow-wrap: anywhere;
   }
 
-  .knot-accordion__description {
-    font-size: var(--knot-acc-desc);
-    font-weight: var(--knot-weight-normal);
-    letter-spacing: var(--knot-tracking-normal);
-    color: var(--knot-color-text-muted);
+  .lumae-accordion__description {
+    font-size: var(--lumae-acc-desc);
+    font-weight: var(--lumae-weight-normal);
+    letter-spacing: var(--lumae-tracking-normal);
+    color: var(--lumae-color-text-muted);
   }
 
-  .knot-accordion__badge {
+  .lumae-accordion__badge {
     flex: none;
-    padding: 2px var(--knot-space-2);
-    font-size: var(--knot-text-xs);
-    font-weight: var(--knot-weight-semibold);
-    letter-spacing: var(--knot-tracking-wide);
-    color: var(--knot-acc-accent);
-    background: color-mix(in oklch, var(--knot-acc-accent) 12%, transparent);
-    border-radius: var(--knot-radius-full);
+    padding: 2px var(--lumae-space-2);
+    font-size: var(--lumae-text-xs);
+    font-weight: var(--lumae-weight-semibold);
+    letter-spacing: var(--lumae-tracking-wide);
+    color: var(--lumae-acc-accent);
+    background: color-mix(in oklch, var(--lumae-acc-accent) 12%, transparent);
+    border-radius: var(--lumae-radius-full);
   }
 
-  .knot-accordion__indicator {
+  .lumae-accordion__indicator {
     display: inline-flex;
     flex: none;
     align-items: center;
     justify-content: center;
-    font-size: var(--knot-acc-ind);
-    color: var(--knot-color-text-subtle);
-    transition: transform var(--knot-acc-duration) var(--knot-ease-out),
-      color var(--knot-duration-fast) var(--knot-ease);
+    font-size: var(--lumae-acc-ind);
+    color: var(--lumae-color-text-subtle);
+    transition: transform var(--lumae-acc-duration) var(--lumae-ease-out),
+      color var(--lumae-duration-fast) var(--lumae-ease);
   }
 
-  .knot-accordion__trigger:hover .knot-accordion__indicator {
-    color: var(--knot-color-text-muted);
+  .lumae-accordion__trigger:hover .lumae-accordion__indicator {
+    color: var(--lumae-color-text-muted);
   }
 
-  .knot-accordion__trigger[data-state='open'] .knot-accordion__indicator {
-    color: var(--knot-acc-accent);
+  .lumae-accordion__trigger[data-state='open'] .lumae-accordion__indicator {
+    color: var(--lumae-acc-accent);
     transform: rotate(180deg);
   }
 
   /* The plus glyph morphs into a minus instead of spinning. */
-  .knot-accordion__indicator .knot-accordion__indicator-bar {
+  .lumae-accordion__indicator .lumae-accordion__indicator-bar {
     transform-origin: center;
-    transition: opacity var(--knot-acc-duration) var(--knot-ease),
-      transform var(--knot-acc-duration) var(--knot-ease-out);
+    transition: opacity var(--lumae-acc-duration) var(--lumae-ease),
+      transform var(--lumae-acc-duration) var(--lumae-ease-out);
   }
-  .knot-accordion__trigger[data-state='open']
-    .knot-accordion__indicator:has(.knot-accordion__indicator-bar) {
+  .lumae-accordion__trigger[data-state='open']
+    .lumae-accordion__indicator:has(.lumae-accordion__indicator-bar) {
     transform: none;
   }
-  .knot-accordion__trigger[data-state='open'] .knot-accordion__indicator-bar {
+  .lumae-accordion__trigger[data-state='open'] .lumae-accordion__indicator-bar {
     opacity: 0;
     transform: rotate(90deg);
   }
 
   /* ------------------------------------------------------------------ panel */
-  .knot-accordion__panel {
+  .lumae-accordion__panel {
     display: grid;
     grid-template-rows: 1fr;
-    color: var(--knot-color-text-muted);
-    font-size: var(--knot-text-sm);
-    line-height: var(--knot-leading-normal);
-    letter-spacing: var(--knot-tracking-normal);
+    color: var(--lumae-color-text-muted);
+    font-size: var(--lumae-text-sm);
+    line-height: var(--lumae-leading-normal);
+    letter-spacing: var(--lumae-tracking-normal);
   }
 
-  .knot-accordion__panel[data-state='closed'] {
+  .lumae-accordion__panel[data-state='closed'] {
     grid-template-rows: 0fr;
     /* Takes closed content out of the accessibility tree and the tab order once
        the collapse finishes. */
     visibility: hidden;
   }
 
-  .knot-accordion[data-animate] .knot-accordion__panel {
-    transition: grid-template-rows var(--knot-acc-duration) var(--knot-ease-out),
+  .lumae-accordion[data-animate] .lumae-accordion__panel {
+    transition: grid-template-rows var(--lumae-acc-duration) var(--lumae-ease-out),
       visibility 0s linear 0s;
   }
-  .knot-accordion[data-animate] .knot-accordion__panel[data-state='closed'] {
-    transition: grid-template-rows var(--knot-acc-duration) var(--knot-ease),
-      visibility 0s linear var(--knot-acc-duration);
+  .lumae-accordion[data-animate] .lumae-accordion__panel[data-state='closed'] {
+    transition: grid-template-rows var(--lumae-acc-duration) var(--lumae-ease),
+      visibility 0s linear var(--lumae-acc-duration);
   }
 
-  .knot-accordion__panel-inner {
+  .lumae-accordion__panel-inner {
     min-height: 0;
     overflow: hidden;
   }
 
   /* Content settles in slightly behind the row opening — the lag is what makes
      the motion read as physical rather than mechanical. */
-  .knot-accordion[data-animate] .knot-accordion__content {
+  .lumae-accordion[data-animate] .lumae-accordion__content {
     opacity: 0;
     transform: translateY(-4px);
-    transition: opacity var(--knot-acc-duration) var(--knot-ease),
-      transform var(--knot-acc-duration) var(--knot-ease-out);
+    transition: opacity var(--lumae-acc-duration) var(--lumae-ease),
+      transform var(--lumae-acc-duration) var(--lumae-ease-out);
   }
-  .knot-accordion[data-animate] .knot-accordion__panel[data-state='open'] .knot-accordion__content {
+  .lumae-accordion[data-animate] .lumae-accordion__panel[data-state='open'] .lumae-accordion__content {
     opacity: 1;
     transform: none;
-    transition-delay: calc(var(--knot-acc-duration) * 0.35);
+    transition-delay: calc(var(--lumae-acc-duration) * 0.35);
   }
 
   /* `dimensions.panelMaxHeight` caps the open panel and scrolls the rest. */
-  .knot-accordion[data-scroll] .knot-accordion__panel[data-state='open'] .knot-accordion__panel-inner {
-    max-height: var(--knot-accordion-panel-max-height);
+  .lumae-accordion[data-scroll] .lumae-accordion__panel[data-state='open'] .lumae-accordion__panel-inner {
+    max-height: var(--lumae-accordion-panel-max-height);
     overflow-y: auto;
     overscroll-behavior: contain;
   }
 
-  .knot-accordion__content {
-    padding: 0 var(--knot-acc-panel-pad-x) var(--knot-acc-panel-pad-y);
+  .lumae-accordion__content {
+    padding: 0 var(--lumae-acc-panel-pad-x) var(--lumae-acc-panel-pad-y);
   }
 
-  .knot-accordion[data-indicator-position='start'] .knot-accordion__content {
-    padding-inline-start: calc(var(--knot-acc-panel-pad-x) + var(--knot-acc-icon) + var(--knot-space-3));
+  .lumae-accordion[data-indicator-position='start'] .lumae-accordion__content {
+    padding-inline-start: calc(var(--lumae-acc-panel-pad-x) + var(--lumae-acc-icon) + var(--lumae-space-3));
   }
 
   @supports not (color: color-mix(in oklch, red, blue)) {
-    .knot-accordion__badge {
-      background: var(--knot-color-bg-subtle);
+    .lumae-accordion__badge {
+      background: var(--lumae-color-bg-subtle);
     }
   }
 

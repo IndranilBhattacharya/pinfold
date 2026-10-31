@@ -9,7 +9,7 @@ export default defineConfig({
   treeshake: true,
   splitting: true,
   target: 'es2018',
-  external: ['react', '@knotui/core'],
+  external: ['react', '@lumae/core'],
   onSuccess: async () => {
     mkdirSync('dist', { recursive: true });
     copyFileSync('src/__NAME__.css', 'dist/styles.css');

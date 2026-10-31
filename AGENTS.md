@@ -8,10 +8,8 @@ Owner: Indranil Bhattacharya. MIT.
 
 ## 0. Status: read before touching code
 
-- **Pre-release, pre-A1.** The code still uses the old working name: packages are
-  `@knotui/*`, CSS uses `knot-`/`--knot-*`, the provider is `KnotProvider`, and the CLI is `knotui`. Milestone A1 renames
-  all of it to `lumae`. Until then, **write new code with the current names**, and
-  write **docs with the target names** (`@lumae/*`), labelling unbuilt behaviour **Planned**.
+- **Pre-release.** Names are final: packages `@lumae/*`, CSS `lumae-`/`--lumae-*`, provider
+  `LumaeProvider`, CLI `lumae`. Docs label unbuilt behaviour **Planned**.
 - Only one component exists (accordion). Milestones A1–A9 harden it end to end
   before a second component starts. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
@@ -61,7 +59,7 @@ Owner: Indranil Bhattacharya. MIT.
 | SSR | No `window` or `document` at import time. Deterministic ids. The server HTML contains all content (panels mounted by default). `'use client'` is preserved in the build. |
 | JS and TS | Ship ES2018 ESM and CJS plus `.d.ts`. JSDoc on every public field. A dev-only config validator for JS users, stripped from production. |
 | Diagnostics | Dev-only `warnOnce()` for duplicate ids, frozen controlled state and impossible combinations. These must vanish under `NODE_ENV=production`. |
-| Identity | Build the returned component and parts only with `useKnotComponent`/`useStableParts`. A fresh identity each render remounts the whole subtree. |
+| Identity | Build the returned component and parts only with `useLumaeComponent`/`useStableParts`. A fresh identity each render remounts the whole subtree. |
 
 ## 4. Multi-framework readiness (architecture only)
 
@@ -74,12 +72,12 @@ No Vue or Angular code is built now.
 ## 5. Adding or changing a component: checklist
 
 1. The spec exists and is signed off (`docs/components/<name>.md`).
-2. `npx knotui new <name>` scaffolds a package that already passes conformance.
+2. `npx lumae new <name>` scaffolds a package that already passes conformance.
 3. Write the types first, then the core logic, then the hook (`use<Name>`), the view (a plain function), the CSS, and the tag.
-4. Tests cover ARIA wiring, every mode, the full keyboard map, disabled, controlled versus uncontrolled, slot overrides, and dimensions reaching CSS. Then add `describeKnotConformance` (mandatory):
+4. Tests cover ARIA wiring, every mode, the full keyboard map, disabled, controlled versus uncontrolled, slot overrides, and dimensions reaching CSS. Then add `describeLumaeConformance` (mandatory):
 
 ```tsx
-describeKnotConformance({
+describeLumaeConformance({
   name: 'tabs',
   slots: ['root', 'list', 'tab', 'panel'],
   optionalSlots: ['icon'],
@@ -101,10 +99,10 @@ Conformance fails the build on:
    (`../lumae-site`) if the site documents it.
 6. Run `npm run verify` (typecheck, tests, build, gzip budget).
 
-## 6. Current API reference (pre-A1 names)
+## 6. Current API reference
 
 ```jsx
-import { useAccordion } from '@knotui/accordion';
+import { useAccordion } from '@lumae/accordion';
 const Faq = useAccordion({ items: [{ title, content }], variant: 'separated' });
 return <Faq className="mt-6" />;
 // Faq is also the controller (Faq.value, Faq.toggle(id), Faq.openAll()) and carries parts (<Faq.Trigger id>, <Faq.Panel id>).
@@ -132,7 +130,7 @@ Slot = root|item|header|trigger|icon|label|title|description|badge|indicator|pan
 The returned value carries `items, value, isOpen, open, close, toggle, openAll, closeAll, focusItem, render,
 Item, Trigger, Panel, Indicator, getRootProps, getItemProps, getHeaderProps, getTriggerProps, getPanelProps`.
 
-Theming: `createTheme({ primary, accent, neutral, intensity, radius })` from `@knotui/core/palette`
+Theming: `createTheme({ primary, accent, neutral, intensity, radius })` from `@lumae/core/palette`
 returns `{ vars, css, ramps, contrast }`. It covers 7 roles × 11 OKLCH steps. Never hand-write a colour.
 
 Planned API (A3/A4): `defineAccordion`, `defineConfig`, `lazy`, `hiddenUntilFound`,

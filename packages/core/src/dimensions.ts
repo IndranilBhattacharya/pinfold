@@ -5,7 +5,7 @@ import type { Length } from './types';
  * Turn a `dimensions` config object into CSS custom properties on the root.
  *
  *   dimensionVars('accordion', { paddingX: 24, panelMaxHeight: '18rem' })
- *   // → { '--knot-accordion-padding-x': '24px', '--knot-accordion-panel-max-height': '18rem' }
+ *   // → { '--lumae-accordion-padding-x': '24px', '--lumae-accordion-panel-max-height': '18rem' }
  *
  * Numbers become px; strings pass through untouched, so `'50%'`, `'12rem'`,
  * `'clamp(...)'` and `var(...)` all work. Every component's CSS reads these
@@ -20,7 +20,7 @@ export function dimensionVars<D extends object>(
   for (const [key, raw] of Object.entries(dimensions)) {
     const value = raw as Length | undefined;
     if (value === undefined || value === null || value === '') continue;
-    out[`--knot-${component}-${kebab(key)}`] = typeof value === 'number' ? `${value}px` : value;
+    out[`--lumae-${component}-${kebab(key)}`] = typeof value === 'number' ? `${value}px` : value;
   }
   return out as React.CSSProperties;
 }

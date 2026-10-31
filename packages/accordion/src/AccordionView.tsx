@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dimensionVars, mergeProps, renderSlot, resolveNode, slotProps } from '@knotui/core';
+import { cn, dimensionVars, mergeProps, renderSlot, resolveNode, slotProps } from '@lumae/core';
 import type {
   AccordionApi,
   AccordionConfig,
@@ -11,7 +11,7 @@ import type {
   ResolvedAppearance,
 } from './types';
 
-const B = 'knot-accordion';
+const B = 'lumae-accordion';
 
 const GLYPHS: Record<Exclude<AccordionIndicator, 'none'>, React.ReactNode> = {
   chevron: <path d="M4 6.5 8 10.5 12 6.5" />,
@@ -71,12 +71,12 @@ export function renderRoot(ctx: ViewContext, rootProps?: AccordionRootProps): Re
   const props = api.getRootProps(
     mergeProps(
       slot(ctx, 'root', {
-        className: a.unstyled ? config.className : cn('knot', B, config.className),
+        className: a.unstyled ? config.className : cn('lumae', B, config.className),
         style: { ...dimensionVars('accordion', config.dimensions), ...config.style },
         'data-variant': a.variant,
         'data-size': a.size,
         'data-tone': a.tone,
-        'data-knot-radius': a.radius,
+        'data-lumae-radius': a.radius,
         'data-indicator-position': a.indicatorPosition,
         'data-dividers': a.dividers ? '' : undefined,
         'data-animate': a.animate ? '' : undefined,

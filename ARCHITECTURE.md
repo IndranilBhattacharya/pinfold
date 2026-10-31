@@ -3,8 +3,7 @@
 The contract every Lumae component follows. Read this once and you can add
 the next twelve components without inventing a single decision.
 
-> Names: the code is still pre-A1 (`@knotui/*`, `knot-`, `KnotProvider`). This document uses the
-> target names (`@lumae/*`, `lumae-`). Sections marked **Planned** describe A1–A7 work.
+> Sections marked **Planned** describe A1–A7 work.
 > Each decision is referenced as D-nn ([docs/DECISIONS.md](docs/DECISIONS.md)).
 
 ---
@@ -49,7 +48,7 @@ three things at once:
 3. a set of **parts**: `<Faq.Trigger id>`, `<Faq.Panel id>`, for layouts the
    config cannot express.
 
-Build both the component and the parts with `useKnotComponent` and `useStableParts` from core.
+Build both the component and the parts with `useLumaeComponent` and `useStableParts` from core.
 **Identity stability is not optional.** A component created fresh each render is a new element
 type to React, which unmounts and remounts the whole subtree, discarding focus, scroll position
 and every running transition. The conformance suite tests for it.
@@ -323,14 +322,14 @@ packages/
 "peerDependencies": { "react": ">=18" }
 ```
 
-Current (pre-A1): `packages/{core,accordion,tailwind,testing,cli}`, with one package per component.
+Current (until the A1 re-layout): `packages/{core,accordion,tailwind,testing,cli}`, with one package per component.
 
 ---
 
 ## 9. Adding a component: the checklist
 
 1. The spec `docs/components/<name>.md` is researched and signed off by the owner.
-2. `npx lumae new <name>` (today: `npx knotui new`).
+2. `npx lumae new <name>`.
 3. Write `types.ts` first. The config object is the API.
 4. Write the rules in core (`<name>.logic.ts`), then `use<Name>.tsx` against the APG pattern.
    Reuse `nextIndexFromKey`, `useControllableState`, `useId`, `useEvent` and `dimensionVars`.
@@ -339,7 +338,7 @@ Current (pre-A1): `packages/{core,accordion,tailwind,testing,cli}`, with one pac
    the responsive contract.
 7. Write `define<Name>` and `<name>.meta.ts`.
 8. Tests: ARIA wiring, every mode, the keyboard map, disabled, controlled, slot overrides,
-   dimensions reaching custom properties, SSR output. Add `describeKnotConformance`.
+   dimensions reaching custom properties, SSR output. Add `describeLumaeConformance`.
 9. Register it in `packages/cli/registry.json`. Update its section on the site (`../lumae-site`).
 10. Run `npm run verify` (typecheck, tests, build, gzip budget).
 

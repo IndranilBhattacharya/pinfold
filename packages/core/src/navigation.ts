@@ -1,8 +1,8 @@
-import type { KnotDir, KnotOrientation } from './types';
+import type { LumaeDir, LumaeOrientation } from './types';
 
 export interface ListNavOptions {
-  orientation?: KnotOrientation;
-  dir?: KnotDir;
+  orientation?: LumaeOrientation;
+  dir?: LumaeDir;
   /** Wrap from last to first. Default true. */
   loop?: boolean;
 }

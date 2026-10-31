@@ -1,12 +1,12 @@
 {
-  "$schema": "https://knotui.dev/registry.schema.json",
+  "$schema": "https://lumae.indranildev.in/registry.schema.json",
   "version": 1,
-  "core": { "package": "@knotui/core", "styles": "@knotui/core/styles.css" },
+  "core": { "package": "@lumae/core", "styles": "@lumae/core/styles.css" },
   "components": [
     {
       "name": "accordion",
-      "package": "@knotui/accordion",
-      "styles": "@knotui/accordion/styles.css",
+      "package": "@lumae/accordion",
+      "styles": "@lumae/accordion/styles.css",
       "status": "stable",
       "description": "Collapsible disclosure rows. WAI-ARIA accordion pattern.",
       "variants": ["solid", "outline", "separated", "filled", "ghost"],
