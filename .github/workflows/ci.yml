@@ -21,6 +21,9 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version: 22, cache: npm }
       - run: npm ci
+      # Zero known vulnerabilities, dev tooling included. The installed packages are audited by
+      # the consumer smoke test.
+      - run: npm audit --audit-level=low
       - run: npm run verify
 
   # D-06 / COMPATIBILITY.md: every OS × Node × React. The test suite includes the

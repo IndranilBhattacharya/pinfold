@@ -28,6 +28,7 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
       - run: npm ci
+      - run: npm audit --audit-level=low
       - run: npm run verify
       - name: Refuse to publish a runtime dependency
         run: |
@@ -37,4 +38,7 @@ jobs:
               const extra = deps.filter((d) => !d.startsWith("@pinfold/"));
               if (extra.length) { console.error(`@pinfold/${p} has runtime deps: ${extra}`); process.exit(1); }
             }'
-      - run: npm publish --provenance --access public --tag ${{ inputs.tag }} -w @pinfold/core -w @pinfold/css -w @pinfold/react -w pinfold
+      # Installs the packed tarballs into a fresh app and audits what a user would get.
+      - run: node scripts/consumer-smoke.mjs --pm npm --react 19
+      # Publishes only the versions that are not on npm yet, so a re-run is safe.
+      - run: node scripts/publish.mjs --tag ${{ inputs.tag }}

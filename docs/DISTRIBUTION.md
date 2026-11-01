@@ -43,6 +43,6 @@ each component's reference as a resource. Nothing is hosted.
 
 ## Release process (D-18)
 - Changesets for versioning and changelogs (**Planned**, before the first publish).
-- Publish from GitHub Actions (`.github/workflows/release.yml`, manual trigger) with **npm trusted publishing** (OIDC) and `--provenance`. No long-lived tokens. The very first publish of each package is manual (a package must exist before a trusted publisher can be attached).
+- Publish from GitHub Actions (`.github/workflows/release.yml`, manual trigger) with **npm trusted publishing** (OIDC) and `--provenance`. No long-lived tokens. The very first publish of each package is manual (a package must exist before a trusted publisher can be attached). The workflow audits the dependency tree and the installed tarballs (`npm audit`, zero findings allowed), then runs `scripts/publish.mjs`, which publishes only the package versions that are not on npm yet: bump a version to release that package; a re-run is safe.
 - Owner account: 2FA with passkeys. Packages have no install scripts. A release fails if a runtime dependency appears.
 - Pre-release tags (`next`) for internal feedback before each stable release.
