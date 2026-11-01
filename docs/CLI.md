@@ -63,8 +63,8 @@ Checks:
 
 Each problem is printed with its fix. Errors exit with status 1; warnings (no theme file, old browser targets, no entry) do not.
 
-## `mcp` (A7)
-Runs a local stdio MCP server that serves the meta, schema and docs from the installed package. Nothing is hosted.
+## `mcp`
+Runs a local stdio MCP server (newline-delimited JSON-RPC 2.0) that serves the meta, schema and docs from the installed packages. Nothing is hosted. Tools: `list_components`, `get_component`, `get_schema`, `validate_config`, `get_install_steps`. See [DISTRIBUTION.md](DISTRIBUTION.md).
 
 ## `new <name>` (contributors only)
 Scaffolds a component that already passes conformance. See [CONTRIBUTING.md](../CONTRIBUTING.md).

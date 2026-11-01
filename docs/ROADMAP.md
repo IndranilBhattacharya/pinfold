@@ -53,9 +53,9 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 - [x] Tested against every A4 test app: `init`, then `add`, then build. Running `init` twice changes nothing the second time (`fixture-apps.mjs --cli`, CI job `fixtures`).
 
 ## A7 · Distribution and AI
-- [ ] Generate the shadcn registry JSON from meta and ship it in the npm package. List it in the shadcn registry index.
-- [ ] `llms.txt`, `llms-full.txt` and the schema, all generated from meta and shipped in the package.
-- [ ] `npx pinfold mcp`, a local MCP server.
+- [x] Generate the shadcn registry JSON from meta and ship it in the npm package (`scripts/generate-artifacts.mjs`). Listing in the shadcn registry index is a launch step for the owner (a pull request to shadcn).
+- [x] `llms.txt`, `llms-full.txt` and the schema, all generated from meta (`metaToMarkdown`, `toJsonSchema`) and shipped in the package.
+- [x] `npx pinfold mcp`, a local MCP server (`packages/cli/lib/mcp.mjs`, `mcp.test.ts`).
 
 ## A8 · Playground v2 (in `../pinfold-ui`)
 - [ ] Controls generated from meta, showing only what matters for a quick look (no raw sizes).

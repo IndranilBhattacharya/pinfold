@@ -8,6 +8,8 @@
  * generated from. Framework-free and JSON-safe.
  */
 
+import { accordionMeta } from './accordion.meta';
+
 export type PropType =
   | 'string'
   | 'number'
@@ -240,4 +242,59 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
   };
 }
 
-export { accordionMeta } from './accordion.meta';
+/** Human- and model-readable reference for one component: usage, every option, keyboard, ARIA. */
+export function metaToMarkdown(meta: ComponentMeta): string {
+  const cell = (s: unknown) => String(s ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
+  const type = (p: PropMeta) =>
+    p.type === 'enum' ? p.values!.map((v) => JSON.stringify(v)).join(' \\| ') + (p.orNode ? ' \\| node' : '') : p.type;
+  const table = (props: Record<string, PropMeta>) =>
+    [
+      '| Option | Type | Default | Description |',
+      '|---|---|---|---|',
+      ...Object.entries(props).map(
+        ([k, p]) =>
+          `| \`${k}\`${p.required ? ' (required)' : ''}${p.status === 'deprecated' ? ' (deprecated)' : ''} | ${type(p)} | ${
+            p.default === undefined ? '' : `\`${JSON.stringify(p.default)}\``
+          } | ${cell(p.description)} |`,
+      ),
+    ].join('\n');
+  const rows = meta.props.items?.items;
+  return [
+    `# ${meta.displayName}`,
+    '',
+    meta.description,
+    '',
+    `Import: \`${meta.importPath}\` · Pattern: ${meta.pattern}`,
+    '',
+    ...meta.examples.flatMap((e) => [`## ${e.title}`, '', '```tsx', e.code, '```', '']),
+    '## Options',
+    '',
+    'Only `items` is required. Every other option has a default; global defaults come from `defineConfig({ defaults: { ' +
+      meta.name +
+      ': {...} } })`.',
+    '',
+    table(meta.props),
+    '',
+    ...(rows ? ['## Row options (`items[]`)', '', table(rows), ''] : []),
+    `## Slots`,
+    '',
+    meta.slots.map((s) => `\`${s}\``).join(', '),
+    '',
+    '## Keyboard',
+    '',
+    ...meta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
+    '',
+    '## Accessibility',
+    '',
+    ...meta.aria.map((a) => `- ${a}`),
+    '',
+    '## Data attributes',
+    '',
+    ...meta.dataAttributes.map((d) => `- \`${d.name}\` on ${d.on}: ${d.values}`),
+    '',
+  ].join('\n');
+}
+
+/** Every component's meta. Tooling iterates this. */
+export const componentMetas: readonly ComponentMeta[] = [accordionMeta];
+export { accordionMeta };

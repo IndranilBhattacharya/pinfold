@@ -10,7 +10,7 @@
  * and (TS 5+) bundler resolution. Run `npm run build` first.
  */
 import { execSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { packTarballs, pinCore } from './pack.mjs';
@@ -67,6 +67,14 @@ run(install, app);
 const node = pm === 'yarn' ? 'yarn node' : 'node';
 run(`${node} esm.mjs`, app);
 run(`${node} cjs.cjs`, app);
+
+// Generated docs, schema and registry ship inside the package (Yarn PnP has no node_modules to look in).
+if (pm !== 'yarn') {
+  for (const f of ['llms.txt', 'llms-full.txt', 'registry/registry.json', 'registry/accordion.json', 'schema/accordion.json']) {
+    if (!existsSync(join(app, 'node_modules/@pinfold/react', f))) throw new Error(`@pinfold/react is missing ${f}`);
+  }
+  console.log('ok registry, schema and llms docs are in the package');
+}
 
 // 4. Published types, from a consumer's point of view.
 if (ts) {
