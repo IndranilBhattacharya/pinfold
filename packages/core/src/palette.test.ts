@@ -46,3 +46,17 @@ describe('palette engine', () => {
     expect(tinted.ramps.neutral[500]).not.toBe(explicit.ramps.neutral[500]);
   });
 });
+
+describe('toDTCG', () => {
+  it('exports every ramp step as a DTCG colour token', async () => {
+    const { createTheme, toDTCG } = await import('./palette');
+    const tokens = toDTCG(createTheme({ primary: 'emerald', radius: 'lg' })) as any;
+    const token = tokens.pinfold.color.primary['500'];
+    expect(token.$type).toBe('color');
+    expect(token.$value.colorSpace).toBe('srgb');
+    expect(token.$value.hex).toMatch(/^#[0-9a-f]{6}$/);
+    expect(token.$value.components).toHaveLength(3);
+    expect(Object.keys(tokens.pinfold.color)).toEqual(['primary', 'accent', 'neutral', 'success', 'warning', 'danger', 'info']);
+    expect(tokens.pinfold.radius.scale.$value).toBe(1.5);
+  });
+});

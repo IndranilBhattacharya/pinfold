@@ -1,0 +1,109 @@
+/* Pinfold — style packs.
+
+     import '@pinfold/css/core.css';
+     import '@pinfold/css/packs.css';
+     <PinfoldProvider stylePack="glass">   (or data-pinfold-style="glass" on any element)
+
+   A pack is only a token recipe: it re-points shape, depth, border, surface and
+   type tokens, so every component follows it with no per-component CSS.
+   Colour roles are untouched, so text contrast comes from the palette, which
+   is contrast-checked (see packs.test.ts).
+
+   Every pack yields to the user:
+   - prefers-reduced-transparency: no translucency, no blur.
+   - prefers-contrast: more: opaque surfaces, full-strength borders, no texture.
+   - forced-colors: system colours take over; decorative layers are dropped.
+
+   Packs sit in their own layer after the tokens, so they override the tokens
+   but never beat your own unlayered CSS. */
+
+@layer pinfold.tokens, pinfold.reset, pinfold.components, pinfold.packs;
+
+@layer pinfold.packs {
+
+  /* ------------------------------------------------------------------ glass */
+  /* Frosted, translucent surfaces over whatever is behind them. */
+  [data-pinfold-style='glass'] {
+    --pinfold-color-surface: color-mix(in oklch, var(--pinfold-color-bg) 68%, transparent);
+    --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-bg) 62%, transparent);
+    --pinfold-color-border: color-mix(in oklch, var(--pinfold-color-text) 12%, transparent);
+    --pinfold-backdrop: blur(18px) saturate(1.6);
+    --pinfold-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 40%, transparent);
+    --pinfold-radius-scale: 1.4;
+  }
+
+  /* ---------------------------------------------------------------- bauhaus */
+  /* Geometry and primaries: square corners, heavy rules, offset colour blocks. */
+  [data-pinfold-style='bauhaus'] {
+    --pinfold-radius-scale: 0;
+    --pinfold-border-width: 2px;
+    --pinfold-color-border: var(--pinfold-color-text);
+    --pinfold-color-border-accent: var(--pinfold-color-accent);
+    --pinfold-shadow-sm: 4px 4px 0 var(--pinfold-color-accent);
+    --pinfold-shadow-md: 6px 6px 0 var(--pinfold-color-accent);
+    --pinfold-highlight: 0 0 0 0 transparent;
+    --pinfold-font-sans: Futura, 'Century Gothic', 'Avenir Next', ui-sans-serif, system-ui, sans-serif;
+    --pinfold-tracking-tight: 0em;
+  }
+
+  /* -------------------------------------------------------------- brutalist */
+  /* Raw and loud: monospace, thick black rules, hard shadows, no rounding. */
+  [data-pinfold-style='brutalist'] {
+    --pinfold-radius-scale: 0;
+    --pinfold-border-width: 3px;
+    --pinfold-color-border: var(--pinfold-color-text);
+    --pinfold-color-border-accent: var(--pinfold-color-text);
+    --pinfold-shadow-sm: 5px 5px 0 var(--pinfold-color-text);
+    --pinfold-shadow-md: 8px 8px 0 var(--pinfold-color-text);
+    --pinfold-highlight: 0 0 0 0 transparent;
+    --pinfold-color-surface-hover: color-mix(in oklch, var(--pinfold-color-accent) 18%, var(--pinfold-color-surface));
+    --pinfold-font-sans: var(--pinfold-font-mono);
+    --pinfold-tracking-tight: 0em;
+  }
+
+  /* ------------------------------------------------------------------ noise */
+  /* Print-like grain on every surface. The texture is a 2 kB SVG, no request. */
+  [data-pinfold-style='noise'] {
+    --pinfold-texture: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --pinfold-radius-scale: 0.8;
+  }
+
+  /* ------------------------------------------------------------------- soft */
+  /* Pillowy: generous rounding, no hard borders, wide diffused shadows. */
+  [data-pinfold-style='soft'] {
+    --pinfold-radius-scale: 1.75;
+    --pinfold-color-border: color-mix(in oklch, var(--pinfold-color-text) 6%, transparent);
+    --pinfold-shadow-sm:
+      0 2px 6px -2px color-mix(in oklch, var(--pinfold-shadow-color) 8%, transparent),
+      0 12px 32px -14px color-mix(in oklch, var(--pinfold-shadow-color) 22%, transparent);
+    --pinfold-shadow-md:
+      0 4px 10px -3px color-mix(in oklch, var(--pinfold-shadow-color) 10%, transparent),
+      0 20px 48px -18px color-mix(in oklch, var(--pinfold-shadow-color) 28%, transparent);
+  }
+
+  /* ------------------------------------------------------- user preferences */
+  @media (prefers-reduced-transparency: reduce) {
+    [data-pinfold-style='glass'] {
+      --pinfold-color-surface: var(--pinfold-color-bg);
+      --pinfold-color-bg-subtle: var(--pinfold-neutral-100);
+      --pinfold-backdrop: none;
+    }
+  }
+
+  @media (prefers-contrast: more) {
+    [data-pinfold-style] {
+      --pinfold-color-surface: var(--pinfold-color-bg);
+      --pinfold-color-border: var(--pinfold-color-text);
+      --pinfold-backdrop: none;
+      --pinfold-texture: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    [data-pinfold-style] {
+      --pinfold-backdrop: none;
+      --pinfold-texture: none;
+    }
+  }
+
+}

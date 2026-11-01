@@ -44,9 +44,9 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 - [x] Assert zero hydration warnings (`accordion.ssr.test.tsx`), complete server HTML (every panel's text) and deterministic ids (unit tests and the served Next.js pages).
 
 ## A5 · Style packs and theming
-- [ ] Glass, bauhaus, brutalist, noise and soft, each as a token recipe behind `data-pinfold-style`.
-- [ ] Each one respects `prefers-contrast`, `prefers-reduced-transparency` and `forced-colors`, and is contrast-checked in light and dark mode.
-- [ ] Export to CSS, Tailwind v4/v3 and DTCG tokens. Map onto shadcn's CSS variables.
+- [x] Glass, bauhaus, brutalist, noise and soft, each as a token recipe behind `data-pinfold-style` (`@pinfold/css/packs.css`, `<PinfoldProvider stylePack>`). New token hooks: `--pinfold-border-width`, `--pinfold-backdrop`, `--pinfold-texture`.
+- [x] Each one respects `prefers-contrast`, `prefers-reduced-transparency` and `forced-colors`, and is contrast-checked in light and dark mode (`packs.test.ts`; the check raised glass opacity to keep AA over white backdrops in dark mode).
+- [x] Export to CSS (`createTheme().css`), Tailwind v4/v3 (the theme and preset map onto the same variables) and DTCG tokens (`toDTCG`). Map onto shadcn's CSS variables (`@pinfold/css/shadcn.css`).
 
 ## A6 · CLI
 - [ ] `init`, `add`, `theme` and `doctor` per [CLI.md](CLI.md), with JS/TS output.

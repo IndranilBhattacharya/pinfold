@@ -31,7 +31,7 @@
     --pinfold-acc-ind: var(--pinfold-accordion-indicator-size, 1em);
     --pinfold-acc-radius: var(--pinfold-accordion-radius, var(--pinfold-acc-radius-base));
     --pinfold-acc-gap: var(--pinfold-accordion-gap, var(--pinfold-acc-gap-base));
-    --pinfold-acc-border: var(--pinfold-accordion-border-width, 1px);
+    --pinfold-acc-border: var(--pinfold-accordion-border-width, var(--pinfold-border-width));
     --pinfold-acc-duration: var(--pinfold-accordion-duration, var(--pinfold-duration-md));
 
     --pinfold-acc-accent: var(--pinfold-color-accent);
@@ -121,6 +121,9 @@
      that touch them rather than clipped off the container. */
   .pinfold-accordion[data-variant='solid'] {
     background: var(--pinfold-color-surface);
+    background-image: var(--pinfold-texture);
+    -webkit-backdrop-filter: var(--pinfold-backdrop);
+    backdrop-filter: var(--pinfold-backdrop);
     border: var(--pinfold-acc-border) solid var(--pinfold-color-border);
     border-radius: var(--pinfold-acc-radius);
     box-shadow: var(--pinfold-shadow-sm), var(--pinfold-highlight);
@@ -157,6 +160,9 @@
   .pinfold-accordion[data-variant='separated'] .pinfold-accordion__item {
     --pinfold-acc-item-radius: var(--pinfold-acc-radius);
     background: var(--pinfold-color-surface);
+    background-image: var(--pinfold-texture);
+    -webkit-backdrop-filter: var(--pinfold-backdrop);
+    backdrop-filter: var(--pinfold-backdrop);
     border: var(--pinfold-acc-border) solid var(--pinfold-color-border);
     box-shadow: var(--pinfold-shadow-sm), var(--pinfold-highlight);
     transition: box-shadow var(--pinfold-duration-md) var(--pinfold-ease),
@@ -178,10 +184,13 @@
   .pinfold-accordion[data-variant='filled'] .pinfold-accordion__item {
     --pinfold-acc-item-radius: var(--pinfold-acc-radius);
     background: var(--pinfold-color-bg-subtle);
+    background-image: var(--pinfold-texture);
+    -webkit-backdrop-filter: var(--pinfold-backdrop);
+    backdrop-filter: var(--pinfold-backdrop);
     transition: background-color var(--pinfold-duration-md) var(--pinfold-ease);
   }
   .pinfold-accordion[data-variant='filled'] .pinfold-accordion__item[data-state='open'] {
-    background: var(--pinfold-color-surface-selected);
+    background-color: var(--pinfold-color-surface-selected);
   }
 
   /* ghost — text only, hover reveals the row */

@@ -1,0 +1,51 @@
+/* Pinfold — shadcn/ui bridge.
+
+     @import "@pinfold/css/core.css";
+     @import "@pinfold/css/shadcn.css";   after your shadcn globals.css variables
+
+   Points shadcn's CSS variables at Pinfold's tokens, so shadcn components
+   and Pinfold components share one theme: `npx pinfold theme`, the palette
+   studio, style packs and dark mode all reach both.
+
+   Dark mode: shadcn toggles a `.dark` class, Pinfold reads
+   `data-pinfold-theme`. Set both, e.g. next-themes:
+     <ThemeProvider attribute={['class', 'data-pinfold-theme']}>
+
+   Unlayered on purpose: shadcn's own variables are unlayered, and this file
+   must replace them. */
+
+:root,
+.dark {
+  --background: var(--pinfold-color-bg);
+  --foreground: var(--pinfold-color-text);
+  --card: var(--pinfold-color-surface);
+  --card-foreground: var(--pinfold-color-text);
+  --popover: var(--pinfold-color-surface-raised);
+  --popover-foreground: var(--pinfold-color-text);
+  --primary: var(--pinfold-color-accent);
+  --primary-foreground: var(--pinfold-color-accent-contrast);
+  --secondary: var(--pinfold-color-bg-subtle);
+  --secondary-foreground: var(--pinfold-color-text);
+  --muted: var(--pinfold-color-bg-subtle);
+  --muted-foreground: var(--pinfold-color-text-muted);
+  --accent: var(--pinfold-color-surface-hover);
+  --accent-foreground: var(--pinfold-color-text);
+  --destructive: var(--pinfold-danger-500);
+  --border: var(--pinfold-color-border);
+  --input: var(--pinfold-color-border-strong);
+  --ring: var(--pinfold-color-ring);
+  --radius: var(--pinfold-radius-lg);
+  --chart-1: var(--pinfold-primary-500);
+  --chart-2: var(--pinfold-info-500);
+  --chart-3: var(--pinfold-success-500);
+  --chart-4: var(--pinfold-warning-500);
+  --chart-5: var(--pinfold-danger-500);
+  --sidebar: var(--pinfold-color-bg-subtle);
+  --sidebar-foreground: var(--pinfold-color-text);
+  --sidebar-primary: var(--pinfold-color-accent);
+  --sidebar-primary-foreground: var(--pinfold-color-accent-contrast);
+  --sidebar-accent: var(--pinfold-color-surface-hover);
+  --sidebar-accent-foreground: var(--pinfold-color-text);
+  --sidebar-border: var(--pinfold-color-border);
+  --sidebar-ring: var(--pinfold-color-ring);
+}
