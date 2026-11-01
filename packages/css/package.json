@@ -5,6 +5,9 @@
   "author": "Indranil Bhattacharya",
   "keywords": ["lumae", "css", "design-tokens", "tailwind", "tailwindcss", "oklch", "cascade-layers"],
   "license": "MIT",
+  "homepage": "https://lumae.indranildev.in",
+  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/lumae.git", "directory": "packages/css" },
+  "bugs": "https://github.com/IndranilBhattacharya/lumae/issues",
   "sideEffects": ["*.css"],
   "exports": {
     "./core.css": "./dist/core.css",
