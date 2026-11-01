@@ -13,9 +13,9 @@ Created by **Indranil Bhattacharya**
 
 </div>
 
-> **Status: pre-release.** One component (accordion) is being hardened through
-> milestones A1–A9 ([roadmap](docs/ROADMAP.md)). Not yet on npm.
-> Items marked *Planned* are specified but not yet built.
+> **Status: pre-release.** One component, the accordion, is complete: server and client APIs,
+> global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report
+> ([roadmap](docs/ROADMAP.md)). Not yet on npm. Items marked *Planned* are specified but not yet built.
 
 ---
 
