@@ -15,7 +15,7 @@ Created by **Indranil Bhattacharya**
 
 > **Status: pre-release.** One component, the accordion, is complete: server and client APIs,
 > global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report
-> ([roadmap](docs/ROADMAP.md)). Not yet on npm. Items marked *Planned* are specified but not yet built.
+> ([roadmap](docs/ROADMAP.md)). Published to npm as it grows: one component at a time (D-22). Items marked *Planned* are specified but not yet built.
 
 ---
 

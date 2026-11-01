@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'npm dist-tag (next for pre-releases, latest for stable)'
+        description: 'npm dist-tag: latest for releases, next for pre-release previews (D-22)'
         required: true
-        default: next
+        default: latest
 
 permissions:
   contents: read

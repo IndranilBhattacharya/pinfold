@@ -110,10 +110,16 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 - Follow the APG pattern for each component, pass the conformance gate, and publish a generated accessibility report plus a screen-reader matrix with every release.
 - Why: the European Accessibility Act (enforced since June 2025) means buyers ask for evidence.
 
-**D-20 · Build only the accordion first** · 2026-10-31 · Locked
+**D-20 · Build only the accordion first** · 2026-10-31 · **Superseded** in part by D-22 (publishing)
 - Milestones A1–A9 bring the accordion to finished quality. The owner signs off after each milestone. Then components follow one at a time, each researched and specified first.
 - Nothing goes public until there are many components and they have had internal feedback.
 
 **D-21 · No Docker requirement** · 2026-10-31 · Locked
 - Cross-machine confidence comes from the CI matrix (operating system × Node × package manager × React × compiler), not from containers.
 
+## Revisions
+
+**D-22 · Publish incrementally** · 2026-11-01 · Locked (supersedes the publishing line of D-20)
+- Publish to npm now, starting with the accordion (0.1.0 on `latest`), and publish again as each new component is finished. Components are still built one at a time, each researched and specified first.
+- Why: the owner prefers to ship early and grow in public. Versions below 1.0.0 signal that the API may still change.
+- The first publish of each package is manual (a package must exist before a trusted publisher can be attached); every later release goes through `release.yml` with trusted publishing and provenance.
