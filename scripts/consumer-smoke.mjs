@@ -10,9 +10,10 @@
  * and (TS 5+) bundler resolution. Run `npm run build` first.
  */
 import { execSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
+import { packTarballs, pinCore } from './pack.mjs';
 
 const arg = (name, fallback) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -21,7 +22,6 @@ const arg = (name, fallback) => {
 const pm = arg('pm', 'npm');
 const react = arg('react', '18');
 const ts = arg('ts', null);
-const root = resolve(import.meta.dirname, '..');
 const run = (cmd, cwd) => execSync(cmd, { cwd, stdio: 'inherit', env: { ...process.env, CI: '1' } });
 
 const work = mkdtempSync(join(tmpdir(), 'pinfold-smoke-'));
@@ -29,27 +29,17 @@ const app = join(work, 'app');
 mkdirSync(app);
 
 // 1. Pack exactly what npm would publish.
-for (const pkg of ['core', 'css', 'react']) {
-  execSync(`npm pack --silent --pack-destination "${work}"`, { cwd: join(root, 'packages', pkg) });
-}
-const tgz = Object.fromEntries(
-  readdirSync(work)
-    .filter((f) => f.endsWith('.tgz'))
-    .map((f) => [`@pinfold/${f.replace(/^pinfold-/, '').replace(/-\d.*$/, '')}`, `file:${join(work, f).replace(/\\/g, '/')}`]),
-);
+const tgz = packTarballs(work);
 
 // 2. A consumer app. Every package manager reads its own override field, so the
 //    react tarball's dependency on @pinfold/core resolves to the local tarball too.
-const pin = { '@pinfold/core': tgz['@pinfold/core'] };
 const manifest = {
   name: 'pinfold-smoke',
   private: true,
   version: '0.0.0',
   dependencies: { ...tgz, react: `^${react}`, 'react-dom': `^${react}` },
   devDependencies: ts ? { typescript: ts, '@types/react': `^${react}`, '@types/react-dom': `^${react}` } : {},
-  overrides: pin,
-  pnpm: { overrides: pin },
-  resolutions: pin,
+  ...pinCore(tgz),
 };
 writeFileSync(join(app, 'package.json'), JSON.stringify(manifest, null, 2));
 

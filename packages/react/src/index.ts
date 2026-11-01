@@ -4,19 +4,31 @@
  *
  *   import { useAccordion } from '@pinfold/react/accordion';
  *
- * The root carries what is shared across components: the provider, and the
- * helpers for building your own Pinfold-style component.
+ * The root carries what is shared across components: the provider, the global
+ * config, and the helpers for building your own Pinfold-style component.
+ * This barrel is server-safe (no 'use client'), so `defineConfig` can run in a
+ * Server Component or a config file; the client parts come from './client'.
  */
-export { PinfoldProvider, usePinfold, type PinfoldProviderProps, type PinfoldContextValue } from './provider';
-export { defineConfig, type PinfoldConfig, type PinfoldComponentDefaults } from './config';
 export {
+  PinfoldProvider,
+  usePinfold,
   useId,
   useEvent,
   useControllableState,
   useIsomorphicLayoutEffect,
-  type ControllableStateOptions,
-} from './hooks';
-export { slotProps, renderSlot } from './slots';
-export { createLazyComponent, type LazyOptions } from './lazy';
-export { usePinfoldComponent, type PinfoldComponent } from './component';
-export type { SlotOverrides, SlotRenderer, Slottable } from './types';
+  slotProps,
+  renderSlot,
+  createLazyComponent,
+  usePinfoldComponent,
+} from './client';
+export type {
+  PinfoldProviderProps,
+  PinfoldContextValue,
+  ControllableStateOptions,
+  LazyOptions,
+  PinfoldComponent,
+  SlotOverrides,
+  SlotRenderer,
+  Slottable,
+} from './client';
+export { defineConfig, type PinfoldConfig, type PinfoldComponentDefaults } from './config';

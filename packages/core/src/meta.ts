@@ -1,4 +1,8 @@
 /**
+ * `@pinfold/core/meta`. A separate entry so apps never ship it: the React
+ * adapter loads it only in development, and tooling (docs, CLI, schema,
+ * llms.txt, playground) imports it directly.
+ *
  * Component metadata: the single source of truth that docs, the playground,
  * the JSON schema, the registries, `llms.txt` and dev validation are all
  * generated from. Framework-free and JSON-safe.
@@ -235,3 +239,5 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
     ...shape(meta.props),
   };
 }
+
+export { accordionMeta } from './accordion.meta';

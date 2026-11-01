@@ -3,10 +3,22 @@
   "version": "0.1.0",
   "description": "Pinfold core: framework-free logic, palette engine and helpers shared by every Pinfold adapter.",
   "author": "Indranil Bhattacharya",
-  "keywords": ["pinfold", "ui", "headless", "design-system", "accessibility", "oklch", "palette"],
+  "keywords": [
+    "pinfold",
+    "ui",
+    "headless",
+    "design-system",
+    "accessibility",
+    "oklch",
+    "palette"
+  ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
-  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/pinfold.git", "directory": "packages/core" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IndranilBhattacharya/pinfold.git",
+    "directory": "packages/core"
+  },
   "bugs": "https://github.com/IndranilBhattacharya/pinfold/issues",
   "sideEffects": false,
   "type": "module",
@@ -34,16 +46,33 @@
         "default": "./dist/palette.cjs"
       }
     },
+    "./meta": {
+      "import": {
+        "types": "./dist/meta.d.ts",
+        "default": "./dist/meta.js"
+      },
+      "require": {
+        "types": "./dist/meta.d.cts",
+        "default": "./dist/meta.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
       "palette": [
         "./dist/palette.d.cts"
+      ],
+      "meta": [
+        "./dist/meta.d.cts"
       ]
     }
   },
-  "files": ["dist", "palette"],
+  "files": [
+    "dist",
+    "palette",
+    "meta"
+  ],
   "scripts": {
     "build": "tsup && node ../../scripts/subpath-stubs.mjs"
   },

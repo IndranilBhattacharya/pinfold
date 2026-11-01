@@ -8,7 +8,7 @@ import type { AccordionConfig } from './types';
  *   import { Accordion } from '@pinfold/react/accordion/lazy';
  */
 export const Accordion = createLazyComponent<AccordionConfig>(
-  () => import('./index').then((m) => ({ default: m.Accordion })),
+  () => import('./client').then((m) => ({ default: m.Accordion })),
   { displayName: 'LazyAccordion' },
 );
 

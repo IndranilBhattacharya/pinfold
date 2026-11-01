@@ -14,9 +14,10 @@
     "clean": "rimraf packages/*/dist",
     "size": "node scripts/size-check.mjs",
     "size:strict": "node scripts/size-check.mjs --strict",
-    "verify": "npm run typecheck && npm test && npm run build && npm run size:strict && npm run types:check",
+    "verify": "npm run typecheck && npm test && npm run build && node scripts/check-dist.mjs && npm run size:strict && npm run types:check",
     "types:check": "attw --pack packages/core && attw --pack packages/react",
-    "smoke": "node scripts/consumer-smoke.mjs"
+    "smoke": "node scripts/consumer-smoke.mjs",
+    "fixtures": "node scripts/fixture-apps.mjs"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
@@ -42,6 +43,9 @@
     "node": ">=20"
   },
   "author": "Indranil Bhattacharya",
-  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/pinfold.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IndranilBhattacharya/pinfold.git"
+  },
   "license": "MIT"
 }

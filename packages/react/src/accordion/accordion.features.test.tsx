@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { resetWarnings } from '@pinfold/core';
 import { PinfoldProvider, defineConfig } from '@pinfold/react';
 import { Accordion } from './Accordion';
@@ -65,11 +65,11 @@ describe('Accordion features', () => {
     expect(screen.queryByText('Two')).toBeNull();
   });
 
-  it('keeps unmountClosed working, with a deprecation warning', () => {
+  it('keeps unmountClosed working, with a deprecation warning', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     render(<Accordion items={items} unmountClosed />);
     expect(screen.queryByText('One')).toBeNull();
-    expect(warn.mock.calls.flat().join(' ')).toMatch(/unmountClosed.*deprecated/);
+    await waitFor(() => expect(warn.mock.calls.flat().join(' ')).toMatch(/unmountClosed.*deprecated/));
   });
 
   it('marks closed panels hidden="until-found" and opens on beforematch', () => {
@@ -149,22 +149,23 @@ describe('Accordion features', () => {
     expect(root).toHaveAttribute('data-size', 'sm');
   });
 
-  it('validates config in development, for JS users', () => {
+  it('validates config in development, for JS users', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     function Bad() {
       const Faq = useAccordion({ items, varient: 'solid', mode: 'many', animate: 'yes' } as any);
       return <Faq />;
     }
     render(<Bad />);
+    await waitFor(() => expect(warn).toHaveBeenCalled());
     const out = warn.mock.calls.flat().join('\n');
     expect(out).toMatch(/unknown option `varient`. Did you mean `variant`\?/);
     expect(out).toMatch(/`mode` must be one of "single" \| "multiple"/);
     expect(out).toMatch(/`animate` must be true or false/);
   });
 
-  it('warns about a row without a title', () => {
+  it('warns about a row without a title', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     render(<Accordion items={[{ content: 'x' } as any]} />);
-    expect(warn.mock.calls.flat().join('\n')).toMatch(/`items\[0\]\.title` is required/);
+    await waitFor(() => expect(warn.mock.calls.flat().join('\n')).toMatch(/`items\[0\]\.title` is required/));
   });
 });

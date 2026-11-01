@@ -30,10 +30,10 @@ function withChunks(file, seen = new Set()) {
  * Gzipped kB ceilings. Raise deliberately, in a commit that says why.
  *
  * 2026-11-01: accordion features (find-in-page, hash sync, mount policies,
- * transitions, change details) 6 -> 8; core now holds the accordion rules,
- * meta and validator 3 -> 8 (apps tree-shake most of it: the app row is what
- * a production app actually ships); accordion CSS (container queries,
- * overflow policy, touch targets) 3 -> 4.
+ * transitions, change details, server twin) 6 -> 8, including the dev-only
+ * validator chunk that apps never load; accordion CSS (container queries,
+ * overflow policy, touch targets) 3 -> 4. New app row: what a production app
+ * that renders one accordion actually ships.
  *
  * 2026-10-31: re-layout into core/css/react. Entry sizes now include the
  * shared chunks they import. Core is framework-free and smaller (4 -> 3).
@@ -44,7 +44,7 @@ function withChunks(file, seen = new Set()) {
  * overrides and state-function config fields.
  */
 const BUDGETS = [
-  ['packages/core/dist/index.js', 8],
+  ['packages/core/dist/index.js', 3],
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
   ['packages/react/dist/accordion/index.js', 8],
@@ -53,7 +53,7 @@ const BUDGETS = [
 ];
 
 /** A production app rendering one accordion: minified, NODE_ENV=production, React excluded. */
-const APP_BUDGET = 9;
+const APP_BUDGET = 6;
 
 const strict = process.argv.includes('--strict');
 const kb = (bytes) => Math.round((bytes / 1024) * 100) / 100;
