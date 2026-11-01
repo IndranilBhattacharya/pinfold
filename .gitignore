@@ -11,3 +11,6 @@ coverage
 /packages/core/meta/
 /packages/react/*/
 !/packages/react/src/
+/packages/react/registry/
+/packages/react/schema/
+/packages/react/llms*.txt

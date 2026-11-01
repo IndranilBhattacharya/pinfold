@@ -72,10 +72,14 @@
   },
   "files": [
     "dist",
-    "accordion"
+    "accordion",
+    "registry",
+    "schema",
+    "llms.txt",
+    "llms-full.txt"
   ],
   "scripts": {
-    "build": "rimraf dist && tsup && node ../../scripts/subpath-stubs.mjs"
+    "build": "rimraf dist && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
     "@pinfold/core": "0.1.0"
