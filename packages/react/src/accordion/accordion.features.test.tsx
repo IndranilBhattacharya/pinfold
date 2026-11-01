@@ -246,3 +246,13 @@ describe('Accordion appearance cascade', () => {
     expect(warn.mock.calls.flat().join('\n')).toMatch(/`itemRadius` has no visible effect here/);
   });
 });
+
+describe('Accordion icons from JSON', () => {
+  it('renders a string icon as-is: an emoji, or an icon-font name styled through classNames', () => {
+    render(<Accordion items={[{ id: 'a', title: 'A', icon: 'rocket' }]} classNames={{ icon: 'material-symbols-outlined' }} />);
+    const icon = document.querySelector('.pinfold-accordion__icon')!;
+    expect(icon).toHaveTextContent('rocket');
+    expect(icon).toHaveClass('material-symbols-outlined');
+    expect(icon).toHaveAttribute('aria-hidden', 'true');
+  });
+});

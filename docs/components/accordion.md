@@ -119,6 +119,8 @@ Slots: `root item header trigger icon label title description badge endIcon indi
 ### Per row (`items[]`)
 `id?`, `title`, `content?`, `description?`, `icon?`, `badge?`, `endIcon?`, `indicator?`, `disabled?`, `defaultOpen?`, `classNames?`, `styles?`.
 A row reads left to right (mirrored in RTL): `icon`, title over description, `badge`, `endIcon`, indicator.
+Icons are your own nodes (any icon set; Pinfold ships no icon or UI dependency), or strings, which JSON
+can carry: an emoji (`"icon": "🚀"`) or an icon-font ligature with `classNames.icon` (e.g. Material Symbols).
 Every field that renders something accepts either a node or `(state) => node`.
 Server Components can't pass functions (dev warning), but server-rendered JSX nodes are allowed.
 
