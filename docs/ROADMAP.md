@@ -3,7 +3,7 @@
 **Rule:** milestones run in order; each one is verified (`npm run verify`, CI green) before the next starts.
 Milestones A1–A9 apply to the **accordion only**. Component #2 starts after A9.
 
-Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Awaiting the owner's sign-off.** Next: A2.
+Current milestone: **A1–A8 complete, A9 automated evidence complete (2026-11-01).** Open: the manual screen-reader pass (A9), then component #2.
 
 ## Component lifecycle
 
@@ -62,8 +62,8 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 - [x] State in the URL. Copy buttons for code (TS and JS), CLI command, AI prompt and link. StackBlitz export. The site serves the registry, schema and `llms` files from the library build. Driving it in a browser found three CSS inheritance bugs (nested light theme, radius presets, style-pack radii), fixed in the library.
 
 ## A9 · Accessibility evidence
-- [ ] A per-release report generated in CI: the APG checklist from meta, the keyboard map that was tested, axe results, forced-colors and reduced-motion snapshots.
-- [ ] A manual screen-reader matrix: NVDA + Chrome, JAWS, VoiceOver + Safari, TalkBack.
+- [x] A report generated in CI on every build (`scripts/a11y-report.mjs`, job `a11y`, artifact `a11y-report`): the APG checklist from meta, the keyboard map pressed in Chromium, axe (WCAG 2.2 AA + best practices) in light and dark mode across variants, all six tones, RTL, unstyled and a style pack, Tab skipping closed panels, `hidden="until-found"`, and forced-colors and reduced-motion checks with snapshots. Its first run found two contrast failures (badge text; open titles in the filled variant and the 500-step tones), now fixed.
+- [ ] A manual screen-reader matrix: NVDA + Chrome, JAWS, VoiceOver + Safari, TalkBack. The script and the table are ready in [a11y/screen-readers.md](a11y/screen-readers.md); a person runs it before the first stable release.
 
 ## After A9
 - Component #2, most likely dialog or popover, because it forces the overlay and positioning layer to exist. Then the next components, one at a time.

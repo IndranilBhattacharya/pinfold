@@ -97,6 +97,24 @@ jobs:
       - run: npm run build
       - run: node scripts/fixture-apps.mjs --app all --cli
 
+  # Accessibility evidence in a real browser (D-19): axe (WCAG 2.2 AA) in light and dark mode,
+  # the keyboard map, focus, reduced motion and forced colours. The report is uploaded per run.
+  a11y:
+    name: accessibility report
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: node scripts/a11y-report.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: a11y-report, path: a11y-report }
+
   # Published .d.ts files under node10, node16 and (TS 5+) bundler resolution.
   typescript:
     name: types · typescript ${{ matrix.ts }}

@@ -261,6 +261,10 @@ A literal colour in a component stylesheet is a bug. The conformance suite fails
 
 ## 6. Accessibility gate (D-19)
 
+Evidence: `scripts/a11y-report.mjs` (CI job `a11y`) runs axe, the keyboard map and the
+reduced-motion and forced-colors checks on the built packages in Chromium, every build. Screen
+readers are tested by hand ([docs/a11y/screen-readers.md](docs/a11y/screen-readers.md)).
+
 A component is not done until:
 
 - it implements the matching [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/patterns/) pattern
