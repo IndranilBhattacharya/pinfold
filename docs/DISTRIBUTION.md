@@ -39,7 +39,7 @@ each component's reference as a resource. Nothing is hosted.
 ## The shadcn registry
 - Namespaced: add `"registries": { "@pinfold": "https://pinfold.indranildev.in/r/{name}.json" }` to `components.json`, then `npx shadcn add @pinfold/accordion`. Listing in shadcn's public registry index (a pull request to shadcn) is a launch step for the owner.
 - Served by the site from the npm package. The fallback URL is `https://cdn.jsdelivr.net/npm/@pinfold/react/registry/accordion.json`.
-- Tokens map onto shadcn's CSS variables (`--primary`, `--background`, …) as an opt-in, so Pinfold components look at home in shadcn apps (A5).
+- Tokens map onto shadcn's CSS variables (`--primary`, `--background`, …) as an opt-in, so Pinfold components look at home in shadcn apps (`@pinfold/css/shadcn.css`).
 
 ## Release process (D-18)
 - Changesets for versioning and changelogs (**Planned**, before the first publish).

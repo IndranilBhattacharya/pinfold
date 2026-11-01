@@ -3,7 +3,7 @@
 The contract every Pinfold component follows. Read this once and you can add
 the next twelve components without inventing a single decision.
 
-> Sections marked **Planned** describe A1–A7 work.
+> Anything not built yet is marked **Planned**.
 > Each decision is referenced as D-nn ([docs/DECISIONS.md](docs/DECISIONS.md)).
 
 ---
@@ -241,7 +241,7 @@ the CLI, the build and the runtime share one implementation.
   Out-of-gamut chroma is pulled back into gamut by bisection, never clipped.
 - **Dark mode flips the semantic layer only.** The ramps are untouched.
 - **Contrast is reported, not assumed:** `createTheme().contrast` and `npx pinfold theme --check`.
-- **Style packs (A5)** (glass, bauhaus, brutalist, noise, soft) are token and surface recipes behind
+- **Style packs** (glass, bauhaus, brutalist, noise, soft) are token and surface recipes behind
   `data-pinfold-style`. They are never forks of the components. Each one respects `prefers-contrast`,
   `prefers-reduced-transparency` and `forced-colors`, and must pass the contrast check.
 
@@ -275,7 +275,7 @@ A component is not done until:
 - `prefers-reduced-motion` and `forced-colors` are handled
 - `dir="rtl"` flips direction through logical properties and direction-aware key handling
 - contrast holds at every step of the generated palette, in light and dark mode
-- the accessibility report is generated (A9)
+- the accessibility report passes (`scripts/a11y-report.mjs`, every CI build)
 
 ---
 
