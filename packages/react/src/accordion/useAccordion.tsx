@@ -1,17 +1,21 @@
 import * as React from 'react';
 import {
   accordionFocusTarget,
+  accordionMeta,
   accordionPartIds,
   accordionRowId,
   ariaAttr,
   closeAllAccordion,
   dataAttr,
   initialAccordionValue,
+  mapAccordionFields,
   mergeProps,
   openAllAccordion,
   setAccordionItem,
+  validateConfig,
   warnOnce,
   __DEV__,
+  type AccordionChangeReason,
 } from '@pinfold/core';
 import { useControllableState, useEvent, useId } from '../hooks';
 import { usePinfold } from '../provider';
@@ -27,11 +31,13 @@ import {
 import type {
   AccordionApi,
   AccordionConfig,
+  AccordionItemConfig,
   AccordionItemState,
   AccordionParts,
   AccordionPartProps,
   AccordionRootProps,
   AccordionState,
+  AccordionValueDetails,
   ResolvedAppearance,
 } from './types';
 
@@ -47,25 +53,32 @@ import type {
  *
  * Implements the WAI-ARIA Accordion pattern: button triggers inside headings,
  * `aria-expanded` / `aria-controls`, panels as labelled regions, and
- * Arrow/Home/End navigation between headers.
+ * Arrow/Home/End navigation between headers. Behaviour rules live in
+ * `@pinfold/core` (accordion.logic.ts); this hook wires them to React.
  */
-export function useAccordion(config: AccordionConfig): AccordionApi {
+export function useAccordion(input: AccordionConfig): AccordionApi {
   const ctx = usePinfold();
+  // Precedence: component config, then `defaults.accordion`, then the provider, then library defaults.
+  const config: AccordionConfig = ctx.defaults.accordion ? ({ ...ctx.defaults.accordion, ...defined(input) } as AccordionConfig) : input;
   const {
-    items: itemConfigs,
     mode = 'single',
     collapsible = true,
+    disabled: allDisabled = false,
     value: controlled,
     defaultValue,
     onValueChange,
+    onBeforeChange,
     onItemToggle,
     orientation = 'vertical',
     dir = ctx.dir,
     loop = true,
+    syncWithHash = false,
     id: idProp,
   } = config;
 
-  // Appearance falls back to the provider, then to the framework default.
+  // A literal NODE_ENV check (not a variable) so bundlers drop the validator and the meta in production.
+  if (process.env.NODE_ENV !== 'production') validate(input, config);
+
   const appearance: ResolvedAppearance = {
     variant: config.variant ?? 'solid',
     size: config.size ?? ctx.size,
@@ -76,7 +89,8 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
     headingLevel: config.headingLevel ?? 3,
     animate: config.animate ?? !ctx.disableAnimation,
     dividers: config.dividers ?? true,
-    unmountClosed: config.unmountClosed ?? false,
+    mountPanels: config.mountPanels ?? (config.unmountClosed ? 'open' : 'always'),
+    hiddenUntilFound: config.hiddenUntilFound ?? true,
     unstyled: config.unstyled ?? false,
   };
   const headingLevel = appearance.headingLevel;
@@ -84,37 +98,70 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
   const baseId = useId(idProp);
   const triggerRefs = React.useRef<Array<HTMLElement | null>>([]);
 
-  if (__DEV__) validate(config);
+  const itemConfigs = React.useMemo(
+    () => mapAccordionFields<AccordionItemConfig>(Array.isArray(config.items) ? config.items : [], config.fields),
+    // `fields` is plain data: key it by content so an inline object does not remap every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [config.items, JSON.stringify(config.fields)],
+  );
 
   const items = React.useMemo<Omit<AccordionItemState, 'open'>[]>(
     () =>
       itemConfigs.map((item, index) => {
         const id = accordionRowId(item, index);
-        return { id, index, disabled: !!item.disabled, config: item, ...accordionPartIds(baseId, id) };
+        return { id, index, disabled: allDisabled || !!item.disabled, config: item, ...accordionPartIds(baseId, id) };
       }),
-    [itemConfigs, baseId],
+    [itemConfigs, baseId, allDisabled],
   );
 
   const [value, setValue] = useControllableState<string[]>({
     value: controlled,
     defaultValue: () => initialAccordionValue(itemConfigs, defaultValue, mode),
-    onChange: onValueChange,
   });
+
+  // Rows that have ever been open, for `mountPanels: 'first-open'`.
+  const everOpened = React.useRef(new Set<string>());
+  value.forEach((id) => everOpened.current.add(id));
 
   const isOpen = React.useCallback((id: string) => value.indexOf(id) !== -1, [value]);
 
-  // Behaviour rules live in @pinfold/core; this hook only wires them to React state.
-  const rules = { mode, collapsible };
-  const setOpen = useEvent((id: string, open: boolean) => {
-    const next = setAccordionItem(value, items, id, open, rules);
-    if (!next) return;
+  const rules = { mode, collapsible, disabled: allDisabled };
+
+  /** Every change funnels through here: rules, then the veto, then state, then events. */
+  const commit = useEvent((next: string[] | null, details: AccordionValueDetails) => {
+    if (!next) return false;
+    if (onBeforeChange?.(details) === false) return false;
     setValue(next);
-    onItemToggle?.(id, open);
+    onValueChange?.(next, details);
+    if (details.id != null) onItemToggle?.(details.id, details.open);
+    if (syncWithHash && details.id != null && (details.reason === 'click' || details.reason === 'keyboard')) {
+      writeHash(details.open ? details.id : null);
+    }
+    return true;
   });
+
+  const change = useEvent((id: string, open: boolean, reason: AccordionChangeReason, event?: AccordionValueDetails['event']) =>
+    commit(setAccordionItem(value, items, id, open, rules), { id, open, reason, event }),
+  );
 
   const focusItem = useEvent((index: number) => {
     triggerRefs.current[index]?.focus();
   });
+
+  // `#id` in the URL opens the row and scrolls to it, on load and on every hash change.
+  React.useEffect(() => {
+    if (!syncWithHash) return;
+    const fromHash = () => {
+      const id = readHash();
+      const row = id != null ? items.find((i) => i.id === id) : undefined;
+      if (!row) return;
+      change(row.id, true, 'hash');
+      triggerRefs.current[row.index]?.scrollIntoView?.({ block: 'start' });
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+    return () => window.removeEventListener('hashchange', fromHash);
+  }, [syncWithHash, items, change]);
 
   const state = React.useMemo<AccordionItemState[]>(
     () => items.map((item) => ({ ...item, open: isOpen(item.id) })),
@@ -131,22 +178,17 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
   // Rendering reads through this ref so the returned component keeps a stable
   // identity while always seeing the current config and state.
   const viewRef = React.useRef<ViewContext>(null as unknown as ViewContext);
+  const panels = React.useRef(new Map<string, PanelDom>());
 
   const accordionState: AccordionState = {
     items: state,
     value,
     isOpen,
-    open: useEvent((id: string) => setOpen(id, true)),
-    close: useEvent((id: string) => setOpen(id, false)),
-    toggle: useEvent((id: string) => setOpen(id, !isOpen(id))),
-    openAll: useEvent(() => {
-      const next = openAllAccordion(value, items, rules);
-      if (next) setValue(next);
-    }),
-    closeAll: useEvent(() => {
-      const next = closeAllAccordion(value, items, rules);
-      if (next) setValue(next);
-    }),
+    open: useEvent((id: string) => change(id, true, 'api')),
+    close: useEvent((id: string) => change(id, false, 'api')),
+    toggle: useEvent((id: string) => change(id, !isOpen(id), 'api')),
+    openAll: useEvent(() => commit(openAllAccordion(value, items, rules), { open: true, reason: 'api' })),
+    closeAll: useEvent(() => commit(closeAllAccordion(value, items, rules), { open: false, reason: 'api' })),
     focusItem,
     render: (props?: AccordionRootProps) => renderRoot(viewRef.current, props),
 
@@ -156,6 +198,7 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
           'data-pinfold': 'accordion',
           'data-orientation': orientation,
           'data-mode': mode,
+          'data-disabled': dataAttr(allDisabled),
           dir,
         },
         props,
@@ -199,7 +242,8 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
               event.preventDefault();
               return;
             }
-            api.toggle(item.id);
+            // Enter and Space on a <button> fire a click with `detail === 0`.
+            change(item.id, !isOpen(item.id), event.detail === 0 ? 'keyboard' : 'click', event);
           },
           onKeyDown: (event: React.KeyboardEvent) => onTriggerKeyDown(event, item.index),
         },
@@ -213,6 +257,7 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
           role: 'region',
           'aria-labelledby': item.triggerId,
           'data-state': item.open ? 'open' : 'closed',
+          ref: (node: HTMLElement | null) => trackPanel(panels.current, item, node, appearance.animate),
         },
         props,
       ),
@@ -266,22 +311,111 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
     buildParts,
   );
 
-  viewRef.current = { api, config, a: appearance };
+  // Find-in-page: a closed panel's inner box carries `hidden="until-found"`
+  // (set on the DOM node because React 18 only renders boolean `hidden`), and
+  // the browser fires `beforematch` on it before revealing a match.
+  const onFound = useEvent((id: string) => change(id, true, 'find-in-page'));
+  const findable = (item: AccordionItemState) => (node: HTMLElement | null) =>
+    untilFound(node, appearance.hiddenUntilFound && !item.open, appearance.animate, () => onFound(item.id));
+
+  viewRef.current = { api, config, a: appearance, everOpened: everOpened.current, findable };
 
   return api;
 }
 
-/**
- * Dev-only config sanity checks. Every one of these is a mistake that would
- * otherwise show up as odd behaviour rather than an error.
- */
-function validate(config: AccordionConfig): void {
-  const { items, mode = 'single', value, defaultValue, collapsible = true } = config;
+/* ----------------------------------------------------------- DOM helpers */
 
-  warnOnce(!Array.isArray(items), 'Accordion: `items` must be an array.');
+interface PanelDom {
+  node: HTMLElement;
+  open: boolean;
+  timer?: ReturnType<typeof setTimeout>;
+}
+
+/**
+ * `data-transition="opening|closing"` on the panel while it animates. Set on
+ * the DOM node so the transition never costs a React render.
+ */
+function trackPanel(map: Map<string, PanelDom>, item: AccordionItemState, node: HTMLElement | null, animate: boolean) {
+  if (!node) return;
+  const prev = map.get(item.id);
+  map.set(item.id, { node, open: item.open, timer: prev?.timer });
+  if (!prev || prev.node !== node || prev.open === item.open || !animate) return;
+  if (prev.timer) clearTimeout(prev.timer);
+  node.setAttribute('data-transition', item.open ? 'opening' : 'closing');
+  const done = () => node.removeAttribute('data-transition');
+  map.get(item.id)!.timer = setTimeout(done, transitionMs(node));
+}
+
+const findable = new WeakMap<HTMLElement, { onFound: () => void; hide: boolean }>();
+
+function untilFound(node: HTMLElement | null, hide: boolean, animate: boolean, onFound: () => void) {
+  if (!node) return;
+  const prev = findable.get(node);
+  findable.set(node, { onFound, hide });
+  if (!prev) node.addEventListener('beforematch', () => findable.get(node)?.onFound());
+  if (!hide) {
+    if (node.hasAttribute('hidden')) node.removeAttribute('hidden');
+    return;
+  }
+  if (node.getAttribute('hidden') === 'until-found') return;
+  const apply = () => {
+    if (findable.get(node)?.hide) node.setAttribute('hidden', 'until-found');
+  };
+  // Closing a visible panel: hide after the collapse, so content does not vanish mid-animation.
+  const wait = animate && prev && !prev.hide ? transitionMs(node.parentElement ?? node) : 0;
+  if (wait) setTimeout(apply, wait);
+  else apply();
+}
+
+/** Longest transition on the element, in ms. 0 when none (or no layout, as in tests). */
+function transitionMs(node: Element): number {
+  if (typeof getComputedStyle === 'undefined') return 0;
+  const style = getComputedStyle(node);
+  const parse = (list: string) => list.split(',').map((s) => (s.trim().endsWith('ms') ? parseFloat(s) : parseFloat(s) * 1000) || 0);
+  const durations = parse(style.transitionDuration || '0s');
+  const delays = parse(style.transitionDelay || '0s');
+  return Math.max(0, ...durations.map((d, i) => d + (delays[i] ?? 0)));
+}
+
+function readHash(): string | null {
+  const raw = typeof location !== 'undefined' ? location.hash.slice(1) : '';
+  if (!raw) return null;
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
+function writeHash(id: string | null) {
+  if (typeof history === 'undefined') return;
+  const url = location.pathname + location.search + (id != null ? '#' + encodeURIComponent(id) : '');
+  history.replaceState(history.state, '', url);
+}
+
+function defined<T extends object>(obj: T): Partial<T> {
+  const out: Partial<T> = {};
+  for (const k in obj) if (obj[k] !== undefined) out[k] = obj[k];
+  return out;
+}
+
+/* ------------------------------------------------------------ dev checks */
+
+/**
+ * Dev-only config checks: the meta-driven shape check (unknown keys, wrong
+ * types, bad enum values, missing `items`) gives plain-JS users what
+ * TypeScript gives everyone else, plus behaviour mistakes that would
+ * otherwise only show up as odd UI.
+ */
+function validate(input: AccordionConfig, config: AccordionConfig): void {
+  // Field-mapped records are arbitrary shapes; check the rows only when unmapped.
+  const shape = input.fields ? { ...input, items: [] } : input;
+  for (const problem of validateConfig(accordionMeta, shape)) warnOnce(true, problem.message);
+
+  const { items, mode = 'single', value, defaultValue, collapsible = true } = config;
   if (!Array.isArray(items)) return;
 
-  const ids = items.map((item, i) => item.id ?? String(i));
+  const ids = mapAccordionFields<AccordionItemConfig>(items, config.fields).map((item, i) => accordionRowId(item, i));
   const duplicates = ids.filter((id, i) => ids.indexOf(id) !== i);
   warnOnce(
     duplicates.length > 0,
@@ -306,4 +440,10 @@ function validate(config: AccordionConfig): void {
     'Accordion: `value` was passed without `onValueChange`, so the accordion is ' +
       'frozen. Use `defaultValue` for uncontrolled behaviour.',
   );
+
+  warnOnce(
+    config.unmountClosed !== undefined,
+    'Accordion: `unmountClosed` is deprecated. Use `mountPanels: "open"`.',
+  );
 }
+

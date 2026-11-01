@@ -1,6 +1,10 @@
 import type * as React from 'react';
 import type {
+  AccordionChangeDetails,
+  AccordionFieldMap,
+  AccordionMountPanels,
   PinfoldDir,
+  PinfoldLazy,
   PinfoldOrientation,
   PinfoldRadius,
   PinfoldSize,
@@ -64,8 +68,19 @@ export interface AccordionItemConfig {
   styles?: Partial<Record<AccordionSlot, React.CSSProperties>>;
 }
 
+/** Text overflow for one slot: wrap, one line with an ellipsis, or clamp to n lines. */
+export type AccordionOverflow = 'wrap' | 'truncate' | { lines: number };
+
+export type AccordionValueDetails = AccordionChangeDetails<Event | React.SyntheticEvent>;
+
 export interface AccordionBehaviourConfig {
-  items: AccordionItemConfig[];
+  /**
+   * The rows. The only required option. With `fields`, any record shape works:
+   * `items: faqRows, fields: { id: 'slug', title: 'question', content: 'answer' }`.
+   */
+  items: AccordionItemConfig[] | ReadonlyArray<Record<string, any>>;
+  /** Maps raw records onto rows, so CMS or database results need no `.map()`. */
+  fields?: AccordionFieldMap;
   /** `single` closes siblings on open. Default `single`. */
   mode?: 'single' | 'multiple';
   /** In `single` mode, allow closing the open item. Default true. */
@@ -73,7 +88,10 @@ export interface AccordionBehaviourConfig {
   /** Controlled open ids. */
   value?: string[];
   defaultValue?: string[];
-  onValueChange?: (value: string[]) => void;
+  /** `details.reason`: 'click' | 'keyboard' | 'api' | 'find-in-page' | 'hash'. */
+  onValueChange?: (value: string[], details: AccordionValueDetails) => void;
+  /** Return `false` to block a change (e.g. unsaved edits in the open panel). */
+  onBeforeChange?: (details: AccordionValueDetails) => boolean | void;
   /** Fires for one item, after `onValueChange`. */
   onItemToggle?: (id: string, open: boolean) => void;
   /** Arrow-key axis for moving between headers. Default `vertical`. */
@@ -83,8 +101,25 @@ export interface AccordionBehaviourConfig {
   loop?: boolean;
   /** Prefix for generated ids — set it for deterministic SSR markup. */
   id?: string;
-  /** Drop closed panel children from the DOM. Default false (keeps Ctrl+F and SEO). */
+  /** Disables every row. Rows stay focusable. Default false. */
+  disabled?: boolean;
+  /**
+   * Closed panels use `hidden="until-found"`, so the browser's find-in-page
+   * searches them and opens the match. Default true.
+   */
+  hiddenUntilFound?: boolean;
+  /**
+   * When panel content is in the DOM. `always` (default) keeps it searchable
+   * and indexable; `open` mounts only open panels; `first-open` mounts on
+   * first open and keeps it.
+   */
+  mountPanels?: AccordionMountPanels;
+  /** @deprecated Use `mountPanels: 'open'`. */
   unmountClosed?: boolean;
+  /** `#id` in the URL opens that row and scrolls to it; opening a row updates the hash. Default false. */
+  syncWithHash?: boolean;
+  /** Code loading for the `/lazy` entry. The accordion is light, so `auto` loads eagerly. */
+  lazy?: PinfoldLazy;
 }
 
 /**
@@ -135,6 +170,8 @@ export interface AccordionAppearanceConfig {
   animate?: boolean;
   /** Full-width dividers between rows (solid/ghost variants). Default true. */
   dividers?: boolean;
+  /** Text overflow per slot. Default: title `wrap`, description `{ lines: 2 }`. */
+  overflow?: { title?: AccordionOverflow; description?: AccordionOverflow };
   /** Explicit sizing, per dimension. Overrides the `size` preset. */
   dimensions?: AccordionDimensions;
   /**
@@ -174,7 +211,8 @@ export interface ResolvedAppearance {
   headingLevel: number;
   animate: boolean;
   dividers: boolean;
-  unmountClosed: boolean;
+  mountPanels: AccordionMountPanels;
+  hiddenUntilFound: boolean;
   unstyled: boolean;
 }
 

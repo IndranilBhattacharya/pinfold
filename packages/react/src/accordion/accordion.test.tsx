@@ -35,7 +35,7 @@ describe('Accordion', () => {
     fireEvent.click(second);
     expect(first).toHaveAttribute('aria-expanded', 'false');
     expect(second).toHaveAttribute('aria-expanded', 'true');
-    expect(onValueChange).toHaveBeenLastCalledWith(['b']);
+    expect(onValueChange).toHaveBeenLastCalledWith(['b'], expect.objectContaining({ id: 'b', open: true }));
   });
 
   it('keeps several rows open in multiple mode', () => {

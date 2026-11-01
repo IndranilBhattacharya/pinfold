@@ -11,8 +11,8 @@ the next twelve components without inventing a single decision.
 ## 0. Layers and packages (D-04, D-05)
 
 ```
-@pinfold/core    no framework: utils, variants, keyboard nav, dimensions, dev warnings, palette, types
-               (Planned: <name>.logic.ts in A2, store in A1, <name>.meta.ts in A3)
+@pinfold/core    no framework: utils, variants, keyboard nav, dimensions, dev warnings, palette, types,
+               <name>.logic.ts (rules), <name>.meta.ts (metadata), meta.ts (validator, JSON schema)
 @pinfold/css     tokens.css, reset.css, <name>.css, Tailwind v3 preset + v4 theme (Planned: styles/<pack>.css in A5)
 @pinfold/react   use<Name>, define<Name>, <Name> tag, <Name>View, PinfoldProvider, defineConfig
 pinfold          CLI
@@ -104,7 +104,7 @@ interface <Name>Config
 Rules:
 
 1. **Data first.** The primary array or record is called `items`, `columns`, `rows` or
-   `options`, never `children`. A `fields` mapping (Planned) lets raw records in without glue code.
+   `options`, never `children`. A `fields` mapping lets raw records in without glue code.
 2. **Everything optional except the data.** A component given only its data must render something
    correct and good-looking, with enterprise-standard defaults.
 3. **Every measurement is configurable.** `dimensions` covers width, height, padding, gap, radius,
@@ -119,9 +119,9 @@ Rules:
 7. **Appearance inherits** from the global config (D-08). Precedence, highest first: component
    config, `defaults.<component>` in `pinfold.config`, the global theme, library defaults. A nested
    `PinfoldProvider` scopes a section.
-8. **Dev validation (Planned for A3).** `meta.ts` drives dev-only warnings for unknown keys, wrong
-   types and invalid enum values, because JS users have no compiler to catch them. It is stripped
-   in production.
+8. **Dev validation.** `meta.ts` drives dev-only warnings for unknown keys, wrong
+   types and invalid enum values, because JS users have no compiler to catch them. It sits behind a
+   literal `process.env.NODE_ENV` check, so bundlers drop the validator and the meta in production.
 
 ---
 
@@ -201,15 +201,14 @@ accessibility breaks. That is documented, not defended against.
 - Every component ships its own CSS file. **JS never imports CSS,** because that breaks SSR, CJS and
   Jest consumers. The CLI adds the import to the app entry instead.
 
-## 5a. Responsive contract (D-11, Planned for A3)
+## 5a. Responsive contract (D-11)
 
 - **Container first.** The component root is a query container (`container-type: inline-size`).
   Layout changes use `@container`, so a component behaves the same in a sidebar and in a full-width
   page. Viewport media queries are only for user preferences.
 - **Fluid type.** Type tokens use `clamp()`. No fixed breakpoint jumps.
 - **Overflow policy per slot:** `'wrap' | 'truncate' | { lines: n }`, using `line-clamp` with an
-  ellipsis. Truncated text keeps its full value available to assistive tech, and as a `title` only
-  when it's actually truncated.
+  ellipsis. Truncation is visual only, so assistive tech still reads the full text.
 - **Touch.** Under `@media (pointer: coarse)`, interactive targets are at least 44×44px (above the
   WCAG 2.5.8 minimum of 24px).
 - **Defaults.** Width is 100% of the parent. Heights come from the size scale. No hard-coded widths.
@@ -286,7 +285,7 @@ The full matrix is in [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
   heavy ones code-split their view (through `createLazyComponent`) and load once visible. The hook
   stays the tiny state part, so the API never changes.
 
-## 7b. Metadata (D-10, Planned for A3)
+## 7b. Metadata (D-10)
 
 `core/<name>.meta.ts` is the single source of truth. It holds the shared design-system base plus
 that component's own config schema, defaults, events, keyboard map, ARIA notes, slots, CSS

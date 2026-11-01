@@ -33,10 +33,10 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 - [x] Unit tests that need no DOM (`accordion.logic.test.ts`, node environment). The hook is a thin adapter, and the existing tests pass unchanged.
 
 ## A3 · Accordion features
-- [ ] Add every **Planned** item in [components/accordion.md](components/accordion.md).
-- [ ] `accordion.meta.ts` and a generated JSON schema. Dev-only config validation for JS users.
-- [ ] `defineConfig`, `pinfold.config.(ts|js)` and the precedence order (D-08). The `lazy` option (D-12).
-- [ ] Responsiveness: container queries, fluid type, overflow policy, touch targets. Enterprise sizing defaults (D-11).
+- [x] Add every A3 item in [components/accordion.md](components/accordion.md): `fields`, change `details`, `onBeforeChange`, root `disabled`, `hiddenUntilFound`, `mountPanels`, `syncWithHash`, `overflow`, `data-transition`.
+- [x] `accordion.meta.ts` and a generated JSON schema (`toJsonSchema`). Dev-only config validation for JS users, dropped from production bundles.
+- [x] `defineConfig`, `pinfold.config.(ts|js)` and the precedence order (D-08). The `lazy` option (D-12): `eager`, `visible`, `idle`, with `auto` per component.
+- [x] Responsiveness: container queries, fluid type, overflow policy, touch targets. Enterprise sizing defaults (D-11). The size budget gained an app-bundle row (what a production app ships).
 
 ## A4 · SSR and RSC
 - [ ] Keep `'use client'` in the build output. Add `defineAccordion`. Verify the single import path, or fall back to a `/server` subpath (D-07).
