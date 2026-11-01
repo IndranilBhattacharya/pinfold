@@ -83,6 +83,20 @@ jobs:
         uses: oven-sh/setup-bun@v2
       - run: node scripts/consumer-smoke.mjs --pm ${{ matrix.pm }} --react 19
 
+  # Real apps on the packed tarballs: Next.js (RSC + ISR, Pages Router) and a
+  # JS-only webpack production build. The CLI runs init/add twice in each (A6).
+  fixtures:
+    name: fixture apps (next.js, webpack, cli)
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/fixture-apps.mjs --app all
+
   # Published .d.ts files under node10, node16 and (TS 5+) bundler resolution.
   typescript:
     name: types · typescript ${{ matrix.ts }}

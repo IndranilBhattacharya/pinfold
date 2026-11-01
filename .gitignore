@@ -8,5 +8,6 @@ coverage
 
 # generated subpath stubs (scripts/subpath-stubs.mjs)
 /packages/core/palette/
+/packages/core/meta/
 /packages/react/*/
 !/packages/react/src/

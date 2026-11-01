@@ -3,10 +3,24 @@
   "version": "0.1.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
-  "keywords": ["react", "ui", "components", "accordion", "hooks", "accessibility", "aria", "design-system", "pinfold"],
+  "keywords": [
+    "react",
+    "ui",
+    "components",
+    "accordion",
+    "hooks",
+    "accessibility",
+    "aria",
+    "design-system",
+    "pinfold"
+  ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
-  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/pinfold.git", "directory": "packages/react" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IndranilBhattacharya/pinfold.git",
+    "directory": "packages/react"
+  },
   "bugs": "https://github.com/IndranilBhattacharya/pinfold/issues",
   "sideEffects": false,
   "type": "module",
@@ -56,9 +70,12 @@
       ]
     }
   },
-  "files": ["dist", "accordion"],
+  "files": [
+    "dist",
+    "accordion"
+  ],
   "scripts": {
-    "build": "tsup && node ../../scripts/subpath-stubs.mjs"
+    "build": "rimraf dist && tsup && node ../../scripts/subpath-stubs.mjs"
   },
   "dependencies": {
     "@pinfold/core": "0.1.0"

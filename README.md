@@ -57,7 +57,7 @@ Faq.toggle('shipping')          // 2. its controller: open, close, openAll, focu
 <Faq.Panel id="shipping" />     // 3. its parts, for layouts that config can't express
 ```
 
-### On the server, too *(Planned)*
+### On the server, too
 
 Server Components can't call hooks, so each component has a non-hook twin with the same config and the same tag:
 

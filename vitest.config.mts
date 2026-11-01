@@ -35,6 +35,7 @@ export default defineConfig({
     alias: [
       { find: /^@pinfold\/core$/, replacement: src('core/src/index.ts') },
       { find: /^@pinfold\/core\/palette$/, replacement: src('core/src/palette.ts') },
+      { find: /^@pinfold\/core\/meta$/, replacement: src('core/src/meta.ts') },
       { find: /^@pinfold\/react$/, replacement: src('react/src/index.ts') },
       { find: /^@pinfold\/react\/([a-z-]+)$/, replacement: src('react/src/$1/index.ts') },
       { find: /^@pinfold\/testing$/, replacement: src('testing/src/index.ts') },

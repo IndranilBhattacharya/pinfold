@@ -1,25 +1,71 @@
-import { readFileSync } from 'node:fs';
-import { defineConfig } from 'tsup';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { defineConfig, type Options } from 'tsup';
+import type { Plugin } from 'esbuild';
 
-// Entries come from package.json `exports`, the single source of truth:
-// './accordion' -> import.default './dist/accordion/index.js' -> src/accordion/index.ts
-const { exports } = JSON.parse(readFileSync('package.json', 'utf8'));
-const entry: Record<string, string> = {};
-for (const target of Object.values<any>(exports)) {
-  if (typeof target !== 'object') continue;
-  const out = target.import.default.replace(/^\.\/dist\//, '').replace(/\.js$/, '');
-  entry[out] = `src/${out}.ts`;
+/**
+ * Two builds, so one import path works in Server and Client Components (D-07):
+ *
+ * 1. Client modules (`client`, `accordion/client`, `accordion/lazy`) get a
+ *    'use client' banner. Code splitting puts shared modules (provider,
+ *    hooks) in common chunks, so every subpath sees one React context.
+ * 2. Barrels (`index`, `accordion/index`) stay server-safe: they hold
+ *    `defineConfig` / `defineAccordion` and re-export their sibling client
+ *    module, which is kept external (`./client` -> `./client.js`).
+ *
+ * Entry names must match package.json `exports`.
+ */
+const keepClientExternal = (ext: string): Plugin => ({
+  name: 'pinfold:external-client',
+  setup(build) {
+    build.onResolve({ filter: /^\.\/client$/ }, () => ({ path: `./client${ext}`, external: true }));
+  },
+});
+
+/** tsup's ESM-to-CJS pass for split chunks drops the banner; put it back on every client .cjs file. */
+function directiveOnClientCjs() {
+  const barrels = new Set(['index.cjs', join('accordion', 'index.cjs')]);
+  const walk = (dir: string): string[] =>
+    readdirSync(join('dist', dir), { withFileTypes: true }).flatMap((e) =>
+      e.isDirectory() ? walk(join(dir, e.name)) : e.name.endsWith('.cjs') ? [join(dir, e.name)] : [],
+    );
+  for (const file of walk('')) {
+    if (barrels.has(file)) continue;
+    const code = readFileSync(join('dist', file), 'utf8');
+    if (!code.startsWith("'use client'") && !code.startsWith('"use client"')) {
+      writeFileSync(join('dist', file), '"use client";\n' + code);
+    }
+  }
 }
 
-export default defineConfig({
-  entry,
+const shared: Options = {
   format: ['esm', 'cjs'],
   dts: true,
-  clean: true,
+  clean: false,
   treeshake: true,
-  // Shared modules (provider, hooks) land in common chunks, so every subpath
-  // sees the same React context instance.
-  splitting: true,
   target: 'es2018',
   external: ['react', '@pinfold/core'],
-});
+};
+
+export default defineConfig([
+  {
+    ...shared,
+    entry: { client: 'src/client.ts', 'accordion/client': 'src/accordion/client.ts', 'accordion/lazy': 'src/accordion/lazy.ts' },
+    splitting: true,
+    // Rollup's tree-shaking pass strips module directives; esbuild's own tree-shaking keeps the banner.
+    treeshake: false,
+    banner: { js: "'use client';" },
+    onSuccess: () => Promise.resolve(directiveOnClientCjs()),
+  },
+  ...(['esm', 'cjs'] as const).map(
+    (format): Options => ({
+      ...shared,
+      format: [format],
+      // One declaration build is enough for both formats; tsup names them .d.ts / .d.cts.
+      dts: true,
+      entry: { index: 'src/index.ts', 'accordion/index': 'src/accordion/index.ts' },
+      splitting: false,
+      esbuildPlugins: [keepClientExternal(format === 'esm' ? '.js' : '.cjs')],
+    }),
+  ),
+]);

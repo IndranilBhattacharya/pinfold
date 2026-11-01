@@ -7,6 +7,7 @@
     "paths": {
       "@pinfold/core": ["packages/core/src/index.ts"],
       "@pinfold/core/palette": ["packages/core/src/palette.ts"],
+      "@pinfold/core/meta": ["packages/core/src/meta.ts"],
       "@pinfold/react": ["packages/react/src/index.ts"],
       "@pinfold/react/*": ["packages/react/src/*/index.ts"],
       "@pinfold/testing": ["packages/testing/src/index.ts"]

@@ -37,7 +37,7 @@ Each component splits into these concerns, in this order:
 | Behaviour | `use<Name>.tsx` | state, refs, ARIA, prop getters, `render()` | class names, markup |
 | Presentation | `<Name>View.tsx` | markup, slots, variants. A plain function, not a component. | state logic |
 | Style | `<name>.css` | tokens turned into CSS | JS |
-| Server twin | `define<Name>.ts` | `define<Name>(config)` returns a component that renders the client tag (Planned for A4) | hooks |
+| Server twin | `<name>/define.tsx` | `define<Name>(config)` returns a component that renders the client tag | hooks |
 | Courtesy | `<Name>.tsx` | `use<Name>(config).render()`, one line | anything else |
 
 **The hook returns a component.** `use<Name>(config)` hands back one value that is
@@ -60,11 +60,11 @@ with the real compiler). Each hook render bumps a per-instance version; the comp
 subscribe through `useSyncExternalStore` and re-render after commit if they missed it. Without a
 memoising parent the snapshot already matches, so there is no extra render.
 
-**Server Components (D-07, Planned for A4).** Hooks can't run in a Server Component, so
+**Server Components (D-07).** Hooks can't run in a Server Component, so
 `define<Name>(config)` is a plain function. It returns a component that renders the
 `'use client'` tag with the same config, adding no extra DOM. The controller and the parts are
-client-only. Function values in the config can't cross the server/client boundary (there's a dev
-warning), but server-rendered JSX nodes can. Everything in the config ends up in the page payload,
+client-only. Function values in the config can't cross the server/client boundary (React rejects
+them with a clear error), but server-rendered JSX nodes can. Everything in the config ends up in the page payload,
 so never put secrets in it.
 
 The standalone `<Name />` export is a one-line wrapper for one-off usage. It must add nothing.
@@ -276,14 +276,22 @@ A component is not done until:
 
 The full matrix is in [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
 
-## 7a. SSR, RSC and lazy loading (D-12, D-13, Planned for A4)
+## 7a. SSR, RSC and lazy loading (D-12, D-13)
 
-- Server HTML contains all content: panels are mounted by default and closed with
-  `hidden="until-found"`. CI asserts every panel's text appears in the server HTML.
+- **One import path.** `@pinfold/react` and `@pinfold/react/<name>` are server-safe barrels (no
+  `'use client'`) that hold `defineConfig` / `define<Name>` and re-export a sibling client module.
+  The build gives every client module and chunk a `'use client'` banner (ESM and CJS);
+  `scripts/check-dist.mjs` fails `verify` if a boundary is wrong.
+- Server HTML contains all content: panels are mounted by default, closed by CSS, and get
+  `hidden="until-found"` after hydration. Tests assert every panel's text in the server HTML and
+  zero hydration warnings; `scripts/fixture-apps.mjs` builds real Next.js (App Router + RSC + ISR,
+  Pages Router + ISR) and webpack apps on the packed tarballs.
 - Ids are deterministic (native `useId`, or the explicit `id` prefix).
-- `lazy: 'auto' | 'eager' | 'visible' | 'idle'`. In `'auto'`, light components load eagerly and
-  heavy ones code-split their view (through `createLazyComponent`) and load once visible. The hook
-  stays the tiny state part, so the API never changes.
+- `lazy: 'auto' | 'eager' | 'visible' | 'idle'` (prop, or the provider). It applies to the
+  `/lazy` entries built with `createLazyComponent`: `eager` loads at once, `visible` when the
+  placeholder nears the viewport, `idle` in browser idle time, and `auto` means what the component
+  declares (`eager` for the light accordion). Lazy entries render on the client; the main entry
+  gives complete server HTML.
 
 ## 7b. Metadata (D-10)
 

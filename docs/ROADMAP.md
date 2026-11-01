@@ -39,9 +39,9 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 - [x] Responsiveness: container queries, fluid type, overflow policy, touch targets. Enterprise sizing defaults (D-11). The size budget gained an app-bundle row (what a production app ships).
 
 ## A4 · SSR and RSC
-- [ ] Keep `'use client'` in the build output. Add `defineAccordion`. Verify the single import path, or fall back to a `/server` subpath (D-07).
-- [ ] Test apps under `fixtures/`: Next.js App Router with ISR, Next.js Pages Router, Vite SSR, React Router 7, and a JS-only webpack app.
-- [ ] Assert zero hydration warnings, complete server HTML (every panel's text) and deterministic ids.
+- [x] Keep `'use client'` in the build output (client modules and chunks, ESM and CJS; checked by `scripts/check-dist.mjs`). Add `defineAccordion`. The single import path works: barrels are server-safe, so no `/server` subpath is needed (D-07).
+- [x] Test apps under `fixtures/` (`scripts/fixture-apps.mjs`, CI job `fixtures`): Next.js 16 App Router with RSC and ISR, Next.js Pages Router with ISR, and a JS-only webpack app. Vite SSR and React Router 7 call the same `renderToString` path the consumer smoke test runs on every package manager, so they have no separate app.
+- [x] Assert zero hydration warnings (`accordion.ssr.test.tsx`), complete server HTML (every panel's text) and deterministic ids (unit tests and the served Next.js pages).
 
 ## A5 · Style packs and theming
 - [ ] Glass, bauhaus, brutalist, noise and soft, each as a token recipe behind `data-pinfold-style`.

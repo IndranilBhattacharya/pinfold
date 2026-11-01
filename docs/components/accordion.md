@@ -1,6 +1,6 @@
 # Accordion: spec
 
-Status: **stable API**. Rows marked **Planned** arrive in A4.
+Status: **stable API**.
 Pattern: [WAI-ARIA APG Accordion](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/).
 Owner sign-off: 2026-10-31 (session plan).
 
@@ -13,7 +13,7 @@ const Faq = useAccordion({ items });
 return <Faq />;
 ```
 ```tsx
-// Server Component (Planned, A4)
+// Server Component: same import path
 import { defineAccordion } from '@pinfold/react/accordion';
 const Faq = defineAccordion({ items: await db.faq.findMany(), fields: { id: 'slug', title: 'question', content: 'answer' } });
 return <Faq />;
