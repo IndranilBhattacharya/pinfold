@@ -11,6 +11,9 @@
     "design-system"
   ],
   "license": "MIT",
+  "homepage": "https://lumae.indranildev.in",
+  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/lumae.git", "directory": "packages/cli" },
+  "bugs": "https://github.com/IndranilBhattacharya/lumae/issues",
   "type": "module",
   "bin": {
     "lumae": "bin/lumae.mjs"

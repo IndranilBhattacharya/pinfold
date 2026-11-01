@@ -42,5 +42,6 @@
     "node": ">=20"
   },
   "author": "Indranil Bhattacharya",
+  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/lumae.git" },
   "license": "MIT"
 }

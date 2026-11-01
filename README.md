@@ -126,7 +126,7 @@ The config never changes shape as you go deeper.
 | [docs/DECISIONS.md](docs/DECISIONS.md) · [docs/ROADMAP.md](docs/ROADMAP.md) · [docs/STRATEGY.md](docs/STRATEGY.md) | Why, what's next, and the market |
 | [AGENTS.md](AGENTS.md) | Binding rules for AI agents and contributors |
 
-The website, playground and palette studio live in the sibling repo `lumae-site`, at `lumae.indranildev.in`.
+The website, playground and palette studio live in [lumae-site](https://github.com/IndranilBhattacharya/lumae-site), served at `lumae.indranildev.in`.
 
 ## Develop
 
