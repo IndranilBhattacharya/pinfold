@@ -9,7 +9,7 @@ npm run verify      # typecheck, tests, build, gzip budget, published types (att
 npm run test:watch
 npm run smoke -- --pm npm --react 19 --ts 5.6.3   # pack, install and use the real tarballs
 ```
-Requirements: Node 20 or newer, npm 10 or newer.
+Requirements: Node 22 or newer, npm 10 or newer (the published packages still run on Node 20).
 The docs, playground and palette studio live in the sibling repo [`../pinfold-ui`](../pinfold-ui).
 
 ## Hard constraints
