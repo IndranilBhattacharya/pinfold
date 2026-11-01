@@ -29,7 +29,7 @@ const app = join(work, 'app');
 mkdirSync(app);
 
 // 1. Pack exactly what npm would publish.
-const tgz = packTarballs(work);
+const tgz = packTarballs(work, ['core', 'css', 'react', 'cli']);
 
 // 2. A consumer app. Every package manager reads its own override field, so the
 //    react tarball's dependency on @pinfold/core resolves to the local tarball too.
@@ -64,6 +64,8 @@ writeFileSync(join(app, 'cjs.cjs'), check((m) => `require(${JSON.stringify(m)})`
 const install = { npm: 'npm install --no-audit --no-fund', pnpm: 'pnpm install', yarn: 'yarn install --no-immutable', bun: 'bun install' }[pm];
 if (pm === 'yarn') writeFileSync(join(app, 'yarn.lock'), ''); // standalone project, not a parent workspace
 run(install, app);
+// What a user installs (all four packages and everything they pull in) has no known vulnerability.
+if (pm === 'npm') run('npm audit --omit=dev --audit-level=low', app);
 const node = pm === 'yarn' ? 'yarn node' : 'node';
 run(`${node} esm.mjs`, app);
 run(`${node} cjs.cjs`, app);

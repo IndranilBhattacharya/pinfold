@@ -15,7 +15,8 @@ Pre-release: only the latest `next` tag is supported. After 1.0, the latest mino
 - **No install scripts** (`preinstall`, `install`, `postinstall`) in published packages.
 - **Trusted publishing.** Releases are published only from GitHub Actions through npm's OIDC trusted publishing, with **provenance** (`npm publish --provenance`). There are no long-lived npm tokens.
 - **Maintainer accounts** use 2FA with passkeys.
-- Dev dependencies are watched by Dependabot. CI runs `npm audit` for production dependencies.
+- Dev dependencies are watched by Dependabot. CI and the release run `npm audit` on the whole tree,
+  dev tooling included, and on a fresh install of the packed packages; any finding fails the build.
 - OpenSSF Scorecard runs on the repository.
 - You can verify a release's provenance with `npm audit signatures`.
 
