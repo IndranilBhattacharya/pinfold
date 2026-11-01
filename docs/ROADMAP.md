@@ -29,8 +29,8 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 - [x] Ban removed React APIs (`banned-apis.test.ts`: defaultProps, propTypes, legacy context, findDOMNode, string refs, UNSAFE_, react-dom imports). Compiler compatibility is proven at runtime (`accordion.compiler.test.tsx`) rather than by the compiler lint, which would flag the library's intentional render-time ref writes.
 
 ## A2 · Logic split
-- [ ] Move the accordion's rules to `core/accordion.logic.ts` as pure functions: toggle, the single/collapsible rules, the keyboard map.
-- [ ] Unit tests that need no DOM. The hook becomes a thin adapter, and the existing tests pass unchanged.
+- [x] Move the accordion's rules to `core/accordion.logic.ts` as pure functions: toggle, the single/collapsible rules, open/close all, the keyboard map, ids, field mapping and panel mounting.
+- [x] Unit tests that need no DOM (`accordion.logic.test.ts`, node environment). The hook is a thin adapter, and the existing tests pass unchanged.
 
 ## A3 · Accordion features
 - [ ] Add every **Planned** item in [components/accordion.md](components/accordion.md).
