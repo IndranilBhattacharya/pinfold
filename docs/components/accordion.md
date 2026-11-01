@@ -126,9 +126,10 @@ Server Components can't pass functions (dev warning), but server-rendered JSX no
 
 ## TypeScript
 - Row ids are inferred from `items`. With literal ids (`as const`, or written inline) a wrong id in
-  `defaultValue`, `value`, `disabledIds`, `Faq.open()` or a part's `id` is a compile error, and
+  `defaultValue`, `disabledIds`, `Faq.open()` or a part's `id` is a compile error, and
   `onValueChange` receives the typed ids. Ids from data are `string` and nothing gets stricter.
-- Typed controlled state: `useState<AccordionItemId<typeof items>[]>([])`.
+- Controlled `value` takes any `string[]` state, so `useState<string[]>` just works; for typed state
+  use `useState<AccordionItemId<typeof items>[]>([])`.
 - Raw records use `AccordionMappedConfig`: `fields` accepts only real keys of the record
   (`{ title: 'questoin' }` is an error), and records without `fields` are rejected.
 - `as const` items work (inputs are `readonly`).

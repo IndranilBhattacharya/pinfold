@@ -112,8 +112,11 @@ export interface AccordionBehaviourConfig<Id extends string = string> {
    * @default true
    */
   collapsible?: boolean;
-  /** Controlled open ids. */
-  value?: ReadonlyArray<NoInfer<Id>>;
+  /**
+   * Controlled open ids. Any `string[]` state works (`useState<string[]>`); for typed state use
+   * `useState<AccordionItemId<typeof items>[]>`.
+   */
+  value?: ReadonlyArray<string>;
   /** Initially open ids (uncontrolled). */
   defaultValue?: ReadonlyArray<NoInfer<Id>>;
   /** `details.reason`: 'click' | 'keyboard' | 'api' | 'find-in-page' | 'hash'. */

@@ -79,9 +79,12 @@ Every component follows these rules. They hold on TypeScript 4.7, the published 
 `const` type parameters, no built-in `NoInfer`).
 
 - **Ids are inferred.** When a component has keyed entries (rows, tabs, options), their ids are a
-  type parameter inferred from the data. Every place that takes an id (`value`, `defaultValue`,
-  `disabledIds`, controller methods, part props, callbacks) uses it, wrapped in `NoInfer` where it
-  must not widen the inference. Ids from data stay `string`: typing never gets stricter for them.
+  type parameter inferred from the data. Every place a developer writes an id by hand
+  (`defaultValue`, `disabledIds`, controller methods, part props) uses it, wrapped in `NoInfer`;
+  callbacks receive it. Controlled values are state, so they accept any `string[]`. Ids from data
+  stay `string`: typing never gets stricter for them.
+- **Never add friction.** A type rule that breaks an everyday pattern (e.g. `useState<string[]>`) is
+  wrong; the types test keeps those patterns compiling.
 - **Raw records are typed.** A `fields` map only accepts real keys of the record type.
 - **Readonly in, mutable out.** Inputs accept `readonly` arrays (`as const` data works); values
   handed back are plain arrays.
