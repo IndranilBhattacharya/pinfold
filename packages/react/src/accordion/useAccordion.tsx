@@ -29,6 +29,8 @@ import {
 import type {
   AccordionApi,
   AccordionConfig,
+  AccordionMappedConfig,
+  AnyAccordionConfig,
   AccordionItemConfig,
   AccordionItemState,
   AccordionParts,
@@ -54,10 +56,13 @@ import type {
  * Arrow/Home/End navigation between headers. Behaviour rules live in
  * `@pinfold/core` (accordion.logic.ts); this hook wires them to React.
  */
-export function useAccordion(input: AccordionConfig): AccordionApi {
+export function useAccordion<Id extends string = string>(config: AccordionConfig<Id>): AccordionApi<Id>;
+/** Raw records, mapped onto rows by `fields`. Ids come from the data, so they are `string`. */
+export function useAccordion<Row extends object>(config: AccordionMappedConfig<Row>): AccordionApi;
+export function useAccordion(input: AnyAccordionConfig): AccordionApi {
   const ctx = usePinfold();
   // Precedence: component config, then `defaults.accordion`, then the provider, then library defaults.
-  const config: AccordionConfig = ctx.defaults.accordion ? ({ ...ctx.defaults.accordion, ...defined(input) } as AccordionConfig) : input;
+  const config: AnyAccordionConfig = ctx.defaults.accordion ? ({ ...ctx.defaults.accordion, ...defined(input) } as AnyAccordionConfig) : input;
   const {
     mode = 'single',
     collapsible = true,
@@ -119,7 +124,7 @@ export function useAccordion(input: AccordionConfig): AccordionApi {
   );
 
   const [value, setValue] = useControllableState<string[]>({
-    value: controlled,
+    value: controlled as string[] | undefined,
     defaultValue: () => initialAccordionValue(itemConfigs, defaultValue, mode),
   });
 

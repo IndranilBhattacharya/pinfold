@@ -1,6 +1,13 @@
 import type * as React from 'react';
 import type { PropsBag, Slottable as CoreSlottable } from '@pinfold/core';
 
+/**
+ * Blocks type inference from a position, so a value there is checked against what was inferred
+ * elsewhere instead of widening it (a wrong id is an error, not a new id). TypeScript 5.4 has
+ * this built in; this form works back to 4.7, the published floor.
+ */
+export type NoInfer<T> = [T][T extends any ? 0 : never];
+
 /** A config field that is a node, or a function of live state returning one. */
 export type Slottable<State, T = React.ReactNode> = CoreSlottable<State, T>;
 

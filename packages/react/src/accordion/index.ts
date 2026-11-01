@@ -12,6 +12,10 @@ export { Accordion as default } from './client';
 export { defineAccordion, type DefinedAccordion } from './define';
 export type {
   AccordionConfig,
+  AccordionMappedConfig,
+  AccordionOptions,
+  AnyAccordionConfig,
+  AccordionItemId,
   AccordionApi,
   AccordionState,
   AccordionParts,

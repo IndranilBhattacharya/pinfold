@@ -1,9 +1,9 @@
 import type { PinfoldDir, PinfoldLazy, PinfoldRadius, PinfoldSize, PinfoldStylePack, PinfoldTheme, PinfoldTone } from '@pinfold/core';
-import type { AccordionConfig } from './accordion/types';
+import type { AccordionOptions } from './accordion/types';
 
 /** Per-component defaults. Data, state and ids never belong here, only how components look and behave. */
 export interface PinfoldComponentDefaults {
-  accordion?: Partial<Omit<AccordionConfig, 'items' | 'fields' | 'value' | 'defaultValue' | 'id'>>;
+  accordion?: Omit<AccordionOptions, 'value' | 'defaultValue' | 'disabledIds' | 'id'>;
 }
 
 /**

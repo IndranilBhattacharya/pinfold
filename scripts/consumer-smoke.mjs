@@ -94,6 +94,18 @@ export function App(): React.ReactElement {
   return React.createElement(PinfoldProvider, null, React.createElement(Faq, { className: 'x' }));
 }
 export const vars: Record<string, string> = createTheme({ primary: 'emerald' }).vars;
+
+// Typed ids and fields, from the published .d.ts files (each line fails the build if the
+// typing regresses, on every TypeScript version in the matrix).
+const rows = [{ id: 'a', title: 'A' }, { id: 'b', title: 'B' }] as const;
+export function Typed(): React.ReactElement {
+  const Faq = useAccordion({ items: rows, defaultValue: ['a'] });
+  // @ts-expect-error not an id of these rows
+  Faq.open('c');
+  // @ts-expect-error not a key of the records
+  useAccordion({ items: [{ slug: 's', q: 'Q' }], fields: { title: 'question' } });
+  return React.createElement(Faq);
+}
 `,
   );
   // Read the installed version: --ts may be a tag such as 'latest'.

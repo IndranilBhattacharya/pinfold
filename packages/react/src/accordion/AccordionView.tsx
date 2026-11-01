@@ -3,7 +3,7 @@ import { accordionRowsJoined, cn, dimensionVars, mergeProps, resolveNode, should
 import { renderSlot, slotProps } from '../slots';
 import type {
   AccordionApi,
-  AccordionConfig,
+  AnyAccordionConfig,
   AccordionGap,
   AccordionIndicator,
   AccordionItemState,
@@ -45,7 +45,7 @@ const GLYPHS: Record<Exclude<AccordionIndicator, 'none'>, React.ReactNode> = {
  */
 export interface ViewContext {
   api: AccordionApi;
-  config: AccordionConfig;
+  config: AnyAccordionConfig;
   a: ResolvedAppearance;
   /** Rows that have ever been open (for `mountPanels: 'first-open'`). */
   everOpened: ReadonlySet<string>;
