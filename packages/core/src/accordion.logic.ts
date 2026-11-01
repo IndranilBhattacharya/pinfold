@@ -129,8 +129,11 @@ export function accordionFocusTarget(
  * Field mapping: lets raw records (a CMS row, a DB result) feed the accordion
  * without a `.map()`. `{ id: 'slug', title: 'question', content: 'answer' }`.
  */
-export type AccordionFieldMap = Partial<
-  Record<'id' | 'title' | 'content' | 'description' | 'icon' | 'endIcon' | 'badge' | 'disabled' | 'defaultOpen', string>
+export type AccordionFieldMap<Row = any> = Partial<
+  Record<
+    'id' | 'title' | 'content' | 'description' | 'icon' | 'endIcon' | 'badge' | 'disabled' | 'defaultOpen',
+    Extract<keyof Row, string>
+  >
 >;
 
 export function mapAccordionFields<T>(records: readonly any[], fields: AccordionFieldMap | undefined): T[] {

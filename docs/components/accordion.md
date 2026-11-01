@@ -124,6 +124,17 @@ can carry: an emoji (`"icon": "🚀"`) or an icon-font ligature with `classNames
 Every field that renders something accepts either a node or `(state) => node`.
 Server Components can't pass functions (dev warning), but server-rendered JSX nodes are allowed.
 
+## TypeScript
+- Row ids are inferred from `items`. With literal ids (`as const`, or written inline) a wrong id in
+  `defaultValue`, `value`, `disabledIds`, `Faq.open()` or a part's `id` is a compile error, and
+  `onValueChange` receives the typed ids. Ids from data are `string` and nothing gets stricter.
+- Typed controlled state: `useState<AccordionItemId<typeof items>[]>([])`.
+- Raw records use `AccordionMappedConfig`: `fields` accepts only real keys of the record
+  (`{ title: 'questoin' }` is an error), and records without `fields` are rejected.
+- `as const` items work (inputs are `readonly`).
+- No option is conditionally required. `icon` stays optional on every row: a row without one shows the
+  accordion-wide `icon`, or nothing.
+
 ## Compared with shadcn/ui (Radix) and HeroUI
 Every option of both has a Pinfold equivalent:
 

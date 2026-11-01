@@ -67,9 +67,35 @@ Conformance fails the build on:
 - a hard-coded colour
 - a class outside the component's namespace
 
-5. Register it in `packages/cli/registry.json`. Update its spec and the site repo
+5. Add the component to `COMPONENTS` in `packages/react/src/types-meta.test.ts` and write its
+   `<name>.types.test.tsx` (see "Typed API" below).
+6. Register it in `packages/cli/registry.json`. Update its spec and the site repo
    (`../pinfold-ui`) if the site documents it.
-6. Run `npm run verify` (typecheck, tests, build, gzip budget).
+7. Run `npm run verify` (typecheck, tests, build, gzip budget).
+
+## Typed API
+
+Every component follows these rules. They hold on TypeScript 4.7, the published floor (no
+`const` type parameters, no built-in `NoInfer`).
+
+- **Ids are inferred.** When a component has keyed entries (rows, tabs, options), their ids are a
+  type parameter inferred from the data. Every place that takes an id (`value`, `defaultValue`,
+  `disabledIds`, controller methods, part props, callbacks) uses it, wrapped in `NoInfer` where it
+  must not widen the inference. Ids from data stay `string`: typing never gets stricter for them.
+- **Raw records are typed.** A `fields` map only accepts real keys of the record type.
+- **Readonly in, mutable out.** Inputs accept `readonly` arrays (`as const` data works); values
+  handed back are plain arrays.
+- **Defaults are documented once and checked.** Every option with a default has a `@default` JSDoc
+  tag equal to the meta's default; `types-meta.test.ts` fails on any difference, and on an option
+  present in the types but not the meta (or the reverse).
+- **Required means required in every config.** No option becomes required because of another
+  option's value: options can come from provider defaults at runtime, which the compiler cannot
+  see. Combinations that make an option pointless are reported at runtime (an inactive-options
+  helper in `core`, a dev warning, a disabled playground control).
+- **The contract is tested.** `<name>.types.test.tsx` holds `@ts-expect-error` lines for every
+  mistake the types must catch; `npm run typecheck` fails if one stops being an error. The
+  consumer smoke test repeats the key ones against the published `.d.ts` files on TypeScript
+  4.7, 5.0 and the latest.
 
 ## What to contribute
 - Fixes and tests for existing components.

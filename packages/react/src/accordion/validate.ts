@@ -1,6 +1,6 @@
 import { accordionRowId, inactiveAccordionOptions, mapAccordionFields, warnOnce } from '@pinfold/core';
 import { accordionMeta, validateConfig } from '@pinfold/core/meta';
-import type { AccordionConfig, AccordionItemConfig } from './types';
+import type { AccordionItemConfig, AnyAccordionConfig } from './types';
 
 /**
  * Dev-only config checks: the meta-driven shape check (unknown keys, wrong
@@ -8,7 +8,7 @@ import type { AccordionConfig, AccordionItemConfig } from './types';
  * TypeScript gives everyone else, plus behaviour mistakes that would
  * otherwise only show up as odd UI.
  */
-export function validateAccordion(input: AccordionConfig, config: AccordionConfig): void {
+export function validateAccordion(input: AnyAccordionConfig, config: AnyAccordionConfig): void {
   // Field-mapped records are arbitrary shapes; check the rows only when unmapped.
   const shape = input.fields ? { ...input, items: [] } : input;
   for (const problem of validateConfig(accordionMeta, shape)) warnOnce(true, problem.message);
