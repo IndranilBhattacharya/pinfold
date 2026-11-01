@@ -1,4 +1,4 @@
-# Contributing to Lumae
+# Contributing to Pinfold
 
 Read [AGENTS.md](AGENTS.md) first. Its rules bind humans and AI agents alike.
 
@@ -10,7 +10,7 @@ npm run test:watch
 npm run smoke -- --pm npm --react 19 --ts 5.6.3   # pack, install and use the real tarballs
 ```
 Requirements: Node 20 or newer, npm 10 or newer.
-The docs, playground and palette studio live in the sibling repo [`../lumae-site`](../lumae-site).
+The docs, playground and palette studio live in the sibling repo [`../pinfold-ui`](../pinfold-ui).
 
 ## What to contribute
 - Fixes and tests for existing components.
@@ -18,7 +18,7 @@ The docs, playground and palette studio live in the sibling repo [`../lumae-site
 - Docs corrections. Planned behaviour must be labelled **Planned**.
 
 ## Rules
-- Follow [ARCHITECTURE.md](ARCHITECTURE.md). The conformance suite (`@lumae/testing`) must pass.
+- Follow [ARCHITECTURE.md](ARCHITECTURE.md). The conformance suite (`@pinfold/testing`) must pass.
 - Zero runtime dependencies. `core` and `css` never import a framework.
 - Update the docs in the same pull request as the behaviour change.
 - Commits use conventional prefixes: `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`.

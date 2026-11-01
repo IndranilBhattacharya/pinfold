@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { useIsomorphicLayoutEffect } from './hooks';
-import type { LumaeDir, LumaeRadius, LumaeSize, LumaeTheme, LumaeTone } from '@lumae/core';
+import type { PinfoldDir, PinfoldRadius, PinfoldSize, PinfoldTheme, PinfoldTone } from '@pinfold/core';
 
-export interface LumaeContextValue {
-  theme: LumaeTheme;
-  radius: LumaeRadius;
-  dir: LumaeDir;
-  size: LumaeSize;
-  tone: LumaeTone;
+export interface PinfoldContextValue {
+  theme: PinfoldTheme;
+  radius: PinfoldRadius;
+  dir: PinfoldDir;
+  size: PinfoldSize;
+  tone: PinfoldTone;
   /** Disable every component transition, e.g. in tests or on low-power devices. */
   disableAnimation: boolean;
 }
 
-const DEFAULTS: LumaeContextValue = {
+const DEFAULTS: PinfoldContextValue = {
   theme: 'system',
   radius: 'md',
   dir: 'ltr',
@@ -21,17 +21,17 @@ const DEFAULTS: LumaeContextValue = {
   disableAnimation: false,
 };
 
-const LumaeContext = React.createContext<LumaeContextValue>(DEFAULTS);
+const PinfoldContext = React.createContext<PinfoldContextValue>(DEFAULTS);
 
 /** Component-level defaults. Every component calls this; the provider is optional. */
-export function useLumae(): LumaeContextValue {
-  return React.useContext(LumaeContext);
+export function usePinfold(): PinfoldContextValue {
+  return React.useContext(PinfoldContext);
 }
 
-export interface LumaeProviderProps extends Partial<LumaeContextValue> {
+export interface PinfoldProviderProps extends Partial<PinfoldContextValue> {
   children?: React.ReactNode;
   /**
-   * Write `data-lumae-theme` / `data-lumae-radius` onto `<html>` instead of a
+   * Write `data-pinfold-theme` / `data-pinfold-radius` onto `<html>` instead of a
    * wrapper element. Use this when portals (dialogs, tooltips) must inherit
    * the theme. Default: false.
    */
@@ -39,11 +39,11 @@ export interface LumaeProviderProps extends Partial<LumaeContextValue> {
   className?: string;
 }
 
-export function LumaeProvider(props: LumaeProviderProps): React.ReactElement {
+export function PinfoldProvider(props: PinfoldProviderProps): React.ReactElement {
   const { children, applyToDocument = false, className, ...overrides } = props;
-  const parent = React.useContext(LumaeContext);
+  const parent = React.useContext(PinfoldContext);
 
-  const value = React.useMemo<LumaeContextValue>(
+  const value = React.useMemo<PinfoldContextValue>(
     () => ({ ...parent, ...stripUndefined(overrides) }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [parent, overrides.theme, overrides.radius, overrides.dir, overrides.size, overrides.tone, overrides.disableAnimation],
@@ -52,14 +52,14 @@ export function LumaeProvider(props: LumaeProviderProps): React.ReactElement {
   useIsomorphicLayoutEffect(() => {
     if (!applyToDocument) return;
     const el = document.documentElement;
-    const prevTheme = el.getAttribute('data-lumae-theme');
-    const prevRadius = el.getAttribute('data-lumae-radius');
-    if (value.theme === 'system') el.removeAttribute('data-lumae-theme');
-    else el.setAttribute('data-lumae-theme', value.theme);
-    el.setAttribute('data-lumae-radius', value.radius);
+    const prevTheme = el.getAttribute('data-pinfold-theme');
+    const prevRadius = el.getAttribute('data-pinfold-radius');
+    if (value.theme === 'system') el.removeAttribute('data-pinfold-theme');
+    else el.setAttribute('data-pinfold-theme', value.theme);
+    el.setAttribute('data-pinfold-radius', value.radius);
     return () => {
-      restore(el, 'data-lumae-theme', prevTheme);
-      restore(el, 'data-lumae-radius', prevRadius);
+      restore(el, 'data-pinfold-theme', prevTheme);
+      restore(el, 'data-pinfold-radius', prevRadius);
     };
   }, [applyToDocument, value.theme, value.radius]);
 
@@ -67,16 +67,16 @@ export function LumaeProvider(props: LumaeProviderProps): React.ReactElement {
     children
   ) : (
     <div
-      className={className ? 'lumae ' + className : 'lumae'}
+      className={className ? 'pinfold ' + className : 'pinfold'}
       dir={value.dir}
-      data-lumae-theme={value.theme === 'system' ? undefined : value.theme}
-      data-lumae-radius={value.radius}
+      data-pinfold-theme={value.theme === 'system' ? undefined : value.theme}
+      data-pinfold-radius={value.radius}
     >
       {children}
     </div>
   );
 
-  return <LumaeContext.Provider value={value}>{body}</LumaeContext.Provider>;
+  return <PinfoldContext.Provider value={value}>{body}</PinfoldContext.Provider>;
 }
 
 function restore(el: Element, attr: string, prev: string | null) {

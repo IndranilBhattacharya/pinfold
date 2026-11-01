@@ -1,6 +1,6 @@
 /* Styles ship separately so SSR and CJS never choke on a CSS import:
-     import '@lumae/css/core.css'; import '@lumae/css/accordion.css';
-   `npx lumae add accordion` wires this up for you.
+     import '@pinfold/css/core.css'; import '@pinfold/css/accordion.css';
+   `npx pinfold add accordion` wires this up for you.
    Using Tailwind or your own stylesheet? Pass `unstyled: true` and skip it. */
 
 export { Accordion } from './Accordion';

@@ -10,7 +10,7 @@ export const useIsomorphicLayoutEffect =
  */
 export function useId(provided?: string): string {
   const generated = React.useId();
-  return provided || 'lumae-' + generated.replace(/[^\w-]/g, '');
+  return provided || 'pinfold-' + generated.replace(/[^\w-]/g, '');
 }
 
 /**

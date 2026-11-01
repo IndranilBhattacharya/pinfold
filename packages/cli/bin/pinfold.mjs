@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 /**
- * Lumae CLI.
+ * Pinfold CLI.
  *
- *   npx lumae init                       scaffold lumae.config.json + theme CSS
- *   npx lumae add accordion tabs         install components one at a time
- *   npx lumae theme --primary emerald    regenerate the palette
- *   npx lumae theme --check              WCAG contrast report for the palette
- *   npx lumae palette                    preview every built-in hue
- *   npx lumae new <name>                 scaffold a new component (contributors, repo root)
- *   npx lumae list                       show the component registry
+ *   npx pinfold init                       scaffold pinfold.config.json + theme CSS
+ *   npx pinfold add accordion tabs         install components one at a time
+ *   npx pinfold theme --primary emerald    regenerate the palette
+ *   npx pinfold theme --check              WCAG contrast report for the palette
+ *   npx pinfold palette                    preview every built-in hue
+ *   npx pinfold new <name>                 scaffold a new component (contributors, repo root)
+ *   npx pinfold list                       show the component registry
  *
- * The palette maths lives in `@lumae/core/palette` — one implementation shared
+ * The palette maths lives in `@pinfold/core/palette` — one implementation shared
  * by the CLI, the build and the runtime, so they cannot drift.
  */
 import { execSync } from 'node:child_process';
@@ -18,12 +18,12 @@ import { createInterface } from 'node:readline/promises';
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { HUES, createTheme } from '@lumae/core/palette';
+import { HUES, createTheme } from '@pinfold/core/palette';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REGISTRY = JSON.parse(readFileSync(join(HERE, '..', 'registry.json'), 'utf8'));
 const TEMPLATES = join(HERE, '..', 'templates', 'component');
-const CONFIG_FILE = 'lumae.config.json';
+const CONFIG_FILE = 'pinfold.config.json';
 const RADII = ['none', 'sm', 'md', 'lg', 'full'];
 
 const c = {
@@ -129,8 +129,8 @@ function emitTheme(cfg) {
 function printSwatches(theme) {
   const steps = [100, 300, 500, 700, 900];
   for (const role of Object.keys(theme.ramps)) {
-    const bar = steps.map((s) => c.swatch(theme.vars[`--lumae-${role}-${s}`])).join('');
-    console.log(`  ${c.dim(role.padEnd(9))}${bar}  ${c.dim(theme.vars[`--lumae-${role}-500`])}`);
+    const bar = steps.map((s) => c.swatch(theme.vars[`--pinfold-${role}-${s}`])).join('');
+    console.log(`  ${c.dim(role.padEnd(9))}${bar}  ${c.dim(theme.vars[`--pinfold-${role}-500`])}`);
   }
 }
 
@@ -164,7 +164,7 @@ async function init(argv) {
 
   if (interactive && !arg(argv, 'preset') && !arg(argv, 'primary')) {
     const rl = createInterface({ input: process.stdin, output: process.stdout });
-    console.log(c.bold('\n  Lumae setup\n'));
+    console.log(c.bold('\n  Pinfold setup\n'));
     console.log('  Hues: ' + c.dim(Object.keys(HUES).join(', ')) + '\n');
     const brand = (await rl.question(c.accent('  Brand hue [violet]: '))).trim() || 'violet';
     const accent = (await rl.question(c.accent('  Accent hue [same as brand]: '))).trim();
@@ -175,9 +175,9 @@ async function init(argv) {
   }
 
   const cfg = {
-    $schema: 'https://lumae.indranildev.in/config.schema.json',
+    $schema: 'https://pinfold.indranildev.in/config.schema.json',
     theme: palette,
-    cssPath: arg(argv, 'css', 'src/lumae-theme.css'),
+    cssPath: arg(argv, 'css', 'src/pinfold-theme.css'),
     components: [],
   };
   writeConfig(cfg);
@@ -200,12 +200,12 @@ async function init(argv) {
     );
   }
 
-  console.log(`\n  Next: ${c.accent('npx lumae add accordion')}\n`);
+  console.log(`\n  Next: ${c.accent('npx pinfold add accordion')}\n`);
 }
 
 function theme(argv) {
   const cfg = readConfig();
-  if (!cfg) return fail(`no ${CONFIG_FILE}. Run \`npx lumae init\` first.`);
+  if (!cfg) return fail(`no ${CONFIG_FILE}. Run \`npx pinfold init\` first.`);
   cfg.theme = paletteFromArgs(argv, cfg.theme);
   writeConfig(cfg);
   const built = emitTheme(cfg);
@@ -218,17 +218,17 @@ function palette(argv) {
   for (const name of names) {
     const t = createTheme({ primary: name });
     const bar = [100, 200, 300, 400, 500, 600, 700, 800, 900]
-      .map((s) => c.swatch(t.vars[`--lumae-primary-${s}`]))
+      .map((s) => c.swatch(t.vars[`--pinfold-primary-${s}`]))
       .join('');
     console.log(`  ${name.padEnd(9)}${bar}  ${c.dim(String(HUES[name]) + '°')}`);
   }
-  console.log(c.dim('\n  npx lumae theme --primary <name> --accent <name> --radius lg\n'));
+  console.log(c.dim('\n  npx pinfold theme --primary <name> --accent <name> --radius lg\n'));
   if (flag(argv, 'check')) printContrast(createTheme({ primary: arg(argv, 'primary', 'violet') }));
 }
 
 function add(argv) {
   const names = positional(argv);
-  if (names.length === 0) return fail('nothing to add. Try `npx lumae add accordion`.');
+  if (names.length === 0) return fail('nothing to add. Try `npx pinfold add accordion`.');
 
   const cfg = readConfig();
   const wanted = names.includes('all') ? REGISTRY.components.map((x) => x.name) : names;
@@ -261,23 +261,23 @@ function add(argv) {
 }
 
 /**
- * Scaffold a component inside the Lumae monorepo (contributors only). This is
+ * Scaffold a component inside the Pinfold monorepo (contributors only). This is
  * the seam an agent or a human starts from: the files already carry the
  * layering, the conformance test and the token discipline ARCHITECTURE.md
  * requires. Writes the React adapter, the stylesheet, and the subpath export.
  */
 function scaffold(argv) {
   const [name] = positional(argv);
-  if (!name) return fail('name required. Try `npx lumae new tabs`.');
+  if (!name) return fail('name required. Try `npx pinfold new tabs`.');
   if (!/^[a-z][a-z0-9-]*$/.test(name)) return fail('name must be kebab-case, e.g. `date-picker`.');
 
   const root = arg(argv, 'root', '.');
   const reactDir = join(root, 'packages', 'react', 'src', name);
   const cssFile = join(root, 'packages', 'css', 'src', `${name}.css`);
   const pkgFile = join(root, 'packages', 'react', 'package.json');
-  if (!existsSync(pkgFile)) return fail('run this from the Lumae repo root (or pass --root).');
+  if (!existsSync(pkgFile)) return fail('run this from the Pinfold repo root (or pass --root).');
   if (existsSync(reactDir) || existsSync(cssFile)) return fail(`${name} already exists.`);
-  if (!existsSync(TEMPLATES)) return fail('templates missing — run this from an installed lumae.');
+  if (!existsSync(TEMPLATES)) return fail('templates missing — run this from an installed pinfold.');
 
   const pascal = name.replace(/(^|-)([a-z])/g, (_, __, ch) => ch.toUpperCase());
   const camel = pascal[0].toLowerCase() + pascal.slice(1);
@@ -302,7 +302,7 @@ function scaffold(argv) {
 
   console.log(`\n  ${c.ok('created')} ${reactDir}`);
   console.log(`  ${c.ok('created')} ${cssFile}`);
-  console.log(`  ${c.ok('wired')}   @lumae/react/${name} in packages/react/package.json\n`);
+  console.log(`  ${c.ok('wired')}   @pinfold/react/${name} in packages/react/package.json\n`);
   console.log(`  Next: write docs/components/${name}.md (owner sign-off), implement the WAI-ARIA`);
   console.log(`  pattern, register it in packages/cli/registry.json, then ${c.accent('npm run verify')}\n`);
 }
@@ -336,7 +336,7 @@ function list() {
 
 function help() {
   console.log(`
-  ${c.bold('lumae')} ${c.dim('— configuration-driven React UI')}
+  ${c.bold('pinfold')} ${c.dim('— configuration-driven React UI')}
 
   ${c.accent('init')}     [--preset violet] [--accent blue] [--radius md] [--yes]
   ${c.accent('add')}      <component…|all> [--dry-run]

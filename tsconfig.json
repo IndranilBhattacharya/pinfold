@@ -5,11 +5,11 @@
     "baseUrl": ".",
     "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
     "paths": {
-      "@lumae/core": ["packages/core/src/index.ts"],
-      "@lumae/core/palette": ["packages/core/src/palette.ts"],
-      "@lumae/react": ["packages/react/src/index.ts"],
-      "@lumae/react/*": ["packages/react/src/*/index.ts"],
-      "@lumae/testing": ["packages/testing/src/index.ts"]
+      "@pinfold/core": ["packages/core/src/index.ts"],
+      "@pinfold/core/palette": ["packages/core/src/palette.ts"],
+      "@pinfold/react": ["packages/react/src/index.ts"],
+      "@pinfold/react/*": ["packages/react/src/*/index.ts"],
+      "@pinfold/testing": ["packages/testing/src/index.ts"]
     }
   },
   "include": ["packages/*/src", "vitest.setup.ts"]

@@ -1,20 +1,20 @@
-/* Lumae — scoped reset. Applies only inside `.lumae`, never to the host app.
+/* Pinfold — scoped reset. Applies only inside `.pinfold`, never to the host app.
    A library that resets the page is a library that fights its host. */
 
-@layer lumae.reset {
+@layer pinfold.reset {
 
-  .lumae,
-  .lumae *,
-  .lumae *::before,
-  .lumae *::after {
+  .pinfold,
+  .pinfold *,
+  .pinfold *::before,
+  .pinfold *::after {
     box-sizing: border-box;
   }
 
-  .lumae {
-    font-family: var(--lumae-font-sans);
-    font-size: var(--lumae-text-md);
-    line-height: var(--lumae-leading-normal);
-    color: var(--lumae-color-text);
+  .pinfold {
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-text-md);
+    line-height: var(--pinfold-leading-normal);
+    color: var(--pinfold-color-text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -22,14 +22,14 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .lumae :where(button, input, select, textarea) {
+  .pinfold :where(button, input, select, textarea) {
     font: inherit;
     color: inherit;
     letter-spacing: inherit;
     margin: 0;
   }
 
-  .lumae :where(button) {
+  .pinfold :where(button) {
     background: none;
     border: 0;
     cursor: pointer;
@@ -38,56 +38,56 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .lumae :where(h1, h2, h3, h4, h5, h6, p, figure, dl, dd) {
+  .pinfold :where(h1, h2, h3, h4, h5, h6, p, figure, dl, dd) {
     margin: 0;
     font-size: inherit;
     font-weight: inherit;
   }
 
-  .lumae :where(img, svg, video, canvas) {
+  .pinfold :where(img, svg, video, canvas) {
     display: block;
     max-width: 100%;
   }
 
-  .lumae :where(svg) {
+  .pinfold :where(svg) {
     flex: none;
   }
 
-  .lumae ::selection {
-    background: var(--lumae-color-selection);
+  .pinfold ::selection {
+    background: var(--pinfold-color-selection);
   }
 
   /* Two-tone focus ring, visible on any surface. `outline` stays as the
      forced-colors fallback since box-shadow is dropped in that mode. */
-  .lumae :where(:focus-visible) {
-    outline: var(--lumae-focus-width) solid transparent;
-    outline-offset: var(--lumae-focus-offset);
-    box-shadow: var(--lumae-focus-ring);
-    border-radius: var(--lumae-radius-xs);
+  .pinfold :where(:focus-visible) {
+    outline: var(--pinfold-focus-width) solid transparent;
+    outline-offset: var(--pinfold-focus-offset);
+    box-shadow: var(--pinfold-focus-ring);
+    border-radius: var(--pinfold-radius-xs);
   }
 
-  /* Scrollbars inside Lumae surfaces follow the palette instead of the OS. */
-  .lumae :where(*) {
+  /* Scrollbars inside Pinfold surfaces follow the palette instead of the OS. */
+  .pinfold :where(*) {
     scrollbar-width: thin;
-    scrollbar-color: var(--lumae-color-border-strong) transparent;
+    scrollbar-color: var(--pinfold-color-border-strong) transparent;
   }
-  .lumae :where(*)::-webkit-scrollbar {
+  .pinfold :where(*)::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
-  .lumae :where(*)::-webkit-scrollbar-thumb {
-    background: var(--lumae-color-border-strong);
+  .pinfold :where(*)::-webkit-scrollbar-thumb {
+    background: var(--pinfold-color-border-strong);
     border: 3px solid transparent;
-    border-radius: var(--lumae-radius-full);
+    border-radius: var(--pinfold-radius-full);
     background-clip: content-box;
   }
-  .lumae :where(*)::-webkit-scrollbar-track {
+  .pinfold :where(*)::-webkit-scrollbar-track {
     background: transparent;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .lumae,
-    .lumae * {
+    .pinfold,
+    .pinfold * {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
@@ -98,11 +98,11 @@
   /* Forced colors (Windows High Contrast): the OS owns colour, so drop our
      decoration and let system colours through. */
   @media (forced-colors: active) {
-    .lumae :where(:focus-visible) {
+    .pinfold :where(:focus-visible) {
       outline-color: Highlight;
       box-shadow: none;
     }
-    .lumae :where([data-state="open"], [data-state="selected"]) {
+    .pinfold :where([data-state="open"], [data-state="selected"]) {
       forced-color-adjust: none;
     }
   }

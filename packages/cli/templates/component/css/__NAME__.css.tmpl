@@ -1,100 +1,100 @@
-/* Lumae — __NAME__.
+/* Pinfold — __NAME__.
    Two-layer variables: [data-size] writes the `*-base` preset, `dimensions`
-   writes --lumae-__NAME__-* which wins through the var() fallback.
+   writes --pinfold-__NAME__-* which wins through the var() fallback.
    Every value resolves to a core token — a literal colour here would be
    invisible to the palette, to dark mode and to consumer overrides, and the
    conformance suite fails the build if one appears. */
 
-@layer lumae.components {
+@layer pinfold.components {
 
-  .lumae-__NAME__ {
-    --lumae-__CAMEL__-pad-x-base: var(--lumae-space-4);
-    --lumae-__CAMEL__-pad-y-base: var(--lumae-space-2);
-    --lumae-__CAMEL__-font-base: var(--lumae-text-md);
-    --lumae-__CAMEL__-radius-base: var(--lumae-radius-md);
-    --lumae-__CAMEL__-gap-base: var(--lumae-space-2);
+  .pinfold-__NAME__ {
+    --pinfold-__CAMEL__-pad-x-base: var(--pinfold-space-4);
+    --pinfold-__CAMEL__-pad-y-base: var(--pinfold-space-2);
+    --pinfold-__CAMEL__-font-base: var(--pinfold-text-md);
+    --pinfold-__CAMEL__-radius-base: var(--pinfold-radius-md);
+    --pinfold-__CAMEL__-gap-base: var(--pinfold-space-2);
 
-    --lumae-__CAMEL__-pad-x: var(--lumae-__NAME__-padding-x, var(--lumae-__CAMEL__-pad-x-base));
-    --lumae-__CAMEL__-pad-y: var(--lumae-__NAME__-padding-y, var(--lumae-__CAMEL__-pad-y-base));
-    --lumae-__CAMEL__-font: var(--lumae-__NAME__-font-size, var(--lumae-__CAMEL__-font-base));
-    --lumae-__CAMEL__-radius: var(--lumae-__NAME__-radius, var(--lumae-__CAMEL__-radius-base));
-    --lumae-__CAMEL__-gap: var(--lumae-__NAME__-gap, var(--lumae-__CAMEL__-gap-base));
-    --lumae-__CAMEL__-border: var(--lumae-__NAME__-border-width, 1px);
-    --lumae-__CAMEL__-duration: var(--lumae-__NAME__-duration, var(--lumae-duration-fast));
-    --lumae-__CAMEL__-accent: var(--lumae-color-accent);
+    --pinfold-__CAMEL__-pad-x: var(--pinfold-__NAME__-padding-x, var(--pinfold-__CAMEL__-pad-x-base));
+    --pinfold-__CAMEL__-pad-y: var(--pinfold-__NAME__-padding-y, var(--pinfold-__CAMEL__-pad-y-base));
+    --pinfold-__CAMEL__-font: var(--pinfold-__NAME__-font-size, var(--pinfold-__CAMEL__-font-base));
+    --pinfold-__CAMEL__-radius: var(--pinfold-__NAME__-radius, var(--pinfold-__CAMEL__-radius-base));
+    --pinfold-__CAMEL__-gap: var(--pinfold-__NAME__-gap, var(--pinfold-__CAMEL__-gap-base));
+    --pinfold-__CAMEL__-border: var(--pinfold-__NAME__-border-width, 1px);
+    --pinfold-__CAMEL__-duration: var(--pinfold-__NAME__-duration, var(--pinfold-duration-fast));
+    --pinfold-__CAMEL__-accent: var(--pinfold-color-accent);
 
     display: flex;
-    gap: var(--lumae-__CAMEL__-gap);
-    width: var(--lumae-__NAME__-width, auto);
-    max-width: var(--lumae-__NAME__-max-width, none);
-    font-size: var(--lumae-__CAMEL__-font);
-    color: var(--lumae-color-text);
+    gap: var(--pinfold-__CAMEL__-gap);
+    width: var(--pinfold-__NAME__-width, auto);
+    max-width: var(--pinfold-__NAME__-max-width, none);
+    font-size: var(--pinfold-__CAMEL__-font);
+    color: var(--pinfold-color-text);
   }
 
-  .lumae-__NAME__[data-orientation='vertical'] {
+  .pinfold-__NAME__[data-orientation='vertical'] {
     flex-direction: column;
   }
 
   /* ------------------------------------------------------------------ sizes */
-  .lumae-__NAME__[data-size='sm'] {
-    --lumae-__CAMEL__-pad-x-base: var(--lumae-space-3);
-    --lumae-__CAMEL__-pad-y-base: var(--lumae-space-1);
-    --lumae-__CAMEL__-font-base: var(--lumae-text-sm);
+  .pinfold-__NAME__[data-size='sm'] {
+    --pinfold-__CAMEL__-pad-x-base: var(--pinfold-space-3);
+    --pinfold-__CAMEL__-pad-y-base: var(--pinfold-space-1);
+    --pinfold-__CAMEL__-font-base: var(--pinfold-text-sm);
   }
-  .lumae-__NAME__[data-size='lg'] {
-    --lumae-__CAMEL__-pad-x-base: var(--lumae-space-5);
-    --lumae-__CAMEL__-pad-y-base: var(--lumae-space-3);
-    --lumae-__CAMEL__-font-base: var(--lumae-text-lg);
+  .pinfold-__NAME__[data-size='lg'] {
+    --pinfold-__CAMEL__-pad-x-base: var(--pinfold-space-5);
+    --pinfold-__CAMEL__-pad-y-base: var(--pinfold-space-3);
+    --pinfold-__CAMEL__-font-base: var(--pinfold-text-lg);
   }
 
   /* ------------------------------------------------------------------ tones */
-  .lumae-__NAME__[data-tone='neutral'] { --lumae-__CAMEL__-accent: var(--lumae-color-text); }
-  .lumae-__NAME__[data-tone='success'] { --lumae-__CAMEL__-accent: var(--lumae-success-500); }
-  .lumae-__NAME__[data-tone='warning'] { --lumae-__CAMEL__-accent: var(--lumae-warning-500); }
-  .lumae-__NAME__[data-tone='danger'] { --lumae-__CAMEL__-accent: var(--lumae-danger-500); }
-  .lumae-__NAME__[data-tone='info'] { --lumae-__CAMEL__-accent: var(--lumae-info-500); }
+  .pinfold-__NAME__[data-tone='neutral'] { --pinfold-__CAMEL__-accent: var(--pinfold-color-text); }
+  .pinfold-__NAME__[data-tone='success'] { --pinfold-__CAMEL__-accent: var(--pinfold-success-500); }
+  .pinfold-__NAME__[data-tone='warning'] { --pinfold-__CAMEL__-accent: var(--pinfold-warning-500); }
+  .pinfold-__NAME__[data-tone='danger'] { --pinfold-__CAMEL__-accent: var(--pinfold-danger-500); }
+  .pinfold-__NAME__[data-tone='info'] { --pinfold-__CAMEL__-accent: var(--pinfold-info-500); }
 
   /* ------------------------------------------------------------------- item */
-  .lumae-__NAME____item {
+  .pinfold-__NAME____item {
     display: inline-flex;
     align-items: center;
-    gap: var(--lumae-space-2);
-    padding: var(--lumae-__CAMEL__-pad-y) var(--lumae-__CAMEL__-pad-x);
-    font-weight: var(--lumae-weight-medium);
-    color: var(--lumae-color-text-muted);
-    border-radius: var(--lumae-__CAMEL__-radius);
-    transition: background-color var(--lumae-__CAMEL__-duration) var(--lumae-ease),
-      color var(--lumae-__CAMEL__-duration) var(--lumae-ease);
+    gap: var(--pinfold-space-2);
+    padding: var(--pinfold-__CAMEL__-pad-y) var(--pinfold-__CAMEL__-pad-x);
+    font-weight: var(--pinfold-weight-medium);
+    color: var(--pinfold-color-text-muted);
+    border-radius: var(--pinfold-__CAMEL__-radius);
+    transition: background-color var(--pinfold-__CAMEL__-duration) var(--pinfold-ease),
+      color var(--pinfold-__CAMEL__-duration) var(--pinfold-ease);
   }
 
-  .lumae-__NAME__[data-variant='outline'] .lumae-__NAME____item {
-    border: var(--lumae-__CAMEL__-border) solid var(--lumae-color-border);
+  .pinfold-__NAME__[data-variant='outline'] .pinfold-__NAME____item {
+    border: var(--pinfold-__CAMEL__-border) solid var(--pinfold-color-border);
   }
 
-  .lumae-__NAME____item:hover {
-    background: var(--lumae-color-surface-hover);
-    color: var(--lumae-color-text);
+  .pinfold-__NAME____item:hover {
+    background: var(--pinfold-color-surface-hover);
+    color: var(--pinfold-color-text);
   }
 
-  .lumae-__NAME____item[data-state='selected'] {
-    color: var(--lumae-__CAMEL__-accent);
-    background: var(--lumae-color-surface-selected);
+  .pinfold-__NAME____item[data-state='selected'] {
+    color: var(--pinfold-__CAMEL__-accent);
+    background: var(--pinfold-color-surface-selected);
   }
 
-  .lumae-__NAME____item[data-disabled] {
-    color: var(--lumae-color-text-disabled);
+  .pinfold-__NAME____item[data-disabled] {
+    color: var(--pinfold-color-text-disabled);
     cursor: not-allowed;
   }
-  .lumae-__NAME____item[data-disabled]:hover {
+  .pinfold-__NAME____item[data-disabled]:hover {
     background: none;
   }
 
-  .lumae-__NAME____item:focus-visible {
+  .pinfold-__NAME____item:focus-visible {
     position: relative;
     z-index: 1;
   }
 
-  .lumae-__NAME____label {
+  .pinfold-__NAME____label {
     min-width: 0;
   }
 

@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you use or build on Lumae, please cite it as below."
-title: "Lumae: a hooks-first, config-driven React UI library"
+message: "If you use or build on Pinfold, please cite it as below."
+title: "Pinfold: a hooks-first, config-driven React UI library"
 type: software
 authors:
   - family-names: "Bhattacharya"

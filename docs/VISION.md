@@ -1,6 +1,6 @@
 # Vision
 
-**Lumae turns a plain config object into a complete, accessible, themed UI
+**Pinfold turns a plain config object into a complete, accessible, themed UI
 component, while the JSX you return stays a single self-closing tag.**
 
 ```jsx

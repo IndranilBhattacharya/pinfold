@@ -1,7 +1,7 @@
-/* Lumae — accordion.
+/* Pinfold — accordion.
 
    Two-layer variables: the `size` preset writes the `*-base` vars, and the
-   `dimensions` config writes `--lumae-accordion-*` which wins through the
+   `dimensions` config writes `--pinfold-accordion-*` which wins through the
    var() fallback. Overriding one measurement keeps the preset for the rest.
 
    Nothing clips. Rounded rows give their trigger the matching radius instead
@@ -9,251 +9,251 @@
    off the focus ring. Collapse is pure CSS (`grid-template-rows`) — no height
    measurement, no ResizeObserver, no layout thrash. */
 
-@layer lumae.components {
+@layer pinfold.components {
 
-  .lumae-accordion {
+  .pinfold-accordion {
     /* preset layer (set by [data-size]) */
-    --lumae-acc-pad-x-base: var(--lumae-space-4);
-    --lumae-acc-pad-y-base: var(--lumae-space-3);
-    --lumae-acc-font-base: var(--lumae-text-md);
-    --lumae-acc-radius-base: var(--lumae-radius-lg);
-    --lumae-acc-gap-base: 0px;
+    --pinfold-acc-pad-x-base: var(--pinfold-space-4);
+    --pinfold-acc-pad-y-base: var(--pinfold-space-3);
+    --pinfold-acc-font-base: var(--pinfold-text-md);
+    --pinfold-acc-radius-base: var(--pinfold-radius-lg);
+    --pinfold-acc-gap-base: 0px;
 
     /* config layer (set by `dimensions`) */
-    --lumae-acc-pad-x: var(--lumae-accordion-padding-x, var(--lumae-acc-pad-x-base));
-    --lumae-acc-pad-y: var(--lumae-accordion-padding-y, var(--lumae-acc-pad-y-base));
-    --lumae-acc-panel-pad-x: var(--lumae-accordion-panel-padding-x, var(--lumae-acc-pad-x));
-    --lumae-acc-panel-pad-y: var(--lumae-accordion-panel-padding-y, var(--lumae-acc-pad-y));
-    --lumae-acc-font: var(--lumae-accordion-font-size, var(--lumae-acc-font-base));
-    --lumae-acc-title: var(--lumae-accordion-title-size, inherit);
-    --lumae-acc-desc: var(--lumae-accordion-description-size, var(--lumae-text-sm));
-    --lumae-acc-icon: var(--lumae-accordion-icon-size, 1.5em);
-    --lumae-acc-ind: var(--lumae-accordion-indicator-size, 1em);
-    --lumae-acc-radius: var(--lumae-accordion-radius, var(--lumae-acc-radius-base));
-    --lumae-acc-gap: var(--lumae-accordion-gap, var(--lumae-acc-gap-base));
-    --lumae-acc-border: var(--lumae-accordion-border-width, 1px);
-    --lumae-acc-duration: var(--lumae-accordion-duration, var(--lumae-duration-md));
+    --pinfold-acc-pad-x: var(--pinfold-accordion-padding-x, var(--pinfold-acc-pad-x-base));
+    --pinfold-acc-pad-y: var(--pinfold-accordion-padding-y, var(--pinfold-acc-pad-y-base));
+    --pinfold-acc-panel-pad-x: var(--pinfold-accordion-panel-padding-x, var(--pinfold-acc-pad-x));
+    --pinfold-acc-panel-pad-y: var(--pinfold-accordion-panel-padding-y, var(--pinfold-acc-pad-y));
+    --pinfold-acc-font: var(--pinfold-accordion-font-size, var(--pinfold-acc-font-base));
+    --pinfold-acc-title: var(--pinfold-accordion-title-size, inherit);
+    --pinfold-acc-desc: var(--pinfold-accordion-description-size, var(--pinfold-text-sm));
+    --pinfold-acc-icon: var(--pinfold-accordion-icon-size, 1.5em);
+    --pinfold-acc-ind: var(--pinfold-accordion-indicator-size, 1em);
+    --pinfold-acc-radius: var(--pinfold-accordion-radius, var(--pinfold-acc-radius-base));
+    --pinfold-acc-gap: var(--pinfold-accordion-gap, var(--pinfold-acc-gap-base));
+    --pinfold-acc-border: var(--pinfold-accordion-border-width, 1px);
+    --pinfold-acc-duration: var(--pinfold-accordion-duration, var(--pinfold-duration-md));
 
-    --lumae-acc-accent: var(--lumae-color-accent);
-    --lumae-acc-item-radius: 0px;
+    --pinfold-acc-accent: var(--pinfold-color-accent);
+    --pinfold-acc-item-radius: 0px;
 
     display: flex;
     flex-direction: column;
-    gap: var(--lumae-acc-gap);
-    width: var(--lumae-accordion-width, 100%);
-    min-width: var(--lumae-accordion-min-width, 0);
-    max-width: var(--lumae-accordion-max-width, none);
-    height: var(--lumae-accordion-height, auto);
-    max-height: var(--lumae-accordion-max-height, none);
-    font-size: var(--lumae-acc-font);
-    letter-spacing: var(--lumae-tracking-tight);
-    color: var(--lumae-color-text);
+    gap: var(--pinfold-acc-gap);
+    width: var(--pinfold-accordion-width, 100%);
+    min-width: var(--pinfold-accordion-min-width, 0);
+    max-width: var(--pinfold-accordion-max-width, none);
+    height: var(--pinfold-accordion-height, auto);
+    max-height: var(--pinfold-accordion-max-height, none);
+    font-size: var(--pinfold-acc-font);
+    letter-spacing: var(--pinfold-tracking-tight);
+    color: var(--pinfold-color-text);
   }
 
   /* `dimensions.maxHeight` caps the root and scrolls the rows. */
-  .lumae-accordion[data-clamp] {
+  .pinfold-accordion[data-clamp] {
     overflow-y: auto;
     overscroll-behavior: contain;
   }
 
   /* ------------------------------------------------------------------ sizes */
-  .lumae-accordion[data-size='sm'] {
-    --lumae-acc-pad-x-base: var(--lumae-space-3);
-    --lumae-acc-pad-y-base: var(--lumae-space-2);
-    --lumae-acc-font-base: var(--lumae-text-sm);
-    --lumae-acc-radius-base: var(--lumae-radius-md);
+  .pinfold-accordion[data-size='sm'] {
+    --pinfold-acc-pad-x-base: var(--pinfold-space-3);
+    --pinfold-acc-pad-y-base: var(--pinfold-space-2);
+    --pinfold-acc-font-base: var(--pinfold-text-sm);
+    --pinfold-acc-radius-base: var(--pinfold-radius-md);
   }
-  .lumae-accordion[data-size='lg'] {
-    --lumae-acc-pad-x-base: var(--lumae-space-5);
-    --lumae-acc-pad-y-base: var(--lumae-space-4);
-    --lumae-acc-font-base: var(--lumae-text-lg);
-    --lumae-acc-radius-base: var(--lumae-radius-xl);
+  .pinfold-accordion[data-size='lg'] {
+    --pinfold-acc-pad-x-base: var(--pinfold-space-5);
+    --pinfold-acc-pad-y-base: var(--pinfold-space-4);
+    --pinfold-acc-font-base: var(--pinfold-text-lg);
+    --pinfold-acc-radius-base: var(--pinfold-radius-xl);
   }
 
   /* ------------------------------------------------------------------ tones */
-  .lumae-accordion[data-tone='neutral'] { --lumae-acc-accent: var(--lumae-color-text); }
-  .lumae-accordion[data-tone='success'] { --lumae-acc-accent: var(--lumae-success-500); }
-  .lumae-accordion[data-tone='warning'] { --lumae-acc-accent: var(--lumae-warning-500); }
-  .lumae-accordion[data-tone='danger'] { --lumae-acc-accent: var(--lumae-danger-500); }
-  .lumae-accordion[data-tone='info'] { --lumae-acc-accent: var(--lumae-info-500); }
+  .pinfold-accordion[data-tone='neutral'] { --pinfold-acc-accent: var(--pinfold-color-text); }
+  .pinfold-accordion[data-tone='success'] { --pinfold-acc-accent: var(--pinfold-success-500); }
+  .pinfold-accordion[data-tone='warning'] { --pinfold-acc-accent: var(--pinfold-warning-500); }
+  .pinfold-accordion[data-tone='danger'] { --pinfold-acc-accent: var(--pinfold-danger-500); }
+  .pinfold-accordion[data-tone='info'] { --pinfold-acc-accent: var(--pinfold-info-500); }
 
   /* ------------------------------------------------------------------- item */
-  .lumae-accordion__item {
+  .pinfold-accordion__item {
     position: relative;
-    border-radius: var(--lumae-acc-item-radius);
+    border-radius: var(--pinfold-acc-item-radius);
   }
-  .lumae-accordion__header,
-  .lumae-accordion__trigger {
+  .pinfold-accordion__header,
+  .pinfold-accordion__trigger {
     border-radius: inherit;
   }
 
   /* Accent edge on the open row. Scales from the centre, so it reads as the row
      opening rather than a bar appearing. */
-  .lumae-accordion__item::before {
+  .pinfold-accordion__item::before {
     content: '';
     position: absolute;
     inset-block: 0;
     inset-inline-start: 0;
     width: 2px;
-    background: var(--lumae-acc-accent);
+    background: var(--pinfold-acc-accent);
     border-start-start-radius: inherit;
     border-end-start-radius: inherit;
     transform: scaleY(0);
     opacity: 0;
-    transition: transform var(--lumae-acc-duration) var(--lumae-ease-out),
-      opacity var(--lumae-duration-fast) linear;
+    transition: transform var(--pinfold-acc-duration) var(--pinfold-ease-out),
+      opacity var(--pinfold-duration-fast) linear;
     pointer-events: none;
   }
-  .lumae-accordion__item[data-state='open']::before {
+  .pinfold-accordion__item[data-state='open']::before {
     transform: scaleY(1);
     opacity: 1;
   }
   /* Bordered rows already signal state through the border; the bar would double up. */
-  .lumae-accordion[data-variant='outline'] .lumae-accordion__item::before,
-  .lumae-accordion[data-variant='separated'] .lumae-accordion__item::before {
+  .pinfold-accordion[data-variant='outline'] .pinfold-accordion__item::before,
+  .pinfold-accordion[data-variant='separated'] .pinfold-accordion__item::before {
     content: none;
   }
 
   /* --------------------------------------------------------------- variants */
   /* solid — one card, hairline-divided rows. Corners are rounded on the parts
      that touch them rather than clipped off the container. */
-  .lumae-accordion[data-variant='solid'] {
-    background: var(--lumae-color-surface);
-    border: var(--lumae-acc-border) solid var(--lumae-color-border);
-    border-radius: var(--lumae-acc-radius);
-    box-shadow: var(--lumae-shadow-sm), var(--lumae-highlight);
+  .pinfold-accordion[data-variant='solid'] {
+    background: var(--pinfold-color-surface);
+    border: var(--pinfold-acc-border) solid var(--pinfold-color-border);
+    border-radius: var(--pinfold-acc-radius);
+    box-shadow: var(--pinfold-shadow-sm), var(--pinfold-highlight);
   }
-  .lumae-accordion[data-variant='solid'][data-dividers] .lumae-accordion__item + .lumae-accordion__item {
-    border-top: var(--lumae-acc-border) solid var(--lumae-color-border);
+  .pinfold-accordion[data-variant='solid'][data-dividers] .pinfold-accordion__item + .pinfold-accordion__item {
+    border-top: var(--pinfold-acc-border) solid var(--pinfold-color-border);
   }
-  .lumae-accordion[data-variant='solid'] .lumae-accordion__item:first-child .lumae-accordion__trigger {
-    border-start-start-radius: var(--lumae-acc-radius);
-    border-start-end-radius: var(--lumae-acc-radius);
+  .pinfold-accordion[data-variant='solid'] .pinfold-accordion__item:first-child .pinfold-accordion__trigger {
+    border-start-start-radius: var(--pinfold-acc-radius);
+    border-start-end-radius: var(--pinfold-acc-radius);
   }
-  .lumae-accordion[data-variant='solid'] .lumae-accordion__item:last-child .lumae-accordion__panel {
-    border-end-start-radius: var(--lumae-acc-radius);
-    border-end-end-radius: var(--lumae-acc-radius);
+  .pinfold-accordion[data-variant='solid'] .pinfold-accordion__item:last-child .pinfold-accordion__panel {
+    border-end-start-radius: var(--pinfold-acc-radius);
+    border-end-end-radius: var(--pinfold-acc-radius);
   }
 
   /* outline — each row is its own bordered box */
-  .lumae-accordion[data-variant='outline'] {
-    --lumae-acc-gap-base: var(--lumae-space-2);
+  .pinfold-accordion[data-variant='outline'] {
+    --pinfold-acc-gap-base: var(--pinfold-space-2);
   }
-  .lumae-accordion[data-variant='outline'] .lumae-accordion__item {
-    --lumae-acc-item-radius: var(--lumae-acc-radius);
-    border: var(--lumae-acc-border) solid var(--lumae-color-border);
-    transition: border-color var(--lumae-duration-md) var(--lumae-ease);
+  .pinfold-accordion[data-variant='outline'] .pinfold-accordion__item {
+    --pinfold-acc-item-radius: var(--pinfold-acc-radius);
+    border: var(--pinfold-acc-border) solid var(--pinfold-color-border);
+    transition: border-color var(--pinfold-duration-md) var(--pinfold-ease);
   }
-  .lumae-accordion[data-variant='outline'] .lumae-accordion__item[data-state='open'] {
-    border-color: var(--lumae-color-border-accent);
+  .pinfold-accordion[data-variant='outline'] .pinfold-accordion__item[data-state='open'] {
+    border-color: var(--pinfold-color-border-accent);
   }
 
   /* separated — cards with air and elevation */
-  .lumae-accordion[data-variant='separated'] {
-    --lumae-acc-gap-base: var(--lumae-space-3);
+  .pinfold-accordion[data-variant='separated'] {
+    --pinfold-acc-gap-base: var(--pinfold-space-3);
   }
-  .lumae-accordion[data-variant='separated'] .lumae-accordion__item {
-    --lumae-acc-item-radius: var(--lumae-acc-radius);
-    background: var(--lumae-color-surface);
-    border: var(--lumae-acc-border) solid var(--lumae-color-border);
-    box-shadow: var(--lumae-shadow-sm), var(--lumae-highlight);
-    transition: box-shadow var(--lumae-duration-md) var(--lumae-ease),
-      border-color var(--lumae-duration-md) var(--lumae-ease),
-      transform var(--lumae-duration-md) var(--lumae-ease-out);
+  .pinfold-accordion[data-variant='separated'] .pinfold-accordion__item {
+    --pinfold-acc-item-radius: var(--pinfold-acc-radius);
+    background: var(--pinfold-color-surface);
+    border: var(--pinfold-acc-border) solid var(--pinfold-color-border);
+    box-shadow: var(--pinfold-shadow-sm), var(--pinfold-highlight);
+    transition: box-shadow var(--pinfold-duration-md) var(--pinfold-ease),
+      border-color var(--pinfold-duration-md) var(--pinfold-ease),
+      transform var(--pinfold-duration-md) var(--pinfold-ease-out);
   }
-  .lumae-accordion[data-variant='separated'] .lumae-accordion__item:hover {
-    box-shadow: var(--lumae-shadow-md), var(--lumae-highlight);
+  .pinfold-accordion[data-variant='separated'] .pinfold-accordion__item:hover {
+    box-shadow: var(--pinfold-shadow-md), var(--pinfold-highlight);
   }
-  .lumae-accordion[data-variant='separated'] .lumae-accordion__item[data-state='open'] {
-    border-color: var(--lumae-color-border-accent);
-    box-shadow: var(--lumae-shadow-md), var(--lumae-highlight);
+  .pinfold-accordion[data-variant='separated'] .pinfold-accordion__item[data-state='open'] {
+    border-color: var(--pinfold-color-border-accent);
+    box-shadow: var(--pinfold-shadow-md), var(--pinfold-highlight);
   }
 
   /* filled — tinted rows, no borders */
-  .lumae-accordion[data-variant='filled'] {
-    --lumae-acc-gap-base: var(--lumae-space-2);
+  .pinfold-accordion[data-variant='filled'] {
+    --pinfold-acc-gap-base: var(--pinfold-space-2);
   }
-  .lumae-accordion[data-variant='filled'] .lumae-accordion__item {
-    --lumae-acc-item-radius: var(--lumae-acc-radius);
-    background: var(--lumae-color-bg-subtle);
-    transition: background-color var(--lumae-duration-md) var(--lumae-ease);
+  .pinfold-accordion[data-variant='filled'] .pinfold-accordion__item {
+    --pinfold-acc-item-radius: var(--pinfold-acc-radius);
+    background: var(--pinfold-color-bg-subtle);
+    transition: background-color var(--pinfold-duration-md) var(--pinfold-ease);
   }
-  .lumae-accordion[data-variant='filled'] .lumae-accordion__item[data-state='open'] {
-    background: var(--lumae-color-surface-selected);
+  .pinfold-accordion[data-variant='filled'] .pinfold-accordion__item[data-state='open'] {
+    background: var(--pinfold-color-surface-selected);
   }
 
   /* ghost — text only, hover reveals the row */
-  .lumae-accordion[data-variant='ghost'] .lumae-accordion__item {
-    --lumae-acc-item-radius: var(--lumae-acc-radius);
+  .pinfold-accordion[data-variant='ghost'] .pinfold-accordion__item {
+    --pinfold-acc-item-radius: var(--pinfold-acc-radius);
   }
-  .lumae-accordion[data-variant='ghost'][data-dividers] .lumae-accordion__item + .lumae-accordion__item {
-    border-top: var(--lumae-acc-border) solid var(--lumae-color-border);
+  .pinfold-accordion[data-variant='ghost'][data-dividers] .pinfold-accordion__item + .pinfold-accordion__item {
+    border-top: var(--pinfold-acc-border) solid var(--pinfold-color-border);
   }
 
   /* ----------------------------------------------------------------- header */
-  .lumae-accordion__header {
+  .pinfold-accordion__header {
     display: flex;
     margin: 0;
   }
 
-  .lumae-accordion__trigger {
+  .pinfold-accordion__trigger {
     display: flex;
     align-items: center;
-    gap: var(--lumae-space-3);
+    gap: var(--pinfold-space-3);
     width: 100%;
-    padding: var(--lumae-acc-pad-y) var(--lumae-acc-pad-x);
+    padding: var(--pinfold-acc-pad-y) var(--pinfold-acc-pad-x);
     font-size: inherit;
-    font-weight: var(--lumae-weight-medium);
-    line-height: var(--lumae-leading-tight);
+    font-weight: var(--pinfold-weight-medium);
+    line-height: var(--pinfold-leading-tight);
     text-align: start;
-    color: var(--lumae-color-text);
-    transition: background-color var(--lumae-duration-fast) var(--lumae-ease),
-      color var(--lumae-duration-fast) var(--lumae-ease);
+    color: var(--pinfold-color-text);
+    transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease),
+      color var(--pinfold-duration-fast) var(--pinfold-ease);
   }
 
-  .lumae-accordion__trigger:hover {
-    background: var(--lumae-color-surface-hover);
+  .pinfold-accordion__trigger:hover {
+    background: var(--pinfold-color-surface-hover);
   }
-  .lumae-accordion__trigger:active {
-    background: var(--lumae-color-surface-active);
-  }
-
-  .lumae-accordion__trigger[data-state='open'] {
-    color: var(--lumae-acc-accent);
+  .pinfold-accordion__trigger:active {
+    background: var(--pinfold-color-surface-active);
   }
 
-  .lumae-accordion__trigger[data-disabled] {
-    color: var(--lumae-color-text-disabled);
+  .pinfold-accordion__trigger[data-state='open'] {
+    color: var(--pinfold-acc-accent);
+  }
+
+  .pinfold-accordion__trigger[data-disabled] {
+    color: var(--pinfold-color-text-disabled);
     cursor: not-allowed;
   }
-  .lumae-accordion__trigger[data-disabled]:hover,
-  .lumae-accordion__trigger[data-disabled]:active {
+  .pinfold-accordion__trigger[data-disabled]:hover,
+  .pinfold-accordion__trigger[data-disabled]:active {
     background: none;
   }
 
   /* The ring is drawn by the core reset as a box-shadow; raise the focused row
      so a neighbouring row's background cannot paint over it. */
-  .lumae-accordion__trigger:focus-visible {
+  .pinfold-accordion__trigger:focus-visible {
     position: relative;
     z-index: 1;
   }
 
-  .lumae-accordion[data-indicator-position='start'] .lumae-accordion__trigger {
+  .pinfold-accordion[data-indicator-position='start'] .pinfold-accordion__trigger {
     flex-direction: row-reverse;
   }
 
   /* ------------------------------------------------------------------ parts */
-  .lumae-accordion__icon {
+  .pinfold-accordion__icon {
     display: inline-flex;
     flex: none;
     align-items: center;
     justify-content: center;
-    width: var(--lumae-acc-icon);
-    height: var(--lumae-acc-icon);
-    color: var(--lumae-acc-accent);
+    width: var(--pinfold-acc-icon);
+    height: var(--pinfold-acc-icon);
+    color: var(--pinfold-acc-accent);
   }
 
-  .lumae-accordion__label {
+  .pinfold-accordion__label {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
@@ -261,127 +261,127 @@
     min-width: 0;
   }
 
-  .lumae-accordion__title {
-    font-size: var(--lumae-acc-title);
+  .pinfold-accordion__title {
+    font-size: var(--pinfold-acc-title);
     overflow-wrap: anywhere;
   }
 
-  .lumae-accordion__description {
-    font-size: var(--lumae-acc-desc);
-    font-weight: var(--lumae-weight-normal);
-    letter-spacing: var(--lumae-tracking-normal);
-    color: var(--lumae-color-text-muted);
+  .pinfold-accordion__description {
+    font-size: var(--pinfold-acc-desc);
+    font-weight: var(--pinfold-weight-normal);
+    letter-spacing: var(--pinfold-tracking-normal);
+    color: var(--pinfold-color-text-muted);
   }
 
-  .lumae-accordion__badge {
+  .pinfold-accordion__badge {
     flex: none;
-    padding: 2px var(--lumae-space-2);
-    font-size: var(--lumae-text-xs);
-    font-weight: var(--lumae-weight-semibold);
-    letter-spacing: var(--lumae-tracking-wide);
-    color: var(--lumae-acc-accent);
-    background: color-mix(in oklch, var(--lumae-acc-accent) 12%, transparent);
-    border-radius: var(--lumae-radius-full);
+    padding: 2px var(--pinfold-space-2);
+    font-size: var(--pinfold-text-xs);
+    font-weight: var(--pinfold-weight-semibold);
+    letter-spacing: var(--pinfold-tracking-wide);
+    color: var(--pinfold-acc-accent);
+    background: color-mix(in oklch, var(--pinfold-acc-accent) 12%, transparent);
+    border-radius: var(--pinfold-radius-full);
   }
 
-  .lumae-accordion__indicator {
+  .pinfold-accordion__indicator {
     display: inline-flex;
     flex: none;
     align-items: center;
     justify-content: center;
-    font-size: var(--lumae-acc-ind);
-    color: var(--lumae-color-text-subtle);
-    transition: transform var(--lumae-acc-duration) var(--lumae-ease-out),
-      color var(--lumae-duration-fast) var(--lumae-ease);
+    font-size: var(--pinfold-acc-ind);
+    color: var(--pinfold-color-text-subtle);
+    transition: transform var(--pinfold-acc-duration) var(--pinfold-ease-out),
+      color var(--pinfold-duration-fast) var(--pinfold-ease);
   }
 
-  .lumae-accordion__trigger:hover .lumae-accordion__indicator {
-    color: var(--lumae-color-text-muted);
+  .pinfold-accordion__trigger:hover .pinfold-accordion__indicator {
+    color: var(--pinfold-color-text-muted);
   }
 
-  .lumae-accordion__trigger[data-state='open'] .lumae-accordion__indicator {
-    color: var(--lumae-acc-accent);
+  .pinfold-accordion__trigger[data-state='open'] .pinfold-accordion__indicator {
+    color: var(--pinfold-acc-accent);
     transform: rotate(180deg);
   }
 
   /* The plus glyph morphs into a minus instead of spinning. */
-  .lumae-accordion__indicator .lumae-accordion__indicator-bar {
+  .pinfold-accordion__indicator .pinfold-accordion__indicator-bar {
     transform-origin: center;
-    transition: opacity var(--lumae-acc-duration) var(--lumae-ease),
-      transform var(--lumae-acc-duration) var(--lumae-ease-out);
+    transition: opacity var(--pinfold-acc-duration) var(--pinfold-ease),
+      transform var(--pinfold-acc-duration) var(--pinfold-ease-out);
   }
-  .lumae-accordion__trigger[data-state='open']
-    .lumae-accordion__indicator:has(.lumae-accordion__indicator-bar) {
+  .pinfold-accordion__trigger[data-state='open']
+    .pinfold-accordion__indicator:has(.pinfold-accordion__indicator-bar) {
     transform: none;
   }
-  .lumae-accordion__trigger[data-state='open'] .lumae-accordion__indicator-bar {
+  .pinfold-accordion__trigger[data-state='open'] .pinfold-accordion__indicator-bar {
     opacity: 0;
     transform: rotate(90deg);
   }
 
   /* ------------------------------------------------------------------ panel */
-  .lumae-accordion__panel {
+  .pinfold-accordion__panel {
     display: grid;
     grid-template-rows: 1fr;
-    color: var(--lumae-color-text-muted);
-    font-size: var(--lumae-text-sm);
-    line-height: var(--lumae-leading-normal);
-    letter-spacing: var(--lumae-tracking-normal);
+    color: var(--pinfold-color-text-muted);
+    font-size: var(--pinfold-text-sm);
+    line-height: var(--pinfold-leading-normal);
+    letter-spacing: var(--pinfold-tracking-normal);
   }
 
-  .lumae-accordion__panel[data-state='closed'] {
+  .pinfold-accordion__panel[data-state='closed'] {
     grid-template-rows: 0fr;
     /* Takes closed content out of the accessibility tree and the tab order once
        the collapse finishes. */
     visibility: hidden;
   }
 
-  .lumae-accordion[data-animate] .lumae-accordion__panel {
-    transition: grid-template-rows var(--lumae-acc-duration) var(--lumae-ease-out),
+  .pinfold-accordion[data-animate] .pinfold-accordion__panel {
+    transition: grid-template-rows var(--pinfold-acc-duration) var(--pinfold-ease-out),
       visibility 0s linear 0s;
   }
-  .lumae-accordion[data-animate] .lumae-accordion__panel[data-state='closed'] {
-    transition: grid-template-rows var(--lumae-acc-duration) var(--lumae-ease),
-      visibility 0s linear var(--lumae-acc-duration);
+  .pinfold-accordion[data-animate] .pinfold-accordion__panel[data-state='closed'] {
+    transition: grid-template-rows var(--pinfold-acc-duration) var(--pinfold-ease),
+      visibility 0s linear var(--pinfold-acc-duration);
   }
 
-  .lumae-accordion__panel-inner {
+  .pinfold-accordion__panel-inner {
     min-height: 0;
     overflow: hidden;
   }
 
   /* Content settles in slightly behind the row opening — the lag is what makes
      the motion read as physical rather than mechanical. */
-  .lumae-accordion[data-animate] .lumae-accordion__content {
+  .pinfold-accordion[data-animate] .pinfold-accordion__content {
     opacity: 0;
     transform: translateY(-4px);
-    transition: opacity var(--lumae-acc-duration) var(--lumae-ease),
-      transform var(--lumae-acc-duration) var(--lumae-ease-out);
+    transition: opacity var(--pinfold-acc-duration) var(--pinfold-ease),
+      transform var(--pinfold-acc-duration) var(--pinfold-ease-out);
   }
-  .lumae-accordion[data-animate] .lumae-accordion__panel[data-state='open'] .lumae-accordion__content {
+  .pinfold-accordion[data-animate] .pinfold-accordion__panel[data-state='open'] .pinfold-accordion__content {
     opacity: 1;
     transform: none;
-    transition-delay: calc(var(--lumae-acc-duration) * 0.35);
+    transition-delay: calc(var(--pinfold-acc-duration) * 0.35);
   }
 
   /* `dimensions.panelMaxHeight` caps the open panel and scrolls the rest. */
-  .lumae-accordion[data-scroll] .lumae-accordion__panel[data-state='open'] .lumae-accordion__panel-inner {
-    max-height: var(--lumae-accordion-panel-max-height);
+  .pinfold-accordion[data-scroll] .pinfold-accordion__panel[data-state='open'] .pinfold-accordion__panel-inner {
+    max-height: var(--pinfold-accordion-panel-max-height);
     overflow-y: auto;
     overscroll-behavior: contain;
   }
 
-  .lumae-accordion__content {
-    padding: 0 var(--lumae-acc-panel-pad-x) var(--lumae-acc-panel-pad-y);
+  .pinfold-accordion__content {
+    padding: 0 var(--pinfold-acc-panel-pad-x) var(--pinfold-acc-panel-pad-y);
   }
 
-  .lumae-accordion[data-indicator-position='start'] .lumae-accordion__content {
-    padding-inline-start: calc(var(--lumae-acc-panel-pad-x) + var(--lumae-acc-icon) + var(--lumae-space-3));
+  .pinfold-accordion[data-indicator-position='start'] .pinfold-accordion__content {
+    padding-inline-start: calc(var(--pinfold-acc-panel-pad-x) + var(--pinfold-acc-icon) + var(--pinfold-space-3));
   }
 
   @supports not (color: color-mix(in oklch, red, blue)) {
-    .lumae-accordion__badge {
-      background: var(--lumae-color-bg-subtle);
+    .pinfold-accordion__badge {
+      background: var(--pinfold-color-bg-subtle);
     }
   }
 

@@ -1,6 +1,6 @@
 # Compatibility
 
-Supported targets (D-06, D-14). Shipped: `@lumae/react` declares `react >=18` and builds ES2018
+Supported targets (D-06, D-14). Shipped: `@pinfold/react` declares `react >=18` and builds ES2018
 ESM + CJS + `.d.ts`, with `typesVersions` and a stub folder per subpath. The CI matrix that
 proves each row lands in A1; SSR test apps in A4.
 
@@ -23,6 +23,6 @@ proves each row lands in A1; SSR test apps in A4.
 | Progressive enhancement | `hidden="until-found"` (Chromium), glass refraction (Chromium) | Other browsers degrade gracefully: panels stay closed, glass becomes a blur |
 
 ## Not supported
-- **React 16 and 17.** `npx lumae doctor` detects them and links to the upgrade guide.
+- **React 16 and 17.** `npx pinfold doctor` detects them and links to the upgrade guide.
 - **Browsers without `@layer`.** Every rule inside a layer is ignored there, so components would render unstyled.
 - **Script tags with a UMD bundle.** An ESM CDN such as esm.sh works instead.

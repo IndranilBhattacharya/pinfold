@@ -1,11 +1,11 @@
 import type * as React from 'react';
-import type { PropsBag, Slottable as CoreSlottable } from '@lumae/core';
+import type { PropsBag, Slottable as CoreSlottable } from '@pinfold/core';
 
 /** A config field that is a node, or a function of live state returning one. */
 export type Slottable<State, T = React.ReactNode> = CoreSlottable<State, T>;
 
 /**
- * Per-slot escape hatches. Every Lumae component exposes the same four, so
+ * Per-slot escape hatches. Every Pinfold component exposes the same four, so
  * learning one component teaches all of them.
  *
  * - `classNames` — append a class to one slot.

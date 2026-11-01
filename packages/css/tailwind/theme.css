@@ -1,87 +1,87 @@
-/* Lumae — Tailwind CSS v4 theme.
+/* Pinfold — Tailwind CSS v4 theme.
  *
  *   @import "tailwindcss";
- *   @import "@lumae/css/core.css";
- *   @import "@lumae/css/tailwind.css";
+ *   @import "@pinfold/css/core.css";
+ *   @import "@pinfold/css/tailwind.css";
  *
- * Maps Lumae tokens onto Tailwind's `--color-*` / `--radius-*` namespaces, so
- * `bg-primary-600` and `rounded-lg` follow `npx lumae theme`, dark mode and any
+ * Maps Pinfold tokens onto Tailwind's `--color-*` / `--radius-*` namespaces, so
+ * `bg-primary-600` and `rounded-lg` follow `npx pinfold theme`, dark mode and any
  * runtime override. For Tailwind v3, use the preset instead.
  */
 
 @theme inline {
-  --color-primary-50: var(--lumae-primary-50);
-  --color-primary-100: var(--lumae-primary-100);
-  --color-primary-200: var(--lumae-primary-200);
-  --color-primary-300: var(--lumae-primary-300);
-  --color-primary-400: var(--lumae-primary-400);
-  --color-primary-500: var(--lumae-primary-500);
-  --color-primary-600: var(--lumae-primary-600);
-  --color-primary-700: var(--lumae-primary-700);
-  --color-primary-800: var(--lumae-primary-800);
-  --color-primary-900: var(--lumae-primary-900);
-  --color-primary-950: var(--lumae-primary-950);
+  --color-primary-50: var(--pinfold-primary-50);
+  --color-primary-100: var(--pinfold-primary-100);
+  --color-primary-200: var(--pinfold-primary-200);
+  --color-primary-300: var(--pinfold-primary-300);
+  --color-primary-400: var(--pinfold-primary-400);
+  --color-primary-500: var(--pinfold-primary-500);
+  --color-primary-600: var(--pinfold-primary-600);
+  --color-primary-700: var(--pinfold-primary-700);
+  --color-primary-800: var(--pinfold-primary-800);
+  --color-primary-900: var(--pinfold-primary-900);
+  --color-primary-950: var(--pinfold-primary-950);
 
-  --color-neutral-50: var(--lumae-neutral-50);
-  --color-neutral-100: var(--lumae-neutral-100);
-  --color-neutral-200: var(--lumae-neutral-200);
-  --color-neutral-300: var(--lumae-neutral-300);
-  --color-neutral-400: var(--lumae-neutral-400);
-  --color-neutral-500: var(--lumae-neutral-500);
-  --color-neutral-600: var(--lumae-neutral-600);
-  --color-neutral-700: var(--lumae-neutral-700);
-  --color-neutral-800: var(--lumae-neutral-800);
-  --color-neutral-900: var(--lumae-neutral-900);
-  --color-neutral-950: var(--lumae-neutral-950);
+  --color-neutral-50: var(--pinfold-neutral-50);
+  --color-neutral-100: var(--pinfold-neutral-100);
+  --color-neutral-200: var(--pinfold-neutral-200);
+  --color-neutral-300: var(--pinfold-neutral-300);
+  --color-neutral-400: var(--pinfold-neutral-400);
+  --color-neutral-500: var(--pinfold-neutral-500);
+  --color-neutral-600: var(--pinfold-neutral-600);
+  --color-neutral-700: var(--pinfold-neutral-700);
+  --color-neutral-800: var(--pinfold-neutral-800);
+  --color-neutral-900: var(--pinfold-neutral-900);
+  --color-neutral-950: var(--pinfold-neutral-950);
 
-  --color-accent: var(--lumae-color-accent);
-  --color-accent-300: var(--lumae-accent-300);
-  --color-accent-400: var(--lumae-accent-400);
-  --color-accent-500: var(--lumae-accent-500);
-  --color-accent-600: var(--lumae-accent-600);
-  --color-accent-700: var(--lumae-accent-700);
+  --color-accent: var(--pinfold-color-accent);
+  --color-accent-300: var(--pinfold-accent-300);
+  --color-accent-400: var(--pinfold-accent-400);
+  --color-accent-500: var(--pinfold-accent-500);
+  --color-accent-600: var(--pinfold-accent-600);
+  --color-accent-700: var(--pinfold-accent-700);
 
-  --color-success-500: var(--lumae-success-500);
-  --color-warning-500: var(--lumae-warning-500);
-  --color-danger-500: var(--lumae-danger-500);
-  --color-info-500: var(--lumae-info-500);
+  --color-success-500: var(--pinfold-success-500);
+  --color-warning-500: var(--pinfold-warning-500);
+  --color-danger-500: var(--pinfold-danger-500);
+  --color-info-500: var(--pinfold-info-500);
 
-  --color-bg: var(--lumae-color-bg);
-  --color-bg-subtle: var(--lumae-color-bg-subtle);
-  --color-surface: var(--lumae-color-surface);
-  --color-surface-raised: var(--lumae-color-surface-raised);
-  --color-surface-hover: var(--lumae-color-surface-hover);
-  --color-surface-selected: var(--lumae-color-surface-selected);
-  --color-content: var(--lumae-color-text);
-  --color-content-muted: var(--lumae-color-text-muted);
-  --color-content-subtle: var(--lumae-color-text-subtle);
-  --color-line: var(--lumae-color-border);
-  --color-line-strong: var(--lumae-color-border-strong);
+  --color-bg: var(--pinfold-color-bg);
+  --color-bg-subtle: var(--pinfold-color-bg-subtle);
+  --color-surface: var(--pinfold-color-surface);
+  --color-surface-raised: var(--pinfold-color-surface-raised);
+  --color-surface-hover: var(--pinfold-color-surface-hover);
+  --color-surface-selected: var(--pinfold-color-surface-selected);
+  --color-content: var(--pinfold-color-text);
+  --color-content-muted: var(--pinfold-color-text-muted);
+  --color-content-subtle: var(--pinfold-color-text-subtle);
+  --color-line: var(--pinfold-color-border);
+  --color-line-strong: var(--pinfold-color-border-strong);
 
-  --radius-xs: var(--lumae-radius-xs);
-  --radius-sm: var(--lumae-radius-sm);
-  --radius-md: var(--lumae-radius-md);
-  --radius-lg: var(--lumae-radius-lg);
-  --radius-xl: var(--lumae-radius-xl);
-  --radius-2xl: var(--lumae-radius-2xl);
+  --radius-xs: var(--pinfold-radius-xs);
+  --radius-sm: var(--pinfold-radius-sm);
+  --radius-md: var(--pinfold-radius-md);
+  --radius-lg: var(--pinfold-radius-lg);
+  --radius-xl: var(--pinfold-radius-xl);
+  --radius-2xl: var(--pinfold-radius-2xl);
 
-  --font-sans: var(--lumae-font-sans);
-  --font-mono: var(--lumae-font-mono);
+  --font-sans: var(--pinfold-font-sans);
+  --font-mono: var(--pinfold-font-mono);
 
-  --shadow-xs: var(--lumae-shadow-xs);
-  --shadow-sm: var(--lumae-shadow-sm);
-  --shadow-md: var(--lumae-shadow-md);
-  --shadow-lg: var(--lumae-shadow-lg);
-  --shadow-xl: var(--lumae-shadow-xl);
+  --shadow-xs: var(--pinfold-shadow-xs);
+  --shadow-sm: var(--pinfold-shadow-sm);
+  --shadow-md: var(--pinfold-shadow-md);
+  --shadow-lg: var(--pinfold-shadow-lg);
+  --shadow-xl: var(--pinfold-shadow-xl);
 
-  --ease-lumae: var(--lumae-ease);
-  --ease-lumae-out: var(--lumae-ease-out);
-  --ease-lumae-spring: var(--lumae-ease-spring);
+  --ease-pinfold: var(--pinfold-ease);
+  --ease-pinfold-out: var(--pinfold-ease-out);
+  --ease-pinfold-spring: var(--pinfold-ease-spring);
 }
 
-/* Variants matching the `data-*` state Lumae components expose. */
+/* Variants matching the `data-*` state Pinfold components expose. */
 @custom-variant open (&[data-state="open"]);
 @custom-variant closed (&[data-state="closed"]);
 @custom-variant selected (&[data-state="selected"]);
 @custom-variant disabled-row (&[data-disabled]);
-@custom-variant lumae-dark (&:is([data-lumae-theme="dark"] *));
+@custom-variant pinfold-dark (&:is([data-pinfold-theme="dark"] *));

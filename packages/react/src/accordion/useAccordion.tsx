@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { ariaAttr, dataAttr, mergeProps, nextIndexFromKey, warnOnce, __DEV__ } from '@lumae/core';
+import { ariaAttr, dataAttr, mergeProps, nextIndexFromKey, warnOnce, __DEV__ } from '@pinfold/core';
 import { useControllableState, useEvent, useId } from '../hooks';
-import { useLumae } from '../provider';
-import { useLumaeComponent } from '../component';
+import { usePinfold } from '../provider';
+import { usePinfoldComponent } from '../component';
 import {
   renderHeader,
   renderIndicator,
@@ -37,7 +37,7 @@ import type {
  * Arrow/Home/End navigation between headers.
  */
 export function useAccordion(config: AccordionConfig): AccordionApi {
-  const ctx = useLumae();
+  const ctx = usePinfold();
   const {
     items: itemConfigs,
     mode = 'single',
@@ -159,7 +159,7 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
     getRootProps: (props) =>
       mergeProps(
         {
-          'data-lumae': 'accordion',
+          'data-pinfold': 'accordion',
           'data-orientation': orientation,
           'data-mode': mode,
           dir,
@@ -224,7 +224,7 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
       ),
   };
 
-  // Sub-components are built once (inside useLumaeComponent): a fresh identity
+  // Sub-components are built once (inside usePinfoldComponent): a fresh identity
   // each render would make React tear down and rebuild every panel mid-animation.
   const buildParts = () => {
     const pick = (props: AccordionPartProps): AccordionItemState | undefined => {
@@ -265,7 +265,7 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
     };
   };
 
-  const api = useLumaeComponent<AccordionState, AccordionRootProps, AccordionParts>(
+  const api = usePinfoldComponent<AccordionState, AccordionRootProps, AccordionParts>(
     'Accordion',
     accordionState,
     (props) => renderRoot(viewRef.current, props),

@@ -15,10 +15,10 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 6. **Status:** experimental, then stable. The site's docs and playground are updated.
 
 ## A1 · Foundation
-- [x] Rename the original working name to `lumae` everywhere (packages, CSS prefix, tokens, provider, CLI) in both repos.
+- [x] Rename the original working name to `pinfold` everywhere (packages, CSS prefix, tokens, provider, CLI) in both repos.
 - [x] Re-layout the packages: `core` (no framework), `css`, `react` (subpaths), `cli`, and `testing` (private).
 - [x] React 18 floor: set `peerDependencies`, delete the `useId` shim (`packages/react/src/hooks.ts`), and delete the React <18 hydration warning in `useAccordion.tsx`.
-- [x] React Compiler: write a failing test where a compiled consumer shows stale `<Faq />`. Fix it with a store subscription (`useSyncExternalStore`) in `useLumaeComponent`.
+- [x] React Compiler: write a failing test where a compiled consumer shows stale `<Faq />`. Fix it with a store subscription (`useSyncExternalStore`) in `usePinfoldComponent`.
 - [x] CI matrix (`.github/workflows/ci.yml`):
   - Windows, macOS and Linux × Node 20, 22 and 24 × React 18 and 19; canary informational. Every leg runs the React Compiler suite (compiled + uncompiled consumers).
   - Packed-tarball installs with npm, pnpm, Yarn PnP and bun (`scripts/consumer-smoke.mjs`): ESM import, CJS require, server render.
@@ -35,7 +35,7 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 ## A3 · Accordion features
 - [ ] Add every **Planned** item in [components/accordion.md](components/accordion.md).
 - [ ] `accordion.meta.ts` and a generated JSON schema. Dev-only config validation for JS users.
-- [ ] `defineConfig`, `lumae.config.(ts|js)` and the precedence order (D-08). The `lazy` option (D-12).
+- [ ] `defineConfig`, `pinfold.config.(ts|js)` and the precedence order (D-08). The `lazy` option (D-12).
 - [ ] Responsiveness: container queries, fluid type, overflow policy, touch targets. Enterprise sizing defaults (D-11).
 
 ## A4 · SSR and RSC
@@ -44,7 +44,7 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 - [ ] Assert zero hydration warnings, complete server HTML (every panel's text) and deterministic ids.
 
 ## A5 · Style packs and theming
-- [ ] Glass, bauhaus, brutalist, noise and soft, each as a token recipe behind `data-lumae-style`.
+- [ ] Glass, bauhaus, brutalist, noise and soft, each as a token recipe behind `data-pinfold-style`.
 - [ ] Each one respects `prefers-contrast`, `prefers-reduced-transparency` and `forced-colors`, and is contrast-checked in light and dark mode.
 - [ ] Export to CSS, Tailwind v4/v3 and DTCG tokens. Map onto shadcn's CSS variables.
 
@@ -55,9 +55,9 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 ## A7 · Distribution and AI
 - [ ] Generate the shadcn registry JSON from meta and ship it in the npm package. List it in the shadcn registry index.
 - [ ] `llms.txt`, generated AGENTS docs and the schema, all shipped in the package.
-- [ ] `npx lumae mcp`, a local MCP server.
+- [ ] `npx pinfold mcp`, a local MCP server.
 
-## A8 · Playground v2 (in `../lumae-site`)
+## A8 · Playground v2 (in `../pinfold-ui`)
 - [ ] Controls generated from meta, showing only what matters for a quick look (no raw sizes).
 - [ ] State in the URL. Copy buttons for code, CLI command and AI prompt. StackBlitz export.
 

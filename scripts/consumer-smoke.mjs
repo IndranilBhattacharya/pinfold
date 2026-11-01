@@ -24,7 +24,7 @@ const ts = arg('ts', null);
 const root = resolve(import.meta.dirname, '..');
 const run = (cmd, cwd) => execSync(cmd, { cwd, stdio: 'inherit', env: { ...process.env, CI: '1' } });
 
-const work = mkdtempSync(join(tmpdir(), 'lumae-smoke-'));
+const work = mkdtempSync(join(tmpdir(), 'pinfold-smoke-'));
 const app = join(work, 'app');
 mkdirSync(app);
 
@@ -35,14 +35,14 @@ for (const pkg of ['core', 'css', 'react']) {
 const tgz = Object.fromEntries(
   readdirSync(work)
     .filter((f) => f.endsWith('.tgz'))
-    .map((f) => [`@lumae/${f.replace(/^lumae-/, '').replace(/-\d.*$/, '')}`, `file:${join(work, f).replace(/\\/g, '/')}`]),
+    .map((f) => [`@pinfold/${f.replace(/^pinfold-/, '').replace(/-\d.*$/, '')}`, `file:${join(work, f).replace(/\\/g, '/')}`]),
 );
 
 // 2. A consumer app. Every package manager reads its own override field, so the
-//    react tarball's dependency on @lumae/core resolves to the local tarball too.
-const pin = { '@lumae/core': tgz['@lumae/core'] };
+//    react tarball's dependency on @pinfold/core resolves to the local tarball too.
+const pin = { '@pinfold/core': tgz['@pinfold/core'] };
 const manifest = {
-  name: 'lumae-smoke',
+  name: 'pinfold-smoke',
   private: true,
   version: '0.0.0',
   dependencies: { ...tgz, react: `^${react}`, 'react-dom': `^${react}` },
@@ -56,15 +56,15 @@ writeFileSync(join(app, 'package.json'), JSON.stringify(manifest, null, 2));
 const check = (load) => `
 const React = ${load('react')};
 const { renderToString } = ${load('react-dom/server')};
-const { Accordion } = ${load('@lumae/react/accordion')};
-const { createTheme } = ${load('@lumae/core/palette')};
+const { Accordion } = ${load('@pinfold/react/accordion')};
+const { createTheme } = ${load('@pinfold/core/palette')};
 const html = renderToString(React.createElement(Accordion, {
   items: [{ id: 'a', title: 'Alpha', content: 'Alpha body' }, { id: 'b', title: 'Beta', content: 'Beta body' }],
 }));
-for (const text of ['Alpha', 'Alpha body', 'Beta body', 'aria-expanded', 'lumae-accordion']) {
+for (const text of ['Alpha', 'Alpha body', 'Beta body', 'aria-expanded', 'pinfold-accordion']) {
   if (!html.includes(text)) throw new Error('server HTML is missing ' + JSON.stringify(text) + ':\\n' + html);
 }
-if (!createTheme({ primary: 'emerald' }).vars['--lumae-primary-500']) throw new Error('palette broken');
+if (!createTheme({ primary: 'emerald' }).vars['--pinfold-primary-500']) throw new Error('palette broken');
 console.log('ok', ${JSON.stringify(pm)}, React.version);
 `;
 writeFileSync(join(app, 'esm.mjs'), check((m) => `await import(${JSON.stringify(m)})`));
@@ -83,15 +83,15 @@ if (ts) {
   writeFileSync(
     join(app, 'index.ts'),
     `import * as React from 'react';
-import { useAccordion, type AccordionConfig } from '@lumae/react/accordion';
-import { LumaeProvider } from '@lumae/react';
-import { createTheme } from '@lumae/core/palette';
+import { useAccordion, type AccordionConfig } from '@pinfold/react/accordion';
+import { PinfoldProvider } from '@pinfold/react';
+import { createTheme } from '@pinfold/core/palette';
 
 const config: AccordionConfig = { items: [{ id: 'a', title: 'A', content: 'B' }], variant: 'separated' };
 export function App(): React.ReactElement {
   const Faq = useAccordion(config);
   Faq.toggle('a');
-  return React.createElement(LumaeProvider, null, React.createElement(Faq, { className: 'x' }));
+  return React.createElement(PinfoldProvider, null, React.createElement(Faq, { className: 'x' }));
 }
 export const vars: Record<string, string> = createTheme({ primary: 'emerald' }).vars;
 `,

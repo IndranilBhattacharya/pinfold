@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dimensionVars, mergeProps, resolveNode } from '@lumae/core';
+import { cn, dimensionVars, mergeProps, resolveNode } from '@pinfold/core';
 import { renderSlot, slotProps } from '../slots';
 import type {
   Resolved__PASCAL__Appearance,
@@ -11,7 +11,7 @@ import type {
   __PASCAL__Slot,
 } from './types';
 
-const B = 'lumae-__NAME__';
+const B = 'pinfold-__NAME__';
 
 /**
  * Everything the markup needs, gathered once per render.
@@ -57,12 +57,12 @@ export function renderRoot(ctx: ViewContext, rootProps?: __PASCAL__RootProps): R
   const props = api.getRootProps(
     mergeProps(
       slot(ctx, 'root', {
-        className: a.unstyled ? config.className : cn('lumae', B, config.className),
+        className: a.unstyled ? config.className : cn('pinfold', B, config.className),
         style: { ...dimensionVars('__NAME__', config.dimensions), ...config.style },
         'data-variant': a.variant,
         'data-size': a.size,
         'data-tone': a.tone,
-        'data-lumae-radius': a.radius,
+        'data-pinfold-radius': a.radius,
         'data-animate': a.animate ? '' : undefined,
         'data-unstyled': a.unstyled ? '' : undefined,
       }),

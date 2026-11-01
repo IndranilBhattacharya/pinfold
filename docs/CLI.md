@@ -1,6 +1,6 @@
-# CLI: `npx lumae`
+# CLI: `npx pinfold`
 
-Status: **Planned (A6).** Today's `packages/cli/bin/lumae.mjs` has `init`, `add`, `theme`,
+Status: **Planned (A6).** Today's `packages/cli/bin/pinfold.mjs` has `init`, `add`, `theme`,
 `palette` and `new`, and has no dependencies. A6 rebuilds it to this spec. The prompts use
 `@clack/prompts`; CLI dependencies never reach the app bundle.
 
@@ -22,16 +22,16 @@ Status: **Planned (A6).** Today's `packages/cli/bin/lumae.mjs` has `init`, `add`
 ```
 - **Framework detection.** Next.js (App Router: `app/layout.*`; Pages Router: `pages/_app.*`), Vite (`src/main.*`), React Router or Remix (`app/root.*`), Gatsby, Astro.
 - **Files written:**
-  - `lumae.config.(ts|js)`
+  - `pinfold.config.(ts|js)`
   - CSS imports in the entry file (core, then each component, then the theme)
-  - `LumaeProvider` wrapping the app, but only if the config needs it
+  - `PinfoldProvider` wrapping the app, but only if the config needs it
   - `components/ui/<name>.(tsx|jsx)` for each component chosen
 - **Tailwind:**
   - v4: append `@import` and an `@theme` token block to the global CSS file.
   - v3: edit `tailwind.config.*` at the code level to add the preset, without reformatting the file.
 
 ## `add <name…> | all`
-- Installs `@lumae/react` and `@lumae/css` if they're missing.
+- Installs `@pinfold/react` and `@pinfold/css` if they're missing.
 - Adds the component's CSS import.
 - Writes `components/ui/<name>.(tsx|jsx)`, a thin file the developer owns. It re-exports `use<Name>`, `define<Name>`, the tag and the types, so the app always imports from `@/components/ui/<name>`.
 - JS output adds a JSDoc `@type` annotation, so editors still get types.
@@ -49,7 +49,7 @@ Checks:
 - that a provider exists when the config needs one
 - that `'use client'` boundaries are correct in Next.js App Router projects
 - the browser targets against Baseline 2023
-- that `@lumae/*` packages aren't installed twice
+- that `@pinfold/*` packages aren't installed twice
 
 Each problem is printed with its fix.
 

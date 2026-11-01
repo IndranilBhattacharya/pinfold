@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { Consumer, ControlledConsumer, PartsConsumer } from './fixtures/Consumer.compiled.jsx';
 
 /**
- * D-06: Lumae must work in apps that enable the React Compiler. The compiler
+ * D-06: Pinfold must work in apps that enable the React Compiler. The compiler
  * memoises JSX whose inputs look unchanged; a hook-returned component with a
  * stable identity is exactly such an input, so it must re-render on its own.
  */

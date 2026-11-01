@@ -1,8 +1,8 @@
-import type { LumaeDir, LumaeOrientation } from './types';
+import type { PinfoldDir, PinfoldOrientation } from './types';
 
 export interface ListNavOptions {
-  orientation?: LumaeOrientation;
-  dir?: LumaeDir;
+  orientation?: PinfoldOrientation;
+  dir?: PinfoldDir;
   /** Wrap from last to first. Default true. */
   loop?: boolean;
 }

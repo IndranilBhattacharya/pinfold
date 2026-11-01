@@ -8,19 +8,19 @@ Owner sign-off: 2026-10-31 (session plan).
 
 ```tsx
 // Client, in any React 18+ setup
-import { useAccordion } from '@lumae/react/accordion';
+import { useAccordion } from '@pinfold/react/accordion';
 const Faq = useAccordion({ items });
 return <Faq />;
 ```
 ```tsx
 // Server Component (Planned, A4)
-import { defineAccordion } from '@lumae/react/accordion';
+import { defineAccordion } from '@pinfold/react/accordion';
 const Faq = defineAccordion({ items: await db.faq.findMany(), fields: { id: 'slug', title: 'question', content: 'answer' } });
 return <Faq />;
 ```
 ```jsx
 // Plain JS. The editor still gets types from the .d.ts files.
-/** @type {import('@lumae/react/accordion').AccordionConfig} */
+/** @type {import('@pinfold/react/accordion').AccordionConfig} */
 const config = { items };
 ```
 State is uncontrolled by default. Control it from code with `Faq.open(id)`, `toggle`, `openAll`, `closeAll` and `focusItem`.

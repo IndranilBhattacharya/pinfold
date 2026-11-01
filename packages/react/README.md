@@ -1,20 +1,20 @@
-# @lumae/react
+# @pinfold/react
 
 Hooks-first, config-driven, accessible React components. One subpath per component, so
 an unused component adds nothing to your bundle. React 18+, TypeScript or JavaScript.
 
 ```bash
-npm install @lumae/react @lumae/css
+npm install @pinfold/react @pinfold/css
 ```
 
 ```js
 // app entry, once
-import '@lumae/css/core.css';
-import '@lumae/css/accordion.css';
+import '@pinfold/css/core.css';
+import '@pinfold/css/accordion.css';
 ```
 
 ```jsx
-import { useAccordion } from '@lumae/react/accordion';
+import { useAccordion } from '@pinfold/react/accordion';
 
 function Support() {
   const Faq = useAccordion({
@@ -32,9 +32,9 @@ The value `useAccordion` returns is the component, its controller (`Faq.toggle(i
 
 | Import | What |
 | --- | --- |
-| `@lumae/react` | `LumaeProvider`, `useLumae`, and helpers for building your own components |
-| `@lumae/react/accordion` | `useAccordion`, `Accordion` and the types |
-| `@lumae/react/accordion/lazy` | a code-split `Accordion` |
+| `@pinfold/react` | `PinfoldProvider`, `usePinfold`, and helpers for building your own components |
+| `@pinfold/react/accordion` | `useAccordion`, `Accordion` and the types |
+| `@pinfold/react/accordion/lazy` | a code-split `Accordion` |
 
 Full spec: [docs/components/accordion.md](../../docs/components/accordion.md).
 

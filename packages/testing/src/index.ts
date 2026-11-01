@@ -1,1 +1,1 @@
-export { describeLumaeConformance, type ConformanceOptions } from './conformance';
+export { describePinfoldConformance, type ConformanceOptions } from './conformance';

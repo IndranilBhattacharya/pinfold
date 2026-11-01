@@ -36,24 +36,24 @@ export interface ConformanceOptions {
   };
 }
 
-const BLOCK = (name: string) => `lumae-${name}`;
+const BLOCK = (name: string) => `pinfold-${name}`;
 
 /**
- * The contract every Lumae component must satisfy, asserted mechanically.
+ * The contract every Pinfold component must satisfy, asserted mechanically.
  *
  * Written for scale: components arrive faster than anyone can review them by
  * hand, so the invariants that make the library feel like one library —
  * class naming, the four escape hatches, dimension plumbing, token-only CSS,
  * focusable disabled controls — are tests, not documentation.
  */
-export function describeLumaeConformance(options: ConformanceOptions): void {
+export function describePinfoldConformance(options: ConformanceOptions): void {
   const { name, slots, render, dimension, cssFile, hook, optionalSlots = [] } = options;
   const block = BLOCK(name);
 
-  describe(`${name} — Lumae conformance`, () => {
+  describe(`${name} — Pinfold conformance`, () => {
     it('roots itself with the scoped reset class and its own block class', () => {
       const root = mount(render({}), block);
-      expect(root.classList.contains('lumae')).toBe(true);
+      expect(root.classList.contains('pinfold')).toBe(true);
       expect(root.classList.contains(block)).toBe(true);
     });
 
@@ -100,7 +100,7 @@ export function describeLumaeConformance(options: ConformanceOptions): void {
     if (dimension) {
       it('maps dimensions onto namespaced custom properties', () => {
         const root = mount(render({ dimensions: { [dimension.key]: dimension.value } }), block);
-        const prop = `--lumae-${name}-${kebab(dimension.key)}`;
+        const prop = `--pinfold-${name}-${kebab(dimension.key)}`;
         expect((root as HTMLElement).style.getPropertyValue(prop)).toBe(`${dimension.value}px`);
       });
     }
@@ -141,7 +141,7 @@ export function describeLumaeConformance(options: ConformanceOptions): void {
           seen.push(Component);
           return (
             <div>
-              <button data-testid="lumae-conformance-rerender" onClick={() => force((n) => n + 1)}>
+              <button data-testid="pinfold-conformance-rerender" onClick={() => force((n) => n + 1)}>
                 rerender
               </button>
               <Component />
@@ -153,7 +153,7 @@ export function describeLumaeConformance(options: ConformanceOptions): void {
         expect(typeof seen[0]).toBe('function');
         expect(container.querySelector(`.${block}`)).toBeTruthy();
 
-        fireEvent.click(getByTestId('lumae-conformance-rerender'));
+        fireEvent.click(getByTestId('pinfold-conformance-rerender'));
         expect(new Set(seen).size).toBe(1);
       });
     }
@@ -180,10 +180,10 @@ export function describeLumaeConformance(options: ConformanceOptions): void {
       });
 
       it('namespaces every class it defines', () => {
-        // `@layer lumae.components` is a layer path, not a class selector.
+        // `@layer pinfold.components` is a layer path, not a class selector.
         const css = stripComments(readFileSync(cssPath, 'utf8')).replace(/@layer[^;{]*/g, '');
         const classes = [...css.matchAll(/\.([a-zA-Z][\w-]*)/g)].map((m) => m[1]);
-        const stray = [...new Set(classes)].filter((cl) => cl !== 'lumae' && !cl.startsWith(block));
+        const stray = [...new Set(classes)].filter((cl) => cl !== 'pinfold' && !cl.startsWith(block));
         expect(stray).toEqual([]);
       });
     }

@@ -1,14 +1,14 @@
 import type * as React from 'react';
 import type {
-  LumaeDir,
-  LumaeOrientation,
-  LumaeRadius,
-  LumaeSize,
-  LumaeTone,
+  PinfoldDir,
+  PinfoldOrientation,
+  PinfoldRadius,
+  PinfoldSize,
+  PinfoldTone,
   Length,
   PropsBag,
-} from '@lumae/core';
-import type { LumaeComponent } from '../component';
+} from '@pinfold/core';
+import type { PinfoldComponent } from '../component';
 import type { SlotOverrides, Slottable } from '../types';
 
 /** Name every visual part. Consumers target these by name; do not rename later. */
@@ -43,8 +43,8 @@ export interface __PASCAL__BehaviourConfig {
   value?: string | null;
   defaultValue?: string | null;
   onValueChange?: (value: string | null) => void;
-  orientation?: LumaeOrientation;
-  dir?: LumaeDir;
+  orientation?: PinfoldOrientation;
+  dir?: PinfoldDir;
   loop?: boolean;
   /** Id prefix — set it for deterministic SSR markup. */
   id?: string;
@@ -65,12 +65,12 @@ export interface __PASCAL__Dimensions {
 
 export interface __PASCAL__AppearanceConfig {
   variant?: __PASCAL__Variant;
-  size?: LumaeSize;
-  tone?: LumaeTone;
-  radius?: LumaeRadius;
+  size?: PinfoldSize;
+  tone?: PinfoldTone;
+  radius?: PinfoldRadius;
   animate?: boolean;
   dimensions?: __PASCAL__Dimensions;
-  /** Drop every Lumae class so you can style purely with Tailwind or your own CSS. */
+  /** Drop every Pinfold class so you can style purely with Tailwind or your own CSS. */
   unstyled?: boolean;
   className?: string;
   style?: React.CSSProperties;
@@ -91,9 +91,9 @@ export interface __PASCAL__Config
 /** Appearance after provider defaults are folded in. */
 export interface Resolved__PASCAL__Appearance {
   variant: __PASCAL__Variant;
-  size: LumaeSize;
-  tone: LumaeTone;
-  radius: LumaeRadius;
+  size: PinfoldSize;
+  tone: PinfoldTone;
+  radius: PinfoldRadius;
   animate: boolean;
   unstyled: boolean;
 }
@@ -136,7 +136,7 @@ export interface __PASCAL__Parts {
  * What `use__PASCAL__()` returns: a component you render, that is also the
  * controller, that also carries its parts.
  */
-export type __PASCAL__Api = LumaeComponent<
+export type __PASCAL__Api = PinfoldComponent<
   __PASCAL__State & __PASCAL__Parts,
   __PASCAL__RootProps
 >;

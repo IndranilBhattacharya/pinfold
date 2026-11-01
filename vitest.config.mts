@@ -10,7 +10,7 @@ const src = (p: string) => resolve(import.meta.dirname, 'packages', p);
  */
 function reactCompiler(): Plugin {
   return {
-    name: 'lumae:react-compiler',
+    name: 'pinfold:react-compiler',
     enforce: 'pre',
     async transform(code, id) {
       if (!id.endsWith('.compiled.jsx')) return null;
@@ -31,13 +31,13 @@ export default defineConfig({
   // Classic runtime everywhere: works in every consumer toolchain.
   esbuild: { jsx: 'transform' },
   resolve: {
-    // Exact-match regexes: '@lumae/react' must not swallow '@lumae/react/accordion'.
+    // Exact-match regexes: '@pinfold/react' must not swallow '@pinfold/react/accordion'.
     alias: [
-      { find: /^@lumae\/core$/, replacement: src('core/src/index.ts') },
-      { find: /^@lumae\/core\/palette$/, replacement: src('core/src/palette.ts') },
-      { find: /^@lumae\/react$/, replacement: src('react/src/index.ts') },
-      { find: /^@lumae\/react\/([a-z-]+)$/, replacement: src('react/src/$1/index.ts') },
-      { find: /^@lumae\/testing$/, replacement: src('testing/src/index.ts') },
+      { find: /^@pinfold\/core$/, replacement: src('core/src/index.ts') },
+      { find: /^@pinfold\/core\/palette$/, replacement: src('core/src/palette.ts') },
+      { find: /^@pinfold\/react$/, replacement: src('react/src/index.ts') },
+      { find: /^@pinfold\/react\/([a-z-]+)$/, replacement: src('react/src/$1/index.ts') },
+      { find: /^@pinfold\/testing$/, replacement: src('testing/src/index.ts') },
     ],
   },
   test: {

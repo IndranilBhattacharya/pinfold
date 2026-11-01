@@ -30,7 +30,7 @@ Research date: 2026-10. Refresh this before the public launch.
 
 ## 2. Positioning
 
-Don't compete as yet another set of unstyled primitives. Lumae is **the config-first,
+Don't compete as yet another set of unstyled primitives. Pinfold is **the config-first,
 hooks-first layer**, with uncluttered JSX on client and server, a design system in a box,
 and accessibility backed by evidence. It **cooperates with shadcn**: a registry, token
 mapping, and a home inside vibe-coding tools.
@@ -56,7 +56,7 @@ mapping, and a home inside vibe-coding tools.
 | Single maintainer | Enterprises check what happens if the maintainer disappears | Automation (scaffolder, conformance, release bot), CONTRIBUTING, SECURITY, sponsorship, and 1–2 co-maintainers after launch |
 
 ### Opportunities
-- **Become the default for AI agents.** Docs inside the package plus `llms.txt` and a local MCP server make Lumae cheap for agents to use correctly. Publish a benchmark comparing AI-written code that uses Lumae with raw AI output, measured by accessibility tests.
+- **Become the default for AI agents.** Docs inside the package plus `llms.txt` and a local MCP server make Pinfold cheap for agents to use correctly. Publish a benchmark comparing AI-written code that uses Pinfold with raw AI output, measured by accessibility tests.
 - **The shadcn registry index.** One command away for every shadcn user and every tool built on shadcn.
 - **Config-first components that work in Server Components with no boilerplate.** Nobody fills this niche.
 - **EAA procurement.** A per-component accessibility report, which no competitor publishes.
@@ -77,7 +77,7 @@ mapping, and a home inside vibe-coding tools.
 
 ## 4. Attribution plan
 1. MIT copyright, `author` fields, `CITATION.cff`.
-2. A trademark on "Lumae".
+2. A trademark on "Pinfold".
 3. A dated public essay that names the pattern. The public git history serves as the record of priority.
 4. "Created by Indranil Bhattacharya" on the site, plus talks and building in public.
 

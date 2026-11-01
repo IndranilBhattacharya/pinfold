@@ -1,13 +1,13 @@
 {
-  "name": "@lumae/react",
+  "name": "@pinfold/react",
   "version": "0.1.0",
-  "description": "Lumae for React: hooks-first, config-driven, accessible components. One subpath per component.",
+  "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
-  "keywords": ["react", "ui", "components", "accordion", "hooks", "accessibility", "aria", "design-system", "lumae"],
+  "keywords": ["react", "ui", "components", "accordion", "hooks", "accessibility", "aria", "design-system", "pinfold"],
   "license": "MIT",
-  "homepage": "https://lumae.indranildev.in",
-  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/lumae.git", "directory": "packages/react" },
-  "bugs": "https://github.com/IndranilBhattacharya/lumae/issues",
+  "homepage": "https://pinfold.indranildev.in",
+  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/pinfold.git", "directory": "packages/react" },
+  "bugs": "https://github.com/IndranilBhattacharya/pinfold/issues",
   "sideEffects": false,
   "type": "module",
   "main": "./dist/index.cjs",
@@ -61,7 +61,7 @@
     "build": "tsup && node ../../scripts/subpath-stubs.mjs"
   },
   "dependencies": {
-    "@lumae/core": "0.1.0"
+    "@pinfold/core": "0.1.0"
   },
   "peerDependencies": {
     "react": ">=18"

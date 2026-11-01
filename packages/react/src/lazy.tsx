@@ -11,7 +11,7 @@ export interface LazyOptions {
  * Wrap a dynamic import into a drop-in component with its own Suspense
  * boundary, so consumers get code-splitting without touching their tree:
  *
- *   const Accordion = createLazyComponent(() => import('@lumae/react/accordion'));
+ *   const Accordion = createLazyComponent(() => import('@pinfold/react/accordion'));
  */
 export function createLazyComponent<P extends object>(
   loader: () => Promise<{ default: React.ComponentType<P> }>,
@@ -24,6 +24,6 @@ export function createLazyComponent<P extends object>(
       { fallback: options.fallback ?? null },
       React.createElement(Lazy, props as any),
     );
-  Wrapped.displayName = options.displayName ?? 'LumaeLazy';
+  Wrapped.displayName = options.displayName ?? 'PinfoldLazy';
   return Wrapped as React.ComponentType<P>;
 }

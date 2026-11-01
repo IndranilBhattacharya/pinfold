@@ -32,10 +32,10 @@ describe('palette engine', () => {
   it('builds a full theme with hex vars, OKLCH css and a contrast report', () => {
     const theme = createTheme({ primary: 'emerald', radius: 'lg' });
 
-    expect(theme.vars['--lumae-primary-500']).toMatch(/^#[0-9a-f]{6}$/);
-    expect(theme.vars['--lumae-radius-scale']).toBe('1.5');
+    expect(theme.vars['--pinfold-primary-500']).toMatch(/^#[0-9a-f]{6}$/);
+    expect(theme.vars['--pinfold-radius-scale']).toBe('1.5');
     expect(theme.css).toContain('@supports (color: oklch(');
-    expect(theme.css).toContain('--lumae-neutral-950');
+    expect(theme.css).toContain('--pinfold-neutral-950');
     expect(theme.contrast.length).toBeGreaterThan(0);
     expect(theme.contrast.every((c) => c.ratio >= 1 && c.ratio <= 21)).toBe(true);
   });

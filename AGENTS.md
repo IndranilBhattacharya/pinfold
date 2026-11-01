@@ -3,13 +3,13 @@
 Binding rules for every AI agent and contributor working in this repo. Read this
 file first, every session. Dense by design: no filler.
 
-Product: **Lumae**, a hooks-first, config-driven React UI library.
+Product: **Pinfold**, a hooks-first, config-driven React UI library.
 Owner: Indranil Bhattacharya. MIT.
 
 ## 0. Status: read before touching code
 
-- **Pre-release.** Names are final: packages `@lumae/*`, CSS `lumae-`/`--lumae-*`, provider
-  `LumaeProvider`, CLI `lumae`. Docs label unbuilt behaviour **Planned**.
+- **Pre-release.** Names are final: packages `@pinfold/*`, CSS `pinfold-`/`--pinfold-*`, provider
+  `PinfoldProvider`, CLI `pinfold`. Docs label unbuilt behaviour **Planned**.
 - Only one component exists (accordion). Milestones A1–A9 harden it end to end
   before a second component starts. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
@@ -50,7 +50,7 @@ Owner: Indranil Bhattacharya. MIT.
 | API | Hooks first: `use<Name>(config)` returns a stable component that is also the controller and carries the parts. `define<Name>(config)` is the non-hook twin for Server Components. `<Name {...config}/>` is the courtesy tag. No compound children. |
 | Config | One flat object. Data first (`items`, `columns`, `options`), never `children`. Only the data is required. Behaviour options must be expressible as plain JSON. Callbacks are optional. |
 | Escape-hatch ladder | Every component exposes all of: config, then `classNames`/`styles`/`slotProps`, then slot `render` and `renderItem`, then parts, then prop getters. |
-| Styling | Every CSS value comes from a token. No literal colours. BEM class names `.lumae-<comp>__<slot>`. State through `[data-state]`, `[data-disabled]`, never `.is-*`. All CSS inside `@layer lumae.*`. JS never imports CSS. `unstyled` drops the classes but keeps ARIA and `data-*`. |
+| Styling | Every CSS value comes from a token. No literal colours. BEM class names `.pinfold-<comp>__<slot>`. State through `[data-state]`, `[data-disabled]`, never `.is-*`. All CSS inside `@layer pinfold.*`. JS never imports CSS. `unstyled` drops the classes but keeps ARIA and `data-*`. |
 | Sizing | Width defaults to 100% of the parent. Heights, padding and type come from the size scale. Two-layer sizing: the `[data-size]` preset, overridden by `dimensions`. |
 | Responsive | Container queries, not viewport media queries, for layout. Fluid `clamp()` type tokens. A per-slot overflow policy (`wrap` \| `truncate` \| `{ lines }`). Touch targets of 44px or more under `pointer: coarse`. |
 | Motion | CSS only (`grid-template-rows`, `transform`, `opacity`). No height measurement. Honour `prefers-reduced-motion`. |
@@ -59,25 +59,25 @@ Owner: Indranil Bhattacharya. MIT.
 | SSR | No `window` or `document` at import time. Deterministic ids. The server HTML contains all content (panels mounted by default). `'use client'` is preserved in the build. |
 | JS and TS | Ship ES2018 ESM and CJS plus `.d.ts`. JSDoc on every public field. A dev-only config validator for JS users, stripped from production. |
 | Diagnostics | Dev-only `warnOnce()` for duplicate ids, frozen controlled state and impossible combinations. These must vanish under `NODE_ENV=production`. |
-| Identity | Build the returned component and its parts only with `useLumaeComponent(name, api, render, buildParts)`. A fresh identity each render remounts the whole subtree; its store subscription keeps them fresh under the React Compiler. |
+| Identity | Build the returned component and its parts only with `usePinfoldComponent(name, api, render, buildParts)`. A fresh identity each render remounts the whole subtree; its store subscription keeps them fresh under the React Compiler. |
 
 ## 4. Multi-framework readiness (architecture only)
 
-Packages: `@lumae/core` (logic, store, keyboard, palette, meta, types), `@lumae/css`,
-`@lumae/react` (subpath per component: `@lumae/react/accordion`), and `lumae` (CLI).
-A future `@lumae/vue` or `@lumae/angular` reuses `core` and `css` from npm, under the same
+Packages: `@pinfold/core` (logic, store, keyboard, palette, meta, types), `@pinfold/css`,
+`@pinfold/react` (subpath per component: `@pinfold/react/accordion`), and `pinfold` (CLI).
+A future `@pinfold/vue` or `@pinfold/angular` reuses `core` and `css` from npm, under the same
 npm org. So: **put behaviour rules in `core`, never in hooks**; keep meta and types framework-free.
 No Vue or Angular code is built now.
 
 ## 5. Adding or changing a component: checklist
 
 1. The spec exists and is signed off (`docs/components/<name>.md`).
-2. `npx lumae new <name>` scaffolds a package that already passes conformance.
+2. `npx pinfold new <name>` scaffolds a package that already passes conformance.
 3. Write the types first, then the core logic, then the hook (`use<Name>`), the view (a plain function), the CSS, and the tag.
-4. Tests cover ARIA wiring, every mode, the full keyboard map, disabled, controlled versus uncontrolled, slot overrides, and dimensions reaching CSS. Then add `describeLumaeConformance` (mandatory):
+4. Tests cover ARIA wiring, every mode, the full keyboard map, disabled, controlled versus uncontrolled, slot overrides, and dimensions reaching CSS. Then add `describePinfoldConformance` (mandatory):
 
 ```tsx
-describeLumaeConformance({
+describePinfoldConformance({
   name: 'tabs',
   slots: ['root', 'list', 'tab', 'panel'],
   optionalSlots: ['icon'],
@@ -96,13 +96,13 @@ Conformance fails the build on:
 - a class outside the component's namespace
 
 5. Register it in `packages/cli/registry.json`. Update its spec and the site repo
-   (`../lumae-site`) if the site documents it.
+   (`../pinfold-ui`) if the site documents it.
 6. Run `npm run verify` (typecheck, tests, build, gzip budget).
 
 ## 6. Current API reference
 
 ```jsx
-import { useAccordion } from '@lumae/react/accordion';
+import { useAccordion } from '@pinfold/react/accordion';
 const Faq = useAccordion({ items: [{ title, content }], variant: 'separated' });
 return <Faq className="mt-6" />;
 // Faq is also the controller (Faq.value, Faq.toggle(id), Faq.openAll()) and carries parts (<Faq.Trigger id>, <Faq.Panel id>).
@@ -130,7 +130,7 @@ Slot = root|item|header|trigger|icon|label|title|description|badge|indicator|pan
 The returned value carries `items, value, isOpen, open, close, toggle, openAll, closeAll, focusItem, render,
 Item, Trigger, Panel, Indicator, getRootProps, getItemProps, getHeaderProps, getTriggerProps, getPanelProps`.
 
-Theming: `createTheme({ primary, accent, neutral, intensity, radius })` from `@lumae/core/palette`
+Theming: `createTheme({ primary, accent, neutral, intensity, radius })` from `@pinfold/core/palette`
 returns `{ vars, css, ramps, contrast }`. It covers 7 roles × 11 OKLCH steps. Never hand-write a colour.
 
 Planned API (A3/A4): `defineAccordion`, `defineConfig`, `lazy`, `hiddenUntilFound`,
