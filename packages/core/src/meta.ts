@@ -35,6 +35,8 @@ export interface PropMeta {
   /** Also accepts a length, e.g. `radius`: a preset name or `20` / `'1.25rem'`. */
   orLength?: boolean;
   default?: unknown;
+  /** What an unset option resolves to when it has no fixed default (e.g. `theme radius`). */
+  auto?: string;
   required?: boolean;
   description: string;
   group: PropGroup;
@@ -259,7 +261,7 @@ export function metaToMarkdown(meta: ComponentMeta): string {
       ...Object.entries(props).map(
         ([k, p]) =>
           `| \`${k}\`${p.required ? ' (required)' : ''}${p.status === 'deprecated' ? ' (deprecated)' : ''} | ${type(p)} | ${
-            p.default === undefined ? '' : `\`${JSON.stringify(p.default)}\``
+            p.default === undefined ? (p.auto ? `auto: ${p.auto}` : '') : `\`${JSON.stringify(p.default)}\``
           } | ${cell(p.description)} |`,
       ),
     ].join('\n');

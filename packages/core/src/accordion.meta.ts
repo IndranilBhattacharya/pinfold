@@ -41,7 +41,7 @@ const item: Record<string, PropMeta> = {
   title: { ...node('The row heading. A node or `(state) => node`.'), required: true },
   content: node('The panel body.'),
   description: node('A secondary line under the title.'),
-  icon: node('A leading visual. Overrides the accordion-wide `icon`.'),
+  icon: node('A leading visual: a node, or a string (an emoji, or an icon-font ligature with `classNames.icon`). Overrides the accordion-wide `icon`.'),
   badge: node('A trailing chip before the indicator.'),
   endIcon: node('A trailing visual just before the indicator. Overrides the accordion-wide `endIcon`.'),
   indicator: {
@@ -166,6 +166,7 @@ export const accordionMeta: ComponentMeta = {
       type: 'enum',
       values: RADIUS,
       orLength: true,
+      auto: 'the theme radius (provider `radius`, default md)',
       description:
         "Corner radius of the container that holds the rows: a preset, or a length (`20` is px, `'1.25rem'` passes through). Default: the theme radius.",
       group: 'appearance',
@@ -175,6 +176,7 @@ export const accordionMeta: ComponentMeta = {
       type: 'enum',
       values: RADIUS,
       orLength: true,
+      auto: 'follows `radius`',
       description:
         'Corner radius of each row, same values as `radius`. Default: `radius` for separated, filled and ghost rows; square rows inside a solid or outline card.',
       group: 'appearance',
@@ -184,6 +186,7 @@ export const accordionMeta: ComponentMeta = {
       type: 'enum',
       values: GAP,
       orLength: true,
+      auto: 'none; sm for separated and filled',
       description:
         "Space between rows: a preset, or a length (`12` is px). Default: none for solid, outline and ghost; `'sm'` for separated and filled.",
       group: 'appearance',
