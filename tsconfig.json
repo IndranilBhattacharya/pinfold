@@ -2,16 +2,34 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "baseUrl": ".",
-    "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
+    "types": [
+      "node",
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ],
     "paths": {
-      "@pinfold/core": ["packages/core/src/index.ts"],
-      "@pinfold/core/palette": ["packages/core/src/palette.ts"],
-      "@pinfold/core/meta": ["packages/core/src/meta.ts"],
-      "@pinfold/react": ["packages/react/src/index.ts"],
-      "@pinfold/react/*": ["packages/react/src/*/index.ts"],
-      "@pinfold/testing": ["packages/testing/src/index.ts"]
+      "@pinfold/core": [
+        "./packages/core/src/index.ts"
+      ],
+      "@pinfold/core/palette": [
+        "./packages/core/src/palette.ts"
+      ],
+      "@pinfold/core/meta": [
+        "./packages/core/src/meta.ts"
+      ],
+      "@pinfold/react": [
+        "./packages/react/src/index.ts"
+      ],
+      "@pinfold/react/*": [
+        "./packages/react/src/*/index.ts"
+      ],
+      "@pinfold/testing": [
+        "./packages/testing/src/index.ts"
+      ]
     }
   },
-  "include": ["packages/*/src", "vitest.setup.ts"]
+  "include": [
+    "packages/*/src",
+    "vitest.setup.ts"
+  ]
 }
