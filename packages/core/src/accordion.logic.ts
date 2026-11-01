@@ -148,6 +148,67 @@ export function mapAccordionFields<T>(records: readonly any[], fields: Accordion
   });
 }
 
+/* ------------------------------------------------------------- appearance */
+
+/**
+ * The appearance cascade, as rules every adapter and the docs share:
+ * 1. The variant decides what is a surface: the container (solid, outline), each row
+ *    (separated, filled) or nothing (ghost).
+ * 2. `radius` shapes the container; `itemRadius` defaults to it.
+ * 3. A zero gap joins the rows. Joined separated or filled rows become one group whose outer
+ *    corners follow the container `radius`; `dividers` draws the lines inside it.
+ */
+export type AccordionVariantName = 'solid' | 'outline' | 'separated' | 'filled' | 'ghost';
+
+export interface AccordionAppearanceInput {
+  variant?: AccordionVariantName;
+  /** Resolved gap: `dimensions.gap` if set, else `gap`. */
+  gap?: unknown;
+  radius?: unknown;
+  itemRadius?: unknown;
+  dividers?: boolean;
+  indicator?: unknown;
+  disabled?: boolean;
+}
+
+const ZERO = /^0*\.?0*(px|rem|em|%|vh|vw)?$/;
+
+/** Whether the rows touch. The card and ghost variants default to no gap; separated and filled to a small one. */
+export function accordionRowsJoined(variant: AccordionVariantName = 'solid', gap?: unknown): boolean {
+  if (gap === undefined || gap === null || gap === '') return variant !== 'separated' && variant !== 'filled';
+  if (gap === 'none' || gap === 0) return true;
+  return typeof gap === 'string' && ZERO.test(gap.trim());
+}
+
+/**
+ * Options that have no visible effect with the rest of the config, each with the reason and
+ * what to do instead. Playgrounds disable them; the dev build warns when one is set explicitly.
+ */
+export function inactiveAccordionOptions(input: AccordionAppearanceInput): Record<string, string> {
+  const variant = input.variant ?? 'solid';
+  const joined = accordionRowsJoined(variant, input.gap);
+  const card = variant === 'solid' || variant === 'outline';
+  const rows = variant === 'separated' || variant === 'filled';
+  const out: Record<string, string> = {};
+
+  if (variant === 'ghost') {
+    out.radius = 'Ghost has no surface to round. Pick solid or outline for a rounded container.';
+    out.itemRadius = 'Ghost rows have no surface to round. Pick separated or filled for rounded rows.';
+  }
+  if (card) out.itemRadius = 'In a solid or outline card the rows are not surfaces; the card takes `radius`.';
+  if (rows && joined) out.itemRadius = 'With no gap the rows join into one group, rounded by `radius`.';
+  if (rows && !joined && input.itemRadius !== undefined) {
+    out.radius = 'Separated and filled rows are the surfaces and `itemRadius` already rounds them. Unset `itemRadius` so `radius` reaches the rows, or set `gap: "none"` to join them.';
+  }
+  if (rows && !joined) out.dividers = 'The rows are already apart. Dividers appear when `gap` is "none".';
+  if (input.indicator === 'none') {
+    out.indicatorPosition = 'There is no indicator (`indicator: "none"`).';
+    out.animateIndicator = 'There is no indicator (`indicator: "none"`).';
+  }
+  if (input.disabled) out.disabledIds = 'Every row is already disabled (`disabled: true`).';
+  return out;
+}
+
 /** When panel content is mounted. */
 export type AccordionMountPanels = 'always' | 'open' | 'first-open';
 

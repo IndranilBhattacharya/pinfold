@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import {
   accordionFocusTarget,
   accordionPartIds,
+  accordionRowsJoined,
+  inactiveAccordionOptions,
   closeAllAccordion,
   initialAccordionValue,
   mapAccordionFields,
@@ -72,5 +74,28 @@ describe('accordion logic (no DOM)', () => {
 
   it('derives part ids', () => {
     expect(accordionPartIds('x', 'a')).toEqual({ triggerId: 'x-trigger-a', panelId: 'x-panel-a' });
+  });
+});
+
+describe('appearance cascade', () => {
+  it('joins rows when the gap resolves to zero, by variant default otherwise', () => {
+    expect(accordionRowsJoined('solid')).toBe(true);
+    expect(accordionRowsJoined('separated')).toBe(false);
+    expect(accordionRowsJoined('separated', 'none')).toBe(true);
+    expect(accordionRowsJoined('filled', 0)).toBe(true);
+    expect(accordionRowsJoined('filled', '0px')).toBe(true);
+    expect(accordionRowsJoined('filled', '0.5rem')).toBe(false);
+    expect(accordionRowsJoined('solid', 'md')).toBe(false);
+  });
+
+  it('names the options the rest of the config makes invisible', () => {
+    expect(Object.keys(inactiveAccordionOptions({}))).toEqual(['itemRadius']);
+    expect(Object.keys(inactiveAccordionOptions({ variant: 'separated' }))).toEqual(['dividers']);
+    expect(Object.keys(inactiveAccordionOptions({ variant: 'separated', itemRadius: 'lg' }))).toEqual(['radius', 'dividers']);
+    // Joined rows: dividers and radius matter again, itemRadius does not.
+    expect(Object.keys(inactiveAccordionOptions({ variant: 'separated', gap: 'none', itemRadius: 'lg' }))).toEqual(['itemRadius']);
+    expect(Object.keys(inactiveAccordionOptions({ variant: 'ghost' }))).toEqual(['radius', 'itemRadius']);
+    expect(inactiveAccordionOptions({ indicator: 'none', disabled: true })).toHaveProperty('animateIndicator');
+    expect(inactiveAccordionOptions({ indicator: 'none', disabled: true })).toHaveProperty('disabledIds');
   });
 });

@@ -1,4 +1,4 @@
-import { accordionRowId, mapAccordionFields, warnOnce } from '@pinfold/core';
+import { accordionRowId, inactiveAccordionOptions, mapAccordionFields, warnOnce } from '@pinfold/core';
 import { accordionMeta, validateConfig } from '@pinfold/core/meta';
 import type { AccordionConfig, AccordionItemConfig } from './types';
 
@@ -41,6 +41,12 @@ export function validateAccordion(input: AccordionConfig, config: AccordionConfi
     'Accordion: `value` was passed without `onValueChange`, so the accordion is ' +
       'frozen. Use `defaultValue` for uncontrolled behaviour.',
   );
+
+  // Options the user set that the rest of the config makes invisible.
+  const inactive = inactiveAccordionOptions({ ...config, gap: config.dimensions?.gap ?? config.gap });
+  for (const key in inactive) {
+    warnOnce(key in input && (input as unknown as Record<string, unknown>)[key] !== undefined, `Accordion: \`${key}\` has no visible effect here. ${inactive[key]}`);
+  }
 
   warnOnce(
     config.unmountClosed !== undefined,

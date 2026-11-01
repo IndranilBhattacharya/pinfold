@@ -80,6 +80,31 @@ Only `items` is required. Defaults come from the global config first (D-08).
   indicator, icon, badge and focus ring. Style packs re-point surfaces, borders and depth and follow the
   palette too.
 
+### The appearance cascade
+Options flow top-down, so each change carries on to what sits below it, never sideways:
+1. **`variant` decides what is a surface:** the container (`solid`, `outline`), each row (`separated`,
+   `filled`) or nothing (`ghost`).
+2. **`radius` shapes the container**, and `itemRadius` defaults to it.
+3. **`gap` decides whether rows touch.** At zero (the default for solid, outline and ghost, or
+   `gap: 'none'`), separated and filled rows join into one group: the container `radius` rounds its outer
+   corners, inner corners are square, separated rows share one border and cast one shadow.
+4. **`dividers` is the only thing that draws a line between touching rows.** Rows that are apart have no
+   dividers.
+5. **`animate: false` stills everything**, the indicator included; `animateIndicator: false` only stops
+   its rotation.
+
+When the rest of the config makes an option invisible, `inactiveAccordionOptions(config)` (from
+`@pinfold/core`) names it with the reason, the dev build warns if you set it, and the playground disables
+its control:
+
+| Option | No visible effect when | Do instead |
+|---|---|---|
+| `itemRadius` | solid or outline (the card is the surface); rows joined; ghost | `radius` |
+| `radius` | separated or filled rows apart, with `itemRadius` set; ghost | unset `itemRadius`, or `gap: 'none'` |
+| `dividers` | separated or filled rows apart | `gap: 'none'` |
+| `indicatorPosition`, `animateIndicator` | `indicator: 'none'` | |
+| `disabledIds` | `disabled: true` | |
+
 ### Escape-hatch ladder (D-09)
 | Rung | What it is |
 |---|---|

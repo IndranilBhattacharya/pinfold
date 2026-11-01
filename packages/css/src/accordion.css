@@ -98,7 +98,7 @@
      as one surface with a rhythm rather than a table; ghost rows run them full width. Drawn
      as a zero-height pseudo-element centred in the gap: the row box, and with it the focus
      ring, stays whole. Colour: --pinfold-accordion-divider-color. */
-  .pinfold-accordion:is([data-variant='solid'], [data-variant='outline'], [data-variant='ghost'])[data-dividers]
+  .pinfold-accordion[data-dividers]:is([data-variant='solid'], [data-variant='outline'], [data-variant='ghost'], [data-joined])
     .pinfold-accordion__item + .pinfold-accordion__item::before {
     content: '';
     position: absolute;
@@ -157,6 +157,36 @@
     background-image: var(--pinfold-texture);
     -webkit-backdrop-filter: var(--pinfold-backdrop);
     backdrop-filter: var(--pinfold-backdrop);
+  }
+
+  /* Joined rows (separated or filled with no gap): one group. The container radius rounds the
+     group's outer corners, the inner corners are square, and dividers draw the lines between rows.
+     Separated rows share one border instead of stacking two, and the group casts one shadow. */
+  .pinfold-accordion[data-joined] {
+    --pinfold-acc-divider-inset: var(--pinfold-acc-pad-x);
+  }
+  .pinfold-accordion[data-joined] .pinfold-accordion__item {
+    --pinfold-acc-item-radius: 0px;
+  }
+  .pinfold-accordion[data-joined] .pinfold-accordion__item:first-child {
+    border-start-start-radius: var(--pinfold-acc-radius);
+    border-start-end-radius: var(--pinfold-acc-radius);
+  }
+  .pinfold-accordion[data-joined] .pinfold-accordion__item:last-child {
+    border-end-start-radius: var(--pinfold-acc-radius);
+    border-end-end-radius: var(--pinfold-acc-radius);
+  }
+  .pinfold-accordion[data-joined][data-variant='separated'] {
+    box-shadow: var(--pinfold-shadow-sm), var(--pinfold-highlight);
+  }
+  .pinfold-accordion[data-joined][data-variant='separated'] .pinfold-accordion__item {
+    box-shadow: none;
+  }
+  .pinfold-accordion[data-joined][data-variant='separated'] .pinfold-accordion__item:not(:last-child) {
+    border-bottom-width: 0;
+  }
+  .pinfold-accordion[data-joined][data-variant='separated'] .pinfold-accordion__item:not(:first-child) {
+    border-top-width: 0;
   }
 
   /* ghost — no container: text and dividers only. */
@@ -296,6 +326,10 @@
     transform: none;
   }
   .pinfold-accordion[data-static-indicator] .pinfold-accordion__indicator-bar {
+    transition: none;
+  }
+  /* `animate: false` stills everything, the indicator included. */
+  .pinfold-accordion:not([data-animate]) :is(.pinfold-accordion__indicator, .pinfold-accordion__indicator-bar) {
     transition: none;
   }
 
