@@ -23,6 +23,8 @@ export type {
   AccordionNode,
   AccordionSlot,
   AccordionVariant,
+  AccordionRadius,
+  AccordionGap,
   AccordionIndicator,
   AccordionOverflow,
   AccordionValueDetails,

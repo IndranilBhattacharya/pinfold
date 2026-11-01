@@ -56,14 +56,18 @@ Only `items` is required. Defaults come from the global config first (D-08).
 |---|---|---|
 | `variant` | `'solid' \| 'outline' \| 'separated' \| 'filled' \| 'ghost'` (see Look below) | `'solid'` |
 | `size` / `tone` | design-system scale | provider |
-| `radius` | a preset (`'none' \| 'sm' \| 'md' \| 'lg' \| 'full'`) or a length (`20` is px, `'1.25rem'` passes through). Rounds the outer edge; separated and filled rows use it per row. `dimensions.radius` wins over it. | provider |
+| `radius` | Corner radius of the container that holds the rows: a preset (`'none' \| 'sm' \| 'md' \| 'lg' \| 'full'`, scaling the size's radius like the theme presets) or a length (`20` is px, `'1.25rem'` passes through). | the theme radius |
+| `itemRadius` | Corner radius of each row, same values as `radius`. | `radius` for separated, filled and ghost rows; square rows inside a solid or outline card |
+| `gap` | Space between rows: `'none' \| 'sm' \| 'md' \| 'lg'` or a length. Dividers sit in the middle of the gap. | none for solid, outline and ghost; `'sm'` for separated and filled |
+| `icon` / `endIcon` | A visual for every row, at the start or just before the indicator: a node or `(state) => node` (e.g. different when open). A row's own `icon` / `endIcon` wins. | none |
 | `indicator` | `'chevron' \| 'plus' \| 'caret' \| 'arrow' \| 'none' \| node \| (state) => node` | `'chevron'` |
 | `indicatorPosition` | `'start' \| 'end'` | `'end'` |
+| `animateIndicator` | `boolean`. `false` keeps the indicator still (a plus still turns into a minus). | `true` |
 | `headingLevel` | `1–6` | `3` |
 | `animate` | `boolean`. `prefers-reduced-motion` always wins. | `true` |
-| `dividers` | `boolean` | `true` |
+| `dividers` | `boolean`, solid, outline and ghost. Colour: `--pinfold-accordion-divider-color`. | `true` |
 | `overflow` | per slot: `'wrap' \| 'truncate' \| { lines: n }` | title `wrap`, description `{ lines: 2 }` |
-| `dimensions` | width, min/max width, height, max height, gap, padding, panel padding, panel max height, font sizes, icon and indicator size, border width, radius, duration | from the size scale. Width defaults to 100%. |
+| `dimensions` | width, min/max width, height, max height, gap, padding, panel padding, panel max height, font sizes, icon and indicator size, border width, radius, item radius, duration. Each one wins over the matching option above. | from the size scale. Width defaults to 100%. |
 | `unstyled`, `className`, `style` | | |
 
 ### Look
@@ -85,12 +89,39 @@ Only `items` is required. Defaults come from the global config first (D-08).
 | 4 | Parts: `<Faq.Item\|Trigger\|Panel\|Indicator id\|index>` |
 | 5 | Prop getters: `getRootProps`, `getItemProps`, `getHeaderProps`, `getTriggerProps`, `getPanelProps` |
 
-Slots: `root item header trigger icon label title description badge indicator panel content`.
+Slots: `root item header trigger icon label title description badge endIcon indicator panel content`.
 
 ### Per row (`items[]`)
-`id?`, `title`, `content?`, `description?`, `icon?`, `badge?`, `indicator?`, `disabled?`, `defaultOpen?`, `classNames?`, `styles?`.
+`id?`, `title`, `content?`, `description?`, `icon?`, `badge?`, `endIcon?`, `indicator?`, `disabled?`, `defaultOpen?`, `classNames?`, `styles?`.
+A row reads left to right (mirrored in RTL): `icon`, title over description, `badge`, `endIcon`, indicator.
 Every field that renders something accepts either a node or `(state) => node`.
 Server Components can't pass functions (dev warning), but server-rendered JSX nodes are allowed.
+
+## Compared with shadcn/ui (Radix) and HeroUI
+Every option of both has a Pinfold equivalent:
+
+| shadcn/ui (Radix) | HeroUI | Pinfold |
+|---|---|---|
+| `type="single" \| "multiple"` | `selectionMode` | `mode` |
+| `collapsible` (single only) | `disallowEmptySelection` | `collapsible` (`false` keeps one row open, either mode) |
+| `value`, `defaultValue`, `onValueChange` | `selectedKeys`, `defaultExpandedKeys`, `onSelectionChange` | `value`, `defaultValue`, `onValueChange(ids, details)` |
+| `disabled` (root or item) | `isDisabled`, `disabledKeys` | `disabled`, `disabledIds`, row `disabled` |
+| `dir`, `orientation` | | `dir`, `orientation` |
+| `forceMount` | `keepContentMounted` | `mountPanels` |
+| `asChild` | `HeadingComponent` | `render` per slot, `headingLevel` |
+| your own markup | `variant`: light, shadow, bordered, splitted | `variant`: ghost, solid, outline, separated (+ filled) |
+| className | `isCompact` | `size: 'sm'` |
+| className | `showDivider`, `dividerProps` | `dividers`, `--pinfold-accordion-divider-color` |
+| className | `itemClasses`, `classNames` | `classNames`, `styles`, `slotProps` (all rows) and row `classNames` |
+| children of Trigger | `title`, `subtitle`, `startContent` | `title`, `description`, `icon`, `endIcon`, `badge` |
+| chevron in Trigger | `indicator` (node or function), `hideIndicator` | `indicator` (glyph, node or `(state) => node`, `'none'`), `indicatorPosition` |
+| | `disableAnimation`, `disableIndicatorAnimation` | `animate`, `animateIndicator` |
+| `--radix-accordion-content-height` keyframes | `motionProps` | CSS grid rows (no measuring), `data-transition`, `dimensions.duration` |
+| className on the container | classNames | `radius`, `itemRadius`, `gap` |
+
+Pinfold only: config from JSON or a CMS (`fields`), find-in-page (`hiddenUntilFound`), `syncWithHash`,
+`onBeforeChange`, the controller (`Faq.open(id)`), `defineAccordion` for Server Components, and
+container-query responsiveness.
 
 ## Keyboard
 | Key | Action |

@@ -87,6 +87,7 @@ export function useAccordion(input: AccordionConfig): AccordionApi {
     tone: config.tone ?? ctx.tone,
     indicator: config.indicator ?? 'chevron',
     indicatorPosition: config.indicatorPosition ?? 'end',
+    animateIndicator: config.animateIndicator ?? true,
     headingLevel: config.headingLevel ?? 3,
     animate: config.animate ?? !ctx.disableAnimation,
     dividers: config.dividers ?? true,
@@ -110,9 +111,11 @@ export function useAccordion(input: AccordionConfig): AccordionApi {
     () =>
       itemConfigs.map((item, index) => {
         const id = accordionRowId(item, index);
-        return { id, index, disabled: allDisabled || !!item.disabled, config: item, ...accordionPartIds(baseId, id) };
+        const disabled = allDisabled || !!item.disabled || (config.disabledIds?.indexOf(id) ?? -1) !== -1;
+        return { id, index, disabled, config: item, ...accordionPartIds(baseId, id) };
       }),
-    [itemConfigs, baseId, allDisabled],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [itemConfigs, baseId, allDisabled, JSON.stringify(config.disabledIds)],
   );
 
   const [value, setValue] = useControllableState<string[]>({

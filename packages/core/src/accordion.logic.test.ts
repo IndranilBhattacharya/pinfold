@@ -35,6 +35,13 @@ describe('accordion logic (no DOM)', () => {
     expect(setAccordionItem([], rows, 'a', true, { ...multiple, disabled: true })).toBeNull();
   });
 
+  it('keeps one row open in multiple mode when not collapsible', () => {
+    const locked = { ...multiple, collapsible: false };
+    expect(setAccordionItem(['a', 'b'], rows, 'a', false, locked)).toEqual(['b']);
+    expect(setAccordionItem(['b'], rows, 'b', false, locked)).toBeNull();
+    expect(closeAllAccordion(['a', 'b'], rows, locked)).toBeNull();
+  });
+
   it('openAll and closeAll respect mode and disabled rows', () => {
     expect(openAllAccordion([], rows, multiple)).toEqual(['a', 'b']);
     expect(openAllAccordion([], rows, single)).toBeNull();
