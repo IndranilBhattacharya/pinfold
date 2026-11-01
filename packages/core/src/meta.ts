@@ -32,6 +32,8 @@ export interface PropMeta {
   values?: readonly (string | number)[];
   /** Also accepts a node, e.g. `indicator`: a glyph name or your own node. */
   orNode?: boolean;
+  /** Also accepts a length, e.g. `radius`: a preset name or `20` / `'1.25rem'`. */
+  orLength?: boolean;
   default?: unknown;
   required?: boolean;
   description: string;
@@ -152,7 +154,9 @@ function checkType(prop: PropMeta, v: unknown): string | null {
     case 'enum':
       if (prop.values!.indexOf(v as string) !== -1) return null;
       if (prop.orNode && typeof v !== 'string') return null;
-      return `must be one of ${list}, got ${JSON.stringify(v)}.`;
+      // A length is a number or a string with a digit or a function (`var()`, `calc()`); a bare word is a typo.
+      if (prop.orLength && (typeof v === 'number' || (typeof v === 'string' && /\d|\(/.test(v)))) return null;
+      return `must be one of ${list}${prop.orLength ? ' or a length' : ''}, got ${JSON.stringify(v)}.`;
     case 'node':
       return null;
   }
@@ -221,6 +225,7 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
       case 'string[]':
         return { ...base, type: 'array', items: { type: 'string' } };
       case 'enum':
+        if (p.orLength) return { ...base, anyOf: [{ enum: p.values }, { type: ['number', 'string'] }] };
         return p.orNode ? { ...base, anyOf: [{ enum: p.values }, {}] } : { ...base, enum: p.values };
       case 'array':
         // Rows may carry extra data, so they stay open.
@@ -246,7 +251,7 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
 export function metaToMarkdown(meta: ComponentMeta): string {
   const cell = (s: unknown) => String(s ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
   const type = (p: PropMeta) =>
-    p.type === 'enum' ? p.values!.map((v) => JSON.stringify(v)).join(' \\| ') + (p.orNode ? ' \\| node' : '') : p.type;
+    p.type === 'enum' ? p.values!.map((v) => JSON.stringify(v)).join(' \\| ') + (p.orNode ? ' \\| node' : '') + (p.orLength ? ' \\| length' : '') : p.type;
   const table = (props: Record<string, PropMeta>) =>
     [
       '| Option | Type | Default | Description |',

@@ -100,7 +100,7 @@ npx shadcn add @pinfold/accordion   # also works through the shadcn CLI
 
 ## What you get
 
-- **A design system in a box.** OKLCH palettes, 7 roles × 11 steps, WCAG contrast reports, and style packs (glass, bauhaus, brutalist, noise, soft) that are token recipes, not forks of the components.
+- **A design system in a box.** OKLCH palettes, 7 roles × 11 steps, WCAG contrast reports, and style packs (liquid glass, material, noise, neo-brutalist) that are token recipes over your palette, not forks of the components.
 - **Responsive by default.** Container queries, fluid type, a wrap or truncate policy per slot, and 44px touch targets.
 - **Tailwind wins without effort.** Pinfold's CSS lives in cascade layers, so utilities override it with no `!important` and no `tailwind-merge`. `unstyled: true` makes a component fully headless.
 - **SEO and Core Web Vitals safe.** Server HTML contains all content, layout shift stays at zero, and only a small amount of JS has to hydrate. `hiddenUntilFound` lets Ctrl+F find text inside closed panels.

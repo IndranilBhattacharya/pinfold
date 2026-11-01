@@ -159,7 +159,8 @@ export interface AccordionAppearanceConfig {
   variant?: AccordionVariant;
   size?: PinfoldSize;
   tone?: PinfoldTone;
-  radius?: PinfoldRadius;
+  /** Outer corner radius: a preset, or a length (`20` is px, `'1.25rem'` passes through). Separated and filled rows use it per row. */
+  radius?: PinfoldRadius | number | (string & {});
   /** Built-in glyph, your own node, or a function of the row's state. */
   indicator?: AccordionIndicator | AccordionNode;
   /** Which edge the indicator sits on. Default `end`. */

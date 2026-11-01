@@ -14,7 +14,7 @@
   .pinfold-accordion {
     /* preset layer (set by [data-size]) */
     --pinfold-acc-pad-x-base: var(--pinfold-space-4);
-    --pinfold-acc-pad-y-base: var(--pinfold-space-3);
+    --pinfold-acc-pad-y-base: var(--pinfold-space-4);
     --pinfold-acc-font-base: var(--pinfold-text-md);
     --pinfold-acc-radius-base: var(--pinfold-radius-lg);
     --pinfold-acc-gap-base: 0px;
@@ -61,13 +61,13 @@
   /* ------------------------------------------------------------------ sizes */
   .pinfold-accordion[data-size='sm'] {
     --pinfold-acc-pad-x-base: var(--pinfold-space-3);
-    --pinfold-acc-pad-y-base: var(--pinfold-space-2);
+    --pinfold-acc-pad-y-base: var(--pinfold-space-3);
     --pinfold-acc-font-base: var(--pinfold-text-sm);
     --pinfold-acc-radius-base: var(--pinfold-radius-md);
   }
   .pinfold-accordion[data-size='lg'] {
     --pinfold-acc-pad-x-base: var(--pinfold-space-5);
-    --pinfold-acc-pad-y-base: var(--pinfold-space-4);
+    --pinfold-acc-pad-y-base: var(--pinfold-space-5);
     --pinfold-acc-font-base: var(--pinfold-text-lg);
     --pinfold-acc-radius-base: var(--pinfold-radius-xl);
   }
@@ -89,73 +89,48 @@
     border-radius: inherit;
   }
 
-  /* Accent edge on the open row. Scales from the centre, so it reads as the row
-     opening rather than a bar appearing. */
-  .pinfold-accordion__item::before {
+  /* Dividers. In a container (solid, outline) they stop at the row padding, so the rows read
+     as one surface with a rhythm rather than a table; ghost rows run them full width. Drawn
+     as a zero-height pseudo-element: the row box, and with it the focus ring, stays whole. */
+  .pinfold-accordion:is([data-variant='solid'], [data-variant='outline'], [data-variant='ghost'])[data-dividers]
+    .pinfold-accordion__item + .pinfold-accordion__item::before {
     content: '';
     position: absolute;
-    inset-block: 0;
-    inset-inline-start: 0;
-    width: 2px;
-    background: var(--pinfold-acc-accent);
-    border-start-start-radius: inherit;
-    border-end-start-radius: inherit;
-    transform: scaleY(0);
-    opacity: 0;
-    transition: transform var(--pinfold-acc-duration) var(--pinfold-ease-out),
-      opacity var(--pinfold-duration-fast) linear;
+    inset-block-start: 0;
+    inset-inline: var(--pinfold-acc-divider-inset, 0);
+    border-top: var(--pinfold-acc-border) solid var(--pinfold-color-border);
     pointer-events: none;
-  }
-  .pinfold-accordion__item[data-state='open']::before {
-    transform: scaleY(1);
-    opacity: 1;
-  }
-  /* Bordered rows already signal state through the border; the bar would double up. */
-  .pinfold-accordion[data-variant='outline'] .pinfold-accordion__item::before,
-  .pinfold-accordion[data-variant='separated'] .pinfold-accordion__item::before {
-    content: none;
   }
 
   /* --------------------------------------------------------------- variants */
-  /* solid — one card, hairline-divided rows. Corners are rounded on the parts
-     that touch them rather than clipped off the container. */
+  /* solid (default) — one raised card. Corners are rounded on the parts that touch them
+     rather than clipped off the container, so nothing cuts the focus ring. */
+  .pinfold-accordion:is([data-variant='solid'], [data-variant='outline']) {
+    --pinfold-acc-divider-inset: var(--pinfold-acc-pad-x);
+    border: var(--pinfold-acc-border) solid var(--pinfold-color-border);
+    border-radius: var(--pinfold-acc-radius);
+  }
   .pinfold-accordion[data-variant='solid'] {
     background: var(--pinfold-color-surface);
     background-image: var(--pinfold-texture);
     -webkit-backdrop-filter: var(--pinfold-backdrop);
     backdrop-filter: var(--pinfold-backdrop);
-    border: var(--pinfold-acc-border) solid var(--pinfold-color-border);
-    border-radius: var(--pinfold-acc-radius);
-    box-shadow: var(--pinfold-shadow-sm), var(--pinfold-highlight);
+    box-shadow: var(--pinfold-shadow-md), var(--pinfold-highlight);
   }
-  .pinfold-accordion[data-variant='solid'][data-dividers] .pinfold-accordion__item + .pinfold-accordion__item {
-    border-top: var(--pinfold-acc-border) solid var(--pinfold-color-border);
-  }
-  .pinfold-accordion[data-variant='solid'] .pinfold-accordion__item:first-child .pinfold-accordion__trigger {
+  .pinfold-accordion:is([data-variant='solid'], [data-variant='outline']) .pinfold-accordion__item:first-child .pinfold-accordion__trigger {
     border-start-start-radius: var(--pinfold-acc-radius);
     border-start-end-radius: var(--pinfold-acc-radius);
   }
-  .pinfold-accordion[data-variant='solid'] .pinfold-accordion__item:last-child .pinfold-accordion__panel {
+  .pinfold-accordion:is([data-variant='solid'], [data-variant='outline']) .pinfold-accordion__item:last-child .pinfold-accordion__trigger[data-state='closed'] {
     border-end-start-radius: var(--pinfold-acc-radius);
     border-end-end-radius: var(--pinfold-acc-radius);
   }
 
-  /* outline — each row is its own bordered box */
-  .pinfold-accordion[data-variant='outline'] {
-    --pinfold-acc-gap-base: var(--pinfold-space-2);
-  }
-  .pinfold-accordion[data-variant='outline'] .pinfold-accordion__item {
-    --pinfold-acc-item-radius: var(--pinfold-acc-radius);
-    border: var(--pinfold-acc-border) solid var(--pinfold-color-border);
-    transition: border-color var(--pinfold-duration-md) var(--pinfold-ease);
-  }
-  .pinfold-accordion[data-variant='outline'] .pinfold-accordion__item[data-state='open'] {
-    border-color: var(--pinfold-color-border-accent);
-  }
+  /* outline — the same card as a hairline frame, no fill and no shadow. */
 
-  /* separated — cards with air and elevation */
+  /* separated — every row is its own card, with air between them. */
   .pinfold-accordion[data-variant='separated'] {
-    --pinfold-acc-gap-base: var(--pinfold-space-3);
+    --pinfold-acc-gap-base: var(--pinfold-space-2);
   }
   .pinfold-accordion[data-variant='separated'] .pinfold-accordion__item {
     --pinfold-acc-item-radius: var(--pinfold-acc-radius);
@@ -165,19 +140,9 @@
     backdrop-filter: var(--pinfold-backdrop);
     border: var(--pinfold-acc-border) solid var(--pinfold-color-border);
     box-shadow: var(--pinfold-shadow-sm), var(--pinfold-highlight);
-    transition: box-shadow var(--pinfold-duration-md) var(--pinfold-ease),
-      border-color var(--pinfold-duration-md) var(--pinfold-ease),
-      transform var(--pinfold-duration-md) var(--pinfold-ease-out);
-  }
-  .pinfold-accordion[data-variant='separated'] .pinfold-accordion__item:hover {
-    box-shadow: var(--pinfold-shadow-md), var(--pinfold-highlight);
-  }
-  .pinfold-accordion[data-variant='separated'] .pinfold-accordion__item[data-state='open'] {
-    border-color: var(--pinfold-color-border-accent);
-    box-shadow: var(--pinfold-shadow-md), var(--pinfold-highlight);
   }
 
-  /* filled — tinted rows, no borders */
+  /* filled — tinted rows, no borders. */
   .pinfold-accordion[data-variant='filled'] {
     --pinfold-acc-gap-base: var(--pinfold-space-2);
   }
@@ -187,18 +152,11 @@
     background-image: var(--pinfold-texture);
     -webkit-backdrop-filter: var(--pinfold-backdrop);
     backdrop-filter: var(--pinfold-backdrop);
-    transition: background-color var(--pinfold-duration-md) var(--pinfold-ease);
-  }
-  .pinfold-accordion[data-variant='filled'] .pinfold-accordion__item[data-state='open'] {
-    background-color: var(--pinfold-color-surface-selected);
   }
 
-  /* ghost — text only, hover reveals the row */
+  /* ghost — no container: text and dividers only. */
   .pinfold-accordion[data-variant='ghost'] .pinfold-accordion__item {
     --pinfold-acc-item-radius: var(--pinfold-acc-radius);
-  }
-  .pinfold-accordion[data-variant='ghost'][data-dividers] .pinfold-accordion__item + .pinfold-accordion__item {
-    border-top: var(--pinfold-acc-border) solid var(--pinfold-color-border);
   }
 
   /* ----------------------------------------------------------------- header */
@@ -218,30 +176,15 @@
     line-height: var(--pinfold-leading-tight);
     text-align: start;
     color: var(--pinfold-color-text);
-    transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease),
-      color var(--pinfold-duration-fast) var(--pinfold-ease);
+    cursor: pointer;
   }
 
-  .pinfold-accordion__trigger:hover {
-    background: var(--pinfold-color-surface-hover);
-  }
-  .pinfold-accordion__trigger:active {
-    background: var(--pinfold-color-surface-active);
-  }
-
-  /* Text in the accent: pulled toward the text colour so every tone (500 steps included) clears
-     4.5:1 on every variant's open background, in light and dark mode (the a11y report checks). */
-  .pinfold-accordion__trigger[data-state='open'] {
-    color: color-mix(in oklch, var(--pinfold-acc-accent) 62%, var(--pinfold-color-text));
-  }
+  /* The header never repaints on hover or when open: the indicator carries the state, and
+     the row stays calm. Restyle a state through `[data-state]` / `:hover` in your own CSS. */
 
   .pinfold-accordion__trigger[data-disabled] {
     color: var(--pinfold-color-text-disabled);
     cursor: not-allowed;
-  }
-  .pinfold-accordion__trigger[data-disabled]:hover,
-  .pinfold-accordion__trigger[data-disabled]:active {
-    background: none;
   }
 
   /* The ring is drawn by the core reset as a box-shadow; raise the focused row
@@ -324,8 +267,8 @@
       color var(--pinfold-duration-fast) var(--pinfold-ease);
   }
 
-  .pinfold-accordion__trigger:hover .pinfold-accordion__indicator {
-    color: var(--pinfold-color-text-muted);
+  .pinfold-accordion__trigger:not([data-disabled]):hover .pinfold-accordion__indicator {
+    color: var(--pinfold-color-text);
   }
 
   .pinfold-accordion__trigger[data-state='open'] .pinfold-accordion__indicator {

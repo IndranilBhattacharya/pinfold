@@ -32,4 +32,4 @@ export type {
 } from './types';
 
 /** Package version, injected at publish time by the release script. */
-export const version = '0.1.0';
+export const version = '0.2.0';

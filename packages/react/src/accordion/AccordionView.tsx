@@ -14,6 +14,7 @@ import type {
 } from './types';
 
 const B = 'pinfold-accordion';
+const RADIUS_PRESETS: readonly unknown[] = ['none', 'sm', 'md', 'lg', 'full'];
 
 const GLYPHS: Record<Exclude<AccordionIndicator, 'none'>, React.ReactNode> = {
   chevron: <path d="M4 6.5 8 10.5 12 6.5" />,
@@ -80,17 +81,20 @@ function slot<S extends AccordionSlot>(
 
 export function renderRoot(ctx: ViewContext, rootProps?: AccordionRootProps): React.ReactElement {
   const { api, config, a } = ctx;
+  // A preset scales the radius tokens; a length sets the accordion's radius directly (`dimensions.radius` still wins).
+  const preset = RADIUS_PRESETS.includes(config.radius);
+  const dimensions = config.radius != null && !preset ? { radius: config.radius, ...config.dimensions } : config.dimensions;
 
   const props = api.getRootProps(
     mergeProps(
       slot(ctx, 'root', {
         className: a.unstyled ? config.className : cn('pinfold', B, config.className),
-        style: { ...dimensionVars('accordion', config.dimensions), ...config.style },
+        style: { ...dimensionVars('accordion', dimensions), ...config.style },
         'data-variant': a.variant,
         'data-size': a.size,
         'data-tone': a.tone,
         // Only an explicit radius; otherwise the provider's preset or a style pack reaches the root by inheritance.
-        'data-pinfold-radius': config.radius,
+        'data-pinfold-radius': preset ? config.radius : undefined,
         'data-indicator-position': a.indicatorPosition,
         'data-dividers': a.dividers ? '' : undefined,
         'data-animate': a.animate ? '' : undefined,

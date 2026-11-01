@@ -54,8 +54,9 @@ Only `items` is required. Defaults come from the global config first (D-08).
 ### Appearance
 | Key | Type | Default |
 |---|---|---|
-| `variant` | `'solid' \| 'outline' \| 'separated' \| 'filled' \| 'ghost'` | `'solid'` |
-| `size` / `tone` / `radius` | design-system scale | provider |
+| `variant` | `'solid' \| 'outline' \| 'separated' \| 'filled' \| 'ghost'` (see Look below) | `'solid'` |
+| `size` / `tone` | design-system scale | provider |
+| `radius` | a preset (`'none' \| 'sm' \| 'md' \| 'lg' \| 'full'`) or a length (`20` is px, `'1.25rem'` passes through). Rounds the outer edge; separated and filled rows use it per row. `dimensions.radius` wins over it. | provider |
 | `indicator` | `'chevron' \| 'plus' \| 'caret' \| 'arrow' \| 'none' \| node \| (state) => node` | `'chevron'` |
 | `indicatorPosition` | `'start' \| 'end'` | `'end'` |
 | `headingLevel` | `1–6` | `3` |
@@ -64,6 +65,16 @@ Only `items` is required. Defaults come from the global config first (D-08).
 | `overflow` | per slot: `'wrap' \| 'truncate' \| { lines: n }` | title `wrap`, description `{ lines: 2 }` |
 | `dimensions` | width, min/max width, height, max height, gap, padding, panel padding, panel max height, font sizes, icon and indicator size, border width, radius, duration | from the size scale. Width defaults to 100%. |
 | `unstyled`, `className`, `style` | | |
+
+### Look
+- `solid`: one raised card. `outline`: the same card as a hairline frame. `separated`: every row is its
+  own card. `filled`: tinted rows. `ghost`: no container.
+- In a card (`solid`, `outline`) the dividers stop at the row padding; `ghost` runs them full width.
+- The header never repaints on hover or when open, and there is no accent bar. The indicator carries the
+  state: it darkens on hover, turns to the tone colour and rotates when open.
+- Colour comes from the `primary` palette role (through `tone`), so a palette change re-colours the
+  indicator, icon, badge and focus ring. Style packs re-point surfaces, borders and depth and follow the
+  palette too.
 
 ### Escape-hatch ladder (D-09)
 | Rung | What it is |

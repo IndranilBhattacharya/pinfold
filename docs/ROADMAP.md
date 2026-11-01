@@ -44,7 +44,7 @@ Current milestone: **A1–A8 complete, A9 automated evidence complete (2026-11-0
 - [x] Assert zero hydration warnings (`accordion.ssr.test.tsx`), complete server HTML (every panel's text) and deterministic ids (unit tests and the served Next.js pages).
 
 ## A5 · Style packs and theming
-- [x] Glass, bauhaus, brutalist, noise and soft, each as a token recipe behind `data-pinfold-style` (`@pinfold/css/packs.css`, `<PinfoldProvider stylePack>`). New token hooks: `--pinfold-border-width`, `--pinfold-backdrop`, `--pinfold-texture`.
+- [x] Glass, material, noise and brutalist (0.2.0; bauhaus and soft were dropped), each as a token recipe that follows the palette behind `data-pinfold-style` (`@pinfold/css/packs.css`, `<PinfoldProvider stylePack>`). New token hooks: `--pinfold-border-width`, `--pinfold-backdrop`, `--pinfold-texture`.
 - [x] Each one respects `prefers-contrast`, `prefers-reduced-transparency` and `forced-colors`, and is contrast-checked in light and dark mode (`packs.test.ts`; the check raised glass opacity to keep AA over white backdrops in dark mode).
 - [x] Export to CSS (`createTheme().css`), Tailwind v4/v3 (the theme and preset map onto the same variables) and DTCG tokens (`toDTCG`). Map onto shadcn's CSS variables (`@pinfold/css/shadcn.css`).
 
@@ -64,6 +64,12 @@ Current milestone: **A1–A8 complete, A9 automated evidence complete (2026-11-0
 ## A9 · Accessibility evidence
 - [x] A report generated in CI on every build (`scripts/a11y-report.mjs`, job `a11y`, artifact `a11y-report`): the APG checklist from meta, the keyboard map pressed in Chromium, axe (WCAG 2.2 AA + best practices) in light and dark mode across variants, all six tones, RTL, unstyled and a style pack, Tab skipping closed panels, `hidden="until-found"`, and forced-colors and reduced-motion checks with snapshots. Its first run found two contrast failures (badge text; open titles in the filled variant and the 500-step tones), now fixed.
 - [ ] A manual screen-reader matrix: NVDA + Chrome, JAWS, VoiceOver + Safari, TalkBack. The script and the table are ready in [a11y/screen-readers.md](a11y/screen-readers.md); a person runs it before the first stable release.
+
+## 0.2.0 · Look and release hardening
+- [x] Accordion look after HeroUI-style review: calm headers (no hover or open background, no accent bar), dividers inset in cards, `outline` is a framed card, roomier rows. `radius` takes a preset or a length.
+- [x] Components read the `primary` role, so the palette re-colours them; style packs mix every colour from palette tokens.
+- [x] Zero known vulnerabilities: `rimraf` removed; `npm audit` gates CI and the release, and the consumer smoke test audits what a user installs.
+- [x] `scripts/publish.mjs`: the release publishes only versions that are not on npm yet.
 
 ## After A9
 - Component #2, most likely dialog or popover, because it forces the overlay and positioning layer to exist. Then the next components, one at a time.

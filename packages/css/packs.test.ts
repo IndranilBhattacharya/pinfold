@@ -7,7 +7,7 @@ import { contrastRatio, createTheme, oklchToHex } from '@pinfold/core/palette';
 /**
  * Style packs only re-point tokens, so contrast is checked on what they
  * change: surfaces (glass is translucent, so it is blended over hostile
- * backdrops) and borders that carry meaning (bauhaus, brutalist). Text roles
+ * backdrops) and borders that carry meaning (brutalist). Text roles
  * come from the default palette, in light and dark mode.
  */
 const css = readFileSync(resolve(import.meta.dirname, 'src/packs.css'), 'utf8');
@@ -26,7 +26,7 @@ function blend(top: string, alpha: number, bottom: string): string {
   return '#' + a.map((v, i) => Math.round(v * alpha + b[i] * (1 - alpha)).toString(16).padStart(2, '0')).join('');
 }
 
-const packs = ['glass', 'bauhaus', 'brutalist', 'noise', 'soft'];
+const packs = ['glass', 'material', 'noise', 'brutalist'];
 
 describe('style packs', () => {
   it('defines every pack as a token recipe', () => {
@@ -55,6 +55,14 @@ describe('style packs', () => {
     expect(names('[data-pinfold-theme="light"] {')).toContain('--pinfold-focus-ring');
   });
 
+  it('follows the palette: every colour is mixed from palette tokens (white highlights aside)', () => {
+    expect(css).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i);
+    for (const [, args] of css.matchAll(/oklch\(([^)]*)\)/g)) expect(args).toBe('1 0 0');
+    expect(css).toMatch(/\[data-pinfold-style='glass'\][^}]*var\(--pinfold-color-accent\)/);
+    expect(css).toMatch(/\[data-pinfold-style='material'\][^}]*var\(--pinfold-color-accent\)/);
+    expect(css).toMatch(/\[data-pinfold-style='brutalist'\][^}]*var\(--pinfold-color-accent\)/);
+  });
+
   it('never re-colours text, so text contrast is the palette contrast', () => {
     expect(css).not.toMatch(/--pinfold-color-text[\w-]*:/);
   });
@@ -62,12 +70,13 @@ describe('style packs', () => {
   for (const [name, m] of Object.entries(mode)) {
     it(`keeps body text at AA on glass over any backdrop (${name})`, () => {
       // Every translucent glass surface (opacity read from the CSS) over white, black and the brand colour.
-      const glass = css.slice(css.indexOf("[data-pinfold-style='glass']"), css.indexOf('bauhaus'));
-      const alphas = [...glass.matchAll(/var\(--pinfold-color-bg\) (\d+)%/g)].map((x) => Number(x[1]) / 100);
+      const glass = css.slice(css.indexOf("[data-pinfold-style='glass']"), css.indexOf('material'));
+      const alphas = [...glass.matchAll(/var\(--pinfold-color-bg\)\) (\d+)%/g)].map((x) => Number(x[1]) / 100);
       expect(alphas.length).toBeGreaterThan(0);
       for (const alpha of alphas) {
         for (const backdrop of ['#ffffff', '#000000', n['--pinfold-primary-500']]) {
-          const surface = blend(m.bg, alpha, backdrop);
+          // The pane is tinted with the brand colour (up to 10%) before it turns translucent.
+          const surface = blend(blend(n['--pinfold-primary-500'], 0.1, m.bg), alpha, backdrop);
           expect(contrastRatio(m.text, surface), `${alpha} glass over ${backdrop}`).toBeGreaterThanOrEqual(4.5);
         }
       }
@@ -75,7 +84,7 @@ describe('style packs', () => {
     });
 
     it(`keeps meaningful borders at 3:1 (${name})`, () => {
-      // bauhaus and brutalist draw borders in the text colour.
+      // brutalist draws borders in the text colour.
       expect(contrastRatio(m.text, m.surface)).toBeGreaterThanOrEqual(3);
     });
   }
