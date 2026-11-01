@@ -25,12 +25,17 @@ export type AccordionSlot =
   | 'title'
   | 'description'
   | 'badge'
+  | 'endIcon'
   | 'indicator'
   | 'panel'
   | 'content';
 
 export type AccordionVariant = 'solid' | 'outline' | 'separated' | 'filled' | 'ghost';
 export type AccordionIndicator = 'chevron' | 'plus' | 'caret' | 'arrow' | 'none';
+/** A radius preset (the theme scale) or a length: `20` is px, strings pass through. */
+export type AccordionRadius = PinfoldRadius | number | (string & {});
+/** A spacing preset or a length: `12` is px, strings pass through. */
+export type AccordionGap = 'none' | 'sm' | 'md' | 'lg' | number | (string & {});
 
 /** Runtime state of a single row. Passed to every function-valued config field. */
 export interface AccordionItemState {
@@ -54,10 +59,12 @@ export interface AccordionItemConfig {
   content?: AccordionNode;
   /** Secondary line under the title. */
   description?: AccordionNode;
-  /** Leading visual — icon, avatar, anything. */
+  /** Leading visual — icon, avatar, anything. Overrides the accordion-wide `icon`. */
   icon?: AccordionNode;
   /** Trailing chip rendered before the indicator. */
   badge?: AccordionNode;
+  /** Trailing visual just before the indicator. Overrides the accordion-wide `endIcon`. */
+  endIcon?: AccordionNode;
   /** Overrides the accordion-wide indicator for this row only. */
   indicator?: AccordionIndicator | AccordionNode;
   disabled?: boolean;
@@ -83,7 +90,7 @@ export interface AccordionBehaviourConfig {
   fields?: AccordionFieldMap;
   /** `single` closes siblings on open. Default `single`. */
   mode?: 'single' | 'multiple';
-  /** In `single` mode, allow closing the open item. Default true. */
+  /** Allow closing the last open row. `false` keeps at least one row open, in either mode. Default true. */
   collapsible?: boolean;
   /** Controlled open ids. */
   value?: string[];
@@ -103,6 +110,8 @@ export interface AccordionBehaviourConfig {
   id?: string;
   /** Disables every row. Rows stay focusable. Default false. */
   disabled?: boolean;
+  /** Disables these rows by id, for data you cannot annotate row by row. */
+  disabledIds?: string[];
   /**
    * Closed panels use `hidden="until-found"`, so the browser's find-in-page
    * searches them and opens the match. Default true.
@@ -133,7 +142,7 @@ export interface AccordionDimensions {
   maxWidth?: Length;
   height?: Length;
   maxHeight?: Length;
-  /** Space between rows (outline / separated / filled variants). */
+  /** Space between rows. Overrides `gap`. */
   gap?: Length;
   /** Trigger padding. */
   paddingX?: Length;
@@ -149,8 +158,10 @@ export interface AccordionDimensions {
   iconSize?: Length;
   indicatorSize?: Length;
   borderWidth?: Length;
-  /** Corner radius as a length — overrides the `radius` token preset. */
+  /** Container corner radius as a length. Overrides `radius`. */
   radius?: Length;
+  /** Row corner radius as a length. Overrides `itemRadius`. */
+  itemRadius?: Length;
   /** Open/close transition duration, e.g. `'320ms'`. */
   duration?: Length;
 }
@@ -159,17 +170,30 @@ export interface AccordionAppearanceConfig {
   variant?: AccordionVariant;
   size?: PinfoldSize;
   tone?: PinfoldTone;
-  /** Outer corner radius: a preset, or a length (`20` is px, `'1.25rem'` passes through). Separated and filled rows use it per row. */
-  radius?: PinfoldRadius | number | (string & {});
+  /** Corner radius of the container (the element that holds the rows). Default: the theme radius. */
+  radius?: AccordionRadius;
+  /**
+   * Corner radius of each row. Default: `radius` for separated, filled and ghost rows; square
+   * rows inside a solid or outline card.
+   */
+  itemRadius?: AccordionRadius;
+  /** Space between rows. Default: none for solid, outline and ghost; `'sm'` for separated and filled. */
+  gap?: AccordionGap;
+  /** Leading visual for every row: a node, or `(state) => node` (e.g. per row, or open vs closed). */
+  icon?: AccordionNode;
+  /** Trailing visual for every row, just before the indicator. Same shape as `icon`. */
+  endIcon?: AccordionNode;
   /** Built-in glyph, your own node, or a function of the row's state. */
   indicator?: AccordionIndicator | AccordionNode;
   /** Which edge the indicator sits on. Default `end`. */
   indicatorPosition?: 'start' | 'end';
+  /** Rotate (or morph) the indicator when a row opens. Default true. */
+  animateIndicator?: boolean;
   /** Heading level wrapping each trigger. Default 3. */
   headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   /** Animate open/close. Default true; honours prefers-reduced-motion regardless. */
   animate?: boolean;
-  /** Full-width dividers between rows (solid/ghost variants). Default true. */
+  /** Dividers between rows (solid, outline and ghost variants). Default true. */
   dividers?: boolean;
   /** Text overflow per slot. Default: title `wrap`, description `{ lines: 2 }`. */
   overflow?: { title?: AccordionOverflow; description?: AccordionOverflow };
@@ -208,6 +232,7 @@ export interface ResolvedAppearance {
   tone: PinfoldTone;
   indicator: AccordionIndicator | AccordionNode;
   indicatorPosition: 'start' | 'end';
+  animateIndicator: boolean;
   headingLevel: number;
   animate: boolean;
   dividers: boolean;

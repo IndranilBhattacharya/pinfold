@@ -64,8 +64,8 @@ export function initialAccordionValue(
 
 /**
  * The open set after asking row `id` to become `open`, or `null` when the
- * rules refuse (unknown or disabled row, no change, or closing the only open
- * row of a non-collapsible single accordion).
+ * rules refuse (unknown or disabled row, no change, or closing the last open
+ * row of a non-collapsible accordion, in either mode).
  */
 export function setAccordionItem(
   value: readonly string[],
@@ -78,7 +78,7 @@ export function setAccordionItem(
   if (!row || row.disabled || rules.disabled) return null;
   const isOpen = value.indexOf(id) !== -1;
   if (isOpen === open) return null;
-  if (!open && rules.mode === 'single' && !rules.collapsible) return null;
+  if (!open && !rules.collapsible && value.length === 1) return null;
   if (open) return rules.mode === 'single' ? [id] : value.concat(id);
   return value.filter((v) => v !== id);
 }
@@ -94,13 +94,13 @@ export function openAllAccordion(
   return sameSet(value, next) ? null : next;
 }
 
-/** `closeAll`: refused for a non-collapsible single accordion. Disabled rows keep their state. */
+/** `closeAll`: refused for a non-collapsible accordion. Disabled rows keep their state. */
 export function closeAllAccordion(
   value: readonly string[],
   rows: readonly AccordionRowLike[],
   rules: AccordionRules,
 ): string[] | null {
-  if (rules.disabled || (rules.mode === 'single' && !rules.collapsible)) return null;
+  if (rules.disabled || !rules.collapsible) return null;
   const locked = new Set(rows.filter((r) => r.disabled).map((r) => r.id));
   const next = value.filter((id) => locked.has(id));
   return sameSet(value, next) ? null : next;
@@ -130,7 +130,7 @@ export function accordionFocusTarget(
  * without a `.map()`. `{ id: 'slug', title: 'question', content: 'answer' }`.
  */
 export type AccordionFieldMap = Partial<
-  Record<'id' | 'title' | 'content' | 'description' | 'icon' | 'badge' | 'disabled' | 'defaultOpen', string>
+  Record<'id' | 'title' | 'content' | 'description' | 'icon' | 'endIcon' | 'badge' | 'disabled' | 'defaultOpen', string>
 >;
 
 export function mapAccordionFields<T>(records: readonly any[], fields: AccordionFieldMap | undefined): T[] {

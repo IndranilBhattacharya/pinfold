@@ -80,8 +80,10 @@ renders the result inside its own provider), pass the option in the config. CSS-
 computed value, so a token built from others (`--pinfold-radius-lg` from the radius scale,
 `--pinfold-color-surface-hover` from the surface) is redeclared on every selector that changes an
 input: `[data-pinfold-theme]`, `[data-pinfold-radius]`, `[data-pinfold-style]`. Otherwise nested
-sections would keep the values computed on `:root`. A component root sets `data-pinfold-radius`
-only when the radius is configured, so presets and style packs reach it.
+sections would keep the values computed on `:root`. Components compute their own radius on their
+root (`calc(<size unit> * var(--pinfold-radius-scale))`), so the inherited theme scale from a preset
+or a style pack always reaches them; a configured `radius` / `itemRadius` preset replaces the scale,
+a length replaces the value.
 
 ### Where the config model stops: the escape-hatch ladder (D-09)
 

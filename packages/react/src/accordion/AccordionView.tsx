@@ -4,17 +4,25 @@ import { renderSlot, slotProps } from '../slots';
 import type {
   AccordionApi,
   AccordionConfig,
+  AccordionGap,
   AccordionIndicator,
   AccordionItemState,
   AccordionNode,
   AccordionOverflow,
+  AccordionRadius,
   AccordionRootProps,
   AccordionSlot,
   ResolvedAppearance,
 } from './types';
 
 const B = 'pinfold-accordion';
-const RADIUS_PRESETS: readonly unknown[] = ['none', 'sm', 'md', 'lg', 'full'];
+/** Radius presets scale the size's radius unit, like the theme presets scale every radius. */
+const RADIUS_SCALE: Record<string, number> = { none: 0, sm: 0.6, md: 1, lg: 1.5, full: 2.4 };
+const GAP: Record<string, string> = { none: '0px', sm: 'var(--pinfold-space-2)', md: 'var(--pinfold-space-3)', lg: 'var(--pinfold-space-5)' };
+
+const own = (map: Record<string, unknown>, key: unknown): key is string => typeof key === 'string' && Object.prototype.hasOwnProperty.call(map, key);
+const radiusValue = (r: AccordionRadius | undefined) => (own(RADIUS_SCALE, r) ? `calc(var(--pinfold-acc-radius-unit) * ${RADIUS_SCALE[r]})` : r);
+const gapValue = (g: AccordionGap | undefined) => (own(GAP, g) ? GAP[g] : g);
 
 const GLYPHS: Record<Exclude<AccordionIndicator, 'none'>, React.ReactNode> = {
   chevron: <path d="M4 6.5 8 10.5 12 6.5" />,
@@ -81,9 +89,13 @@ function slot<S extends AccordionSlot>(
 
 export function renderRoot(ctx: ViewContext, rootProps?: AccordionRootProps): React.ReactElement {
   const { api, config, a } = ctx;
-  // A preset scales the radius tokens; a length sets the accordion's radius directly (`dimensions.radius` still wins).
-  const preset = RADIUS_PRESETS.includes(config.radius);
-  const dimensions = config.radius != null && !preset ? { radius: config.radius, ...config.dimensions } : config.dimensions;
+  // Shape options become the same custom properties `dimensions` writes, so `dimensions` still wins.
+  const dimensions = {
+    radius: radiusValue(config.radius),
+    itemRadius: radiusValue(config.itemRadius),
+    gap: gapValue(config.gap),
+    ...config.dimensions,
+  };
 
   const props = api.getRootProps(
     mergeProps(
@@ -93,9 +105,8 @@ export function renderRoot(ctx: ViewContext, rootProps?: AccordionRootProps): Re
         'data-variant': a.variant,
         'data-size': a.size,
         'data-tone': a.tone,
-        // Only an explicit radius; otherwise the provider's preset or a style pack reaches the root by inheritance.
-        'data-pinfold-radius': preset ? config.radius : undefined,
         'data-indicator-position': a.indicatorPosition,
+        'data-static-indicator': a.animateIndicator ? undefined : '',
         'data-dividers': a.dividers ? '' : undefined,
         'data-animate': a.animate ? '' : undefined,
         'data-unstyled': a.unstyled ? '' : undefined,
@@ -184,9 +195,11 @@ export function renderHeader(
 }
 
 function TriggerContent({ ctx, item }: { ctx: ViewContext; item: AccordionItemState }) {
-  const { icon, title, description, badge } = item.config;
+  const { title, description, badge } = item.config;
 
-  const iconNode = resolveNode(icon as AccordionNode, item);
+  // A row's own icons win over the accordion-wide ones.
+  const iconNode = resolveNode((item.config.icon ?? ctx.config.icon) as AccordionNode, item);
+  const endIconNode = resolveNode((item.config.endIcon ?? ctx.config.endIcon) as AccordionNode, item);
   const descriptionNode = resolveNode(description as AccordionNode, item);
   const badgeNode = resolveNode(badge as AccordionNode, item);
 
@@ -218,6 +231,12 @@ function TriggerContent({ ctx, item }: { ctx: ViewContext; item: AccordionItemSt
 
       {badgeNode ? (
         <span {...slot(ctx, 'badge', { className: cls(ctx, `${B}__badge`) }, item)}>{badgeNode}</span>
+      ) : null}
+
+      {endIconNode ? (
+        <span {...slot(ctx, 'endIcon', { className: cls(ctx, `${B}__end-icon`), 'aria-hidden': 'true' }, item)}>
+          {endIconNode}
+        </span>
       ) : null}
 
       {renderIndicator(ctx, item)}

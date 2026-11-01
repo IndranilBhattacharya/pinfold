@@ -3,6 +3,7 @@ import type { ComponentMeta, PropMeta } from './meta';
 const SIZE = ['sm', 'md', 'lg'] as const;
 const TONE = ['primary', 'neutral', 'success', 'warning', 'danger', 'info'] as const;
 const RADIUS = ['none', 'sm', 'md', 'lg', 'full'] as const;
+const GAP = ['none', 'sm', 'md', 'lg'] as const;
 const SLOTS = [
   'root',
   'item',
@@ -13,6 +14,7 @@ const SLOTS = [
   'title',
   'description',
   'badge',
+  'endIcon',
   'indicator',
   'panel',
   'content',
@@ -39,8 +41,9 @@ const item: Record<string, PropMeta> = {
   title: { ...node('The row heading. A node or `(state) => node`.'), required: true },
   content: node('The panel body.'),
   description: node('A secondary line under the title.'),
-  icon: node('A leading visual.'),
+  icon: node('A leading visual. Overrides the accordion-wide `icon`.'),
   badge: node('A trailing chip before the indicator.'),
+  endIcon: node('A trailing visual just before the indicator. Overrides the accordion-wide `endIcon`.'),
   indicator: {
     type: 'enum',
     values: ['chevron', 'plus', 'caret', 'arrow', 'none'],
@@ -75,7 +78,7 @@ export const accordionMeta: ComponentMeta = {
       description: "Map raw records onto rows: `{ id: 'slug', title: 'question', content: 'answer' }`.",
       group: 'data',
       keys: Object.fromEntries(
-        ['id', 'title', 'content', 'description', 'icon', 'badge', 'disabled', 'defaultOpen'].map((k) => [
+        ['id', 'title', 'content', 'description', 'icon', 'endIcon', 'badge', 'disabled', 'defaultOpen'].map((k) => [
           k,
           { type: 'string', description: `Source field for \`${k}\`.`, group: 'data' },
         ]),
@@ -92,7 +95,7 @@ export const accordionMeta: ComponentMeta = {
     collapsible: {
       type: 'boolean',
       default: true,
-      description: 'In single mode, lets the user close the open row.',
+      description: 'Lets the user close the last open row. `false` keeps at least one row open, in either mode.',
       group: 'behaviour',
       control: true,
     },
@@ -105,6 +108,7 @@ export const accordionMeta: ComponentMeta = {
       group: 'behaviour',
       control: true,
     },
+    disabledIds: { type: 'string[]', description: 'Disables these rows by id.', group: 'behaviour' },
     orientation: {
       type: 'enum',
       values: ['vertical', 'horizontal'],
@@ -162,11 +166,31 @@ export const accordionMeta: ComponentMeta = {
       type: 'enum',
       values: RADIUS,
       orLength: true,
-      default: 'md',
-      description: "Outer corner radius: a preset, or a length (`20` is px, `'1.25rem'` passes through).",
+      description:
+        "Corner radius of the container that holds the rows: a preset, or a length (`20` is px, `'1.25rem'` passes through). Default: the theme radius.",
       group: 'appearance',
       control: true,
     },
+    itemRadius: {
+      type: 'enum',
+      values: RADIUS,
+      orLength: true,
+      description:
+        'Corner radius of each row, same values as `radius`. Default: `radius` for separated, filled and ghost rows; square rows inside a solid or outline card.',
+      group: 'appearance',
+      control: true,
+    },
+    gap: {
+      type: 'enum',
+      values: GAP,
+      orLength: true,
+      description:
+        "Space between rows: a preset, or a length (`12` is px). Default: none for solid, outline and ghost; `'sm'` for separated and filled.",
+      group: 'appearance',
+      control: true,
+    },
+    icon: { ...node('Leading visual for every row: a node, or `(state) => node`. A row’s own `icon` wins.'), group: 'appearance' },
+    endIcon: { ...node('Trailing visual for every row, just before the indicator. A row’s own `endIcon` wins.'), group: 'appearance' },
     indicator: {
       type: 'enum',
       values: ['chevron', 'plus', 'caret', 'arrow', 'none'],
@@ -184,6 +208,13 @@ export const accordionMeta: ComponentMeta = {
       group: 'appearance',
       control: true,
     },
+    animateIndicator: {
+      type: 'boolean',
+      default: true,
+      description: 'Rotate (or morph) the indicator when a row opens.',
+      group: 'appearance',
+      control: true,
+    },
     headingLevel: {
       type: 'enum',
       values: [1, 2, 3, 4, 5, 6],
@@ -198,7 +229,7 @@ export const accordionMeta: ComponentMeta = {
       group: 'appearance',
       control: true,
     },
-    dividers: { type: 'boolean', default: true, description: 'Lines between rows.', group: 'appearance', control: true },
+    dividers: { type: 'boolean', default: true, description: 'Lines between rows (solid, outline and ghost).', group: 'appearance', control: true },
     overflow: {
       type: 'object',
       description: 'Text overflow per slot. Default: title wraps, description clamps to 2 lines.',
@@ -215,7 +246,7 @@ export const accordionMeta: ComponentMeta = {
         maxWidth: len('Maximum width.'),
         height: len('Fixed height.'),
         maxHeight: len('Caps the root; rows scroll.'),
-        gap: len('Space between rows.'),
+        gap: len('Space between rows. Overrides `gap`.'),
         paddingX: len('Trigger horizontal padding.'),
         paddingY: len('Trigger vertical padding.'),
         panelPaddingX: len('Panel horizontal padding.'),
@@ -227,7 +258,8 @@ export const accordionMeta: ComponentMeta = {
         iconSize: len('Icon box size.'),
         indicatorSize: len('Indicator size.'),
         borderWidth: len('Border width.'),
-        radius: len('Corner radius as a length.'),
+        radius: len('Container corner radius. Overrides `radius`.'),
+        itemRadius: len('Row corner radius. Overrides `itemRadius`.'),
         duration: len("Transition duration, e.g. '320ms'."),
       },
     },
@@ -291,6 +323,8 @@ export const accordionMeta: ComponentMeta = {
     '--pinfold-accordion-panel-max-height',
     '--pinfold-accordion-gap',
     '--pinfold-accordion-radius',
+    '--pinfold-accordion-item-radius',
+    '--pinfold-accordion-divider-color',
     '--pinfold-accordion-duration',
   ],
   examples: [

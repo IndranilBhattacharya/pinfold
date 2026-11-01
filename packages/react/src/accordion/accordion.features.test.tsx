@@ -136,22 +136,61 @@ describe('Accordion features', () => {
     expect(root).toHaveAttribute('data-dividers');
   });
 
-  it('sets a radius on the root only when one is configured, so presets and packs inherit', () => {
-    const { unmount } = render(<Accordion items={items} />);
-    expect(document.querySelector('[data-pinfold="accordion"]')).not.toHaveAttribute('data-pinfold-radius');
-    unmount();
-    render(<Accordion items={items} radius="full" />);
-    expect(document.querySelector('[data-pinfold="accordion"]')).toHaveAttribute('data-pinfold-radius', 'full');
+  it('leaves the radius to the theme unless one is configured', () => {
+    render(<Accordion items={items} />);
+    const root = document.querySelector<HTMLElement>('[data-pinfold="accordion"]')!;
+    expect(root.style.getPropertyValue('--pinfold-accordion-radius')).toBe('');
+    expect(root).not.toHaveAttribute('data-pinfold-radius');
   });
 
-  it('takes a length as the radius; dimensions.radius still wins', () => {
+  it('shapes the container and the rows separately: radius, itemRadius and gap', () => {
     const root = () => document.querySelector<HTMLElement>('[data-pinfold="accordion"]')!;
-    const { unmount } = render(<Accordion items={items} radius={20} />);
-    expect(root()).not.toHaveAttribute('data-pinfold-radius');
-    expect(root().style.getPropertyValue('--pinfold-accordion-radius')).toBe('20px');
+    const v = (name: string) => root().style.getPropertyValue(name);
+    const { unmount } = render(<Accordion items={items} radius="full" itemRadius="sm" gap="md" />);
+    expect(v('--pinfold-accordion-radius')).toBe('calc(var(--pinfold-acc-radius-unit) * 2.4)');
+    expect(v('--pinfold-accordion-item-radius')).toBe('calc(var(--pinfold-acc-radius-unit) * 0.6)');
+    expect(v('--pinfold-accordion-gap')).toBe('var(--pinfold-space-3)');
     unmount();
-    render(<Accordion items={items} radius="1.5rem" dimensions={{ radius: 4 }} />);
-    expect(root().style.getPropertyValue('--pinfold-accordion-radius')).toBe('4px');
+    render(<Accordion items={items} radius={20} itemRadius="0.5rem" gap={6} dimensions={{ radius: 4 }} />);
+    expect(v('--pinfold-accordion-radius')).toBe('4px'); // dimensions wins
+    expect(v('--pinfold-accordion-item-radius')).toBe('0.5rem');
+    expect(v('--pinfold-accordion-gap')).toBe('6px');
+  });
+
+  it('puts icons on any row: accordion-wide defaults, per-row overrides, and state functions', () => {
+    render(
+      <Accordion
+        items={[
+          { id: 'a', title: 'A', content: 'a', defaultOpen: true },
+          { id: 'b', title: 'B', content: 'b', icon: <i>own</i>, endIcon: null as any },
+        ]}
+        icon={(s) => <i>{s.open ? 'open' : 'shut'}</i>}
+        endIcon={<i>end</i>}
+      />,
+    );
+    const rows = document.querySelectorAll('.pinfold-accordion__item');
+    expect(rows[0].querySelector('.pinfold-accordion__icon')).toHaveTextContent('open');
+    expect(rows[0].querySelector('.pinfold-accordion__end-icon')).toHaveTextContent('end');
+    expect(rows[1].querySelector('.pinfold-accordion__icon')).toHaveTextContent('own');
+    // The end icon sits after the label and before the indicator.
+    const parts = [...rows[0].querySelector('button')!.children].map((el) => el.className);
+    expect(parts.indexOf('pinfold-accordion__end-icon')).toBeGreaterThan(parts.indexOf('pinfold-accordion__label'));
+    expect(parts.indexOf('pinfold-accordion__end-icon')).toBeLessThan(parts.indexOf('pinfold-accordion__indicator'));
+  });
+
+  it('disables rows by id and can keep the indicator still', () => {
+    render(<Accordion items={items} disabledIds={[items[1].id!]} animateIndicator={false} />);
+    const triggers = screen.getAllByRole('button');
+    expect(triggers[1]).toHaveAttribute('aria-disabled', 'true');
+    expect(triggers[0]).not.toHaveAttribute('aria-disabled');
+    expect(document.querySelector('[data-pinfold="accordion"]')).toHaveAttribute('data-static-indicator');
+  });
+
+  it('keeps one row open in multiple mode when collapsible is false', () => {
+    render(<Accordion items={items} mode="multiple" collapsible={false} defaultValue={[items[0].id!]} />);
+    const first = screen.getAllByRole('button')[0];
+    fireEvent.click(first);
+    expect(first).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('lets a nested provider override its section', () => {

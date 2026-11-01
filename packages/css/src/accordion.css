@@ -16,7 +16,10 @@
     --pinfold-acc-pad-x-base: var(--pinfold-space-4);
     --pinfold-acc-pad-y-base: var(--pinfold-space-4);
     --pinfold-acc-font-base: var(--pinfold-text-md);
-    --pinfold-acc-radius-base: var(--pinfold-radius-lg);
+    /* The size's radius unit, scaled by the theme radius (provider preset or style pack). The
+       `radius` / `itemRadius` presets scale the same unit. */
+    --pinfold-acc-radius-unit: 0.75rem;
+    --pinfold-acc-radius-base: calc(var(--pinfold-acc-radius-unit) * var(--pinfold-radius-scale, 1));
     --pinfold-acc-gap-base: 0px;
 
     /* config layer (set by `dimensions`) */
@@ -35,7 +38,8 @@
     --pinfold-acc-duration: var(--pinfold-accordion-duration, var(--pinfold-duration-md));
 
     --pinfold-acc-accent: var(--pinfold-color-accent);
-    --pinfold-acc-item-radius: 0px;
+    /* Rows inside a card are square unless `itemRadius` says otherwise. */
+    --pinfold-acc-item-radius: var(--pinfold-accordion-item-radius, 0px);
 
     display: flex;
     flex-direction: column;
@@ -47,6 +51,7 @@
     max-width: var(--pinfold-accordion-max-width, none);
     height: var(--pinfold-accordion-height, auto);
     max-height: var(--pinfold-accordion-max-height, none);
+    border-radius: var(--pinfold-acc-radius);
     font-size: var(--pinfold-acc-font);
     letter-spacing: var(--pinfold-tracking-tight);
     color: var(--pinfold-color-text);
@@ -63,13 +68,13 @@
     --pinfold-acc-pad-x-base: var(--pinfold-space-3);
     --pinfold-acc-pad-y-base: var(--pinfold-space-3);
     --pinfold-acc-font-base: var(--pinfold-text-sm);
-    --pinfold-acc-radius-base: var(--pinfold-radius-md);
+    --pinfold-acc-radius-unit: 0.5rem;
   }
   .pinfold-accordion[data-size='lg'] {
     --pinfold-acc-pad-x-base: var(--pinfold-space-5);
     --pinfold-acc-pad-y-base: var(--pinfold-space-5);
     --pinfold-acc-font-base: var(--pinfold-text-lg);
-    --pinfold-acc-radius-base: var(--pinfold-radius-xl);
+    --pinfold-acc-radius-unit: 1rem;
   }
 
   /* ------------------------------------------------------------------ tones */
@@ -91,14 +96,15 @@
 
   /* Dividers. In a container (solid, outline) they stop at the row padding, so the rows read
      as one surface with a rhythm rather than a table; ghost rows run them full width. Drawn
-     as a zero-height pseudo-element: the row box, and with it the focus ring, stays whole. */
+     as a zero-height pseudo-element centred in the gap: the row box, and with it the focus
+     ring, stays whole. Colour: --pinfold-accordion-divider-color. */
   .pinfold-accordion:is([data-variant='solid'], [data-variant='outline'], [data-variant='ghost'])[data-dividers]
     .pinfold-accordion__item + .pinfold-accordion__item::before {
     content: '';
     position: absolute;
-    inset-block-start: 0;
+    inset-block-start: calc(var(--pinfold-acc-gap) / -2);
     inset-inline: var(--pinfold-acc-divider-inset, 0);
-    border-top: var(--pinfold-acc-border) solid var(--pinfold-color-border);
+    border-top: var(--pinfold-acc-border) solid var(--pinfold-accordion-divider-color, var(--pinfold-color-border));
     pointer-events: none;
   }
 
@@ -108,7 +114,6 @@
   .pinfold-accordion:is([data-variant='solid'], [data-variant='outline']) {
     --pinfold-acc-divider-inset: var(--pinfold-acc-pad-x);
     border: var(--pinfold-acc-border) solid var(--pinfold-color-border);
-    border-radius: var(--pinfold-acc-radius);
   }
   .pinfold-accordion[data-variant='solid'] {
     background: var(--pinfold-color-surface);
@@ -133,7 +138,7 @@
     --pinfold-acc-gap-base: var(--pinfold-space-2);
   }
   .pinfold-accordion[data-variant='separated'] .pinfold-accordion__item {
-    --pinfold-acc-item-radius: var(--pinfold-acc-radius);
+    --pinfold-acc-item-radius: var(--pinfold-accordion-item-radius, var(--pinfold-acc-radius));
     background: var(--pinfold-color-surface);
     background-image: var(--pinfold-texture);
     -webkit-backdrop-filter: var(--pinfold-backdrop);
@@ -147,7 +152,7 @@
     --pinfold-acc-gap-base: var(--pinfold-space-2);
   }
   .pinfold-accordion[data-variant='filled'] .pinfold-accordion__item {
-    --pinfold-acc-item-radius: var(--pinfold-acc-radius);
+    --pinfold-acc-item-radius: var(--pinfold-accordion-item-radius, var(--pinfold-acc-radius));
     background: var(--pinfold-color-bg-subtle);
     background-image: var(--pinfold-texture);
     -webkit-backdrop-filter: var(--pinfold-backdrop);
@@ -156,7 +161,7 @@
 
   /* ghost — no container: text and dividers only. */
   .pinfold-accordion[data-variant='ghost'] .pinfold-accordion__item {
-    --pinfold-acc-item-radius: var(--pinfold-acc-radius);
+    --pinfold-acc-item-radius: var(--pinfold-accordion-item-radius, var(--pinfold-acc-radius));
   }
 
   /* ----------------------------------------------------------------- header */
@@ -207,6 +212,16 @@
     width: var(--pinfold-acc-icon);
     height: var(--pinfold-acc-icon);
     color: var(--pinfold-acc-accent);
+  }
+
+  .pinfold-accordion__end-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--pinfold-acc-icon);
+    height: var(--pinfold-acc-icon);
+    color: var(--pinfold-color-text-muted);
   }
 
   .pinfold-accordion__label {
@@ -274,6 +289,14 @@
   .pinfold-accordion__trigger[data-state='open'] .pinfold-accordion__indicator {
     color: var(--pinfold-acc-accent);
     transform: rotate(180deg);
+  }
+
+  /* `animateIndicator: false`: the indicator keeps its angle. A plus still becomes a minus. */
+  .pinfold-accordion[data-static-indicator] .pinfold-accordion__trigger .pinfold-accordion__indicator {
+    transform: none;
+  }
+  .pinfold-accordion[data-static-indicator] .pinfold-accordion__indicator-bar {
+    transition: none;
   }
 
   /* The plus glyph morphs into a minus instead of spinning. */
@@ -373,11 +396,16 @@
     .pinfold-accordion__indicator {
       order: 1;
     }
-    .pinfold-accordion__badge {
+    /* Badge and end icon share the second line, aligned under the title. */
+    .pinfold-accordion__badge,
+    .pinfold-accordion__end-icon {
       order: 2;
+    }
+    .pinfold-accordion__badge,
+    .pinfold-accordion__trigger:not(:has(.pinfold-accordion__badge)) .pinfold-accordion__end-icon {
       margin-inline-start: calc(var(--pinfold-acc-icon) + var(--pinfold-space-3));
     }
-    .pinfold-accordion__trigger:not(:has(.pinfold-accordion__icon)) .pinfold-accordion__badge {
+    .pinfold-accordion__trigger:not(:has(.pinfold-accordion__icon)) :is(.pinfold-accordion__badge, .pinfold-accordion__end-icon) {
       margin-inline-start: 0;
     }
   }

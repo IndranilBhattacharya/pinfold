@@ -66,7 +66,7 @@ Current milestone: **A1–A8 complete, A9 automated evidence complete (2026-11-0
 - [ ] A manual screen-reader matrix: NVDA + Chrome, JAWS, VoiceOver + Safari, TalkBack. The script and the table are ready in [a11y/screen-readers.md](a11y/screen-readers.md); a person runs it before the first stable release.
 
 ## 0.2.0 · Look and release hardening
-- [x] Accordion look after HeroUI-style review: calm headers (no hover or open background, no accent bar), dividers inset in cards, `outline` is a framed card, roomier rows. `radius` takes a preset or a length.
+- [x] Accordion look after HeroUI-style review: calm headers (no hover or open background, no accent bar), dividers inset in cards, `outline` is a framed card, roomier rows. Shape options: `radius` (container), `itemRadius` (rows) and `gap`, each a preset or a length. Icons on every part of a row: `icon`, `endIcon` (per row or accordion-wide, node or `(state) => node`) and `indicator`. Parity with shadcn/ui and HeroUI: `disabledIds`, `animateIndicator`, `collapsible: false` in multiple mode, divider colour (mapping in [components/accordion.md](components/accordion.md)).
 - [x] Components read the `primary` role, so the palette re-colours them; style packs mix every colour from palette tokens.
 - [x] Zero known vulnerabilities: `rimraf` removed; `npm audit` gates CI and the release, and the consumer smoke test audits what a user installs.
 - [x] `scripts/publish.mjs`: the release publishes only versions that are not on npm yet.
