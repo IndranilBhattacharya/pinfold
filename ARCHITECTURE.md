@@ -234,6 +234,9 @@ the CLI, the build and the runtime share one implementation.
 
 - **Seven roles:** primary, accent, neutral, success, warning, danger, info. Each is an
   eleven-step ramp generated from a single OKLCH hue angle.
+- **Components take their colour from `primary`** (the semantic `--pinfold-color-accent`, ring and
+  interaction tokens all read the primary ramp). The `accent` ramp is a second hue for the consumer's
+  own UI. One palette change re-colours every component.
 - **One tuned lightness and chroma curve,** shared by every role. Only the hue moves, which is why
   any hue produces an evenly stepped, usable ramp.
 - **Neutrals inherit the brand hue** by default. Pure grey next to a saturated brand looks dead.
@@ -241,8 +244,9 @@ the CLI, the build and the runtime share one implementation.
   Out-of-gamut chroma is pulled back into gamut by bisection, never clipped.
 - **Dark mode flips the semantic layer only.** The ramps are untouched.
 - **Contrast is reported, not assumed:** `createTheme().contrast` and `npx pinfold theme --check`.
-- **Style packs** (glass, bauhaus, brutalist, noise, soft) are token and surface recipes behind
-  `data-pinfold-style`. They are never forks of the components. Each one respects `prefers-contrast`,
+- **Style packs** (glass, material, noise, brutalist) are token and surface recipes behind
+  `data-pinfold-style`. They are never forks of the components, and they follow the palette: every
+  colour a pack sets is mixed from palette tokens (a test fails on a literal colour). Each one respects `prefers-contrast`,
   `prefers-reduced-transparency` and `forced-colors`, and must pass the contrast check.
 
 A literal colour in a component stylesheet is a bug. The conformance suite fails the build on one.
@@ -251,7 +255,8 @@ A literal colour in a component stylesheet is a bug. The conformance suite fails
 
 - **Two-layer shadows,** tinted with the neutral ramp.
 - **`--pinfold-highlight`,** a hairline inset top edge on raised surfaces.
-- **Interaction surfaces carry the brand.** Hover mixes about 6% accent into the surface.
+- **Calm headers.** A disclosure header never repaints on hover or when open; a glyph carries the
+  state. Hover tokens (about 6% brand mixed into the surface) are for controls that are buttons.
 - **Two-tone focus ring.** Nothing may clip it.
 - **Decelerating easing** (`--pinfold-ease-out`) for anything that appears. Content settles about 35%
   behind its container.

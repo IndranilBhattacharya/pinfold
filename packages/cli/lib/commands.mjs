@@ -12,7 +12,7 @@ import { describe as describeProject, detect } from './detect.mjs';
 import { Plan, addCssImport, addImports, addNamedImport, addTailwindPreset } from './plan.mjs';
 
 export const RADII = ['none', 'sm', 'md', 'lg', 'full'];
-export const PACKS = ['default', 'glass', 'bauhaus', 'brutalist', 'noise', 'soft'];
+export const PACKS = ['default', 'glass', 'material', 'noise', 'brutalist'];
 export const MODES = ['system', 'light', 'dark'];
 const ROLES = ['primary', 'accent', 'neutral', 'success', 'warning', 'danger', 'info'];
 const THEME_FILE = 'pinfold-theme.css';

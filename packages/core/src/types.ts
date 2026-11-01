@@ -8,7 +8,7 @@ export type PinfoldTheme = 'light' | 'dark' | 'system';
 /** When a component's code loads. `auto`: light components eagerly, heavy ones when visible. */
 export type PinfoldLazy = 'auto' | 'eager' | 'visible' | 'idle';
 /** Visual style pack, applied through `data-pinfold-style`. */
-export type PinfoldStylePack = 'default' | 'glass' | 'bauhaus' | 'brutalist' | 'noise' | 'soft';
+export type PinfoldStylePack = 'default' | 'glass' | 'material' | 'noise' | 'brutalist';
 
 /** Any DOM props bag a component hands back from a `getXProps()` call. */
 export type PropsBag = Record<string, any>;

@@ -144,6 +144,16 @@ describe('Accordion features', () => {
     expect(document.querySelector('[data-pinfold="accordion"]')).toHaveAttribute('data-pinfold-radius', 'full');
   });
 
+  it('takes a length as the radius; dimensions.radius still wins', () => {
+    const root = () => document.querySelector<HTMLElement>('[data-pinfold="accordion"]')!;
+    const { unmount } = render(<Accordion items={items} radius={20} />);
+    expect(root()).not.toHaveAttribute('data-pinfold-radius');
+    expect(root().style.getPropertyValue('--pinfold-accordion-radius')).toBe('20px');
+    unmount();
+    render(<Accordion items={items} radius="1.5rem" dimensions={{ radius: 4 }} />);
+    expect(root().style.getPropertyValue('--pinfold-accordion-radius')).toBe('4px');
+  });
+
   it('lets a nested provider override its section', () => {
     render(
       <PinfoldProvider defaults={{ accordion: { variant: 'ghost', size: 'sm' } }}>
@@ -160,7 +170,7 @@ describe('Accordion features', () => {
   it('validates config in development, for JS users', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     function Bad() {
-      const Faq = useAccordion({ items, varient: 'solid', mode: 'many', animate: 'yes' } as any);
+      const Faq = useAccordion({ items, varient: 'solid', mode: 'many', animate: 'yes', radius: 'ful' } as any);
       return <Faq />;
     }
     render(<Bad />);
@@ -169,6 +179,7 @@ describe('Accordion features', () => {
     expect(out).toMatch(/unknown option `varient`. Did you mean `variant`\?/);
     expect(out).toMatch(/`mode` must be one of "single" \| "multiple"/);
     expect(out).toMatch(/`animate` must be true or false/);
+    expect(out).toMatch(/`radius` must be one of .* or a length, got "ful"/);
   });
 
   it('warns about a row without a title', async () => {

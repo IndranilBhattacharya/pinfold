@@ -87,7 +87,7 @@ writeFileSync(
     '## Reference',
     '',
     `- [Full reference](${SITE}/llms-full.txt): every option of every component (also \`llms-full.txt\` in this package)`,
-    `- [Theming](${SITE}/docs/theming): \`npx pinfold theme\`, style packs (glass, bauhaus, brutalist, noise, soft), DTCG tokens`,
+    `- [Theming](${SITE}/docs/theming): \`npx pinfold theme\`, style packs (glass, material, noise, brutalist), DTCG tokens`,
     '- Local MCP server: `npx pinfold mcp` (tools: list_components, get_component, get_schema, validate_config, get_install_steps)',
     '',
   ].join('\n'),

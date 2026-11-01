@@ -29,7 +29,9 @@
     --pinfold-primary-900: oklch(0.380 0.146 274);
     --pinfold-primary-950: oklch(0.283 0.101 274);
 
-    /* `accent` defaults to the brand ramp; the CLI can give it its own hue. */
+    /* `accent` is a second hue for your own UI (Tailwind `accent-*`). Components never read it:
+       every component colour comes from `primary`, so one palette change re-colours them all.
+       It defaults to the brand ramp; the CLI can give it its own hue. */
     --pinfold-accent-300: var(--pinfold-primary-300);
     --pinfold-accent-400: var(--pinfold-primary-400);
     --pinfold-accent-500: var(--pinfold-primary-500);
@@ -94,12 +96,12 @@
     --pinfold-color-text-subtle: var(--pinfold-neutral-500);
     --pinfold-color-text-disabled: var(--pinfold-neutral-400);
 
-    --pinfold-color-accent: var(--pinfold-accent-600);
-    --pinfold-color-accent-hover: var(--pinfold-accent-700);
+    --pinfold-color-accent: var(--pinfold-primary-600);
+    --pinfold-color-accent-hover: var(--pinfold-primary-700);
     --pinfold-color-accent-subtle: color-mix(in oklch, var(--pinfold-color-accent) 10%, transparent);
     --pinfold-color-accent-contrast: oklch(1 0 0);
 
-    --pinfold-color-ring: var(--pinfold-accent-500);
+    --pinfold-color-ring: var(--pinfold-primary-500);
     --pinfold-color-overlay: color-mix(in oklch, var(--pinfold-neutral-950) 45%, transparent);
     --pinfold-color-selection: color-mix(in oklch, var(--pinfold-color-accent) 22%, transparent);
 
@@ -211,10 +213,10 @@
       --pinfold-color-text-disabled: var(--pinfold-neutral-600);
       /* Dark surfaces need a lighter, slightly less saturated accent to hold
          contrast without glowing. */
-      --pinfold-color-accent: var(--pinfold-accent-400);
-      --pinfold-color-accent-hover: var(--pinfold-accent-300);
+      --pinfold-color-accent: var(--pinfold-primary-400);
+      --pinfold-color-accent-hover: var(--pinfold-primary-300);
       --pinfold-color-accent-contrast: var(--pinfold-neutral-950);
-      --pinfold-color-ring: var(--pinfold-accent-400);
+      --pinfold-color-ring: var(--pinfold-primary-400);
       --pinfold-shadow-color: oklch(0 0 0);
       --pinfold-shadow-xs: 0 1px 1px color-mix(in oklch, var(--pinfold-shadow-color) 30%, transparent);
       --pinfold-shadow-sm:
@@ -246,10 +248,10 @@
     --pinfold-color-text-muted: var(--pinfold-neutral-400);
     --pinfold-color-text-subtle: var(--pinfold-neutral-500);
     --pinfold-color-text-disabled: var(--pinfold-neutral-600);
-    --pinfold-color-accent: var(--pinfold-accent-400);
-    --pinfold-color-accent-hover: var(--pinfold-accent-300);
+    --pinfold-color-accent: var(--pinfold-primary-400);
+    --pinfold-color-accent-hover: var(--pinfold-primary-300);
     --pinfold-color-accent-contrast: var(--pinfold-neutral-950);
-    --pinfold-color-ring: var(--pinfold-accent-400);
+    --pinfold-color-ring: var(--pinfold-primary-400);
     --pinfold-shadow-color: oklch(0 0 0);
     --pinfold-shadow-xs: 0 1px 1px color-mix(in oklch, var(--pinfold-shadow-color) 30%, transparent);
     --pinfold-shadow-sm:
@@ -293,10 +295,10 @@
     --pinfold-color-text-muted: var(--pinfold-neutral-600);
     --pinfold-color-text-subtle: var(--pinfold-neutral-500);
     --pinfold-color-text-disabled: var(--pinfold-neutral-400);
-    --pinfold-color-accent: var(--pinfold-accent-600);
-    --pinfold-color-accent-hover: var(--pinfold-accent-700);
+    --pinfold-color-accent: var(--pinfold-primary-600);
+    --pinfold-color-accent-hover: var(--pinfold-primary-700);
     --pinfold-color-accent-contrast: oklch(1 0 0);
-    --pinfold-color-ring: var(--pinfold-accent-500);
+    --pinfold-color-ring: var(--pinfold-primary-500);
     --pinfold-shadow-color: var(--pinfold-neutral-900);
     --pinfold-shadow-xs: 0 1px 1px color-mix(in oklch, var(--pinfold-shadow-color) 5%, transparent);
     --pinfold-shadow-sm: 0 1px 2px color-mix(in oklch, var(--pinfold-shadow-color) 6%, transparent),

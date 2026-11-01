@@ -19,8 +19,9 @@ import '@pinfold/css/packs.css';
 // <PinfoldProvider stylePack="glass">, or data-pinfold-style="glass" on any element
 ```
 
-`glass`, `bauhaus`, `brutalist`, `noise` and `soft` are token recipes (shape, depth, borders,
-surfaces, type), so every component follows them with no extra CSS. Each one yields to
+`glass`, `material`, `noise` and `brutalist` are token recipes (shape, depth, borders,
+surfaces, texture), so every component follows them with no extra CSS. They follow your palette
+instead of replacing it: every colour a pack sets is mixed from the palette tokens. Each one yields to
 `prefers-reduced-transparency`, `prefers-contrast: more` and `forced-colors`, and glass surfaces
 are tested to keep body text at WCAG AA over white, black and brand-coloured backdrops.
 

@@ -5,9 +5,12 @@
      <PinfoldProvider stylePack="glass">   (or data-pinfold-style="glass" on any element)
 
    A pack is only a token recipe: it re-points shape, depth, border, surface and
-   type tokens, so every component follows it with no per-component CSS.
-   Colour roles are untouched, so text contrast comes from the palette, which
-   is contrast-checked (see packs.test.ts).
+   texture tokens, so every component follows it with no per-component CSS.
+
+   Packs follow your palette, they never replace it. Every colour a pack sets is
+   mixed from the palette's own tokens (primary, surface, text), so changing the
+   palette re-tints the pack, in light and dark mode. Text colours are never
+   touched, so text contrast stays the palette's (see packs.test.ts).
 
    Every pack yields to the user:
    - prefers-reduced-transparency: no translucency, no blur.
@@ -22,70 +25,64 @@
 @layer pinfold.packs {
 
   /* ------------------------------------------------------------------ glass */
-  /* Frosted, translucent surfaces over whatever is behind them. */
+  /* Liquid glass: a translucent pane tinted with the brand colour, blurred and saturated
+     over whatever is behind it, with a light rim and a specular top edge. */
   [data-pinfold-style='glass'] {
-    --pinfold-color-surface: color-mix(in oklch, var(--pinfold-color-bg) 68%, transparent);
-    --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-bg) 62%, transparent);
+    --pinfold-color-surface: color-mix(in oklch, color-mix(in oklch, var(--pinfold-color-accent) 6%, var(--pinfold-color-bg)) 66%, transparent);
+    --pinfold-color-bg-subtle: color-mix(in oklch, color-mix(in oklch, var(--pinfold-color-accent) 10%, var(--pinfold-color-bg)) 62%, transparent);
     --pinfold-color-border: color-mix(in oklch, var(--pinfold-color-text) 12%, transparent);
-    --pinfold-backdrop: blur(18px) saturate(1.6);
-    --pinfold-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 40%, transparent);
+    --pinfold-backdrop: blur(20px) saturate(1.8);
+    --pinfold-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 35%, transparent),
+      inset 0 0 0 1px color-mix(in oklch, oklch(1 0 0) 6%, transparent);
+    --pinfold-shadow-sm: 0 8px 24px -12px color-mix(in oklch, var(--pinfold-color-accent) 30%, transparent);
+    --pinfold-shadow-md: 0 16px 40px -16px color-mix(in oklch, var(--pinfold-color-accent) 38%, transparent);
+    --pinfold-radius-scale: 1.5;
+  }
+
+  /* --------------------------------------------------------------- material */
+  /* Material 3: tonal surfaces (the surface takes a trace of the brand colour), faint
+     outlines, soft elevation and generous rounding. */
+  [data-pinfold-style='material'] {
+    --pinfold-color-surface: color-mix(in oklch, var(--pinfold-color-accent) 5%, var(--pinfold-color-bg));
+    --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-accent) 10%, var(--pinfold-color-bg));
+    --pinfold-color-border: color-mix(in oklch, var(--pinfold-color-text) 8%, transparent);
+    --pinfold-shadow-sm:
+      0 1px 2px color-mix(in oklch, var(--pinfold-shadow-color) 18%, transparent),
+      0 1px 3px 1px color-mix(in oklch, var(--pinfold-shadow-color) 8%, transparent);
+    --pinfold-shadow-md:
+      0 1px 2px color-mix(in oklch, var(--pinfold-shadow-color) 18%, transparent),
+      0 2px 6px 2px color-mix(in oklch, var(--pinfold-shadow-color) 9%, transparent);
+    --pinfold-highlight: 0 0 0 0 transparent;
     --pinfold-radius-scale: 1.4;
   }
 
-  /* ---------------------------------------------------------------- bauhaus */
-  /* Geometry and primaries: square corners, heavy rules, offset colour blocks. */
-  [data-pinfold-style='bauhaus'] {
-    --pinfold-radius-scale: 0;
-    --pinfold-border-width: 2px;
-    --pinfold-color-border: var(--pinfold-color-text);
-    --pinfold-color-border-accent: var(--pinfold-color-accent);
-    --pinfold-shadow-sm: 4px 4px 0 var(--pinfold-color-accent);
-    --pinfold-shadow-md: 6px 6px 0 var(--pinfold-color-accent);
-    --pinfold-highlight: 0 0 0 0 transparent;
-    --pinfold-font-sans: Futura, 'Century Gothic', 'Avenir Next', ui-sans-serif, system-ui, sans-serif;
-    --pinfold-tracking-tight: 0em;
+  /* ------------------------------------------------------------------ noise */
+  /* Print-like grain over the palette's own surfaces. The texture is a small inline SVG,
+     no request. */
+  [data-pinfold-style='noise'] {
+    --pinfold-texture: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-accent) 6%, var(--pinfold-color-surface));
   }
 
   /* -------------------------------------------------------------- brutalist */
-  /* Raw and loud: monospace, thick black rules, hard shadows, no rounding. */
+  /* Neo-brutalism: heavy rules in the text colour and a hard offset shadow in the brand
+     colour. Small radius, no blur, no highlight. */
   [data-pinfold-style='brutalist'] {
-    --pinfold-radius-scale: 0;
-    --pinfold-border-width: 3px;
+    --pinfold-radius-scale: 0.5;
+    --pinfold-border-width: 2px;
     --pinfold-color-border: var(--pinfold-color-text);
     --pinfold-color-border-accent: var(--pinfold-color-text);
-    --pinfold-shadow-sm: 5px 5px 0 var(--pinfold-color-text);
-    --pinfold-shadow-md: 8px 8px 0 var(--pinfold-color-text);
+    --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-accent) 14%, var(--pinfold-color-surface));
+    --pinfold-shadow-sm: 3px 3px 0 var(--pinfold-color-accent);
+    --pinfold-shadow-md: 5px 5px 0 var(--pinfold-color-accent);
     --pinfold-highlight: 0 0 0 0 transparent;
-    --pinfold-color-surface-hover: color-mix(in oklch, var(--pinfold-color-accent) 18%, var(--pinfold-color-surface));
-    --pinfold-font-sans: var(--pinfold-font-mono);
-    --pinfold-tracking-tight: 0em;
-  }
-
-  /* ------------------------------------------------------------------ noise */
-  /* Print-like grain on every surface. The texture is a 2 kB SVG, no request. */
-  [data-pinfold-style='noise'] {
-    --pinfold-texture: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    --pinfold-radius-scale: 0.8;
-  }
-
-  /* ------------------------------------------------------------------- soft */
-  /* Pillowy: generous rounding, no hard borders, wide diffused shadows. */
-  [data-pinfold-style='soft'] {
-    --pinfold-radius-scale: 1.75;
-    --pinfold-color-border: color-mix(in oklch, var(--pinfold-color-text) 6%, transparent);
-    --pinfold-shadow-sm:
-      0 2px 6px -2px color-mix(in oklch, var(--pinfold-shadow-color) 8%, transparent),
-      0 12px 32px -14px color-mix(in oklch, var(--pinfold-shadow-color) 22%, transparent);
-    --pinfold-shadow-md:
-      0 4px 10px -3px color-mix(in oklch, var(--pinfold-shadow-color) 10%, transparent),
-      0 20px 48px -18px color-mix(in oklch, var(--pinfold-shadow-color) 28%, transparent);
   }
 
   /* ------------------------------------------------------- user preferences */
   @media (prefers-reduced-transparency: reduce) {
     [data-pinfold-style='glass'] {
-      --pinfold-color-surface: var(--pinfold-color-bg);
-      --pinfold-color-bg-subtle: var(--pinfold-neutral-100);
+      --pinfold-color-surface: color-mix(in oklch, var(--pinfold-color-accent) 6%, var(--pinfold-color-bg));
+      --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-accent) 10%, var(--pinfold-color-bg));
       --pinfold-backdrop: none;
     }
   }

@@ -158,7 +158,15 @@ export const accordionMeta: ComponentMeta = {
     },
     size: { type: 'enum', values: SIZE, default: 'md', description: 'Size preset.', group: 'appearance', control: true },
     tone: { type: 'enum', values: TONE, default: 'primary', description: 'Accent colour role.', group: 'appearance', control: true },
-    radius: { type: 'enum', values: RADIUS, default: 'md', description: 'Corner radius preset.', group: 'appearance', control: true },
+    radius: {
+      type: 'enum',
+      values: RADIUS,
+      orLength: true,
+      default: 'md',
+      description: "Outer corner radius: a preset, or a length (`20` is px, `'1.25rem'` passes through).",
+      group: 'appearance',
+      control: true,
+    },
     indicator: {
       type: 'enum',
       values: ['chevron', 'plus', 'caret', 'arrow', 'none'],
