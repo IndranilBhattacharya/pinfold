@@ -30,6 +30,9 @@ function TypedIds() {
   useAccordion({ items, disabledIds: ['refund'] });
   // Callbacks receive the typed ids.
   useAccordion({ items, onValueChange: (ids) => ids.map((id): 'billing' | 'refunds' => id) });
+  // Everyday controlled state: plain string[] works with typed rows.
+  const [plain, setPlain] = React.useState<string[]>([]);
+  useAccordion({ items, value: plain, onValueChange: setPlain });
   // Controlled state typed from the rows.
   const [value, setValue] = React.useState<AccordionItemId<typeof items>[]>(['billing']);
   useAccordion({ items, value, onValueChange: setValue });
