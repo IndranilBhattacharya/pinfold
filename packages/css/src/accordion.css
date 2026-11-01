@@ -229,8 +229,10 @@
     background: var(--pinfold-color-surface-active);
   }
 
+  /* Text in the accent: pulled toward the text colour so every tone (500 steps included) clears
+     4.5:1 on every variant's open background, in light and dark mode (the a11y report checks). */
   .pinfold-accordion__trigger[data-state='open'] {
-    color: var(--pinfold-acc-accent);
+    color: color-mix(in oklch, var(--pinfold-acc-accent) 62%, var(--pinfold-color-text));
   }
 
   .pinfold-accordion__trigger[data-disabled] {
@@ -304,7 +306,9 @@
     font-size: var(--pinfold-text-xs);
     font-weight: var(--pinfold-weight-semibold);
     letter-spacing: var(--pinfold-tracking-wide);
-    color: var(--pinfold-acc-accent);
+    /* Small text on a tint of its own colour: pulled halfway toward the text colour, so it
+       clears 4.5:1 in light and dark mode for every tone (checked by the a11y report). */
+    color: color-mix(in oklch, var(--pinfold-acc-accent) 55%, var(--pinfold-color-text));
     background: color-mix(in oklch, var(--pinfold-acc-accent) 12%, transparent);
     border-radius: var(--pinfold-radius-full);
   }

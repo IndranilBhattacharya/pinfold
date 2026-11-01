@@ -128,6 +128,7 @@ The config never changes shape as you go deeper.
 | [docs/components/accordion.md](docs/components/accordion.md) | Accordion spec |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
 | [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
+| [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | Accessibility evidence: the automated report and the screen-reader matrix |
 | [docs/CLI.md](docs/CLI.md) · [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Tooling and packages |
 | [docs/DECISIONS.md](docs/DECISIONS.md) · [docs/ROADMAP.md](docs/ROADMAP.md) · [docs/STRATEGY.md](docs/STRATEGY.md) | Why, what's next, and the market |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Setup, hard constraints and the component checklist |

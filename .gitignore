@@ -14,3 +14,4 @@ coverage
 /packages/react/registry/
 /packages/react/schema/
 /packages/react/llms*.txt
+/a11y-report/
