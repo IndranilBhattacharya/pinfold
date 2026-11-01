@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Assemble @pinfold/css. No bundler: CSS is copied as written, so what ships is
- * exactly what was reviewed.
+ * Assemble @pinfold/css. No bundler: rules ship exactly as written and reviewed; only the
+ * comments are stripped.
  *
  *   dist/core.css       reset + tokens (import first, once)
  *   dist/<name>.css     one per component
@@ -10,7 +10,8 @@
  */
 import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
-const read = (f) => readFileSync(f, 'utf8');
+// Comments explain the source; users download only the rules. Nothing else is rewritten.
+const read = (f) => readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\n\s*\n+/g, '\n');
 rmSync('dist', { recursive: true, force: true });
 mkdirSync('dist');
 
@@ -23,9 +24,7 @@ const components = readdirSync('src')
   .sort();
 
 writeFileSync('dist/core.css', core);
-copyFileSync('src/reset.css', 'dist/reset.css');
-copyFileSync('src/tokens.css', 'dist/tokens.css');
-for (const f of [...components, ...extras]) copyFileSync(`src/${f}`, `dist/${f}`);
+for (const f of ['reset.css', 'tokens.css', ...components, ...extras]) writeFileSync(`dist/${f}`, read(`src/${f}`));
 writeFileSync('dist/all.css', [core, ...components.map((f) => read(`src/${f}`)), read('src/packs.css')].join('\n'));
 copyFileSync('tailwind/theme.css', 'dist/tailwind.css');
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dimensionVars, mergeProps, resolveNode, shouldMountPanel } from '@pinfold/core';
+import { accordionRowsJoined, cn, dimensionVars, mergeProps, resolveNode, shouldMountPanel } from '@pinfold/core';
 import { renderSlot, slotProps } from '../slots';
 import type {
   AccordionApi,
@@ -108,6 +108,8 @@ export function renderRoot(ctx: ViewContext, rootProps?: AccordionRootProps): Re
         'data-indicator-position': a.indicatorPosition,
         'data-static-indicator': a.animateIndicator ? undefined : '',
         'data-dividers': a.dividers ? '' : undefined,
+        // Separated or filled rows with no gap join into one group (cards and ghost always touch).
+        'data-joined': (a.variant === 'separated' || a.variant === 'filled') && accordionRowsJoined(a.variant, dimensions.gap) ? '' : undefined,
         'data-animate': a.animate ? '' : undefined,
         'data-unstyled': a.unstyled ? '' : undefined,
         'data-scroll': config.dimensions?.panelMaxHeight != null ? '' : undefined,

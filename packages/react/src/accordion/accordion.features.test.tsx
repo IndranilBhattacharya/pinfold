@@ -227,3 +227,22 @@ describe('Accordion features', () => {
     await waitFor(() => expect(warn.mock.calls.flat().join('\n')).toMatch(/`items\[0\]\.title` is required/));
   });
 });
+
+describe('Accordion appearance cascade', () => {
+  it('joins separated rows when the gap is none, so dividers decide the lines', () => {
+    const { unmount } = render(<Accordion items={items} variant="separated" />);
+    expect(document.querySelector('[data-pinfold="accordion"]')).not.toHaveAttribute('data-joined');
+    unmount();
+    render(<Accordion items={items} variant="separated" gap="none" dividers={false} />);
+    const root = document.querySelector('[data-pinfold="accordion"]')!;
+    expect(root).toHaveAttribute('data-joined');
+    expect(root).not.toHaveAttribute('data-dividers');
+  });
+
+  it('warns in development when an explicit option has no visible effect', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(<Accordion items={items} variant="solid" itemRadius="lg" />);
+    await waitFor(() => expect(warn).toHaveBeenCalled());
+    expect(warn.mock.calls.flat().join('\n')).toMatch(/`itemRadius` has no visible effect here/);
+  });
+});
