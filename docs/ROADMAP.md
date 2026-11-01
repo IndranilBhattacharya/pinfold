@@ -15,7 +15,7 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 6. **Status:** experimental, then stable. The site's docs and playground are updated.
 
 ## A1 · Foundation
-- [x] Rename the original working name to `pinfold` everywhere (packages, CSS prefix, tokens, provider, CLI) in both repos.
+- [x] Name everything `pinfold` (packages, CSS prefix, tokens, provider, CLI) in both repos.
 - [x] Re-layout the packages: `core` (no framework), `css`, `react` (subpaths), `cli`, and `testing` (private).
 - [x] React 18 floor: set `peerDependencies`, delete the `useId` shim (`packages/react/src/hooks.ts`), and delete the React <18 hydration warning in `useAccordion.tsx`.
 - [x] React Compiler: write a failing test where a compiled consumer shows stale `<Faq />`. Fix it with a store subscription (`useSyncExternalStore`) in `usePinfoldComponent`.

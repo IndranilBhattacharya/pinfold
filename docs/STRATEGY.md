@@ -93,5 +93,4 @@ mapping, and a home inside vibe-coding tools.
 [CVE-2025-55182](https://vercel.com/changelog/cve-2025-55182) ·
 [EAA for developers](https://www.telerik.com/blogs/what-does-european-accessibility-act-mean-developers) ·
 [shadcn criticism](https://dev.to/chnkc41/copy-paste-components-vs-npm-packages-shadcnui-vs-ninna-ui-in-2026-1n0a) ·
-[Base UI Accordion](https://base-ui.com/react/components/accordion) ·
-[TaloDev](https://github.com/TaloDev/backend)
+[Base UI Accordion](https://base-ui.com/react/components/accordion)
