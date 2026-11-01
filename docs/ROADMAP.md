@@ -49,8 +49,8 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 - [x] Export to CSS (`createTheme().css`), Tailwind v4/v3 (the theme and preset map onto the same variables) and DTCG tokens (`toDTCG`). Map onto shadcn's CSS variables (`@pinfold/css/shadcn.css`).
 
 ## A6 · CLI
-- [ ] `init`, `add`, `theme` and `doctor` per [CLI.md](CLI.md), with JS/TS output.
-- [ ] Tested against every A4 test app: `init`, then `add`, then build. Running `init` twice changes nothing the second time.
+- [x] `init`, `add`, `theme` and `doctor` per [CLI.md](CLI.md), with JS/TS output (`cli.test.ts`).
+- [x] Tested against every A4 test app: `init`, then `add`, then build. Running `init` twice changes nothing the second time (`fixture-apps.mjs --cli`, CI job `fixtures`).
 
 ## A7 · Distribution and AI
 - [ ] Generate the shadcn registry JSON from meta and ship it in the npm package. List it in the shadcn registry index.

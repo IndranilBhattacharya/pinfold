@@ -1,7 +1,7 @@
 {
   "name": "pinfold",
   "version": "0.1.0",
-  "description": "Pinfold CLI \u2014 scaffold themes and install components one at a time.",
+  "description": "Pinfold CLI: set up, add components, generate themes and check a project.",
   "author": "Indranil Bhattacharya",
   "keywords": [
     "pinfold",
@@ -12,7 +12,11 @@
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
-  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/pinfold.git", "directory": "packages/cli" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IndranilBhattacharya/pinfold.git",
+    "directory": "packages/cli"
+  },
   "bugs": "https://github.com/IndranilBhattacharya/pinfold/issues",
   "type": "module",
   "bin": {
@@ -20,6 +24,7 @@
   },
   "files": [
     "bin",
+    "lib",
     "templates",
     "registry.json"
   ],
@@ -34,6 +39,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@clack/prompts": "^1.8.1",
     "@pinfold/core": "0.1.0"
   }
 }

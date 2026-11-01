@@ -95,7 +95,7 @@ jobs:
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npm run build
-      - run: node scripts/fixture-apps.mjs --app all
+      - run: node scripts/fixture-apps.mjs --app all --cli
 
   # Published .d.ts files under node10, node16 and (TS 5+) bundler resolution.
   typescript:

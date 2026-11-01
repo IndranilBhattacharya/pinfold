@@ -1,294 +1,157 @@
 #!/usr/bin/env node
 /**
- * Pinfold CLI.
+ * Pinfold CLI (docs/CLI.md).
  *
- *   npx pinfold init                       scaffold pinfold.config.json + theme CSS
- *   npx pinfold add accordion tabs         install components one at a time
- *   npx pinfold theme --primary emerald    regenerate the palette
- *   npx pinfold theme --check              WCAG contrast report for the palette
- *   npx pinfold palette                    preview every built-in hue
- *   npx pinfold new <name>                 scaffold a new component (contributors, repo root)
- *   npx pinfold list                       show the component registry
+ *   npx pinfold init                      interactive setup: language, components, theme, entry, Tailwind
+ *   npx pinfold add accordion | all       components/ui/<name> plus its CSS import
+ *   npx pinfold theme --primary emerald   regenerate the palette (--format css|tailwind|dtcg, --check, --from <url>)
+ *   npx pinfold doctor                    check React, CSS order, provider, 'use client', browsers, duplicates
+ *   npx pinfold palette | list            preview hues | show the registry
+ *   npx pinfold new <name>                scaffold a component (repo contributors)
  *
- * The palette maths lives in `@pinfold/core/palette` — one implementation shared
- * by the CLI, the build and the runtime, so they cannot drift.
+ * Every write is planned, printed and confirmed (or `--yes`); `--dry-run`
+ * prints only; existing files are merged into, never overwritten; running a
+ * command twice changes nothing the second time.
  */
-import { execSync } from 'node:child_process';
-import { createInterface } from 'node:readline/promises';
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HUES, createTheme } from '@pinfold/core/palette';
+import { MODES, PACKS, RADII, add, doctor, init, theme } from '../lib/commands.mjs';
+import { describe as describeProject, detect } from '../lib/detect.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REGISTRY = JSON.parse(readFileSync(join(HERE, '..', 'registry.json'), 'utf8'));
 const TEMPLATES = join(HERE, '..', 'templates', 'component');
-const CONFIG_FILE = 'pinfold.config.json';
-const RADII = ['none', 'sm', 'md', 'lg', 'full'];
 
-const c = {
-  dim: (s) => `\x1b[2m${s}\x1b[0m`,
-  bold: (s) => `\x1b[1m${s}\x1b[0m`,
-  accent: (s) => `\x1b[38;5;141m${s}\x1b[0m`,
-  ok: (s) => `\x1b[32m${s}\x1b[0m`,
-  warn: (s) => `\x1b[33m${s}\x1b[0m`,
-  err: (s) => `\x1b[31m${s}\x1b[0m`,
-  swatch: (hex) => {
-    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-    return `\x1b[48;2;${r};${g};${b}m  \x1b[0m`;
+const tty = process.stdout.isTTY && !process.env.NO_COLOR;
+const paint = (code) => (s) => (tty ? `\x1b[${code}m${s}\x1b[0m` : String(s));
+const color = { dim: paint(2), bold: paint(1), accent: paint('38;5;141'), ok: paint(32), warn: paint(33), err: paint(31) };
+const swatch = (hex) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return tty ? `\x1b[48;2;${r};${g};${b}m  \x1b[0m` : '██';
+};
+
+/** `--name value`, `--name=value` and bare `--flag` into one object; the rest are positionals. */
+function parse(argv) {
+  const flags = { cwd: process.cwd() };
+  const positional = [];
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (!a.startsWith('--')) {
+      positional.push(a);
+      continue;
+    }
+    const [key, inline] = a.slice(2).split('=');
+    if (inline !== undefined) flags[key] = inline;
+    else if (argv[i + 1] && !argv[i + 1].startsWith('--')) flags[key] = argv[++i];
+    else flags[key] = true;
+  }
+  return { flags, positional };
+}
+
+const out = {
+  color,
+  log: (s) => console.log(s),
+  error: (s) => console.error(`  ${color.err('error')} ${s}`),
+  async confirm(message) {
+    if (!process.stdin.isTTY) return false;
+    const p = await import('@clack/prompts');
+    const ok = await p.confirm({ message });
+    return ok === true;
   },
 };
 
-/* -------------------------------------------------------------------- utils */
-
-const arg = (argv, name, fallback) => {
-  const i = argv.indexOf(`--${name}`);
-  if (i === -1) return fallback;
-  const next = argv[i + 1];
-  return next && !next.startsWith('--') ? next : fallback;
-};
-const flag = (argv, name) => argv.includes(`--${name}`);
-const positional = (argv) => {
-  const out = [];
-  for (let i = 0; i < argv.length; i++) {
-    if (argv[i].startsWith('--')) {
-      if (argv[i + 1] && !argv[i + 1].startsWith('--')) i++;
-      continue;
+/** Interactive `init`: every question has the detected or recommended default. */
+async function askInit(flags) {
+  const p = await import('@clack/prompts');
+  const project = detect(flags.cwd);
+  p.intro(color.bold('Pinfold'));
+  p.log.info(`Detected: ${describeProject(project)}`);
+  const cancelled = (v) => {
+    if (p.isCancel(v)) {
+      p.cancel('Cancelled.');
+      process.exit(0);
     }
-    out.push(argv[i]);
-  }
-  return out;
-};
-
-const readConfig = () =>
-  existsSync(CONFIG_FILE) ? JSON.parse(readFileSync(CONFIG_FILE, 'utf8')) : null;
-
-const writeConfig = (cfg) => writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2) + '\n');
-
-function detectPackageManager() {
-  if (existsSync('pnpm-lock.yaml')) return 'pnpm';
-  if (existsSync('yarn.lock')) return 'yarn';
-  if (existsSync('bun.lockb')) return 'bun';
-  return 'npm';
-}
-
-function install(packages, { dryRun }) {
-  const pm = detectPackageManager();
-  const cmd = pm === 'npm' ? `npm install ${packages.join(' ')}` : `${pm} add ${packages.join(' ')}`;
-  console.log(c.dim(`  $ ${cmd}`));
-  if (dryRun) return;
-  execSync(cmd, { stdio: 'inherit' });
-}
-
-/** Best-effort: find the app entry so the CSS imports can be wired for them. */
-function findEntry() {
-  const candidates = [
-    'src/main.tsx', 'src/main.ts', 'src/main.jsx', 'src/index.tsx', 'src/index.jsx',
-    'app/layout.tsx', 'src/app/layout.tsx', 'src/App.tsx', 'pages/_app.tsx',
-  ];
-  return candidates.find((f) => existsSync(f)) ?? null;
-}
-
-function ensureImport(file, spec) {
-  const src = readFileSync(file, 'utf8');
-  if (src.includes(spec)) return false;
-  writeFileSync(file, `import '${spec}';\n${src}`);
-  return true;
-}
-
-/* ------------------------------------------------------------------- theme */
-
-/** Read palette flags off argv, layered over whatever is already configured. */
-function paletteFromArgs(argv, base = {}) {
-  const next = { ...base };
-  for (const role of ['primary', 'accent', 'neutral', 'success', 'warning', 'danger', 'info']) {
-    const value = arg(argv, role);
-    if (value !== undefined) next[role] = Number.isFinite(Number(value)) ? Number(value) : value;
-  }
-  const preset = arg(argv, 'preset');
-  if (preset) next.primary = preset;
-  const intensity = arg(argv, 'intensity');
-  if (intensity !== undefined) next.intensity = Number(intensity);
-  const radius = arg(argv, 'radius');
-  if (radius !== undefined && RADII.includes(radius)) next.radius = radius;
-  if (!next.primary) next.primary = 'violet';
-  if (!next.radius) next.radius = 'md';
-  return next;
-}
-
-function emitTheme(cfg) {
-  const theme = createTheme(cfg.theme);
-  const path = resolve(cfg.cssPath);
-  mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, theme.css);
-  console.log(`  ${c.ok('theme')}   ${cfg.cssPath}`);
-  printSwatches(theme);
-  return theme;
-}
-
-function printSwatches(theme) {
-  const steps = [100, 300, 500, 700, 900];
-  for (const role of Object.keys(theme.ramps)) {
-    const bar = steps.map((s) => c.swatch(theme.vars[`--pinfold-${role}-${s}`])).join('');
-    console.log(`  ${c.dim(role.padEnd(9))}${bar}  ${c.dim(theme.vars[`--pinfold-${role}-500`])}`);
-  }
-}
-
-function printContrast(theme) {
-  console.log(c.bold('\n  WCAG 2.2 contrast — brand steps against page surfaces\n'));
-  console.log(c.dim('  role      step  surface        ratio   body  large/UI'));
-  let worst = null;
-  for (const row of theme.contrast) {
-    const mark = (ok) => (ok ? c.ok('  pass') : c.err('  fail'));
-    console.log(
-      `  ${row.role.padEnd(9)} ${String(row.step).padEnd(5)} ${row.against.padEnd(14)} ` +
-        `${String(row.ratio).padStart(5)}  ${mark(row.passes.text)} ${mark(row.passes.ui)}`,
-    );
-    if (!worst || row.ratio < worst.ratio) worst = row;
-  }
-  console.log(
-    c.dim(
-      `\n  Body text needs 4.5:1, large text and UI boundaries need 3:1.` +
-        `\n  Lowest here: ${worst.role}-${worst.step} on ${worst.against} at ${worst.ratio}:1.` +
-        `\n  Failing a step only matters if you put text on it — the ramp keeps` +
-        `\n  darker steps for exactly that reason.\n`,
-    ),
-  );
-}
-
-/* ---------------------------------------------------------------- commands */
-
-async function init(argv) {
-  const interactive = process.stdin.isTTY && !flag(argv, 'yes');
-  let palette = paletteFromArgs(argv);
-
-  if (interactive && !arg(argv, 'preset') && !arg(argv, 'primary')) {
-    const rl = createInterface({ input: process.stdin, output: process.stdout });
-    console.log(c.bold('\n  Pinfold setup\n'));
-    console.log('  Hues: ' + c.dim(Object.keys(HUES).join(', ')) + '\n');
-    const brand = (await rl.question(c.accent('  Brand hue [violet]: '))).trim() || 'violet';
-    const accent = (await rl.question(c.accent('  Accent hue [same as brand]: '))).trim();
-    const radius = (await rl.question(c.accent(`  Radius ${RADII.join('|')} [md]: `))).trim() || 'md';
-    await rl.close();
-    palette = { primary: brand, radius: RADII.includes(radius) ? radius : 'md' };
-    if (accent) palette.accent = accent;
-  }
-
-  const cfg = {
-    $schema: 'https://pinfold.indranildev.in/config.schema.json',
-    theme: palette,
-    cssPath: arg(argv, 'css', 'src/pinfold-theme.css'),
-    components: [],
+    return v;
   };
-  writeConfig(cfg);
-  console.log(`\n  ${c.ok('created')} ${CONFIG_FILE}`);
-  emitTheme(cfg);
+  const language = cancelled(
+    await p.select({ message: 'Language', initialValue: project.language, options: [{ value: 'ts', label: 'TypeScript' }, { value: 'js', label: 'JavaScript' }] }),
+  );
+  const components = cancelled(
+    await p.multiselect({
+      message: 'Components (a = all)',
+      initialValues: REGISTRY.components.map((c) => c.name),
+      options: REGISTRY.components.map((c) => ({ value: c.name, label: c.name, hint: c.description })),
+    }),
+  );
+  const primary = cancelled(await p.text({ message: `Brand hue (${Object.keys(HUES).join(', ')}, or 0-360)`, initialValue: String(flags.primary ?? 'violet') }));
+  const style = cancelled(await p.select({ message: 'Style pack', initialValue: 'default', options: PACKS.map((v) => ({ value: v, label: v })) }));
+  const radius = cancelled(await p.select({ message: 'Radius', initialValue: 'md', options: RADII.map((v) => ({ value: v, label: v })) }));
+  const mode = cancelled(await p.select({ message: 'Colour mode', initialValue: 'system', options: MODES.map((v) => ({ value: v, label: v })) }));
+  const entryFile = cancelled(await p.text({ message: 'Entry file', initialValue: project.entryFile ?? '', placeholder: 'e.g. src/main.tsx' }));
 
-  install(REGISTRY.core.packages, { dryRun: flag(argv, 'dry-run') });
-
-  const entry = flag(argv, 'dry-run') ? null : findEntry();
-  const local = './' + cfg.cssPath.split('/').pop();
-  if (entry) {
-    ensureImport(entry, local);
-    ensureImport(entry, REGISTRY.core.styles);
-    console.log(`  ${c.ok('wired')}   ${entry}`);
-  } else {
-    console.log(
-      `\n  Add to your entry file:\n` +
-        `    ${c.dim(`import '${REGISTRY.core.styles}';`)}\n` +
-        `    ${c.dim(`import '${local}';`)}`,
-    );
-  }
-
-  console.log(`\n  Next: ${c.accent('npx pinfold add accordion')}\n`);
+  const preview = createTheme({ primary: Number.isFinite(Number(primary)) ? Number(primary) : primary });
+  const accent = preview.contrast.find((r) => r.role === 'primary' && r.step === 600 && r.against === 'light-surface');
+  p.log.info(`Brand ${[100, 300, 500, 700, 900].map((s) => swatch(preview.vars[`--pinfold-primary-${s}`])).join('')}  text contrast ${accent.ratio}:1`);
+  p.outro('Review the changes below.');
+  return { language, components, entryFile: entryFile || null, theme: { primary, style, radius, mode } };
 }
 
-function theme(argv) {
-  const cfg = readConfig();
-  if (!cfg) return fail(`no ${CONFIG_FILE}. Run \`npx pinfold init\` first.`);
-  cfg.theme = paletteFromArgs(argv, cfg.theme);
-  writeConfig(cfg);
-  const built = emitTheme(cfg);
-  if (flag(argv, 'check')) printContrast(built);
-}
+/* --------------------------------------------------- palette, list, new */
 
-function palette(argv) {
-  const names = Object.keys(HUES);
-  console.log(c.bold('\n  Built-in hues\n'));
-  for (const name of names) {
+function palette() {
+  console.log(color.bold('\n  Built-in hues\n'));
+  for (const name of Object.keys(HUES)) {
     const t = createTheme({ primary: name });
-    const bar = [100, 200, 300, 400, 500, 600, 700, 800, 900]
-      .map((s) => c.swatch(t.vars[`--pinfold-primary-${s}`]))
-      .join('');
-    console.log(`  ${name.padEnd(9)}${bar}  ${c.dim(String(HUES[name]) + '°')}`);
+    const bar = [100, 200, 300, 400, 500, 600, 700, 800, 900].map((s) => swatch(t.vars[`--pinfold-primary-${s}`])).join('');
+    console.log(`  ${name.padEnd(9)}${bar}  ${color.dim(String(HUES[name]) + '°')}`);
   }
-  console.log(c.dim('\n  npx pinfold theme --primary <name> --accent <name> --radius lg\n'));
-  if (flag(argv, 'check')) printContrast(createTheme({ primary: arg(argv, 'primary', 'violet') }));
+  console.log(color.dim('\n  npx pinfold theme --primary <name> --accent <name> --radius lg\n'));
 }
 
-function add(argv) {
-  const names = positional(argv);
-  if (names.length === 0) return fail('nothing to add. Try `npx pinfold add accordion`.');
-
-  const cfg = readConfig();
-  const wanted = names.includes('all') ? REGISTRY.components.map((x) => x.name) : names;
-  const found = [];
-  for (const name of wanted) {
-    const entry = REGISTRY.components.find((x) => x.name === name);
-    if (!entry) {
-      console.log(`  ${c.warn('skip')}    ${name} — not in the registry yet`);
-      continue;
-    }
-    found.push(entry);
+function list() {
+  console.log(color.bold('\n  Available\n'));
+  for (const x of REGISTRY.components) {
+    console.log(`  ${color.accent(x.name.padEnd(14))}${x.description}`);
+    console.log(`  ${''.padEnd(14)}${color.dim(`variants: ${x.variants.join(', ')} · hook: ${x.hook}()`)}`);
   }
-  if (found.length === 0) return;
-
-  install(REGISTRY.core.packages, { dryRun: flag(argv, 'dry-run') });
-
-  const entryFile = flag(argv, 'dry-run') ? null : findEntry();
-  for (const f of found) {
-    if (entryFile) ensureImport(entryFile, f.styles);
-    console.log(`  ${c.ok('added')}   ${c.bold(f.name)}  ${c.dim(f.snippet)}`);
-  }
-  if (entryFile) console.log(`  ${c.ok('styles')}  imported in ${entryFile}`);
-  else console.log('\n' + found.map((f) => c.dim(`    import '${f.styles}';`)).join('\n'));
-
-  if (cfg) {
-    cfg.components = [...new Set([...(cfg.components ?? []), ...found.map((f) => f.name)])];
-    writeConfig(cfg);
-  }
-  console.log('');
+  console.log(color.bold('\n  Planned\n'));
+  console.log('  ' + color.dim(REGISTRY.planned.join(', ')) + '\n');
 }
 
 /**
- * Scaffold a component inside the Pinfold monorepo (contributors only). This is
- * the seam an agent or a human starts from: the files already carry the
- * layering, the conformance test and the token discipline ARCHITECTURE.md
- * requires. Writes the React adapter, the stylesheet, and the subpath export.
+ * Scaffold a component inside the Pinfold monorepo (contributors only): the
+ * React adapter, the stylesheet and the subpath export, already shaped for
+ * the conformance suite.
  */
-function scaffold(argv) {
-  const [name] = positional(argv);
-  if (!name) return fail('name required. Try `npx pinfold new tabs`.');
-  if (!/^[a-z][a-z0-9-]*$/.test(name)) return fail('name must be kebab-case, e.g. `date-picker`.');
-
-  const root = arg(argv, 'root', '.');
+function scaffold(name, flags) {
+  if (!name) throw new Error('name required. Try `npx pinfold new tabs`.');
+  if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error('name must be kebab-case, e.g. `date-picker`.');
+  const root = flags.root ?? '.';
   const reactDir = join(root, 'packages', 'react', 'src', name);
   const cssFile = join(root, 'packages', 'css', 'src', `${name}.css`);
   const pkgFile = join(root, 'packages', 'react', 'package.json');
-  if (!existsSync(pkgFile)) return fail('run this from the Pinfold repo root (or pass --root).');
-  if (existsSync(reactDir) || existsSync(cssFile)) return fail(`${name} already exists.`);
-  if (!existsSync(TEMPLATES)) return fail('templates missing — run this from an installed pinfold.');
+  if (!existsSync(pkgFile)) throw new Error('run this from the Pinfold repo root (or pass --root).');
+  if (existsSync(reactDir) || existsSync(cssFile)) throw new Error(`${name} already exists.`);
 
   const pascal = name.replace(/(^|-)([a-z])/g, (_, __, ch) => ch.toUpperCase());
-  const camel = pascal[0].toLowerCase() + pascal.slice(1);
-  const tokens = { NAME: name, PASCAL: pascal, CAMEL: camel };
+  const tokens = { NAME: name, PASCAL: pascal, CAMEL: pascal[0].toLowerCase() + pascal.slice(1) };
+  const apply = (text) => text.replace(/__(NAME|PASCAL|CAMEL)__/g, (_, key) => tokens[key]);
+  const copy = (from, to) => {
+    mkdirSync(to, { recursive: true });
+    for (const entry of readdirSync(from)) {
+      const src = join(from, entry);
+      const dest = join(to, apply(entry).replace(/\.tmpl$/, ''));
+      if (statSync(src).isDirectory()) copy(src, dest);
+      else writeFileSync(dest, apply(readFileSync(src, 'utf8')));
+    }
+  };
+  copy(join(TEMPLATES, 'react'), reactDir);
+  writeFileSync(cssFile, apply(readFileSync(join(TEMPLATES, 'css', '__NAME__.css.tmpl'), 'utf8')));
 
-  copyTemplates(join(TEMPLATES, 'react'), reactDir, tokens);
-  writeFileSync(cssFile, applyTokens(readFileSync(join(TEMPLATES, 'css', '__NAME__.css.tmpl'), 'utf8'), tokens));
-
-  // The exports map drives tsup entries and the webpack-4 stubs, so this is the only wiring needed.
+  // The exports map drives the tsup entries and the webpack-4 stubs.
   const pkg = JSON.parse(readFileSync(pkgFile, 'utf8'));
-  // Nested conditions: ESM and CJS each get their own types (.d.ts / .d.cts).
   const sub = (p) => ({
     import: { types: `./dist/${p}.d.ts`, default: `./dist/${p}.js` },
     require: { types: `./dist/${p}.d.cts`, default: `./dist/${p}.cjs` },
@@ -300,74 +163,74 @@ function scaffold(argv) {
   pkg.files = [...new Set([...pkg.files, name])];
   writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + '\n');
 
-  console.log(`\n  ${c.ok('created')} ${reactDir}`);
-  console.log(`  ${c.ok('created')} ${cssFile}`);
-  console.log(`  ${c.ok('wired')}   @pinfold/react/${name} in packages/react/package.json\n`);
-  console.log(`  Next: write docs/components/${name}.md (owner sign-off), implement the WAI-ARIA`);
-  console.log(`  pattern, register it in packages/cli/registry.json, then ${c.accent('npm run verify')}\n`);
-}
-
-function copyTemplates(from, to, tokens) {
-  mkdirSync(to, { recursive: true });
-  for (const entry of readdirSync(from)) {
-    const src = join(from, entry);
-    const name = applyTokens(entry, tokens).replace(/\.tmpl$/, '');
-    const dest = join(to, name);
-    if (statSync(src).isDirectory()) {
-      copyTemplates(src, dest, tokens);
-    } else {
-      writeFileSync(dest, applyTokens(readFileSync(src, 'utf8'), tokens));
-    }
-  }
-}
-
-const applyTokens = (text, tokens) =>
-  text.replace(/__(NAME|PASCAL|CAMEL)__/g, (_, key) => tokens[key]);
-
-function list() {
-  console.log(c.bold('\n  Available\n'));
-  for (const x of REGISTRY.components) {
-    console.log(`  ${c.accent(x.name.padEnd(14))}${x.description}`);
-    console.log(`  ${''.padEnd(14)}${c.dim(`variants: ${x.variants.join(', ')} · hook: ${x.hook}()`)}`);
-  }
-  console.log(c.bold('\n  Planned\n'));
-  console.log('  ' + c.dim(REGISTRY.planned.join(', ')) + '\n');
+  console.log(`\n  ${color.ok('created')} ${reactDir}\n  ${color.ok('created')} ${cssFile}`);
+  console.log(`  ${color.ok('wired')}   @pinfold/react/${name} in packages/react/package.json\n`);
+  console.log(`  Next: write docs/components/${name}.md, implement the WAI-ARIA pattern, add the`);
+  console.log(`  client/define split and the tsup entries, register it, then ${color.accent('npm run verify')}\n`);
 }
 
 function help() {
   console.log(`
-  ${c.bold('pinfold')} ${c.dim('— configuration-driven React UI')}
+  ${color.bold('pinfold')} ${color.dim('— config-driven React UI')}
 
-  ${c.accent('init')}     [--preset violet] [--accent blue] [--radius md] [--yes]
-  ${c.accent('add')}      <component…|all> [--dry-run]
-  ${c.accent('theme')}    [--primary emerald] [--accent blue] [--neutral 264]
-           [--success|--warning|--danger|--info <hue>]
-           [--intensity 1.1] [--radius lg] [--check]
-  ${c.accent('palette')}  [--check]                preview every built-in hue
-  ${c.accent('new')}      <name> [--root path]     scaffold a component (repo contributors)
-  ${c.accent('list')}
+  ${color.accent('init')}     [--yes] [--dry-run] [--no-install] [--primary violet] [--style glass] [--radius lg] [--mode dark]
+  ${color.accent('add')}      <component…|all> [--yes] [--dry-run] [--no-install]
+  ${color.accent('theme')}    [--primary emerald] [--accent blue] [--neutral 264] [--success|--warning|--danger|--info <hue>]
+           [--intensity 1.1] [--radius lg] [--style glass] [--out path] [--format css|tailwind|dtcg]
+           [--from <studio url>] [--check] [--dry-run]
+  ${color.accent('doctor')}
+  ${color.accent('palette')}  preview every built-in hue
+  ${color.accent('list')}     show the registry
+  ${color.accent('new')}      <name> [--root path]   scaffold a component (repo contributors)
 
-  Hues: ${c.dim(Object.keys(HUES).join(', '))}
-  Any 0–360 number works too: ${c.dim('--primary 274')}
+  Hues: ${color.dim(Object.keys(HUES).join(', '))}. Any 0-360 number works too.
 `);
 }
 
-function fail(msg) {
-  console.error(`  ${c.err('error')}   ${msg}`);
-  process.exitCode = 1;
-}
+/* ------------------------------------------------------------- dispatch */
 
 const [command, ...rest] = process.argv.slice(2);
-switch (command) {
-  case 'init': await init(rest); break;
-  case 'add': add(rest); break;
-  case 'theme': theme(rest); break;
-  case 'palette': palette(rest); break;
-  case 'new': scaffold(rest); break;
-  case 'list': list(); break;
-  case undefined:
-  case 'help':
-  case '--help':
-  case '-h': help(); break;
-  default: fail(`unknown command \`${command}\``), help();
+const { flags, positional } = parse(rest);
+try {
+  switch (command) {
+    case 'init': {
+      const interactive = process.stdin.isTTY && !flags.yes && !flags['dry-run'];
+      await init(flags, out, REGISTRY, interactive ? await askInit(flags) : {});
+      break;
+    }
+    case 'add':
+      await add(positional, flags, out, REGISTRY);
+      break;
+    case 'theme':
+      process.exitCode = await theme(flags, out);
+      break;
+    case 'doctor':
+      process.exitCode = doctor(flags, out);
+      break;
+    case 'palette':
+      palette();
+      break;
+    case 'list':
+      list();
+      break;
+    case 'new':
+      scaffold(positional[0], flags);
+      break;
+    case 'mcp':
+      await (await import('../lib/mcp.mjs')).serve();
+      break;
+    case undefined:
+    case 'help':
+    case '--help':
+    case '-h':
+      help();
+      break;
+    default:
+      out.error(`unknown command \`${command}\``);
+      help();
+      process.exitCode = 1;
+  }
+} catch (error) {
+  out.error(error.message);
+  process.exitCode = 1;
 }
