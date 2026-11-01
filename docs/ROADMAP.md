@@ -58,8 +58,8 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 - [x] `npx pinfold mcp`, a local MCP server (`packages/cli/lib/mcp.mjs`, `mcp.test.ts`).
 
 ## A8 · Playground v2 (in `../pinfold-ui`)
-- [ ] Controls generated from meta, showing only what matters for a quick look (no raw sizes).
-- [ ] State in the URL. Copy buttons for code, CLI command and AI prompt. StackBlitz export.
+- [x] Controls generated from meta, showing only what matters for a quick look (no raw sizes), plus environment controls: style pack, light/dark, RTL, reduced motion, container width.
+- [x] State in the URL. Copy buttons for code (TS and JS), CLI command, AI prompt and link. StackBlitz export. The site serves the registry, schema and `llms` files from the library build. Driving it in a browser found three CSS inheritance bugs (nested light theme, radius presets, style-pack radii), fixed in the library.
 
 ## A9 · Accessibility evidence
 - [ ] A per-release report generated in CI: the APG checklist from meta, the keyboard map that was tested, axe results, forced-colors and reduced-motion snapshots.
