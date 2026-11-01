@@ -40,6 +40,8 @@
     display: flex;
     flex-direction: column;
     gap: var(--pinfold-acc-gap);
+    /* Responds to its own width, not the viewport (see "responsive" below). */
+    container: pinfold-accordion / inline-size;
     width: var(--pinfold-accordion-width, 100%);
     min-width: var(--pinfold-accordion-min-width, 0);
     max-width: var(--pinfold-accordion-max-width, none);
@@ -266,6 +268,20 @@
     overflow-wrap: anywhere;
   }
 
+  /* Overflow policy per slot: wrap (default for titles), truncate, or clamp to n lines. */
+  .pinfold-accordion [data-overflow='truncate'] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pinfold-accordion [data-overflow='clamp'] {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--pinfold-lines, 2);
+    line-clamp: var(--pinfold-lines, 2);
+    overflow: hidden;
+  }
+
   .pinfold-accordion__description {
     font-size: var(--pinfold-acc-desc);
     font-weight: var(--pinfold-weight-normal);
@@ -336,6 +352,13 @@
     visibility: hidden;
   }
 
+  /* Find-in-page: once the inner box carries hidden="until-found", the browser
+     owns its visibility (content-visibility), so the panel itself must stay
+     visible for matches to be found. Before hydration the rule above applies. */
+  .pinfold-accordion__panel[data-state='closed']:has(> [hidden='until-found']) {
+    visibility: visible;
+  }
+
   .pinfold-accordion[data-animate] .pinfold-accordion__panel {
     transition: grid-template-rows var(--pinfold-acc-duration) var(--pinfold-ease-out),
       visibility 0s linear 0s;
@@ -377,6 +400,37 @@
 
   .pinfold-accordion[data-indicator-position='start'] .pinfold-accordion__content {
     padding-inline-start: calc(var(--pinfold-acc-panel-pad-x) + var(--pinfold-acc-icon) + var(--pinfold-space-3));
+  }
+
+  /* ------------------------------------------------------------- responsive */
+  /* Narrow containers: the badge drops under the title so the title keeps its
+     width; the indicator stays on the first line. */
+  @container pinfold-accordion (max-width: 26rem) {
+    .pinfold-accordion__trigger {
+      flex-wrap: wrap;
+      row-gap: var(--pinfold-space-1);
+    }
+    /* Leaves room for the icon and indicator only, so the badge must wrap. */
+    .pinfold-accordion__label {
+      flex-basis: calc(100% - 4.5em);
+    }
+    .pinfold-accordion__indicator {
+      order: 1;
+    }
+    .pinfold-accordion__badge {
+      order: 2;
+      margin-inline-start: calc(var(--pinfold-acc-icon) + var(--pinfold-space-3));
+    }
+    .pinfold-accordion__trigger:not(:has(.pinfold-accordion__icon)) .pinfold-accordion__badge {
+      margin-inline-start: 0;
+    }
+  }
+
+  /* Touch: every trigger is at least 44px tall (WCAG 2.5.5 / 2.5.8). */
+  @media (pointer: coarse) {
+    .pinfold-accordion__trigger {
+      min-height: 44px;
+    }
   }
 
   @supports not (color: color-mix(in oklch, red, blue)) {

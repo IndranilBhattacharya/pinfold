@@ -16,6 +16,8 @@ export { variants, type VariantProps } from './variants';
 export { nextIndexFromKey, type ListNavOptions } from './navigation';
 export { dimensionVars } from './dimensions';
 export * from './accordion.logic';
+export { validateConfig, toJsonSchema, type ComponentMeta, type PropMeta, type PropType, type PropGroup, type ConfigProblem } from './meta';
+export { accordionMeta } from './accordion.meta';
 export { __DEV__, warnOnce, resetWarnings } from './dev';
 export type {
   PinfoldSize,
@@ -24,6 +26,8 @@ export type {
   PinfoldOrientation,
   PinfoldDir,
   PinfoldTheme,
+  PinfoldLazy,
+  PinfoldStylePack,
   PropsBag,
   Length,
   Ref,

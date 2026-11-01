@@ -29,6 +29,12 @@ function withChunks(file, seen = new Set()) {
 /**
  * Gzipped kB ceilings. Raise deliberately, in a commit that says why.
  *
+ * 2026-11-01: accordion features (find-in-page, hash sync, mount policies,
+ * transitions, change details) 6 -> 8; core now holds the accordion rules,
+ * meta and validator 3 -> 8 (apps tree-shake most of it: the app row is what
+ * a production app actually ships); accordion CSS (container queries,
+ * overflow policy, touch targets) 3 -> 4.
+ *
  * 2026-10-31: re-layout into core/css/react. Entry sizes now include the
  * shared chunks they import. Core is framework-free and smaller (4 -> 3).
  *
@@ -38,13 +44,16 @@ function withChunks(file, seen = new Set()) {
  * overrides and state-function config fields.
  */
 const BUDGETS = [
-  ['packages/core/dist/index.js', 3],
+  ['packages/core/dist/index.js', 8],
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
-  ['packages/react/dist/accordion/index.js', 6],
+  ['packages/react/dist/accordion/index.js', 8],
   ['packages/css/dist/core.css', 5],
-  ['packages/css/dist/accordion.css', 3],
+  ['packages/css/dist/accordion.css', 4],
 ];
+
+/** A production app rendering one accordion: minified, NODE_ENV=production, React excluded. */
+const APP_BUDGET = 9;
 
 const strict = process.argv.includes('--strict');
 const kb = (bytes) => Math.round((bytes / 1024) * 100) / 100;
@@ -64,6 +73,32 @@ for (const [file, budget] of BUDGETS) {
   failed = failed || over;
   const mark = over ? '\x1b[31mover\x1b[0m' : '\x1b[32m ok \x1b[0m';
   console.log(`  ${String(size).padStart(6)}kB ${String(budget).padStart(5)}kB  ${file}  ${mark}`);
+}
+
+if (existsSync('packages/react/dist/accordion/index.js')) {
+  const { build } = await import('esbuild');
+  const out = await build({
+    stdin: {
+      contents: "import { useAccordion } from '@pinfold/react/accordion'; globalThis.x = useAccordion;",
+      resolveDir: process.cwd(),
+    },
+    bundle: true,
+    minify: true,
+    write: false,
+    format: 'esm',
+    external: ['react'],
+    define: { 'process.env.NODE_ENV': '"production"' },
+    alias: {
+      '@pinfold/core': './packages/core/dist/index.js',
+      '@pinfold/react/accordion': './packages/react/dist/accordion/index.js',
+    },
+    logLevel: 'silent',
+  });
+  const size = kb(gzipSync(out.outputFiles[0].contents).length);
+  const over = size > APP_BUDGET;
+  failed = failed || over;
+  const mark = over ? '\x1b[31mover\x1b[0m' : '\x1b[32m ok \x1b[0m';
+  console.log(`  ${String(size).padStart(6)}kB ${String(APP_BUDGET).padStart(5)}kB  app: useAccordion, production bundle  ${mark}`);
 }
 
 console.log(`\n  total ${kb(total * 1024)}kB gzipped across all published entry points\n`);

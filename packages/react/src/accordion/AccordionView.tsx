@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dimensionVars, mergeProps, resolveNode } from '@pinfold/core';
+import { cn, dimensionVars, mergeProps, resolveNode, shouldMountPanel } from '@pinfold/core';
 import { renderSlot, slotProps } from '../slots';
 import type {
   AccordionApi,
@@ -7,6 +7,7 @@ import type {
   AccordionIndicator,
   AccordionItemState,
   AccordionNode,
+  AccordionOverflow,
   AccordionRootProps,
   AccordionSlot,
   ResolvedAppearance,
@@ -37,6 +38,17 @@ export interface ViewContext {
   api: AccordionApi;
   config: AccordionConfig;
   a: ResolvedAppearance;
+  /** Rows that have ever been open (for `mountPanels: 'first-open'`). */
+  everOpened: ReadonlySet<string>;
+  /** Ref for a panel's inner box: applies `hidden="until-found"` while closed. */
+  findable: (item: AccordionItemState) => (node: HTMLElement | null) => void;
+}
+
+/** `data-overflow` plus the line count, for the CSS overflow policy. */
+function overflowProps(policy: AccordionOverflow | undefined, fallback: AccordionOverflow) {
+  const p = policy ?? fallback;
+  if (typeof p === 'object') return { 'data-overflow': 'clamp', style: { '--pinfold-lines': String(p.lines) } as React.CSSProperties };
+  return { 'data-overflow': p };
 }
 
 /* ------------------------------------------------------------------ slots */
@@ -84,6 +96,7 @@ export function renderRoot(ctx: ViewContext, rootProps?: AccordionRootProps): Re
         'data-unstyled': a.unstyled ? '' : undefined,
         'data-scroll': config.dimensions?.panelMaxHeight != null ? '' : undefined,
         'data-clamp': config.dimensions?.maxHeight != null ? '' : undefined,
+        'data-until-found': a.hiddenUntilFound ? '' : undefined,
       }),
       rootProps as Record<string, any>,
     ),
@@ -181,11 +194,18 @@ function TriggerContent({ ctx, item }: { ctx: ViewContext; item: AccordionItemSt
       ) : null}
 
       <span {...slot(ctx, 'label', { className: cls(ctx, `${B}__label`) }, item)}>
-        <span {...slot(ctx, 'title', { className: cls(ctx, `${B}__title`) }, item)}>
+        <span {...slot(ctx, 'title', { className: cls(ctx, `${B}__title`), ...overflowProps(ctx.config.overflow?.title, 'wrap') }, item)}>
           {resolveNode(title as AccordionNode, item)}
         </span>
         {descriptionNode ? (
-          <span {...slot(ctx, 'description', { className: cls(ctx, `${B}__description`) }, item)}>
+          <span
+            {...slot(
+              ctx,
+              'description',
+              { className: cls(ctx, `${B}__description`), ...overflowProps(ctx.config.overflow?.description, { lines: 2 }) },
+              item,
+            )}
+          >
             {descriptionNode}
           </span>
         ) : null}
@@ -265,7 +285,10 @@ export function renderPanel(
   );
 
   const body =
-    children ?? (a.unmountClosed && !item.open ? null : resolveNode(item.config.content as AccordionNode, item));
+    children ??
+    (shouldMountPanel(a.mountPanels, item.open, ctx.everOpened.has(item.id))
+      ? resolveNode(item.config.content as AccordionNode, item)
+      : null);
 
   return renderSlot<AccordionSlot, AccordionItemState>(
     config,
@@ -275,7 +298,9 @@ export function renderPanel(
     <div {...slot(ctx, 'content', { className: cls(ctx, `${B}__content`) }, item)}>{body}</div>,
     (props, kids) => (
       <div {...props}>
-        <div className={cls(ctx, `${B}__panel-inner`)}>{kids}</div>
+        <div className={cls(ctx, `${B}__panel-inner`)} ref={ctx.findable(item)}>
+          {kids}
+        </div>
       </div>
     ),
   );

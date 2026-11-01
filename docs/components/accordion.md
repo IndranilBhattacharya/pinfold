@@ -1,6 +1,6 @@
 # Accordion: spec
 
-Status: **stable API**. Rows marked **Planned** arrive in A3 or A4.
+Status: **stable API**. Rows marked **Planned** arrive in A4.
 Pattern: [WAI-ARIA APG Accordion](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/).
 Owner sign-off: 2026-10-31 (session plan).
 
@@ -34,22 +34,22 @@ Only `items` is required. Defaults come from the global config first (D-08).
 | Key | Type | Default | Status |
 |---|---|---|---|
 | `items` | `AccordionItemConfig[]` | required | stable |
-| `fields` | `{ id?, title?, content?, description?, icon?, badge?, disabled? }`, mapping raw records onto rows | none | Planned |
+| `fields` | `{ id?, title?, content?, description?, icon?, badge?, disabled?, defaultOpen? }`, mapping raw records onto rows | none | stable |
 | `mode` | `'single' \| 'multiple'` | `'single'` | stable |
 | `collapsible` | `boolean`. In single mode, lets the user close the open row. | `true` | stable |
 | `value` / `defaultValue` | `string[]` | none | stable |
-| `onValueChange` | `(ids, details?)`. `details: { id, open, reason: 'click'\|'keyboard'\|'api'\|'find-in-page'\|'hash', event? }` | none | stable (`details` Planned) |
-| `onBeforeChange` | `(details) => boolean \| void`. Return `false` to block the change. | none | Planned |
+| `onValueChange` | `(ids, details?)`. `details: { id, open, reason: 'click'\|'keyboard'\|'api'\|'find-in-page'\|'hash', event? }` | none | stable |
+| `onBeforeChange` | `(details) => boolean \| void`. Return `false` to block the change. | none | stable |
 | `onItemToggle` | `(id, open)` | none | stable |
-| `disabled` | `boolean`, disables every row | `false` | Planned |
+| `disabled` | `boolean`, disables every row (they stay focusable) | `false` | stable |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | stable |
 | `dir` | `'ltr' \| 'rtl'` | provider | stable |
 | `loop` | `boolean`. Focus wraps around at the ends. | `true` | stable |
 | `id` | id prefix | `useId` | stable |
-| `hiddenUntilFound` | `boolean`. Closed panels use `hidden="until-found"` and open on `beforematch`, so Ctrl+F finds them. | `true` | Planned |
-| `mountPanels` | `'always' \| 'open' \| 'first-open'` | `'always'` (good for SEO and Ctrl+F) | Planned. Replaces `unmountClosed`, which stays as a deprecated alias. |
-| `syncWithHash` | `boolean`. `#id` opens the row and scrolls to it. Changes the URL. | `false` | Planned |
-| `lazy` | `'auto' \| 'eager' \| 'visible' \| 'idle'` | `'auto'` (eager for this component) | Planned |
+| `hiddenUntilFound` | `boolean`. Closed panels use `hidden="until-found"` and open on `beforematch`, so Ctrl+F finds them. Applied after hydration; browsers without support fall back to plain `hidden`. | `true` | stable |
+| `mountPanels` | `'always' \| 'open' \| 'first-open'` | `'always'` (good for SEO and Ctrl+F) | stable. Replaces `unmountClosed`, which stays as a deprecated alias with a dev warning. |
+| `syncWithHash` | `boolean`. `#id` opens the row and scrolls to it. Opening a row by click or keyboard updates the hash (`history.replaceState`, no new history entry). | `false` | stable |
+| `lazy` | `'auto' \| 'eager' \| 'visible' \| 'idle'` | `'auto'` (eager for this component). Used by the `@pinfold/react/accordion/lazy` entry; also settable on the provider. | stable |
 
 ### Appearance
 | Key | Type | Default |
@@ -61,7 +61,7 @@ Only `items` is required. Defaults come from the global config first (D-08).
 | `headingLevel` | `1–6` | `3` |
 | `animate` | `boolean`. `prefers-reduced-motion` always wins. | `true` |
 | `dividers` | `boolean` | `true` |
-| `overflow` (Planned) | per slot: `'wrap' \| 'truncate' \| { lines: n }` | title `wrap`, description `{ lines: 2 }` |
+| `overflow` | per slot: `'wrap' \| 'truncate' \| { lines: n }` | title `wrap`, description `{ lines: 2 }` |
 | `dimensions` | width, min/max width, height, max height, gap, padding, panel padding, panel max height, font sizes, icon and indicator size, border width, radius, duration | from the size scale. Width defaults to 100%. |
 | `unstyled`, `className`, `style` | | |
 
@@ -97,9 +97,9 @@ Server Components can't pass functions (dev warning), but server-rendered JSX no
 ## Data attributes
 - On every row: `data-state="open|closed"`, `data-disabled`, `data-index`.
 - On the root: `data-orientation`, `data-mode`.
-- On the panel (Planned): `data-transition="opening|closing"`.
+- On the panel: `data-transition="opening|closing"` while it animates (set on the DOM node; no re-render).
 
-## Responsive (Planned, A3)
+## Responsive
 - The component is a container query container. In narrow containers it stacks the badge and description under the title.
 - Text uses fluid type tokens.
 - Each trigger is at least 44px tall under `pointer: coarse`.

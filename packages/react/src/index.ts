@@ -8,6 +8,7 @@
  * helpers for building your own Pinfold-style component.
  */
 export { PinfoldProvider, usePinfold, type PinfoldProviderProps, type PinfoldContextValue } from './provider';
+export { defineConfig, type PinfoldConfig, type PinfoldComponentDefaults } from './config';
 export {
   useId,
   useEvent,

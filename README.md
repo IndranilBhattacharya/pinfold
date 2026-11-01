@@ -73,14 +73,20 @@ export default async function Page() {
 }
 ```
 
-### One global config *(Planned)*
+### One global config
 
-```ts
+```tsx
 // pinfold.config.ts (or .js)
+import { defineConfig } from '@pinfold/react';
+
 export default defineConfig({
-  theme: { primary: 'emerald', style: 'glass', radius: 'lg', mode: 'system' },
+  theme: 'system',            // 'light' | 'dark' | 'system'
+  radius: 'lg',
   defaults: { accordion: { variant: 'separated' } },
 });
+
+// app root
+<PinfoldProvider config={config}>{children}</PinfoldProvider>
 ```
 Precedence, highest first: component config, `defaults.<component>`, the global theme, the library defaults.
 

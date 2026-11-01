@@ -1,0 +1,237 @@
+/**
+ * Component metadata: the single source of truth that docs, the playground,
+ * the JSON schema, the registries, `llms.txt` and dev validation are all
+ * generated from. Framework-free and JSON-safe.
+ */
+
+export type PropType =
+  | 'string'
+  | 'number'
+  | 'boolean'
+  | 'enum'
+  | 'string[]'
+  | 'object'
+  | 'array'
+  | 'function'
+  /** Anything renderable: a string, a number, an element, or a function of state. */
+  | 'node'
+  /** A length: a number (px) or a CSS string. */
+  | 'length';
+
+export type PropGroup = 'data' | 'behaviour' | 'appearance' | 'escape-hatch' | 'events';
+
+export interface PropMeta {
+  type: PropType;
+  /** Allowed values for `enum` (and the named values of a `node | enum` mix). */
+  values?: readonly (string | number)[];
+  /** Also accepts a node, e.g. `indicator`: a glyph name or your own node. */
+  orNode?: boolean;
+  default?: unknown;
+  required?: boolean;
+  description: string;
+  group: PropGroup;
+  /** Shown as a playground control (shape and behaviour only, never raw sizes). */
+  control?: boolean;
+  /** `deprecated` props still work; `alias` names the replacement. */
+  status?: 'stable' | 'deprecated';
+  alias?: string;
+  /** Keys of an `object` prop, for the schema and docs. */
+  keys?: Record<string, PropMeta>;
+  /** Item shape of an `array` prop. */
+  items?: Record<string, PropMeta>;
+}
+
+export interface ComponentMeta {
+  name: string;
+  displayName: string;
+  description: string;
+  /** WAI-ARIA APG pattern URL. */
+  pattern: string;
+  /** npm import path of the React hook. */
+  importPath: string;
+  slots: readonly string[];
+  props: Record<string, PropMeta>;
+  keyboard: ReadonlyArray<{ keys: string; action: string }>;
+  aria: readonly string[];
+  dataAttributes: ReadonlyArray<{ name: string; on: string; values: string }>;
+  /** Public CSS custom properties (set through `dimensions` or by hand). */
+  cssVariables: readonly string[];
+  /** Short usage examples: `[title, code]`. */
+  examples: ReadonlyArray<{ title: string; code: string }>;
+}
+
+/** One dev-time problem with a config object. */
+export interface ConfigProblem {
+  path: string;
+  message: string;
+}
+
+/**
+ * Check a config object against its meta: missing required keys, unknown
+ * keys, wrong types and invalid enum values. Used in development only, so
+ * plain-JS projects get the same safety net TypeScript gives.
+ */
+export function validateConfig(meta: ComponentMeta, config: unknown): ConfigProblem[] {
+  const problems: ConfigProblem[] = [];
+  if (!isObject(config)) {
+    problems.push({ path: '', message: `${meta.displayName}: config must be an object.` });
+    return problems;
+  }
+  checkShape(meta.displayName, meta.props, config, '', problems);
+  return problems;
+}
+
+function checkShape(
+  name: string,
+  shape: Record<string, PropMeta>,
+  value: Record<string, unknown>,
+  prefix: string,
+  problems: ConfigProblem[],
+  /** Rows may carry extra data (`category`, `slug`), so there only likely typos are reported. */
+  strict = true,
+): void {
+  for (const key in shape) {
+    if (shape[key].required && value[key] === undefined) {
+      problems.push({ path: prefix + key, message: `${name}: \`${prefix + key}\` is required.` });
+    }
+  }
+  for (const key in value) {
+    const path = prefix + key;
+    const prop = shape[key];
+    if (!prop) {
+      const hint = closest(key, Object.keys(shape));
+      if (!strict && !hint) continue;
+      problems.push({
+        path,
+        message: `${name}: unknown option \`${path}\`.` + (hint ? ` Did you mean \`${prefix + hint}\`?` : ''),
+      });
+      continue;
+    }
+    const v = value[key];
+    if (v === undefined) continue;
+    const problem = checkType(prop, v);
+    if (problem) {
+      problems.push({ path, message: `${name}: \`${path}\` ${problem}` });
+      continue;
+    }
+    if (prop.type === 'array' && prop.items && Array.isArray(v)) {
+      v.forEach((entry, i) => {
+        if (isObject(entry)) checkShape(name, prop.items!, entry, `${path}[${i}].`, problems, false);
+        else problems.push({ path: `${path}[${i}]`, message: `${name}: \`${path}[${i}]\` must be an object.` });
+      });
+    }
+    if (prop.type === 'object' && prop.keys && isObject(v)) checkShape(name, prop.keys, v, `${path}.`, problems);
+  }
+}
+
+function checkType(prop: PropMeta, v: unknown): string | null {
+  const list = (prop.values ?? []).map((x) => JSON.stringify(x)).join(' | ');
+  switch (prop.type) {
+    case 'string':
+      return typeof v === 'string' ? null : `must be a string, got ${describe(v)}.`;
+    case 'number':
+      return typeof v === 'number' ? null : `must be a number, got ${describe(v)}.`;
+    case 'boolean':
+      return typeof v === 'boolean' ? null : `must be true or false, got ${describe(v)}.`;
+    case 'function':
+      return typeof v === 'function' ? null : `must be a function, got ${describe(v)}.`;
+    case 'length':
+      return typeof v === 'number' || typeof v === 'string' ? null : `must be a number (px) or a CSS length string.`;
+    case 'string[]':
+      return Array.isArray(v) && v.every((x) => typeof x === 'string') ? null : `must be an array of strings.`;
+    case 'array':
+      return Array.isArray(v) ? null : `must be an array, got ${describe(v)}.`;
+    case 'object':
+      return isObject(v) ? null : `must be an object, got ${describe(v)}.`;
+    case 'enum':
+      if (prop.values!.indexOf(v as string) !== -1) return null;
+      if (prop.orNode && typeof v !== 'string') return null;
+      return `must be one of ${list}, got ${JSON.stringify(v)}.`;
+    case 'node':
+      return null;
+  }
+}
+
+function describe(v: unknown): string {
+  if (v === null) return 'null';
+  if (Array.isArray(v)) return 'an array';
+  return typeof v === 'object' ? 'an object' : `${typeof v} ${JSON.stringify(v)}`;
+}
+
+function isObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
+
+/** Nearest key by edit distance, for "did you mean" hints. */
+function closest(key: string, keys: string[]): string | undefined {
+  let best: string | undefined;
+  let bestScore = 3;
+  for (const k of keys) {
+    const d = distance(key.toLowerCase(), k.toLowerCase());
+    if (d < bestScore) {
+      bestScore = d;
+      best = k;
+    }
+  }
+  return best;
+}
+
+function distance(a: string, b: string): number {
+  const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = row[0];
+    row[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const tmp = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = tmp;
+    }
+  }
+  return row[b.length];
+}
+
+/** JSON Schema (draft 2020-12) for a component's config, generated from its meta. */
+export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
+  const shape = (props: Record<string, PropMeta>) => {
+    const properties: Record<string, unknown> = {};
+    const required: string[] = [];
+    for (const key in props) {
+      properties[key] = propSchema(props[key]);
+      if (props[key].required) required.push(key);
+    }
+    return { type: 'object', properties, ...(required.length ? { required } : {}), additionalProperties: false };
+  };
+  const propSchema = (p: PropMeta): Record<string, unknown> => {
+    const base: Record<string, unknown> = { description: p.description };
+    if (p.default !== undefined) base.default = p.default;
+    if (p.status === 'deprecated') base.deprecated = true;
+    switch (p.type) {
+      case 'string':
+      case 'number':
+      case 'boolean':
+        return { ...base, type: p.type };
+      case 'length':
+        return { ...base, type: ['number', 'string'] };
+      case 'string[]':
+        return { ...base, type: 'array', items: { type: 'string' } };
+      case 'enum':
+        return p.orNode ? { ...base, anyOf: [{ enum: p.values }, {}] } : { ...base, enum: p.values };
+      case 'array':
+        // Rows may carry extra data, so they stay open.
+        return { ...base, type: 'array', items: p.items ? { ...shape(p.items), additionalProperties: true } : {} };
+      case 'object':
+        return p.keys ? { ...base, ...shape(p.keys) } : { ...base, type: 'object' };
+      // Functions and nodes cannot be expressed in JSON; JSON config simply omits them.
+      case 'function':
+      case 'node':
+        return base;
+    }
+  };
+  return {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    $id: `https://pinfold.indranildev.in/schema/${meta.name}.json`,
+    title: `${meta.displayName}Config`,
+    description: meta.description,
+    ...shape(meta.props),
+  };
+}
