@@ -15,6 +15,7 @@ export {
 export { variants, type VariantProps } from './variants';
 export { nextIndexFromKey, type ListNavOptions } from './navigation';
 export { dimensionVars } from './dimensions';
+export * from './accordion.logic';
 export { __DEV__, warnOnce, resetWarnings } from './dev';
 export type {
   PinfoldSize,

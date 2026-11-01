@@ -33,7 +33,7 @@ Each component splits into these concerns, in this order:
 
 | Layer | File | Owns | Never touches |
 | --- | --- | --- | --- |
-| Rules | `core/<name>.logic.ts` | pure transitions, keyboard map, validation (Planned for A2) | React, the DOM |
+| Rules | `core/<name>.logic.ts` | pure transitions, keyboard map, validation | React, the DOM |
 | Behaviour | `use<Name>.tsx` | state, refs, ARIA, prop getters, `render()` | class names, markup |
 | Presentation | `<Name>View.tsx` | markup, slots, variants. A plain function, not a component. | state logic |
 | Style | `<name>.css` | tokens turned into CSS | JS |
@@ -307,7 +307,7 @@ From it we generate:
 
 ```
 packages/
-  core/    src/{utils,variants,navigation,dimensions,dev,palette,types}.ts            @pinfold/core
+  core/    src/{utils,variants,navigation,dimensions,dev,palette,types}.ts, accordion.logic.ts      @pinfold/core
   css/     src/{tokens,reset,<name>}.css  tailwind/{preset.cjs,theme.css}  build.mjs  @pinfold/css
   react/   src/<name>/{use<Name>.tsx,<Name>View.tsx,<Name>.tsx,define<Name>.ts,index.ts}  @pinfold/react
   cli/                                                                              pinfold

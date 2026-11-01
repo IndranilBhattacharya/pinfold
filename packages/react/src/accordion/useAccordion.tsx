@@ -1,5 +1,18 @@
 import * as React from 'react';
-import { ariaAttr, dataAttr, mergeProps, nextIndexFromKey, warnOnce, __DEV__ } from '@pinfold/core';
+import {
+  accordionFocusTarget,
+  accordionPartIds,
+  accordionRowId,
+  ariaAttr,
+  closeAllAccordion,
+  dataAttr,
+  initialAccordionValue,
+  mergeProps,
+  openAllAccordion,
+  setAccordionItem,
+  warnOnce,
+  __DEV__,
+} from '@pinfold/core';
 import { useControllableState, useEvent, useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -76,46 +89,27 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
   const items = React.useMemo<Omit<AccordionItemState, 'open'>[]>(
     () =>
       itemConfigs.map((item, index) => {
-        const id = item.id ?? String(index);
-        return {
-          id,
-          index,
-          disabled: !!item.disabled,
-          config: item,
-          triggerId: `${baseId}-trigger-${id}`,
-          panelId: `${baseId}-panel-${id}`,
-        };
+        const id = accordionRowId(item, index);
+        return { id, index, disabled: !!item.disabled, config: item, ...accordionPartIds(baseId, id) };
       }),
     [itemConfigs, baseId],
   );
 
   const [value, setValue] = useControllableState<string[]>({
     value: controlled,
-    defaultValue: () => {
-      if (defaultValue) return mode === 'single' ? defaultValue.slice(0, 1) : defaultValue;
-      const open = itemConfigs
-        .map((item, i) => (item.defaultOpen ? item.id ?? String(i) : null))
-        .filter((v): v is string => v !== null);
-      return mode === 'single' ? open.slice(0, 1) : open;
-    },
+    defaultValue: () => initialAccordionValue(itemConfigs, defaultValue, mode),
     onChange: onValueChange,
   });
 
   const isOpen = React.useCallback((id: string) => value.indexOf(id) !== -1, [value]);
 
-  const setOpen = useEvent((id: string, next: boolean) => {
-    const item = items.find((i) => i.id === id);
-    if (!item || item.disabled) return;
-    const currentlyOpen = value.indexOf(id) !== -1;
-    if (currentlyOpen === next) return;
-    // `single` + `collapsible: false` means the open row cannot be closed.
-    if (!next && mode === 'single' && !collapsible) return;
-
-    setValue((prev) => {
-      if (next) return mode === 'single' ? [id] : prev.concat(id);
-      return prev.filter((v) => v !== id);
-    });
-    onItemToggle?.(id, next);
+  // Behaviour rules live in @pinfold/core; this hook only wires them to React state.
+  const rules = { mode, collapsible };
+  const setOpen = useEvent((id: string, open: boolean) => {
+    const next = setAccordionItem(value, items, id, open, rules);
+    if (!next) return;
+    setValue(next);
+    onItemToggle?.(id, open);
   });
 
   const focusItem = useEvent((index: number) => {
@@ -128,7 +122,7 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
   );
 
   const onTriggerKeyDown = useEvent((event: React.KeyboardEvent, index: number) => {
-    const next = nextIndexFromKey(event.key, index, items.length, { orientation, dir, loop });
+    const next = accordionFocusTarget(event.key, index, items.length, { orientation, dir, loop });
     if (next === null) return;
     event.preventDefault();
     focusItem(next);
@@ -146,12 +140,12 @@ export function useAccordion(config: AccordionConfig): AccordionApi {
     close: useEvent((id: string) => setOpen(id, false)),
     toggle: useEvent((id: string) => setOpen(id, !isOpen(id))),
     openAll: useEvent(() => {
-      if (mode === 'single') return;
-      setValue(items.filter((i) => !i.disabled).map((i) => i.id));
+      const next = openAllAccordion(value, items, rules);
+      if (next) setValue(next);
     }),
     closeAll: useEvent(() => {
-      if (mode === 'single' && !collapsible) return;
-      setValue([]);
+      const next = closeAllAccordion(value, items, rules);
+      if (next) setValue(next);
     }),
     focusItem,
     render: (props?: AccordionRootProps) => renderRoot(viewRef.current, props),
