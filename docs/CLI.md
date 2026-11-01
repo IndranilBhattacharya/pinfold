@@ -57,4 +57,4 @@ Each problem is printed with its fix.
 Runs a local stdio MCP server that serves the meta, schema and docs from the installed package. Nothing is hosted.
 
 ## `new <name>` (contributors only)
-Scaffolds a component that already passes conformance. See [AGENTS.md](../AGENTS.md) §5.
+Scaffolds a component that already passes conformance. See [CONTRIBUTING.md](../CONTRIBUTING.md).

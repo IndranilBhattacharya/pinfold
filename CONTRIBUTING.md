@@ -1,6 +1,6 @@
 # Contributing to Pinfold
 
-Read [AGENTS.md](AGENTS.md) first. Its rules bind humans and AI agents alike.
+Read [docs/DECISIONS.md](docs/DECISIONS.md), [ARCHITECTURE.md](ARCHITECTURE.md) and the spec of the component you touch before changing code.
 
 ## Setup
 ```bash
@@ -11,6 +11,65 @@ npm run smoke -- --pm npm --react 19 --ts 5.6.3   # pack, install and use the re
 ```
 Requirements: Node 20 or newer, npm 10 or newer.
 The docs, playground and palette studio live in the sibling repo [`../pinfold-ui`](../pinfold-ui).
+
+## Hard constraints
+
+| Area | Rule |
+|---|---|
+| React | Floor `react >=18`. Use native `useId` and `useSyncExternalStore`. No `react-dom` import inside components. Must work with and without the React Compiler. |
+| Dependencies | Zero runtime dependencies in published packages. Dev dependencies are fine. The CLI may use dependencies, because they never reach the app bundle. |
+| Layers | `core` (logic, no framework) and `css` never import React or any other framework. The React layer owns hooks, views, `define*` and tags. |
+| API | Hooks first: `use<Name>(config)` returns a stable component that is also the controller and carries the parts. `define<Name>(config)` is the non-hook twin for Server Components. `<Name {...config}/>` is the courtesy tag. No compound children. |
+| Config | One flat object. Data first (`items`, `columns`, `options`), never `children`. Only the data is required. Behaviour options must be expressible as plain JSON. Callbacks are optional. |
+| Escape-hatch ladder | Every component exposes all of: config, then `classNames`/`styles`/`slotProps`, then slot `render` and `renderItem`, then parts, then prop getters. |
+| Styling | Every CSS value comes from a token. No literal colours. BEM class names `.pinfold-<comp>__<slot>`. State through `[data-state]`, `[data-disabled]`, never `.is-*`. All CSS inside `@layer pinfold.*`. JS never imports CSS. `unstyled` drops the classes but keeps ARIA and `data-*`. |
+| Sizing | Width defaults to 100% of the parent. Heights, padding and type come from the size scale. Two-layer sizing: the `[data-size]` preset, overridden by `dimensions`. |
+| Responsive | Container queries, not viewport media queries, for layout. Fluid `clamp()` type tokens. A per-slot overflow policy (`wrap` \| `truncate` \| `{ lines }`). Touch targets of 44px or more under `pointer: coarse`. |
+| Motion | CSS only (`grid-template-rows`, `transform`, `opacity`). No height measurement. Honour `prefers-reduced-motion`. |
+| Rounded corners | Children cascade the radius. Never clip with `overflow: hidden`, which also cuts off the focus ring. |
+| Accessibility | Follow the matching WAI-ARIA APG pattern. Use `aria-disabled`, never `disabled`. Hidden content leaves the accessibility tree and the tab order. A visible `:focus-visible` ring. Handle `forced-colors`. |
+| SSR | No `window` or `document` at import time. Deterministic ids. The server HTML contains all content (panels mounted by default). `'use client'` is preserved in the build. |
+| JS and TS | Ship ES2018 ESM and CJS plus `.d.ts`. JSDoc on every public field. A dev-only config validator for JS users, stripped from production. |
+| Diagnostics | Dev-only `warnOnce()` for duplicate ids, frozen controlled state and impossible combinations. These must vanish under `NODE_ENV=production`. |
+| Identity | Build the returned component and its parts only with `usePinfoldComponent(name, api, render, buildParts)`. A fresh identity each render remounts the whole subtree; its store subscription keeps them fresh under the React Compiler. |
+
+## Layers and future frameworks
+
+Packages: `@pinfold/core` (logic, store, keyboard, palette, meta, types), `@pinfold/css`,
+`@pinfold/react` (subpath per component: `@pinfold/react/accordion`), and `pinfold` (CLI).
+A future `@pinfold/vue` or `@pinfold/angular` reuses `core` and `css` from npm, under the same
+npm org. So: **put behaviour rules in `core`, never in hooks**; keep meta and types framework-free.
+No Vue or Angular code is built now.
+
+## Adding or changing a component
+
+1. The spec exists and is signed off (`docs/components/<name>.md`).
+2. `npx pinfold new <name>` scaffolds a package that already passes conformance.
+3. Write the types first, then the core logic, then the hook (`use<Name>`), the view (a plain function), the CSS, and the tag.
+4. Tests cover ARIA wiring, every mode, the full keyboard map, disabled, controlled versus uncontrolled, slot overrides, and dimensions reaching CSS. Then add `describePinfoldConformance` (mandatory):
+
+```tsx
+describePinfoldConformance({
+  name: 'tabs',
+  slots: ['root', 'list', 'tab', 'panel'],
+  optionalSlots: ['icon'],
+  dimension: { key: 'paddingX', value: 24 },
+  cssFile: 'packages/tabs/src/tabs.css',
+  render: (config) => <Tabs items={items} {...config} />,
+});
+```
+Conformance fails the build on:
+- a missing root class
+- a slot that ignores `classNames`, `styles` or `slotProps`
+- a dimension that never reaches CSS
+- a `disabled` attribute
+- an unnamed control
+- a hard-coded colour
+- a class outside the component's namespace
+
+5. Register it in `packages/cli/registry.json`. Update its spec and the site repo
+   (`../pinfold-ui`) if the site documents it.
+6. Run `npm run verify` (typecheck, tests, build, gzip budget).
 
 ## What to contribute
 - Fixes and tests for existing components.
