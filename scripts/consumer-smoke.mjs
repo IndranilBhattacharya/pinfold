@@ -10,7 +10,7 @@
  * and (TS 5+) bundler resolution. Run `npm run build` first.
  */
 import { execSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -71,7 +71,7 @@ writeFileSync(join(app, 'esm.mjs'), check((m) => `await import(${JSON.stringify(
 writeFileSync(join(app, 'cjs.cjs'), check((m) => `require(${JSON.stringify(m)})`));
 
 // 3. Install and run.
-const install = { npm: 'npm install --no-audit --no-fund', pnpm: 'pnpm install', yarn: 'yarn install', bun: 'bun install' }[pm];
+const install = { npm: 'npm install --no-audit --no-fund', pnpm: 'pnpm install', yarn: 'yarn install --no-immutable', bun: 'bun install' }[pm];
 if (pm === 'yarn') writeFileSync(join(app, 'yarn.lock'), ''); // standalone project, not a parent workspace
 run(install, app);
 const node = pm === 'yarn' ? 'yarn node' : 'node';
@@ -96,9 +96,12 @@ export function App(): React.ReactElement {
 export const vars: Record<string, string> = createTheme({ primary: 'emerald' }).vars;
 `,
   );
-  const major = Number(ts.split('.')[0]);
+  // Read the installed version: --ts may be a tag such as 'latest'.
+  const installed = JSON.parse(readFileSync(join(app, 'node_modules/typescript/package.json'), 'utf8')).version;
+  const major = Number(installed.split('.')[0]);
   const modes = [
-    { module: 'commonjs', moduleResolution: 'node' },
+    // node10 resolution was removed in TypeScript 6; it only matters to older compilers.
+    ...(major < 6 ? [{ module: 'commonjs', moduleResolution: 'node' }] : []),
     { module: 'node16', moduleResolution: 'node16' },
     ...(major >= 5 ? [{ module: 'esnext', moduleResolution: 'bundler' }] : []),
   ];
@@ -110,7 +113,7 @@ export const vars: Record<string, string> = createTheme({ primary: 'emerald' }).
         files: ['index.ts'],
       }),
     );
-    console.log(`tsc ${ts} · moduleResolution ${m.moduleResolution}`);
+    console.log(`tsc ${installed} · moduleResolution ${m.moduleResolution}`);
     run('npx tsc -p tsconfig.json', app);
   }
 }
