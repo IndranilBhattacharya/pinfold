@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dimensionVars, mergeProps, resolveNode } from '@lumae/core';
+import { cn, dimensionVars, mergeProps, resolveNode } from '@pinfold/core';
 import { renderSlot, slotProps } from '../slots';
 import type {
   AccordionApi,
@@ -12,7 +12,7 @@ import type {
   ResolvedAppearance,
 } from './types';
 
-const B = 'lumae-accordion';
+const B = 'pinfold-accordion';
 
 const GLYPHS: Record<Exclude<AccordionIndicator, 'none'>, React.ReactNode> = {
   chevron: <path d="M4 6.5 8 10.5 12 6.5" />,
@@ -72,12 +72,12 @@ export function renderRoot(ctx: ViewContext, rootProps?: AccordionRootProps): Re
   const props = api.getRootProps(
     mergeProps(
       slot(ctx, 'root', {
-        className: a.unstyled ? config.className : cn('lumae', B, config.className),
+        className: a.unstyled ? config.className : cn('pinfold', B, config.className),
         style: { ...dimensionVars('accordion', config.dimensions), ...config.style },
         'data-variant': a.variant,
         'data-size': a.size,
         'data-tone': a.tone,
-        'data-lumae-radius': a.radius,
+        'data-pinfold-radius': a.radius,
         'data-indicator-position': a.indicatorPosition,
         'data-dividers': a.dividers ? '' : undefined,
         'data-animate': a.animate ? '' : undefined,

@@ -1,6 +1,6 @@
 <div align="center">
 
-# Lumae
+# Pinfold
 
 **Config in, accessible UI out. Your JSX stays one tag.**
 
@@ -33,10 +33,10 @@ Most React libraries make you hand-write the same tree, row after row:
 </Accordion>
 ```
 
-Lumae takes data and gives you a component back:
+Pinfold takes data and gives you a component back:
 
 ```jsx
-import { useAccordion } from '@lumae/react/accordion';
+import { useAccordion } from '@pinfold/react/accordion';
 
 function Support({ items }) {
   const Faq = useAccordion({ items });   // state, keyboard, ARIA, theme, responsiveness
@@ -62,7 +62,7 @@ Faq.toggle('shipping')          // 2. its controller: open, close, openAll, focu
 Server Components can't call hooks, so each component has a non-hook twin with the same config and the same tag:
 
 ```jsx
-import { defineAccordion } from '@lumae/react/accordion';
+import { defineAccordion } from '@pinfold/react/accordion';
 
 export default async function Page() {
   const Faq = defineAccordion({
@@ -76,7 +76,7 @@ export default async function Page() {
 ### One global config *(Planned)*
 
 ```ts
-// lumae.config.ts (or .js)
+// pinfold.config.ts (or .js)
 export default defineConfig({
   theme: { primary: 'emerald', style: 'glass', radius: 'lg', mode: 'system' },
   defaults: { accordion: { variant: 'separated' } },
@@ -87,20 +87,20 @@ Precedence, highest first: component config, `defaults.<component>`, the global 
 ## Install *(Planned CLI)*
 
 ```bash
-npx lumae init              # interactive: language, components, theme, entry file, Tailwind merge
-npx lumae add accordion     # writes components/ui/accordion.tsx (or .jsx)
-npx shadcn add @lumae/accordion   # also works through the shadcn CLI
+npx pinfold init              # interactive: language, components, theme, entry file, Tailwind merge
+npx pinfold add accordion     # writes components/ui/accordion.tsx (or .jsx)
+npx shadcn add @pinfold/accordion   # also works through the shadcn CLI
 ```
 
 ## What you get
 
 - **A design system in a box.** OKLCH palettes, 7 roles × 11 steps, WCAG contrast reports, and style packs (glass, bauhaus, brutalist, noise, soft) that are token recipes, not forks of the components.
 - **Responsive by default.** Container queries, fluid type, a wrap or truncate policy per slot, and 44px touch targets.
-- **Tailwind wins without effort.** Lumae's CSS lives in cascade layers, so utilities override it with no `!important` and no `tailwind-merge`. `unstyled: true` makes a component fully headless.
+- **Tailwind wins without effort.** Pinfold's CSS lives in cascade layers, so utilities override it with no `!important` and no `tailwind-merge`. `unstyled: true` makes a component fully headless.
 - **SEO and Core Web Vitals safe.** Server HTML contains all content, layout shift stays at zero, and only a small amount of JS has to hydrate. `hiddenUntilFound` lets Ctrl+F find text inside closed panels.
 - **Accessibility is a build gate.** WAI-ARIA APG patterns, a full keyboard map, `aria-disabled`, and handling for forced colours and reduced motion, plus a published report.
 - **Small and safe.** You ship only what you import. Zero runtime dependencies, no install scripts, and npm provenance on every release.
-- **Built for AI agents.** One JSON-safe config per component. Docs, schema and `llms.txt` ship inside the package. `npx lumae mcp` runs locally.
+- **Built for AI agents.** One JSON-safe config per component. Docs, schema and `llms.txt` ship inside the package. `npx pinfold mcp` runs locally.
 
 ## Levels of control
 
@@ -118,7 +118,7 @@ The config never changes shape as you go deeper.
 
 | | |
 |---|---|
-| [docs/VISION.md](docs/VISION.md) | What Lumae is, and isn't |
+| [docs/VISION.md](docs/VISION.md) | What Pinfold is, and isn't |
 | [docs/components/accordion.md](docs/components/accordion.md) | Accordion spec |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
 | [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
@@ -126,7 +126,7 @@ The config never changes shape as you go deeper.
 | [docs/DECISIONS.md](docs/DECISIONS.md) · [docs/ROADMAP.md](docs/ROADMAP.md) · [docs/STRATEGY.md](docs/STRATEGY.md) | Why, what's next, and the market |
 | [AGENTS.md](AGENTS.md) | Binding rules for AI agents and contributors |
 
-The website, playground and palette studio live in [lumae-site](https://github.com/IndranilBhattacharya/lumae-site), served at `lumae.indranildev.in`.
+The website, playground and palette studio live in [pinfold-ui](https://github.com/IndranilBhattacharya/pinfold-ui), served at `pinfold.indranildev.in`.
 
 ## Develop
 

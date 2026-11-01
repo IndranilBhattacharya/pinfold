@@ -13,7 +13,7 @@ export function cn(...parts: Array<string | false | null | undefined>): string {
 /**
  * A slot value that may be static or derived from live state.
  *
- * Every renderable field in a Lumae config accepts both, so a caret can react to
+ * Every renderable field in a Pinfold config accepts both, so a caret can react to
  * `open` without the consumer dropping down to a full slot override.
  */
 export type Slottable<State, T = unknown> = T | ((state: State) => T);

@@ -1,5 +1,5 @@
 /**
- * @lumae/core: framework-free building blocks. Nothing here imports React or
+ * @pinfold/core: framework-free building blocks. Nothing here imports React or
  * any other UI framework (enforced by `framework-isolation.test.ts`), so a
  * future adapter reuses exactly the same rules.
  */
@@ -17,12 +17,12 @@ export { nextIndexFromKey, type ListNavOptions } from './navigation';
 export { dimensionVars } from './dimensions';
 export { __DEV__, warnOnce, resetWarnings } from './dev';
 export type {
-  LumaeSize,
-  LumaeRadius,
-  LumaeTone,
-  LumaeOrientation,
-  LumaeDir,
-  LumaeTheme,
+  PinfoldSize,
+  PinfoldRadius,
+  PinfoldTone,
+  PinfoldOrientation,
+  PinfoldDir,
+  PinfoldTheme,
   PropsBag,
   Length,
   Ref,

@@ -1,14 +1,14 @@
 import type * as React from 'react';
 import type {
-  LumaeDir,
-  LumaeOrientation,
-  LumaeRadius,
-  LumaeSize,
-  LumaeTone,
+  PinfoldDir,
+  PinfoldOrientation,
+  PinfoldRadius,
+  PinfoldSize,
+  PinfoldTone,
   Length,
   PropsBag,
-} from '@lumae/core';
-import type { LumaeComponent } from '../component';
+} from '@pinfold/core';
+import type { PinfoldComponent } from '../component';
 import type { SlotOverrides, Slottable } from '../types';
 
 export type AccordionSlot =
@@ -77,8 +77,8 @@ export interface AccordionBehaviourConfig {
   /** Fires for one item, after `onValueChange`. */
   onItemToggle?: (id: string, open: boolean) => void;
   /** Arrow-key axis for moving between headers. Default `vertical`. */
-  orientation?: LumaeOrientation;
-  dir?: LumaeDir;
+  orientation?: PinfoldOrientation;
+  dir?: PinfoldDir;
   /** Wrap focus at the ends. Default true. */
   loop?: boolean;
   /** Prefix for generated ids — set it for deterministic SSR markup. */
@@ -122,9 +122,9 @@ export interface AccordionDimensions {
 
 export interface AccordionAppearanceConfig {
   variant?: AccordionVariant;
-  size?: LumaeSize;
-  tone?: LumaeTone;
-  radius?: LumaeRadius;
+  size?: PinfoldSize;
+  tone?: PinfoldTone;
+  radius?: PinfoldRadius;
   /** Built-in glyph, your own node, or a function of the row's state. */
   indicator?: AccordionIndicator | AccordionNode;
   /** Which edge the indicator sits on. Default `end`. */
@@ -138,7 +138,7 @@ export interface AccordionAppearanceConfig {
   /** Explicit sizing, per dimension. Overrides the `size` preset. */
   dimensions?: AccordionDimensions;
   /**
-   * Drop every Lumae class so no bundled CSS applies, keeping the behaviour,
+   * Drop every Pinfold class so no bundled CSS applies, keeping the behaviour,
    * ARIA and `data-*` state hooks. For Tailwind or your own stylesheet:
    * style entirely through `classNames`.
    */
@@ -166,9 +166,9 @@ export interface AccordionConfig
 /** Appearance after provider defaults are folded in. */
 export interface ResolvedAppearance {
   variant: AccordionVariant;
-  size: LumaeSize;
-  tone: LumaeTone;
-  radius: LumaeRadius;
+  size: PinfoldSize;
+  tone: PinfoldTone;
+  radius: PinfoldRadius;
   indicator: AccordionIndicator | AccordionNode;
   indicatorPosition: 'start' | 'end';
   headingLevel: number;
@@ -231,4 +231,4 @@ export interface AccordionParts {
  * What `useAccordion()` returns: a component you render, that is also the
  * controller, that also carries its parts.
  */
-export type AccordionApi = LumaeComponent<AccordionState & AccordionParts, AccordionRootProps>;
+export type AccordionApi = PinfoldComponent<AccordionState & AccordionParts, AccordionRootProps>;

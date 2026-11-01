@@ -1,7 +1,7 @@
 // Compiled by the real React Compiler in tests (see vitest.config.ts,
 // `reactCompiler`), exactly as a consumer app with the compiler enabled would be.
 import * as React from 'react';
-import { useAccordion } from '@lumae/react/accordion';
+import { useAccordion } from '@pinfold/react/accordion';
 
 const items = [
   { id: 'a', title: 'Alpha', content: 'Alpha body' },

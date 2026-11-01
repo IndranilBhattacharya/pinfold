@@ -1,15 +1,15 @@
 {
-  "$schema": "https://lumae.indranildev.in/registry.schema.json",
+  "$schema": "https://pinfold.indranildev.in/registry.schema.json",
   "version": 1,
   "core": {
-    "packages": ["@lumae/react", "@lumae/css"],
-    "styles": "@lumae/css/core.css"
+    "packages": ["@pinfold/react", "@pinfold/css"],
+    "styles": "@pinfold/css/core.css"
   },
   "components": [
     {
       "name": "accordion",
-      "import": "@lumae/react/accordion",
-      "styles": "@lumae/css/accordion.css",
+      "import": "@pinfold/react/accordion",
+      "styles": "@pinfold/css/accordion.css",
       "status": "stable",
       "description": "Collapsible disclosure rows. WAI-ARIA accordion pattern.",
       "variants": ["solid", "outline", "separated", "filled", "ghost"],

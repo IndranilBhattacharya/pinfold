@@ -34,7 +34,7 @@ jobs:
           node -e '
             for (const p of ["core", "css", "react"]) {
               const deps = Object.keys(require(`./packages/${p}/package.json`).dependencies ?? {});
-              const extra = deps.filter((d) => !d.startsWith("@lumae/"));
-              if (extra.length) { console.error(`@lumae/${p} has runtime deps: ${extra}`); process.exit(1); }
+              const extra = deps.filter((d) => !d.startsWith("@pinfold/"));
+              if (extra.length) { console.error(`@pinfold/${p} has runtime deps: ${extra}`); process.exit(1); }
             }'
-      - run: npm publish --provenance --access public --tag ${{ inputs.tag }} -w @lumae/core -w @lumae/css -w @lumae/react -w lumae
+      - run: npm publish --provenance --access public --tag ${{ inputs.tag }} -w @pinfold/core -w @pinfold/css -w @pinfold/react -w pinfold

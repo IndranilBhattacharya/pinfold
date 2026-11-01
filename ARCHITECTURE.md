@@ -1,6 +1,6 @@
 # Architecture
 
-The contract every Lumae component follows. Read this once and you can add
+The contract every Pinfold component follows. Read this once and you can add
 the next twelve components without inventing a single decision.
 
 > Sections marked **Planned** describe A1–A7 work.
@@ -11,21 +11,21 @@ the next twelve components without inventing a single decision.
 ## 0. Layers and packages (D-04, D-05)
 
 ```
-@lumae/core    no framework: utils, variants, keyboard nav, dimensions, dev warnings, palette, types
+@pinfold/core    no framework: utils, variants, keyboard nav, dimensions, dev warnings, palette, types
                (Planned: <name>.logic.ts in A2, store in A1, <name>.meta.ts in A3)
-@lumae/css     tokens.css, reset.css, <name>.css, Tailwind v3 preset + v4 theme (Planned: styles/<pack>.css in A5)
-@lumae/react   use<Name>, define<Name>, <Name> tag, <Name>View, LumaeProvider, defineConfig
-lumae          CLI
+@pinfold/css     tokens.css, reset.css, <name>.css, Tailwind v3 preset + v4 theme (Planned: styles/<pack>.css in A5)
+@pinfold/react   use<Name>, define<Name>, <Name> tag, <Name>View, PinfoldProvider, defineConfig
+pinfold          CLI
 ```
 
 - **Isolation rule.** `core` and `css` never import React or any other framework, and a test fails
   the build if they do. Behaviour *rules* (what toggling does, the single/collapsible rules,
   which key goes where) live in `core` as pure functions. The React layer only adapts them:
   state, effects, refs, JSX.
-- **Future adapters.** `@lumae/vue` and `@lumae/angular` would depend on `core` and `css` from npm, under
+- **Future adapters.** `@pinfold/vue` and `@pinfold/angular` would depend on `core` and `css` from npm, under
   the same org, and write only a view and an adapter. Behaviour stays identical, because there is
   only one copy of the rules.
-- **Subpaths.** Each component has one: `@lumae/react/accordion`. Unused components add 0 bytes.
+- **Subpaths.** Each component has one: `@pinfold/react/accordion`. Unused components add 0 bytes.
 
 ## 1. The layering rule
 
@@ -49,7 +49,7 @@ three things at once:
 3. a set of **parts**: `<Faq.Trigger id>`, `<Faq.Panel id>`, for layouts the
    config cannot express.
 
-Build both with one helper from `@lumae/react`: `useLumaeComponent(name, api, render, buildParts)`.
+Build both with one helper from `@pinfold/react`: `usePinfoldComponent(name, api, render, buildParts)`.
 **Identity stability is not optional.** A component created fresh each render is a new element
 type to React, which unmounts and remounts the whole subtree, discarding focus, scroll position
 and every running transition. The conformance suite tests for it.
@@ -117,8 +117,8 @@ Rules:
    Functions are opt-in extras. This is what lets a CMS, a server component or a language model
    drive the component.
 7. **Appearance inherits** from the global config (D-08). Precedence, highest first: component
-   config, `defaults.<component>` in `lumae.config`, the global theme, library defaults. A nested
-   `LumaeProvider` scopes a section.
+   config, `defaults.<component>` in `pinfold.config`, the global theme, library defaults. A nested
+   `PinfoldProvider` scopes a section.
 8. **Dev validation (Planned for A3).** `meta.ts` drives dev-only warnings for unknown keys, wrong
    types and invalid enum values, because JS users have no compiler to catch them. It is stripped
    in production.
@@ -173,16 +173,16 @@ accessibility breaks. That is documented, not defended against.
 
 ## 5. Styling contract
 
-- Class names are BEM: `.lumae-<component>__<slot>`. State is expressed through `[data-*]`.
+- Class names are BEM: `.pinfold-<component>__<slot>`. State is expressed through `[data-*]`.
 - **Every value comes from a core token.** No literal colours, and no magic pixels outside the
   component's own local variables.
 - Sizing is **two-layer**. `[data-size]` writes the `*-base` preset. The `dimensions` config writes
-  `--lumae-<component>-<key>` via `dimensionVars()`, which wins through the `var()` fallback:
+  `--pinfold-<component>-<key>` via `dimensionVars()`, which wins through the `var()` fallback:
 
 ```css
-.lumae-accordion { --lumae-acc-pad-x-base: var(--lumae-space-4); }
-.lumae-accordion[data-size='lg'] { --lumae-acc-pad-x-base: var(--lumae-space-5); }
-.lumae-accordion { --lumae-acc-pad-x: var(--lumae-accordion-padding-x, var(--lumae-acc-pad-x-base)); }
+.pinfold-accordion { --pinfold-acc-pad-x-base: var(--pinfold-space-4); }
+.pinfold-accordion[data-size='lg'] { --pinfold-acc-pad-x-base: var(--pinfold-space-5); }
+.pinfold-accordion { --pinfold-acc-pad-x: var(--pinfold-accordion-padding-x, var(--pinfold-acc-pad-x-base)); }
 ```
 
 - **Rounded containers cascade their radius; they never clip.** An element with a radius passes it
@@ -190,13 +190,13 @@ accessibility breaks. That is documented, not defended against.
   **Never use `overflow: hidden` to clip a rounded container,** because it also cuts off the focus
   ring. (An earlier version of this doc said the opposite. That was wrong; the CSS and AGENTS.md
   were right.)
-- **Everything lives in a cascade layer:** `@layer lumae.tokens`, `lumae.reset`, `lumae.components`.
+- **Everything lives in a cascade layer:** `@layer pinfold.tokens`, `pinfold.reset`, `pinfold.components`.
   Unlayered CSS beats a layered rule at any specificity, so a consumer's stylesheet and every
   Tailwind utility override us for free. No `!important`, no plugin, no import-order rule, no
   `tailwind-merge`.
 - **`unstyled` is mandatory on every component.** It drops the component's own classes and keeps
   behaviour, ARIA and `data-*`.
-- The root always carries `lumae`, so the scoped reset applies (unless `unstyled`).
+- The root always carries `pinfold`, so the scoped reset applies (unless `unstyled`).
 - Animate with CSS only. Prefer `grid-template-rows`, `transform`, `opacity` and `clip-path`. Never
   measure heights in JS.
 - Every component ships its own CSS file. **JS never imports CSS,** because that breaks SSR, CJS and
@@ -217,7 +217,7 @@ accessibility breaks. That is documented, not defended against.
 
 ## 5b. Colour
 
-Colour is generated, never hand-picked. `@lumae/core/palette` has no React and no dependencies, so
+Colour is generated, never hand-picked. `@pinfold/core/palette` has no React and no dependencies, so
 the CLI, the build and the runtime share one implementation.
 
 - **Seven roles:** primary, accent, neutral, success, warning, danger, info. Each is an
@@ -228,9 +228,9 @@ the CLI, the build and the runtime share one implementation.
 - **Every value is emitted twice:** sRGB hex for reach, and OKLCH behind `@supports` for fidelity.
   Out-of-gamut chroma is pulled back into gamut by bisection, never clipped.
 - **Dark mode flips the semantic layer only.** The ramps are untouched.
-- **Contrast is reported, not assumed:** `createTheme().contrast` and `npx lumae theme --check`.
+- **Contrast is reported, not assumed:** `createTheme().contrast` and `npx pinfold theme --check`.
 - **Style packs (A5)** (glass, bauhaus, brutalist, noise, soft) are token and surface recipes behind
-  `data-lumae-style`. They are never forks of the components. Each one respects `prefers-contrast`,
+  `data-pinfold-style`. They are never forks of the components. Each one respects `prefers-contrast`,
   `prefers-reduced-transparency` and `forced-colors`, and must pass the contrast check.
 
 A literal colour in a component stylesheet is a bug. The conformance suite fails the build on one.
@@ -238,10 +238,10 @@ A literal colour in a component stylesheet is a bug. The conformance suite fails
 ## 5c. Aesthetic invariants
 
 - **Two-layer shadows,** tinted with the neutral ramp.
-- **`--lumae-highlight`,** a hairline inset top edge on raised surfaces.
+- **`--pinfold-highlight`,** a hairline inset top edge on raised surfaces.
 - **Interaction surfaces carry the brand.** Hover mixes about 6% accent into the surface.
 - **Two-tone focus ring.** Nothing may clip it.
-- **Decelerating easing** (`--lumae-ease-out`) for anything that appears. Content settles about 35%
+- **Decelerating easing** (`--pinfold-ease-out`) for anything that appears. Content settles about 35%
   behind its container.
 - Reduced motion and forced colours are handled in CSS, once, in the reset.
 
@@ -255,7 +255,7 @@ A component is not done until:
 - keyboard support is complete and tested with real key events
 - disabled means `aria-disabled` on a control that stays focusable, never `disabled`
 - hidden content is out of both the accessibility tree and the tab order
-- focus is visible via `:focus-visible` and the `--lumae-focus-*` tokens
+- focus is visible via `:focus-visible` and the `--pinfold-focus-*` tokens
 - `prefers-reduced-motion` and `forced-colors` are handled
 - `dir="rtl"` flips direction through logical properties and direction-aware key handling
 - contrast holds at every step of the generated palette, in light and dark mode
@@ -308,10 +308,10 @@ From it we generate:
 
 ```
 packages/
-  core/    src/{utils,variants,navigation,dimensions,dev,palette,types}.ts            @lumae/core
-  css/     src/{tokens,reset,<name>}.css  tailwind/{preset.cjs,theme.css}  build.mjs  @lumae/css
-  react/   src/<name>/{use<Name>.tsx,<Name>View.tsx,<Name>.tsx,define<Name>.ts,index.ts}  @lumae/react
-  cli/                                                                              lumae
+  core/    src/{utils,variants,navigation,dimensions,dev,palette,types}.ts            @pinfold/core
+  css/     src/{tokens,reset,<name>}.css  tailwind/{preset.cjs,theme.css}  build.mjs  @pinfold/css
+  react/   src/<name>/{use<Name>.tsx,<Name>View.tsx,<Name>.tsx,define<Name>.ts,index.ts}  @pinfold/react
+  cli/                                                                              pinfold
   testing/ (private)                                                                conformance
 ```
 
@@ -326,7 +326,7 @@ packages/
 
 - The React package's `exports` map is the single source of truth: tsup builds one entry per
   export, and `scripts/subpath-stubs.mjs` writes a stub folder per subpath (`accordion/package.json`)
-  for bundlers that ignore `exports` (webpack 4). `npx lumae new <name>` adds the export.
+  for bundlers that ignore `exports` (webpack 4). `npx pinfold new <name>` adds the export.
 - Code splitting keeps shared modules (provider, hooks) in common chunks, so every subpath sees one
   React context. `scripts/size-check.mjs` budgets each entry together with the chunks it imports.
 
@@ -335,7 +335,7 @@ packages/
 ## 9. Adding a component: the checklist
 
 1. The spec `docs/components/<name>.md` is researched and signed off by the owner.
-2. `npx lumae new <name>`.
+2. `npx pinfold new <name>`.
 3. Write `types.ts` first. The config object is the API.
 4. Write the rules in core (`<name>.logic.ts`), then `use<Name>.tsx` against the APG pattern.
    Reuse `nextIndexFromKey`, `useControllableState`, `useId`, `useEvent` and `dimensionVars`.
@@ -344,8 +344,8 @@ packages/
    the responsive contract.
 7. Write `define<Name>` and `<name>.meta.ts`.
 8. Tests: ARIA wiring, every mode, the keyboard map, disabled, controlled, slot overrides,
-   dimensions reaching custom properties, SSR output. Add `describeLumaeConformance`.
-9. Register it in `packages/cli/registry.json`. Update its section on the site (`../lumae-site`).
+   dimensions reaching custom properties, SSR output. Add `describePinfoldConformance`.
+9. Register it in `packages/cli/registry.json`. Update its section on the site (`../pinfold-ui`).
 10. Run `npm run verify` (typecheck, tests, build, gzip budget).
 
 ---

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Assemble @lumae/css. No bundler: CSS is copied as written, so what ships is
+ * Assemble @pinfold/css. No bundler: CSS is copied as written, so what ships is
  * exactly what was reviewed.
  *
  *   dist/core.css       reset + tokens (import first, once)
@@ -26,4 +26,4 @@ for (const f of components) copyFileSync(`src/${f}`, `dist/${f}`);
 writeFileSync('dist/all.css', [core, ...components.map((f) => read(`src/${f}`))].join('\n'));
 copyFileSync('tailwind/theme.css', 'dist/tailwind.css');
 
-console.log(`@lumae/css: core + ${components.length} component(s) -> dist/`);
+console.log(`@pinfold/css: core + ${components.length} component(s) -> dist/`);

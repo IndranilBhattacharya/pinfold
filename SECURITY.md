@@ -20,5 +20,5 @@ Pre-release: only the latest `next` tag is supported. After 1.0, the latest mino
 - You can verify a release's provenance with `npm audit signatures`.
 
 ## Scope notes
-- Lumae does not use `dangerouslySetInnerHTML` for any content you pass in.
+- Pinfold does not use `dangerouslySetInnerHTML` for any content you pass in.
 - In React Server Components, any config passed to `define*` is serialised into the page payload. **Never put secrets in component config.**

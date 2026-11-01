@@ -2,7 +2,7 @@
 /**
  * Write a stub folder per JS subpath export (`<pkg>/accordion/package.json`) so
  * bundlers that ignore the `exports` map (webpack 4, old Jest resolvers) still
- * resolve `@lumae/<pkg>/accordion`. D-14.
+ * resolve `@pinfold/<pkg>/accordion`. D-14.
  *
  * Reads the package's own `exports`, so it never drifts. Run from the package dir.
  */

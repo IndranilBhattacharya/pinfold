@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { cn, mergeProps, type PropsBag } from '@lumae/core';
+import { cn, mergeProps, type PropsBag } from '@pinfold/core';
 import type { SlotOverrides } from './types';
 
 /**

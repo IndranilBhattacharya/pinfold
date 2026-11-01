@@ -21,5 +21,5 @@ export default defineConfig({
   // sees the same React context instance.
   splitting: true,
   target: 'es2018',
-  external: ['react', '@lumae/core'],
+  external: ['react', '@pinfold/core'],
 });

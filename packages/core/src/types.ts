@@ -1,10 +1,10 @@
-/** Shared scale used by every Lumae component. */
-export type LumaeSize = 'sm' | 'md' | 'lg';
-export type LumaeRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
-export type LumaeTone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
-export type LumaeOrientation = 'horizontal' | 'vertical';
-export type LumaeDir = 'ltr' | 'rtl';
-export type LumaeTheme = 'light' | 'dark' | 'system';
+/** Shared scale used by every Pinfold component. */
+export type PinfoldSize = 'sm' | 'md' | 'lg';
+export type PinfoldRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
+export type PinfoldTone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
+export type PinfoldOrientation = 'horizontal' | 'vertical';
+export type PinfoldDir = 'ltr' | 'rtl';
+export type PinfoldTheme = 'light' | 'dark' | 'system';
 
 /** Any DOM props bag a component hands back from a `getXProps()` call. */
 export type PropsBag = Record<string, any>;

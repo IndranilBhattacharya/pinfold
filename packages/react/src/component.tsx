@@ -9,7 +9,7 @@ import { useIsomorphicLayoutEffect } from './hooks';
  *   Accordion.toggle('faq-1');               // controls
  *   <Accordion.Panel id="faq-1" />           // composes
  */
-export type LumaeComponent<Api, Props> = ((props: Props) => React.ReactElement | null) &
+export type PinfoldComponent<Api, Props> = ((props: Props) => React.ReactElement | null) &
   Api & { displayName?: string };
 
 type Part = (props: any) => React.ReactElement | null;
@@ -37,7 +37,7 @@ interface RenderStore {
  * seen it. In the ordinary case they already rendered with the parent, the
  * snapshot matches, and React does no extra work.
  */
-export function useLumaeComponent<
+export function usePinfoldComponent<
   Api extends object,
   Props extends object,
   Parts extends { [K in keyof Parts]: Part } = {},
@@ -46,11 +46,11 @@ export function useLumaeComponent<
   api: Api,
   render: (props: Props) => React.ReactElement | null,
   buildParts?: () => Parts,
-): LumaeComponent<Api & Parts, Props> {
+): PinfoldComponent<Api & Parts, Props> {
   const renderRef = React.useRef(render);
   renderRef.current = render;
 
-  const ref = React.useRef<{ store: RenderStore; Component: LumaeComponent<Api & Parts, Props> } | null>(null);
+  const ref = React.useRef<{ store: RenderStore; Component: PinfoldComponent<Api & Parts, Props> } | null>(null);
   if (ref.current === null) {
     const store: RenderStore = { version: 0, listeners: new Set() };
     const subscribe = (listener: () => void) => {
@@ -65,7 +65,7 @@ export function useLumaeComponent<
     const Component = ((props: Props) => {
       useFresh();
       return renderRef.current(props);
-    }) as LumaeComponent<Api & Parts, Props>;
+    }) as PinfoldComponent<Api & Parts, Props>;
     Component.displayName = displayName;
 
     const parts = buildParts ? buildParts() : ({} as Parts);

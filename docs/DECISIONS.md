@@ -10,7 +10,7 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 
 ## Identity
 
-**D-01 · Name: Lumae** · 2026-10-31 · Locked
+**D-01 · Name: Lumae** · 2026-10-31 · **Superseded** by D-22 (2026-11-01)
 - Lumae (LOO-may), from *lumen*: light, luminous, lightweight. npm org `@lumae`
   (fallback `@lumae-ui` if taken), CLI `lumae`, CSS prefix `lumae-`, tokens `--lumae-*`,
   provider `LumaeProvider`, config `lumae.config.(ts|js)`, site `lumae.indranildev.in`.
@@ -29,20 +29,20 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 - Rejected: Apache-2.0 (its NOTICE file and patent grant are useful, but it's less common for UI libraries). Restrictive licenses (they kill adoption).
 
 **D-03 · Two public repos** · 2026-10-31 · Locked
-- `lumae/` holds the library published to npm. `lumae-site/` holds the docs, playground, palette and theme studio, and serves the registry. They are sibling folders, and the parent folder has no git.
+- `pinfold/` holds the library published to npm. `pinfold-ui/` holds the docs, playground, palette and theme studio, and serves the registry. They are sibling folders, and the parent folder has no git.
 - Why: keeps the product repo lean, so tooling and website concerns never pollute it.
 - Rejected: one monorepo that includes the site. A private site repo (the owner wants it public; contributions are welcome).
 
 ## Architecture
 
 **D-04 · React only in this repo, with an architecture ready for more frameworks** · 2026-10-31 · Locked
-- Only React components are built. Behaviour rules live in a framework-free `@lumae/core`, and styles in `@lumae/css`. Future `@lumae/vue` and `@lumae/angular` packages reuse both from npm, under the same org. They may live here or in separate repos.
-- Why: proves demand on React first, without locking out later frameworks or splitting the name into `lumae-vue` or `ng-lumae`.
+- Only React components are built. Behaviour rules live in a framework-free `@pinfold/core`, and styles in `@pinfold/css`. Future `@pinfold/vue` and `@pinfold/angular` packages reuse both from npm, under the same org. They may live here or in separate repos.
+- Why: proves demand on React first, without locking out later frameworks or splitting the name into `pinfold-vue` or `ng-pinfold`.
 - Rejected: building Vue and Angular now. Compile-to-many tools such as Mitosis (fragile output).
 - Messaging: the library README stays React-only. The site says Vue and Angular are planned.
 
 **D-05 · Packages: one per layer and per framework, with a subpath per component** · 2026-10-31 · Locked
-- `@lumae/core`, `@lumae/css`, `@lumae/react` (imported as `@lumae/react/accordion`), and `lumae` (CLI).
+- `@pinfold/core`, `@pinfold/css`, `@pinfold/react` (imported as `@pinfold/react/accordion`), and `pinfold` (CLI).
 - Why: Radix moved to a single `radix-ui` package, and Base UI, Ark and MUI each ship a single package. Per-component packages cause version skew: two copies of core end up installed, and the provider no longer reaches every component. Subpath exports plus `sideEffects: ["*.css"]` mean an unused component adds 0 bytes to the app bundle.
 - **Supersedes** the earlier per-component packages (one package per component, e.g. an `accordion` package). The cost is a few hundred kB of install footprint.
 
@@ -57,13 +57,13 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 - Server Components use `defineAccordion(config)`, which also gives `<Faq />` and adds no extra DOM. `<Accordion {...config}/>` exists as well.
 - Every component follows the `use<Name>` / `define<Name>` pair.
 - Why: the JSX you return stays uncluttered everywhere. Server Components can't call hooks. JSON-safe config can cross from server to client.
-- Goal: a single import path (`@lumae/react/accordion`) that works on both server and client. This is verified in A4; the fallback is a `/server` subpath.
+- Goal: a single import path (`@pinfold/react/accordion`) that works on both server and client. This is verified in A4; the fallback is a `/server` subpath.
 - Rejected names for the server twin: `accordion()` (reads like a variable), `createAccordion()` (sounds like a store).
 
 **D-08 · Minimal config and a global config** · 2026-10-31 · Locked
 - Only the data is required. Everything else has an enterprise-standard default.
-- `lumae.config.(ts|js)` uses `defineConfig({ theme, defaults: { <component>: {...} }, lazy })`.
-- Precedence, highest first: component config, `defaults.<component>`, the global theme, the library defaults. A nested `LumaeProvider` re-themes one section of the app.
+- `pinfold.config.(ts|js)` uses `defineConfig({ theme, defaults: { <component>: {...} }, lazy })`.
+- Precedence, highest first: component config, `defaults.<component>`, the global theme, the library defaults. A nested `PinfoldProvider` re-themes one section of the app.
 
 **D-09 · The escape-hatch ladder** · 2026-10-31 · Locked
 - In every component: config, then `classNames`/`styles`/`slotProps`, then slot `render`/`renderItem`, then parts, then prop getters. The conformance suite enforces it.
@@ -89,14 +89,14 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 
 **D-14 · JavaScript and TypeScript, both first-class** · 2026-10-31 · Locked
 - ES2018 ESM and CJS builds, `.d.ts` plus JSDoc, and a dev-only config validator for JS users.
-- The CLI writes `.jsx`/`.tsx` and `lumae.config.js`/`.ts` to match the project.
+- The CLI writes `.jsx`/`.tsx` and `pinfold.config.js`/`.ts` to match the project.
 - `typesVersions` and per-subpath stub folders support old module resolution and webpack 4.
 - The types are tested against TS 4.7 and 5.x.
 
 ## Distribution, tooling and AI
 
 **D-15 · Distribution: npm plus a shadcn registry** · 2026-10-31 · Locked
-- npm packages (D-05). A namespaced shadcn registry (`npx shadcn add @lumae/accordion`), whose JSON ships inside the npm package. The site serves that JSON, with jsDelivr as a fallback.
+- npm packages (D-05). A namespaced shadcn registry (`npx shadcn add @pinfold/accordion`), whose JSON ships inside the npm package. The site serves that JSON, with jsDelivr as a fallback.
 - Why: work with shadcn, not against it, because vibe-coding tools default to shadcn.
 - Eject (copying the view code into an app): **deferred**, because the registry already covers "own the code".
 
@@ -106,7 +106,7 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 - It never overwrites files. It merges, shows a diff first, and supports `--dry-run` and `--yes`.
 
 **D-17 · AI is a primary audience** · 2026-10-31 · Locked
-- Dense, generated docs (`AGENTS.md`, `llms.txt`, schema, meta) ship inside the npm package, matching the installed version and readable offline. `npx lumae mcp` is a local MCP server, so nothing needs hosting.
+- Dense, generated docs (`AGENTS.md`, `llms.txt`, schema, meta) ship inside the npm package, matching the installed version and readable offline. `npx pinfold mcp` is a local MCP server, so nothing needs hosting.
 - Repo `AGENTS.md` holds binding rules, and `CLAUDE.md` imports it.
 
 **D-18 · Security posture** · 2026-10-31 · Locked
@@ -123,3 +123,13 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 
 **D-21 · No Docker requirement** · 2026-10-31 · Locked
 - Cross-machine confidence comes from the CI matrix (operating system × Node × package manager × React × compiler), not from containers.
+
+## Revisions
+
+**D-22 · Name: Pinfold (supersedes D-01)** · 2026-11-01 · Locked
+- Pinfold. npm org `@pinfold`, CLI `pinfold` (`npx pinfold …`), CSS prefix `pinfold-`, tokens `--pinfold-*`,
+  provider `PinfoldProvider`, config `pinfold.config.(ts|js)`, site `pinfold.indranildev.in`.
+- Repos: `pinfold` (library) and `pinfold-ui` (docs, playground, palette; was `lumae-site`). GitHub redirects the old URLs.
+- Why: the owner's choice. On 2026-11-01 the owner created the `@pinfold` npm org, and the unscoped `pinfold` name was free.
+- Nothing was published under the Lumae name, so no package migration is needed. The unused `@lumae` npm org can be deleted or kept.
+- Open: the formal trademark search from D-01 now applies to "Pinfold".

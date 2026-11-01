@@ -1,13 +1,13 @@
 {
-  "name": "lumae-monorepo",
+  "name": "pinfold-monorepo",
   "private": true,
   "version": "0.0.0",
-  "description": "Lumae: config-driven, hooks-first React UI library",
+  "description": "Pinfold: config-driven, hooks-first React UI library",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @lumae/core -w @lumae/css -w @lumae/react",
+    "build": "npm run build -w @pinfold/core -w @pinfold/css -w @pinfold/react",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty",
@@ -42,6 +42,6 @@
     "node": ">=20"
   },
   "author": "Indranil Bhattacharya",
-  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/lumae.git" },
+  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/pinfold.git" },
   "license": "MIT"
 }
