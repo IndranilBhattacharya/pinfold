@@ -10,17 +10,10 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 
 ## Identity
 
-**D-01 · Name: Lumae** · 2026-10-31 · **Superseded** by D-22 (2026-11-01)
-- Lumae (LOO-may), from *lumen*: light, luminous, lightweight. npm org `@lumae`
-  (fallback `@lumae-ui` if taken), CLI `lumae`, CSS prefix `lumae-`, tokens `--lumae-*`,
-  provider `LumaeProvider`, config `lumae.config.(ts|js)`, site `lumae.indranildev.in`.
-- Why: short, invented, modern. When chosen, the unscoped npm name and `@lumae/core` were free, and a web search found no software product named Lumae.
-- Rejected names:
-  - The original working name: a placeholder the owner disliked. Fully removed from code and docs on 2026-10-31.
-  - "Talo": already used by TaloDev (a game backend), talo-pay and `@talo-code/talo-ui`.
-  - Oru, Vinya, Velin, Ovyn, Tessra, Vyla, Lirra: candidates not chosen.
-  - Uvio: an existing UX agency.
-  - Orlo: existing software.
+**D-01 · Name: Pinfold** · 2026-11-01 · Locked
+- Pinfold. npm org `@pinfold`, CLI `pinfold` (`npx pinfold …`), CSS prefix `pinfold-`, tokens `--pinfold-*`,
+  provider `PinfoldProvider`, config `pinfold.config.(ts|js)`, site `pinfold.indranildev.in`.
+- Why: short, memorable, the owner's choice. The owner holds the `@pinfold` npm org and the unscoped `pinfold` package.
 - Open: a formal trademark search (USPTO, EUIPO, WIPO, India IP; classes 9 and 42) before the public launch.
 
 **D-02 · License MIT, credit to the owner** · 2026-10-31 · Locked
@@ -124,12 +117,3 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 **D-21 · No Docker requirement** · 2026-10-31 · Locked
 - Cross-machine confidence comes from the CI matrix (operating system × Node × package manager × React × compiler), not from containers.
 
-## Revisions
-
-**D-22 · Name: Pinfold (supersedes D-01)** · 2026-11-01 · Locked
-- Pinfold. npm org `@pinfold`, CLI `pinfold` (`npx pinfold …`), CSS prefix `pinfold-`, tokens `--pinfold-*`,
-  provider `PinfoldProvider`, config `pinfold.config.(ts|js)`, site `pinfold.indranildev.in`.
-- Repos: `pinfold` (library) and `pinfold-ui` (docs, playground, palette; was `lumae-site`). GitHub redirects the old URLs.
-- Why: the owner's choice. On 2026-11-01 the owner created the `@pinfold` npm org, and the unscoped `pinfold` name was free.
-- Nothing was published under the Lumae name, so no package migration is needed. The unused `@lumae` npm org can be deleted or kept.
-- Open: the formal trademark search from D-01 now applies to "Pinfold".
