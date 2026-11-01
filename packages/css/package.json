@@ -3,27 +3,55 @@
   "version": "0.1.0",
   "description": "Pinfold styles: tokens, reset and per-component CSS in cascade layers, plus the Tailwind v3 preset and v4 theme. Framework-free.",
   "author": "Indranil Bhattacharya",
-  "keywords": ["pinfold", "css", "design-tokens", "tailwind", "tailwindcss", "oklch", "cascade-layers"],
+  "keywords": [
+    "pinfold",
+    "css",
+    "design-tokens",
+    "tailwind",
+    "tailwindcss",
+    "oklch",
+    "cascade-layers"
+  ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
-  "repository": { "type": "git", "url": "git+https://github.com/IndranilBhattacharya/pinfold.git", "directory": "packages/css" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IndranilBhattacharya/pinfold.git",
+    "directory": "packages/css"
+  },
   "bugs": "https://github.com/IndranilBhattacharya/pinfold/issues",
-  "sideEffects": ["*.css"],
+  "sideEffects": [
+    "*.css"
+  ],
   "exports": {
     "./core.css": "./dist/core.css",
     "./reset.css": "./dist/reset.css",
     "./tokens.css": "./dist/tokens.css",
     "./all.css": "./dist/all.css",
     "./accordion.css": "./dist/accordion.css",
+    "./packs.css": "./dist/packs.css",
+    "./shadcn.css": "./dist/shadcn.css",
     "./tailwind.css": "./dist/tailwind.css",
     "./tailwind": "./tailwind/preset.cjs",
     "./package.json": "./package.json"
   },
-  "files": ["dist", "tailwind"],
+  "files": [
+    "dist",
+    "tailwind"
+  ],
   "scripts": {
     "build": "node build.mjs"
   },
-  "peerDependencies": { "tailwindcss": ">=3" },
-  "peerDependenciesMeta": { "tailwindcss": { "optional": true } },
-  "publishConfig": { "access": "public", "provenance": true }
+  "peerDependencies": {
+    "tailwindcss": ">=3"
+  },
+  "peerDependenciesMeta": {
+    "tailwindcss": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

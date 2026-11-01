@@ -50,6 +50,7 @@ const BUDGETS = [
   ['packages/react/dist/accordion/index.js', 8],
   ['packages/css/dist/core.css', 5],
   ['packages/css/dist/accordion.css', 4],
+  ['packages/css/dist/packs.css', 2],
 ];
 
 /** A production app rendering one accordion: minified, NODE_ENV=production, React excluded. */

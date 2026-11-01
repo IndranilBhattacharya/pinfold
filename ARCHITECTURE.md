@@ -13,7 +13,8 @@ the next twelve components without inventing a single decision.
 ```
 @pinfold/core    no framework: utils, variants, keyboard nav, dimensions, dev warnings, palette, types,
                <name>.logic.ts (rules), <name>.meta.ts (metadata), meta.ts (validator, JSON schema)
-@pinfold/css     tokens.css, reset.css, <name>.css, Tailwind v3 preset + v4 theme (Planned: styles/<pack>.css in A5)
+@pinfold/css     tokens.css, reset.css, <name>.css, packs.css (style packs), shadcn.css (variable bridge),
+               Tailwind v3 preset + v4 theme
 @pinfold/react   use<Name>, define<Name>, <Name> tag, <Name>View, PinfoldProvider, defineConfig
 pinfold          CLI
 ```

@@ -15,15 +15,18 @@ rmSync('dist', { recursive: true, force: true });
 mkdirSync('dist');
 
 const core = read('src/reset.css') + '\n' + read('src/tokens.css');
+// Opt-in extras: packs.css (style packs) joins all.css; shadcn.css (an unlayered
+// variable bridge) never does, because it rewrites another library's variables.
+const extras = ['packs.css', 'shadcn.css'];
 const components = readdirSync('src')
-  .filter((f) => f.endsWith('.css') && f !== 'reset.css' && f !== 'tokens.css')
+  .filter((f) => f.endsWith('.css') && f !== 'reset.css' && f !== 'tokens.css' && !extras.includes(f))
   .sort();
 
 writeFileSync('dist/core.css', core);
 copyFileSync('src/reset.css', 'dist/reset.css');
 copyFileSync('src/tokens.css', 'dist/tokens.css');
-for (const f of components) copyFileSync(`src/${f}`, `dist/${f}`);
-writeFileSync('dist/all.css', [core, ...components.map((f) => read(`src/${f}`))].join('\n'));
+for (const f of [...components, ...extras]) copyFileSync(`src/${f}`, `dist/${f}`);
+writeFileSync('dist/all.css', [core, ...components.map((f) => read(`src/${f}`)), read('src/packs.css')].join('\n'));
 copyFileSync('tailwind/theme.css', 'dist/tailwind.css');
 
 console.log(`@pinfold/css: core + ${components.length} component(s) -> dist/`);

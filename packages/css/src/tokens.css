@@ -126,6 +126,11 @@
        separates "a box" from "a surface". */
     --pinfold-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 60%, transparent);
 
+    /* Hooks for style packs (packs.css). Defaults are neutral: no blur, no texture. */
+    --pinfold-border-width: 1px;
+    --pinfold-backdrop: none;
+    --pinfold-texture: none;
+
     /* ---------------------------------------------------------------- focus */
     --pinfold-focus-width: 2px;
     --pinfold-focus-offset: 2px;
