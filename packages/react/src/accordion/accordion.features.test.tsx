@@ -136,6 +136,14 @@ describe('Accordion features', () => {
     expect(root).toHaveAttribute('data-dividers');
   });
 
+  it('sets a radius on the root only when one is configured, so presets and packs inherit', () => {
+    const { unmount } = render(<Accordion items={items} />);
+    expect(document.querySelector('[data-pinfold="accordion"]')).not.toHaveAttribute('data-pinfold-radius');
+    unmount();
+    render(<Accordion items={items} radius="full" />);
+    expect(document.querySelector('[data-pinfold="accordion"]')).toHaveAttribute('data-pinfold-radius', 'full');
+  });
+
   it('lets a nested provider override its section', () => {
     render(
       <PinfoldProvider defaults={{ accordion: { variant: 'ghost', size: 'sm' } }}>

@@ -85,7 +85,6 @@ export function useAccordion(input: AccordionConfig): AccordionApi {
     variant: config.variant ?? 'solid',
     size: config.size ?? ctx.size,
     tone: config.tone ?? ctx.tone,
-    radius: config.radius ?? ctx.radius,
     indicator: config.indicator ?? 'chevron',
     indicatorPosition: config.indicatorPosition ?? 'end',
     headingLevel: config.headingLevel ?? 3,
