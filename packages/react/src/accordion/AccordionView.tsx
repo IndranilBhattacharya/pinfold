@@ -89,7 +89,8 @@ export function renderRoot(ctx: ViewContext, rootProps?: AccordionRootProps): Re
         'data-variant': a.variant,
         'data-size': a.size,
         'data-tone': a.tone,
-        'data-pinfold-radius': a.radius,
+        // Only an explicit radius; otherwise the provider's preset or a style pack reaches the root by inheritance.
+        'data-pinfold-radius': config.radius,
         'data-indicator-position': a.indicatorPosition,
         'data-dividers': a.dividers ? '' : undefined,
         'data-animate': a.animate ? '' : undefined,

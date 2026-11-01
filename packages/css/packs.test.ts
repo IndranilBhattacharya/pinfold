@@ -39,6 +39,22 @@ describe('style packs', () => {
     expect(css).toMatch(/forced-colors: active\)[\s\S]*--pinfold-backdrop: none/);
   });
 
+  // A custom property inherits its *computed* value, so tokens built from other tokens must be
+  // redeclared wherever their inputs change, or nested sections keep the :root result.
+  it('recomputes radii wherever the radius scale can change', () => {
+    const tokens = readFileSync(resolve(import.meta.dirname, 'src/tokens.css'), 'utf8');
+    expect(tokens).toMatch(/:root,\s*\[data-pinfold-radius\],\s*\[data-pinfold-style\] \{\s*--pinfold-radius-xs: calc/);
+  });
+
+  it('gives a nested light section every property the dark palette flips, plus the derived ones', () => {
+    const tokens = readFileSync(resolve(import.meta.dirname, 'src/tokens.css'), 'utf8');
+    const body = (sel: string) => tokens.slice(tokens.indexOf(sel), tokens.indexOf('\n  }', tokens.indexOf(sel)));
+    const names = (sel: string) => [...body(sel).matchAll(/(--pinfold-[\w-]+):/g)].map((m) => m[1]).sort();
+    expect(names('[data-pinfold-theme="light"] {')).toEqual(names('[data-pinfold-theme="dark"] {'));
+    expect(names('[data-pinfold-theme="light"] {')).toContain('--pinfold-color-surface-hover');
+    expect(names('[data-pinfold-theme="light"] {')).toContain('--pinfold-focus-ring');
+  });
+
   it('never re-colours text, so text contrast is the palette contrast', () => {
     expect(css).not.toMatch(/--pinfold-color-text[\w-]*:/);
   });

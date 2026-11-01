@@ -205,7 +205,6 @@ export interface ResolvedAppearance {
   variant: AccordionVariant;
   size: PinfoldSize;
   tone: PinfoldTone;
-  radius: PinfoldRadius;
   indicator: AccordionIndicator | AccordionNode;
   indicatorPosition: 'start' | 'end';
   headingLevel: number;

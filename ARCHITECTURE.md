@@ -70,6 +70,19 @@ so never put secrets in it.
 
 The standalone `<Name />` export is a one-line wrapper for one-off usage. It must add nothing.
 
+**Context is read where the hook is called.** `use<Name>()` reads `PinfoldProvider` (direction,
+size, tone, `defaults`) in the component that calls it, not where the returned `<Name />` renders.
+In an app the provider wraps everything, so the two are the same. When they differ (a preview that
+renders the result inside its own provider), pass the option in the config. CSS-driven settings
+(theme, style pack, radius preset) inherit through the DOM, so they follow where it renders.
+
+**Derived tokens are redeclared where their inputs change.** A custom property inherits its
+computed value, so a token built from others (`--pinfold-radius-lg` from the radius scale,
+`--pinfold-color-surface-hover` from the surface) is redeclared on every selector that changes an
+input: `[data-pinfold-theme]`, `[data-pinfold-radius]`, `[data-pinfold-style]`. Otherwise nested
+sections would keep the values computed on `:root`. A component root sets `data-pinfold-radius`
+only when the radius is configured, so presets and style packs reach it.
+
 ### Where the config model stops: the escape-hatch ladder (D-09)
 
 Config fits repeated, uniform rows. It doesn't fit page layout, so every component provides the
