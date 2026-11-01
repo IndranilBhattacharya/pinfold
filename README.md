@@ -90,7 +90,7 @@ export default defineConfig({
 ```
 Precedence, highest first: component config, `defaults.<component>`, the global theme, the library defaults.
 
-## Install *(Planned CLI)*
+## Install
 
 ```bash
 npx pinfold init              # interactive: language, components, theme, entry file, Tailwind merge

@@ -113,11 +113,14 @@ async function next() {
 }
 
 function webpack() {
-  const app = scaffold('webpack-js', { react: '^18', 'react-dom': '^18', webpack: '^5', 'webpack-cli': '^7' });
-  writeFileSync(
-    join(app, 'webpack.config.js'),
-    "module.exports = { mode: 'production', entry: './src/index.js', output: { path: __dirname + '/dist' } };\n",
-  );
+  const app = scaffold('webpack-js', {
+    react: '^18',
+    'react-dom': '^18',
+    webpack: '^5',
+    'webpack-cli': '^7',
+    'css-loader': '^7',
+    'style-loader': '^4',
+  });
   run('npx webpack --no-color', app);
   const bundle = readFileSync(join(app, 'dist/main.js'), 'utf8');
   if (!bundle.includes('aria-controls')) throw new Error('webpack: the accordion is missing from the bundle');
