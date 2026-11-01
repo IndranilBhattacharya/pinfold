@@ -3,7 +3,7 @@
 **Rule:** the owner signs off after each milestone. Agents never start the next one on their own (AGENTS.md §2).
 Milestones A1–A9 apply to the **accordion only**. Component #2 starts after A9.
 
-Current milestone: **A1 done locally; awaiting a green CI run on GitHub and the owner's sign-off.** Next: A2.
+Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Awaiting the owner's sign-off.** Next: A2.
 
 ## Component lifecycle
 
