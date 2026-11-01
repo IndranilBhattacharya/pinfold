@@ -124,7 +124,7 @@ The config never changes shape as you go deeper.
 | [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
 | [docs/CLI.md](docs/CLI.md) · [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Tooling and packages |
 | [docs/DECISIONS.md](docs/DECISIONS.md) · [docs/ROADMAP.md](docs/ROADMAP.md) · [docs/STRATEGY.md](docs/STRATEGY.md) | Why, what's next, and the market |
-| [AGENTS.md](AGENTS.md) | Binding rules for AI agents and contributors |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Setup, hard constraints and the component checklist |
 
 The website, playground and palette studio live in [pinfold-ui](https://github.com/IndranilBhattacharya/pinfold-ui), served at `pinfold.indranildev.in`.
 

@@ -99,8 +99,8 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 - It never overwrites files. It merges, shows a diff first, and supports `--dry-run` and `--yes`.
 
 **D-17 · AI is a primary audience** · 2026-10-31 · Locked
-- Dense, generated docs (`AGENTS.md`, `llms.txt`, schema, meta) ship inside the npm package, matching the installed version and readable offline. `npx pinfold mcp` is a local MCP server, so nothing needs hosting.
-- Repo `AGENTS.md` holds binding rules, and `CLAUDE.md` imports it.
+- Dense, generated docs (`llms.txt`, schema, meta) ship inside the npm package, matching the installed version and readable offline. `npx pinfold mcp` is a local MCP server, so nothing needs hosting.
+- Contributor rules live in `CONTRIBUTING.md`.
 
 **D-18 · Security posture** · 2026-10-31 · Locked
 - Zero runtime dependencies and no install scripts. npm trusted publishing (GitHub OIDC) with provenance. Two-factor auth with passkeys. `SECURITY.md`, OpenSSF Scorecard, and Dependabot for dev dependencies.

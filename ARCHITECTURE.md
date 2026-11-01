@@ -188,8 +188,7 @@ accessibility breaks. That is documented, not defended against.
 - **Rounded containers cascade their radius; they never clip.** An element with a radius passes it
   to its children (`item → header → trigger`), so hover and active fills follow the curve.
   **Never use `overflow: hidden` to clip a rounded container,** because it also cuts off the focus
-  ring. (An earlier version of this doc said the opposite. That was wrong; the CSS and AGENTS.md
-  were right.)
+  ring.
 - **Everything lives in a cascade layer:** `@layer pinfold.tokens`, `pinfold.reset`, `pinfold.components`.
   Unlayered CSS beats a layered rule at any specificity, so a consumer's stylesheet and every
   Tailwind utility override us for free. No `!important`, no plugin, no import-order rule, no

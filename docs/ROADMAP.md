@@ -1,6 +1,6 @@
 # Roadmap
 
-**Rule:** the owner signs off after each milestone. Agents never start the next one on their own (AGENTS.md §2).
+**Rule:** milestones run in order; each one is verified (`npm run verify`, CI green) before the next starts.
 Milestones A1–A9 apply to the **accordion only**. Component #2 starts after A9.
 
 Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Awaiting the owner's sign-off.** Next: A2.
@@ -54,7 +54,7 @@ Current milestone: **A1 complete. CI green on GitHub (26 jobs) on 2026-11-01. Aw
 
 ## A7 · Distribution and AI
 - [ ] Generate the shadcn registry JSON from meta and ship it in the npm package. List it in the shadcn registry index.
-- [ ] `llms.txt`, generated AGENTS docs and the schema, all shipped in the package.
+- [ ] `llms.txt`, `llms-full.txt` and the schema, all generated from meta and shipped in the package.
 - [ ] `npx pinfold mcp`, a local MCP server.
 
 ## A8 · Playground v2 (in `../pinfold-ui`)

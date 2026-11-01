@@ -17,7 +17,7 @@ The shadcn registry and the AI docs inside the package are **Planned** (A7).
 - **Budgets:** each entry point has a gzip budget enforced by `scripts/size-check.mjs`.
 
 ## Shipped inside each package (A7)
-- `AGENTS.md` and `llms.txt`, dense and generated from meta.
+- `llms.txt`, dense and generated from meta.
 - `schema/<name>.json`, the JSON Schema of the config.
 - `registry/<name>.json`, a shadcn registry item. It installs `components/ui/<name>.tsx` and declares `@pinfold/react` as a dependency.
 
