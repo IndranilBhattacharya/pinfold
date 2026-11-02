@@ -17,11 +17,19 @@ export const spinnerMeta: ComponentMeta = {
   importPath: '@pinfold/react/spinner',
   slots: SLOTS,
   props: {
+    variant: {
+      type: 'enum',
+      values: ['ring', 'arc', 'dots', 'bars', 'pulse', 'orbit'],
+      default: 'ring',
+      description: 'The animation: a turning ring, a comet arc, rising dots, an equaliser, ripples, or a dot in orbit.',
+      group: 'appearance',
+      control: true,
+    },
     size: {
       type: 'enum',
       values: ['sm', 'md', 'lg'],
       default: 'md',
-      description: 'Size preset (the icon size of a control of that size). Precedence: this config, `defaults.spinner`, the provider, then md.',
+      description: 'Size preset: 16, 24 or 36 px. Precedence: this config, `defaults.spinner`, the provider, then md.',
       group: 'appearance',
       control: true,
     },
@@ -45,7 +53,8 @@ export const spinnerMeta: ComponentMeta = {
       group: 'appearance',
       keys: {
         size: { type: 'length', description: 'Diameter.', group: 'appearance' },
-        thickness: { type: 'length', description: 'Ring thickness.', group: 'appearance' },
+        thickness: { type: 'length', description: 'Stroke thickness (ring, arc, orbit).', group: 'appearance' },
+        duration: { type: 'length', description: 'One cycle, e.g. `\'1.2s\'`. Slower under reduced motion unless set.', group: 'appearance' },
       },
     },
     unstyled: {
@@ -65,15 +74,16 @@ export const spinnerMeta: ComponentMeta = {
   aria: [
     '`role="status"` with the label as its accessible name, so it is announced politely once.',
     '`label=""` makes it decorative: no role and `aria-hidden`, e.g. next to visible "Loading…" text.',
-    'Keeps turning under `prefers-reduced-motion` (it is the only signal), but slower.',
+    'Keeps moving under `prefers-reduced-motion` (it is the only signal), but at half speed or slower.',
   ],
   dataAttributes: [
+    { name: 'data-variant', on: 'root', values: '"ring" | "arc" | "dots" | "bars" | "pulse" | "orbit"' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-tone', on: 'root', values: 'the resolved tone' },
   ],
-  cssVariables: ['--pinfold-spinner-size', '--pinfold-spinner-thickness'],
+  cssVariables: ['--pinfold-spinner-size', '--pinfold-spinner-thickness', '--pinfold-spinner-duration'],
   examples: [
-    { title: 'Preset', code: "import { defineSpinner } from '@pinfold/react/spinner';\n\nexport const InlineSpinner = defineSpinner({ label: '', tone: 'current', size: 'sm' });\n// <p><InlineSpinner /> Loading results…</p>" },
+    { title: 'Preset', code: "import { defineSpinner } from '@pinfold/react/spinner';\n\nexport const InlineSpinner = defineSpinner({ variant: 'dots', label: '', tone: 'current', size: 'sm' });\n// <p><InlineSpinner /> Loading results…</p>" },
     { title: 'Client hook', code: "import { useSpinner } from '@pinfold/react/spinner';\n\nconst Loading = useSpinner({ label: 'Loading invoices' });\nreturn <Loading />;" },
     { title: 'Decorative, next to text', code: "const Loading = useSpinner({ label: '', tone: 'current' });\nreturn <p><Loading /> Loading results…</p>;" },
   ],

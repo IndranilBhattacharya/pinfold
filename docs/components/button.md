@@ -94,6 +94,11 @@ Only `label` is required.
   replaces it). Activation is blocked; focus stays.
 - An open menu trigger (`aria-expanded="true"`) looks hovered. Pressing nudges the button 1px down.
 - Under `pointer: coarse` the hit area grows to 44px without changing the look.
+- **Style packs** reach buttons through the control tokens: glass gives a light rim, a glow and
+  a blurred pane under soft and outline buttons; material a soft elevation; noise the grain on
+  filled buttons; brutalist a 2px rule in the text colour, a hard offset shadow that the button
+  presses into, and small corners. Solid fills stay opaque in every pack, so their text contrast
+  is the palette's (checked by the a11y report in every pack).
 
 ### Inactive options
 `inactiveButtonOptions(config)` (from `@pinfold/core`) names options with no visible effect; the
@@ -119,14 +124,17 @@ const Docs = useButton({ label: 'Docs', href: '/docs', render: { root: ({ props,
 
 | Key | Type | Default |
 |---|---|---|
+| `variant` | `'ring' \| 'arc' \| 'dots' \| 'bars' \| 'pulse' \| 'orbit'` | `'ring'` |
 | `label` | `string`, the accessible name; `''` makes it decorative | `'Loading'` |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` |
+| `size` | `'sm' \| 'md' \| 'lg'`: 16, 24 or 36 px | `'md'` |
 | `tone` | a tone, or `'current'` for the surrounding text colour | `'primary'` |
-| `dimensions` | `size, thickness` | from the size |
+| `dimensions` | `size, thickness, duration` | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slot `root`) | | |
 
-A CSS ring (no icon, no SVG). Under `prefers-reduced-motion` it slows down instead of freezing,
-because a still spinner says nothing.
+Six CSS-only animations: a ring, a comet `arc`, rising `dots`, an equaliser (`bars`), `pulse`
+ripples and a dot in `orbit`; no icons, no SVG. Under `prefers-reduced-motion` they slow down
+instead of freezing, because a still spinner says nothing. Style packs: glass adds a glow,
+brutalist squares the ring and dots and thickens the stroke.
 
 ## Compared with shadcn/ui, HeroUI and MUI
 

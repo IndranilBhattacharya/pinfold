@@ -53,7 +53,7 @@ const BUDGETS = [
   ['packages/css/dist/core.css', 5],
   ['packages/css/dist/accordion.css', 4],
   ['packages/css/dist/button.css', 2],
-  ['packages/css/dist/spinner.css', 1],
+  ['packages/css/dist/spinner.css', 2], // six animations (ring, arc, dots, bars, pulse, orbit)
   ['packages/css/dist/packs.css', 2],
 ];
 

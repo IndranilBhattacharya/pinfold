@@ -15,7 +15,7 @@ ESM + CJS + `.d.ts`, with `typesVersions` and a stub folder per subpath.
 | Test runners | Vitest, Jest (CJS) | JavaScript never imports CSS, so no CSS mocks are needed |
 | Package managers | npm, pnpm (strict), Yarn classic and PnP, bun | Install checks of the packed tarballs. Zero runtime dependencies means nothing leaks between packages. |
 | Node (CLI and SSR) | 20, 22, 24 | CI matrix: the packed packages run on each (contributors need Node 22+ for the dev tooling) |
-| OS (CLI) | Windows, macOS, Linux | CI matrix |
+| OS (CLI) | Windows, macOS, Linux | CI matrix (macOS on Node 22 with React 18 and 19; every Node version on Linux and Windows) |
 | SSR and RSC | Next.js App Router (RSC, ISR, streaming), Next.js Pages Router, Remix / React Router 7, Vite SSR, Gatsby, Astro islands | `fixture-apps.mjs`: Next.js 16 App Router (Server Component + `defineAccordion` + ISR, Client Component) and Pages Router (ISR), built and served. Plain `renderToString` (what Vite SSR, React Router 7 and Astro call) in the consumer smoke test, and a hydration test with zero warnings. |
 | Styling | Plain CSS, Tailwind v3 and v4, CSS Modules, and fully `unstyled` | Conformance plus the CLI merge tests |
 | Browsers | Baseline 2023: Chrome and Edge 111+, Firefox 113+, Safari 16.4+ | These are needed for `@layer`, `color-mix()`, container queries and OKLCH (sRGB hex fallbacks are emitted) |

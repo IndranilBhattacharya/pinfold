@@ -7,6 +7,14 @@
    A pack is only a token recipe: it re-points shape, depth, border, surface and
    texture tokens, so every component follows it with no per-component CSS.
 
+   Controls (buttons, spinners, and later inputs) also read the control tokens:
+     --pinfold-control-edge     border of filled controls (unset: none) and of outline ones
+     --pinfold-control-shadow   depth of a raised control (unset: --pinfold-shadow-xs)
+     --pinfold-control-surface  pane under tinted and outlined controls (unset: transparent)
+     --pinfold-control-press    the pressed transform (unset: 1px down)
+     --pinfold-control-glow     a filter for indicators such as the spinner (unset: none)
+     --pinfold-control-round    corner of round indicators (unset: a circle)
+
    Packs follow your palette, they never replace it. Every colour a pack sets is
    mixed from the palette's own tokens (primary, surface, text), so changing the
    palette re-tints the pack, in light and dark mode. Text colours are never
@@ -37,6 +45,10 @@
     --pinfold-shadow-sm: 0 8px 24px -12px color-mix(in oklch, var(--pinfold-color-accent) 30%, transparent);
     --pinfold-shadow-md: 0 16px 40px -16px color-mix(in oklch, var(--pinfold-color-accent) 38%, transparent);
     --pinfold-radius-scale: 1.5;
+    --pinfold-control-edge: color-mix(in oklch, oklch(1 0 0) 24%, transparent);
+    --pinfold-control-shadow: var(--pinfold-highlight), 0 8px 24px -10px color-mix(in oklch, var(--pinfold-color-accent) 55%, transparent);
+    --pinfold-control-surface: var(--pinfold-color-surface);
+    --pinfold-control-glow: drop-shadow(0 0 6px color-mix(in oklch, currentColor 55%, transparent));
   }
 
   /* --------------------------------------------------------------- material */
@@ -54,6 +66,8 @@
       0 2px 6px 2px color-mix(in oklch, var(--pinfold-shadow-color) 9%, transparent);
     --pinfold-highlight: 0 0 0 0 transparent;
     --pinfold-radius-scale: 1.4;
+    --pinfold-control-shadow: var(--pinfold-shadow-sm);
+    --pinfold-control-surface: var(--pinfold-color-surface);
   }
 
   /* ------------------------------------------------------------------ noise */
@@ -62,6 +76,7 @@
   [data-pinfold-style='noise'] {
     --pinfold-texture: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-accent) 6%, var(--pinfold-color-surface));
+    --pinfold-control-shadow: var(--pinfold-shadow-sm);
   }
 
   /* -------------------------------------------------------------- brutalist */
@@ -76,6 +91,11 @@
     --pinfold-shadow-sm: 3px 3px 0 var(--pinfold-color-accent);
     --pinfold-shadow-md: 5px 5px 0 var(--pinfold-color-accent);
     --pinfold-highlight: 0 0 0 0 transparent;
+    --pinfold-control-edge: var(--pinfold-color-text);
+    --pinfold-control-shadow: 3px 3px 0 var(--pinfold-color-text);
+    --pinfold-control-surface: var(--pinfold-color-surface);
+    --pinfold-control-press: translate(3px, 3px);
+    --pinfold-control-round: var(--pinfold-radius-xs);
   }
 
   /* ------------------------------------------------------- user preferences */
@@ -84,6 +104,7 @@
       --pinfold-color-surface: color-mix(in oklch, var(--pinfold-color-accent) 6%, var(--pinfold-color-bg));
       --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-accent) 10%, var(--pinfold-color-bg));
       --pinfold-backdrop: none;
+      --pinfold-control-surface: var(--pinfold-color-surface);
     }
   }
 
@@ -93,6 +114,8 @@
       --pinfold-color-border: var(--pinfold-color-text);
       --pinfold-backdrop: none;
       --pinfold-texture: none;
+      --pinfold-control-edge: var(--pinfold-color-text);
+      --pinfold-control-glow: none;
     }
   }
 
@@ -100,6 +123,7 @@
     [data-pinfold-style] {
       --pinfold-backdrop: none;
       --pinfold-texture: none;
+      --pinfold-control-glow: none;
     }
   }
 

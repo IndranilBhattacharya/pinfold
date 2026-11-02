@@ -59,11 +59,6 @@
       transform var(--pinfold-duration-fast) var(--pinfold-ease-out);
   }
 
-  .pinfold-button:focus-visible {
-    outline: none;
-    box-shadow: var(--pinfold-focus-ring);
-  }
-
   .pinfold-button[data-full-width] {
     inline-size: 100%;
   }
@@ -74,16 +69,26 @@
   }
 
   /* ---------------------------------------------------------------- variants */
+  /* Style packs reach buttons through the control tokens (packs.css): edge, depth, the pane
+     under tinted variants, the pressed transform, the backdrop and the texture. Unset, each
+     falls back to the default look. */
   .pinfold-button[data-variant='solid'] {
-    background: var(--pinfold-btn-solid);
+    background-color: var(--pinfold-btn-solid);
+    background-image: var(--pinfold-texture);
     color: var(--pinfold-btn-on);
-    box-shadow: var(--pinfold-shadow-xs);
+    border-color: var(--pinfold-control-edge, transparent);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
   }
   .pinfold-button[data-variant='soft'] {
-    background: color-mix(in oklch, var(--pinfold-btn-solid) 12%, transparent);
+    background-color: color-mix(in oklch, var(--pinfold-btn-solid) 14%, var(--pinfold-control-surface, transparent));
+    background-image: var(--pinfold-texture);
+    border-color: var(--pinfold-control-edge, transparent);
+    backdrop-filter: var(--pinfold-backdrop);
   }
   .pinfold-button[data-variant='outline'] {
-    border-color: color-mix(in oklch, var(--pinfold-btn-text) 35%, var(--pinfold-color-border));
+    background-color: var(--pinfold-control-surface, transparent);
+    border-color: var(--pinfold-control-edge, color-mix(in oklch, var(--pinfold-btn-text) 35%, var(--pinfold-color-border)));
+    backdrop-filter: var(--pinfold-backdrop);
   }
   .pinfold-button[data-variant='link'] {
     block-size: auto;
@@ -97,19 +102,29 @@
   /* Hover and pressed: solid moves toward the text colour (darker on light, lighter on
      dark); the others gain a tint. An open menu trigger (`aria-expanded`) looks hovered. */
   .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true'])[data-variant='solid'] {
-    background: color-mix(in oklch, var(--pinfold-btn-solid) 86%, var(--pinfold-color-text));
+    background-color: color-mix(in oklch, var(--pinfold-btn-solid) 86%, var(--pinfold-color-text));
   }
   .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true']):is([data-variant='soft']) {
-    background: color-mix(in oklch, var(--pinfold-btn-solid) 20%, transparent);
+    background-color: color-mix(in oklch, var(--pinfold-btn-solid) 22%, var(--pinfold-control-surface, transparent));
   }
   .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true']):is([data-variant='outline'], [data-variant='ghost']) {
-    background: color-mix(in oklch, var(--pinfold-btn-solid) 10%, transparent);
+    background-color: color-mix(in oklch, var(--pinfold-btn-solid) 10%, var(--pinfold-control-surface, transparent));
   }
   .pinfold-button:not([aria-disabled='true']):hover[data-variant='link'] {
     text-decoration-color: currentColor;
   }
   .pinfold-button:not([aria-disabled='true'], [data-variant='link']):active {
-    transform: translateY(1px);
+    transform: var(--pinfold-control-press, translateY(1px));
+  }
+  /* A raised button (an offset or soft shadow) presses into its shadow. */
+  .pinfold-button:not([aria-disabled='true'])[data-variant='solid']:active {
+    box-shadow: none;
+  }
+
+  /* Focus comes after the variants and outranks them, so no variant shadow can hide the ring. */
+  .pinfold-button[data-variant]:focus-visible {
+    outline: none;
+    box-shadow: var(--pinfold-focus-ring);
   }
 
   /* --------------------------------------------------------- disabled, loading */
