@@ -1,9 +1,13 @@
 import type { PinfoldDir, PinfoldLazy, PinfoldRadius, PinfoldSize, PinfoldStylePack, PinfoldTheme, PinfoldTone } from '@pinfold/core';
 import type { AccordionOptions } from './accordion/types';
+import type { ButtonConfig } from './button/types';
+import type { SpinnerConfig } from './spinner/types';
 
 /** Per-component defaults. Data, state and ids never belong here, only how components look and behave. */
 export interface PinfoldComponentDefaults {
   accordion?: Omit<AccordionOptions, 'value' | 'defaultValue' | 'disabledIds' | 'id'>;
+  button?: Omit<ButtonConfig, 'label' | 'onClick' | 'href' | 'target' | 'rel' | 'loading' | 'loadingText' | 'disabled'>;
+  spinner?: SpinnerConfig;
 }
 
 /**

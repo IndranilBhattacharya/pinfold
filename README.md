@@ -59,7 +59,7 @@ Faq.toggle('shipping')          // 2. its controller: open, close, openAll, focu
 
 ### On the server, too
 
-Server Components can't call hooks, so each stateful component has a non-hook twin with the same config and the same tag (simple ones such as `<Button>` and `<Spinner>` are plain tags that work on the server as they are):
+Server Components can't call hooks, so every component has a non-hook twin with the same config and the same tag:
 
 ```jsx
 import { defineAccordion } from '@pinfold/react/accordion';

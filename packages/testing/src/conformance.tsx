@@ -3,15 +3,17 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render as rtlRender, type RenderResult } from '@testing-library/react';
 import * as React from 'react';
+import { PinfoldProvider } from '@pinfold/react';
+import type { ComponentMeta } from '@pinfold/core/meta';
 
 export interface ConformanceOptions {
   /** Component name in kebab-case, e.g. `accordion`. Drives the expected classes. */
   name: string;
   /**
-   * `atom`: a stateless tag. Unset `size` / `tone` mean "inherit the provider
-   * through CSS", so they are only required when set. Default `widget`.
+   * The component's meta. Every enum option the root reflects as `data-<option>` is checked
+   * against it: the meta default appears when unset, and every listed value reaches the DOM.
    */
-  kind?: 'atom' | 'widget';
+  meta?: ComponentMeta;
   /** `false` for a component with no `variant` option (e.g. spinner). */
   variants?: boolean;
   /** Every slot the component documents. */
@@ -54,7 +56,7 @@ const BLOCK = (name: string) => `pinfold-${name}`;
  * focusable disabled controls — are tests, not documentation.
  */
 export function describePinfoldConformance(options: ConformanceOptions): void {
-  const { name, kind = 'widget', variants = true, slots, render, dimension, cssFile, hook, optionalSlots = [] } = options;
+  const { name, meta, variants = true, slots, render, dimension, cssFile, hook, optionalSlots = [] } = options;
   const block = BLOCK(name);
 
   describe(`${name} — Pinfold conformance`, () => {
@@ -68,17 +70,42 @@ export function describePinfoldConformance(options: ConformanceOptions): void {
       const root = mount(render({}), block);
       // CSS keys off these, so headless consumers can reuse the stylesheet.
       if (variants) expect(root.getAttribute('data-variant')).toBeTruthy();
-      if (kind === 'widget') {
-        expect(root.getAttribute('data-size')).toBeTruthy();
-        expect(root.getAttribute('data-tone')).toBeTruthy();
-      } else {
-        // An atom inherits size and tone; set explicitly, they surface as data attributes.
-        const own = mount(render({ size: 'sm', tone: 'danger' }), block);
-        expect(own.getAttribute('data-size')).toBe('sm');
-        expect(own.getAttribute('data-tone')).toBe('danger');
-      }
+      expect(root.getAttribute('data-size')).toBeTruthy();
+      expect(root.getAttribute('data-tone')).toBeTruthy();
       expect(root.className).not.toMatch(/\bis-[a-z]/);
     });
+
+    // One precedence for every component and every option:
+    // component config > `defaults.<name>` in the global config > provider > library default.
+    it('resolves size and tone as config > defaults.<name> > provider > library default', () => {
+      const key = name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+      const at = (element: React.ReactElement) => {
+        const root = mount(element, block);
+        return [root.getAttribute('data-size'), root.getAttribute('data-tone')];
+      };
+      expect(at(render({}))).toEqual(['md', 'primary']);
+      expect(at(<PinfoldProvider size="sm" tone="danger">{render({})}</PinfoldProvider>)).toEqual(['sm', 'danger']);
+      const defaults = { [key]: { size: 'lg', tone: 'success' } } as never;
+      expect(at(<PinfoldProvider size="sm" tone="danger" defaults={defaults}>{render({})}</PinfoldProvider>)).toEqual(['lg', 'success']);
+      expect(at(<PinfoldProvider size="sm" tone="danger" defaults={defaults}>{render({ size: 'md', tone: 'info' })}</PinfoldProvider>)).toEqual(['md', 'info']);
+    });
+
+    if (meta) {
+      it('keeps meta, defaults and the DOM in sync for every reflected option', () => {
+        const kebabKey = (k: string) => k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
+        for (const [key, prop] of Object.entries(meta.props)) {
+          if (prop.type !== 'enum' || !prop.values) continue;
+          const attr = `data-${kebabKey(key)}`;
+          const plain = mount(render({}), block);
+          if (!plain.hasAttribute(attr)) continue; // not reflected on the root
+          if (prop.default !== undefined) expect(`${key}=${plain.getAttribute(attr)}`).toBe(`${key}=${prop.default}`);
+          for (const value of prop.values) {
+            const root = mount(render({ [key]: value }), block);
+            expect(`${key}=${root.getAttribute(attr)}`).toBe(`${key}=${value}`);
+          }
+        }
+      });
+    }
 
     it('applies classNames to every slot it renders', () => {
       const classNames = Object.fromEntries(slots.map((s) => [s, `probe-${s}`]));

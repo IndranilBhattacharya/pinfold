@@ -31,9 +31,8 @@ const COMPONENTS: Entry[] = [
     configs: ['AccordionConfig', 'AccordionMappedConfig'],
     nested: { items: 'AccordionItemConfig', dimensions: 'AccordionDimensions' },
   },
-  // Atoms: the own options only; native attributes pass through and are not meta.
-  { meta: buttonMeta, file: 'button/types.ts', configs: ['ButtonOptions'], nested: { dimensions: 'ButtonDimensions' } },
-  { meta: spinnerMeta, file: 'spinner/types.ts', configs: ['SpinnerOptions'], nested: { dimensions: 'SpinnerDimensions' } },
+  { meta: buttonMeta, file: 'button/types.ts', configs: ['ButtonConfig'], nested: { dimensions: 'ButtonDimensions' } },
+  { meta: spinnerMeta, file: 'spinner/types.ts', configs: ['SpinnerConfig'], nested: { dimensions: 'SpinnerDimensions' } },
 ];
 
 for (const c of COMPONENTS) {

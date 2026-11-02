@@ -1,5 +1,5 @@
-/* Pinfold — spinner. A CSS ring: no icon, no SVG. Unset `tone` follows the
-   surrounding text colour; unset `size` follows the nearest control size. */
+/* Pinfold — spinner. A CSS ring: no icon, no SVG. `data-size` / `data-tone` carry the
+   resolved size and tone; `tone: 'current'` follows the surrounding text colour. */
 
 @layer pinfold.components {
   .pinfold-spinner {
@@ -18,8 +18,11 @@
     animation: pinfold-spinner-spin 0.7s linear infinite;
   }
 
-  .pinfold-spinner[data-tone] {
+  .pinfold-spinner {
     color: var(--pinfold-tone-text, var(--pinfold-color-accent));
+  }
+  .pinfold-spinner[data-tone='current'] {
+    color: inherit;
   }
 
   @keyframes pinfold-spinner-spin {

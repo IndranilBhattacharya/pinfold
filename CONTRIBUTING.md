@@ -19,7 +19,7 @@ The docs, playground and palette studio live in the sibling repo [`../pinfold-ui
 | React | Floor `react >=18`. Use native `useId` and `useSyncExternalStore`. No `react-dom` import inside components. Must work with and without the React Compiler. |
 | Dependencies | Zero runtime dependencies in published packages. Dev dependencies are fine. The CLI may use dependencies, because they never reach the app bundle. |
 | Layers | `core` (logic, no framework) and `css` never import React or any other framework. The React layer owns hooks, views, `define*` and tags. |
-| API | Widgets (stateful or collection): hooks first, `use<Name>(config)` returns a stable component that is also the controller and carries the parts. `define<Name>(config)` is the non-hook twin for Server Components. `<Name {...config}/>` is the courtesy tag. No compound children. Atoms (stateless): a `forwardRef` tag with `children` for content, no hooks, no `'use client'`; unset `size`/`tone` inherit through CSS. |
+| API | Every component, a button included: hooks first, `use<Name>(config)` returns a stable component that is also the controller and carries the parts. `define<Name>(config)` is the non-hook twin for Server Components. `<Name {...config}/>` is the courtesy tag. Content is config (`label`, `items`), never `children`. |
 | Config | One flat object. Data first (`items`, `columns`, `options`), never `children`. Only the data is required. Behaviour options must be expressible as plain JSON. Callbacks are optional. |
 | Escape-hatch ladder | Every component exposes all of: config, then `classNames`/`styles`/`slotProps`, then slot `render` and `renderItem`, then parts, then prop getters. |
 | Styling | Every CSS value comes from a token. No literal colours. BEM class names `.pinfold-<comp>__<slot>`. State through `[data-state]`, `[data-disabled]`, never `.is-*`. All CSS inside `@layer pinfold.*`. JS never imports CSS. `unstyled` drops the classes but keeps ARIA and `data-*`. |
@@ -44,7 +44,7 @@ No Vue or Angular code is built now.
 ## Adding or changing a component
 
 1. The spec exists and was agreed in an issue (`docs/components/<name>.md`).
-2. `npx pinfold new <name>` scaffolds a widget that already passes conformance; `npx pinfold new <name> --atom` scaffolds an atom (conformance with `kind: 'atom'`).
+2. `npx pinfold new <name>` scaffolds a component that already passes conformance.
 3. Write the types first, then the core logic, then the hook (`use<Name>`), the view (a plain function), the CSS, and the tag.
 4. Tests cover ARIA wiring, every mode, the full keyboard map, disabled, controlled versus uncontrolled, slot overrides, and dimensions reaching CSS. Then add `describePinfoldConformance` (mandatory):
 
@@ -72,6 +72,27 @@ Conformance fails the build on:
 6. Register it in `packages/cli/registry.json`. Update its spec and the site repo
    (`../pinfold-ui`) if the site documents it.
 7. Run `npm run verify` (typecheck, tests, build, gzip budget).
+
+## Config, precedence and metadata
+
+The rules that keep every component predictable (details in ARCHITECTURE.md, "Precedence and
+metadata"):
+
+1. **Config is the API.** Everything a developer or a model writes is one object passed to
+   `use<Name>`. Content lives in it (`label`, `items`); the returned component takes only layout
+   and element attributes (`className`, `style`, `form`, `aria-*`, `data-*`).
+2. **One precedence:** component config, then `defaults.<name>`, then the provider, then the library
+   default. The hook resolves it and writes the result as `data-*` on the root. CSS never infers
+   a setting from an ancestor.
+3. **The library does the work.** If a common pattern needs glue code, the component absorbs it
+   (example: an `onClick` that returns a promise drives the button's loading state).
+4. **Required means meaningful.** Only what the component cannot render correctly without is
+   required (a button's `label`, which is also its accessible name).
+5. **Meta, types, runtime and playground agree.** Add the component's meta to its conformance call;
+   the suite fails on a default or value that does not reach the DOM, and `types-meta.test.ts`
+   fails on a type that disagrees with the meta.
+6. **No silent options.** An option that has no visible effect in the current config is listed by
+   `inactive<Name>Options` (dev warning, disabled playground control).
 
 ## Typed API
 

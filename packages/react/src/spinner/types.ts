@@ -1,12 +1,17 @@
 import type * as React from 'react';
-import type { Length, PinfoldSize, PinfoldTone } from '@pinfold/core';
+import type { Length, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
 export type SpinnerSlot = 'root';
+/** A colour role, or `current` to follow the surrounding text colour. */
+export type SpinnerTone = PinfoldTone | 'current';
 
 /** Passed to the `render.root` override. */
 export interface SpinnerState {
-  /** `label=""`: no role, hidden from assistive tech. */
+  size: PinfoldSize;
+  tone: SpinnerTone;
+  /** `label: ''`: no role, hidden from assistive tech. */
   decorative: boolean;
 }
 
@@ -15,17 +20,20 @@ export interface SpinnerDimensions {
   thickness?: Length;
 }
 
-/** The spinner's own options. Every other attribute goes to the element. */
-export interface SpinnerOptions extends SlotOverrides<SpinnerSlot, SpinnerState> {
-  /** Size preset. Unset follows the nearest control size. */
-  size?: PinfoldSize;
-  /** Colour role. Unset follows the surrounding text colour. */
-  tone?: PinfoldTone;
+/**
+ *   const Loading = useSpinner({ label: 'Loading invoices' });
+ *   return <Loading />;
+ */
+export interface SpinnerConfig extends SlotOverrides<SpinnerSlot, SpinnerState> {
   /**
    * What a screen reader announces. `''` makes the spinner decorative.
    * @default 'Loading'
    */
   label?: string;
+  /** @default 'md' */
+  size?: PinfoldSize;
+  /** @default 'primary' */
+  tone?: SpinnerTone;
   /** Exact measurements over the size preset. Numbers are px. */
   dimensions?: SpinnerDimensions;
   /**
@@ -35,6 +43,15 @@ export interface SpinnerOptions extends SlotOverrides<SpinnerSlot, SpinnerState>
   unstyled?: boolean;
   /** Class on the root. */
   className?: string;
+  /** Inline style on the root. */
+  style?: React.CSSProperties;
 }
 
-export interface SpinnerProps extends SpinnerOptions, Omit<React.HTMLAttributes<HTMLSpanElement>, keyof SpinnerOptions> {}
+export type SpinnerRootProps = Omit<React.HTMLAttributes<HTMLSpanElement>, 'children'> & { [key: `data-${string}`]: unknown };
+
+export interface SpinnerApi {
+  getRootProps: (props?: PropsBag) => PropsBag;
+  render: (props?: SpinnerRootProps) => React.ReactElement;
+}
+
+export type SpinnerComponent = PinfoldComponent<SpinnerApi, SpinnerRootProps>;
