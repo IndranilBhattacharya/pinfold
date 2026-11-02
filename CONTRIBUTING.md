@@ -25,9 +25,12 @@ The docs, playground and palette studio live in the sibling repo [`../pinfold-ui
 | Styling | Every CSS value comes from a token. No literal colours. BEM class names `.pinfold-<comp>__<slot>`. State through `[data-state]`, `[data-disabled]`, never `.is-*`. All CSS inside `@layer pinfold.*`. JS never imports CSS. `unstyled` drops the classes but keeps ARIA and `data-*`. |
 | Sizing | Width defaults to 100% of the parent. Heights, padding and type come from the size scale. Two-layer sizing: the `[data-size]` preset, overridden by `dimensions`. |
 | Responsive | Container queries, not viewport media queries, for layout. Fluid `clamp()` type tokens. A per-slot overflow policy (`wrap` \| `truncate` \| `{ lines }`). Touch targets of 44px or more under `pointer: coarse`. |
-| Motion | CSS only (`grid-template-rows`, `transform`, `opacity`). No height measurement. Honour `prefers-reduced-motion`. |
+| Motion | CSS only (`grid-template-rows`, `transform`, `opacity`). No height measurement. Honour `prefers-reduced-motion`, and the provider's `disableAnimation` (no `data-animate` on the root; conformance checks it). Only an essential indicator (a spinner) keeps moving, slower. |
+| Browser floor | Baseline 2023 (COMPATIBILITY.md). No newer CSS in a component stylesheet: `light-dark()`, `:has()`, `@scope`, anchor positioning, `field-sizing`, `@starting-style` and the like fail silently on the floor (conformance fails on them). Express state the view knows as `data-*` instead of `:has()`. |
+| Style packs | Every control reads the pack control tokens (`--pinfold-control-edge`, `-shadow`, `-surface`, `-press`, `-glow`, `-round`) with a fallback, so each pack visibly changes it. Filled surfaces stay opaque so text contrast is the palette's. |
+| Containment | Never wider than the container: `max-inline-size: 100%`; long text truncates (`min-inline-size: 0`, ellipsis) or wraps. Checked at 375, 768 and 1360 px. |
 | Rounded corners | Children cascade the radius. Never clip with `overflow: hidden`, which also cuts off the focus ring. |
-| Accessibility | Follow the matching WAI-ARIA APG pattern. Use `aria-disabled`, never `disabled`. Hidden content leaves the accessibility tree and the tab order. A visible `:focus-visible` ring. Handle `forced-colors`. |
+| Accessibility | Follow the matching WAI-ARIA APG pattern. Use `aria-disabled`, never `disabled`. Hidden content leaves the accessibility tree and the tab order. A visible `:focus-visible` ring, declared after the variant rules and outranking them, so no variant shadow can hide it (the a11y report checks a focused control). Handle `forced-colors`. |
 | SSR | No `window` or `document` at import time. Deterministic ids. The server HTML contains all content (panels mounted by default). `'use client'` is preserved in the build. |
 | JS and TS | Ship ES2018 ESM and CJS plus `.d.ts`. JSDoc on every public field. A dev-only config validator for JS users, stripped from production. |
 | Diagnostics | Dev-only `warnOnce()` for duplicate ids, frozen controlled state and impossible combinations. These must vanish under `NODE_ENV=production`. |
@@ -46,7 +49,7 @@ No Vue or Angular code is built now.
 1. The spec exists and was agreed in an issue (`docs/components/<name>.md`).
 2. `npx pinfold new <name>` scaffolds a component that already passes conformance.
 3. Write the types first, then the core logic, then the hook (`use<Name>`), the view (a plain function), the CSS, and the tag.
-4. Tests cover ARIA wiring, every mode, the full keyboard map, disabled, controlled versus uncontrolled, slot overrides, and dimensions reaching CSS. Then add `describePinfoldConformance` (mandatory):
+4. Tests cover ARIA wiring, every mode, the full keyboard map, disabled, controlled versus uncontrolled, slot overrides, and dimensions reaching CSS. Add the component to `scripts/a11y-report.mjs` in every style pack, light and dark. Then add `describePinfoldConformance` (mandatory, with `meta` and `preset`):
 
 ```tsx
 describePinfoldConformance({

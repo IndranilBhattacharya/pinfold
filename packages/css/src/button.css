@@ -32,6 +32,8 @@
     box-sizing: border-box;
     block-size: var(--pinfold-btn-h);
     min-inline-size: var(--pinfold-button-min-width, auto);
+    /* Never wider than its container: a long label shrinks and truncates instead. */
+    max-inline-size: 100%;
     padding-block: 0;
     padding-inline: var(--pinfold-btn-pad-x);
     margin: 0;
@@ -51,6 +53,9 @@
     user-select: none;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    transition-property: none;
+  }
+  .pinfold-button[data-animate] {
     transition:
       background-color var(--pinfold-duration-fast) var(--pinfold-ease-out),
       border-color var(--pinfold-duration-fast) var(--pinfold-ease-out),
@@ -113,7 +118,7 @@
   .pinfold-button:not([aria-disabled='true']):hover[data-variant='link'] {
     text-decoration-color: currentColor;
   }
-  .pinfold-button:not([aria-disabled='true'], [data-variant='link']):active {
+  .pinfold-button[data-animate]:not([aria-disabled='true'], [data-variant='link']):active {
     transform: var(--pinfold-control-press, translateY(1px));
   }
   /* A raised button (an offset or soft shadow) presses into its shadow. */

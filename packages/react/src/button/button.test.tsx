@@ -225,6 +225,25 @@ describe('Button', () => {
     expect(Quiet.config).toEqual({ variant: 'ghost', tone: 'neutral', dimensions: { paddingX: 10, gap: 4 } });
   });
 
+  it("honours the provider's disableAnimation (tests, low-power devices)", () => {
+    render(
+      <>
+        <Button label="Animated" />
+        <PinfoldProvider disableAnimation>
+          <Button label="Still" />
+        </PinfoldProvider>
+      </>,
+    );
+    expect(screen.getByRole('button', { name: 'Animated' }).hasAttribute('data-animate')).toBe(true);
+    expect(screen.getByRole('button', { name: 'Still' }).hasAttribute('data-animate')).toBe(false);
+  });
+
+  it('works with no provider at all, on the library defaults', () => {
+    render(<Button label="Bare" />);
+    const button = screen.getByRole('button', { name: 'Bare' });
+    expect([button.getAttribute('data-variant'), button.getAttribute('data-size'), button.getAttribute('data-tone')]).toEqual(['solid', 'md', 'primary']);
+  });
+
   it('the tag passes element attributes through and keeps config out of the DOM', () => {
     render(<Button label="Go" tone="info" name="intent" value="go" />);
     const button = screen.getByRole('button', { name: 'Go' });

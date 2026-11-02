@@ -93,6 +93,8 @@ export function useButton(input: ButtonConfig): ButtonComponent {
       'data-icon-only': dataAttr(state.iconOnly),
       'data-full-width': dataAttr(config.fullWidth),
       'data-unstyled': dataAttr(config.unstyled),
+      // Hover fades and the press nudge; the provider's `disableAnimation` (tests, low-power) turns them off.
+      'data-animate': dataAttr(!ctx.disableAnimation),
       'aria-disabled': blocked ? true : undefined,
       'aria-busy': loading || undefined,
       // Icon-only: the label names the button and doubles as the native tooltip.

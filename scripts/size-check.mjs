@@ -47,7 +47,7 @@ const BUDGETS = [
   ['packages/core/dist/index.js', 3],
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
-  ['packages/react/dist/accordion/index.js', 8],
+  ['packages/react/dist/accordion/index.js', 9], // 2026-11-03: presets, tag prop split, no :has(); the app row is what ships
   ['packages/react/dist/button/index.js', 5], // entry + the shared provider/component chunks, like accordion
   ['packages/react/dist/spinner/index.js', 4],
   ['packages/css/dist/core.css', 5],

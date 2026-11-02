@@ -172,7 +172,20 @@ export function renderHeader(
   );
   const triggerProps = api.getTriggerProps(
     item,
-    mergeProps(slot(ctx, 'trigger', { className: cls(ctx, `${B}__trigger`) }, item), extra ?? {}),
+    mergeProps(
+      slot(
+        ctx,
+        'trigger',
+        {
+          className: cls(ctx, `${B}__trigger`),
+          // What the row shows, for the narrow-container layout (no :has(), Baseline 2023 floor).
+          'data-has-icon': resolveNode((item.config.icon ?? ctx.config.icon) as AccordionNode, item) ? '' : undefined,
+          'data-has-badge': resolveNode(item.config.badge as AccordionNode, item) ? '' : undefined,
+        },
+        item,
+      ),
+      extra ?? {},
+    ),
   );
 
   // `role="heading"` + `aria-level` come from the getter for headless users;
@@ -260,7 +273,8 @@ export function renderIndicator(
     ctx.config,
     'indicator',
     mergeProps(
-      slot(ctx, 'indicator', { className: cls(ctx, `${B}__indicator`), 'aria-hidden': 'true' }, item),
+      // The glyph name lets CSS style it without :has() (Baseline 2023 floor).
+      slot(ctx, 'indicator', { className: cls(ctx, `${B}__indicator`), 'aria-hidden': 'true', 'data-glyph': typeof chosen === 'string' ? chosen : undefined }, item),
       extra ?? {},
     ),
     item,
