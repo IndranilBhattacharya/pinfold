@@ -85,9 +85,10 @@
     background: transparent;
   }
 
+  /* `data-motion="essential"` opts out: a spinner standing still says nothing, so it
+     slows down instead (in its own stylesheet). */
   @media (prefers-reduced-motion: reduce) {
-    .pinfold,
-    .pinfold * {
+    :where(.pinfold, .pinfold *):not([data-motion="essential"]) {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;

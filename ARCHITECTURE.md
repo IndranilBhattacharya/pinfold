@@ -15,7 +15,8 @@ the next twelve components without inventing a single decision.
                <name>.logic.ts (rules), <name>.meta.ts (metadata), meta.ts (validator, JSON schema)
 @pinfold/css     tokens.css, reset.css, <name>.css, packs.css (style packs), shadcn.css (variable bridge),
                Tailwind v3 preset + v4 theme
-@pinfold/react   use<Name>, define<Name>, <Name> tag, <Name>View, PinfoldProvider, defineConfig
+@pinfold/react   widgets: use<Name>, define<Name>, <Name> tag, <Name>View; atoms: <Name> tag (D-23);
+               PinfoldProvider, defineConfig
 pinfold          CLI
 ```
 
@@ -30,7 +31,26 @@ pinfold          CLI
 
 ## 1. The layering rule
 
-Each component splits into these concerns, in this order:
+**Two kinds of component (D-23).** *Widgets* (stateful or collection: accordion, tabs, dialog,
+select) follow everything below. *Atoms* (stateless: button, spinner, badge, card…) are one tag,
+`<Button tone="danger">Delete</Button>`, with `children` for content:
+
+| Layer | File | Owns |
+| --- | --- | --- |
+| Rules | `core/<name>.logic.ts` (when there are any) | pure helpers, e.g. `buttonRel`, `inactiveButtonOptions` |
+| Tag | `<name>/<Name>.tsx` | `forwardRef`, markup, ARIA, `data-*`, slots via `slotProps` / `renderSlot` |
+| Style | `<name>.css` | tokens turned into CSS |
+
+An atom uses **no hooks** and its barrel has **no `'use client'`**, so it renders in a Server
+Component with no client JavaScript (`check-dist.mjs` asserts every `index` entry is server-safe;
+each atom test calls its render function outside React to prove it uses no hooks). Since Server
+Components cannot read context, an unset `size` / `tone` inherits through CSS: the provider writes
+`data-pinfold-size` / `data-pinfold-tone`, which set the shared `--pinfold-control-*` (height,
+padding, gap, text, icon size, radius unit) and `--pinfold-tone-*` (solid, on, text) tokens; an
+atom's own `data-size` / `data-tone` sets the same tokens on itself, so the nearest one wins.
+Atoms provide rungs 1–3 of the ladder; `render.root` swaps the element (a router link).
+
+Each widget splits into these concerns, in this order:
 
 | Layer | File | Owns | Never touches |
 | --- | --- | --- | --- |
@@ -366,7 +386,8 @@ packages/
 ## 9. Adding a component: the checklist
 
 1. The spec `docs/components/<name>.md` is researched and signed off by the owner.
-2. `npx pinfold new <name>`.
+2. `npx pinfold new <name>` (a widget) or `npx pinfold new <name> --atom` (D-23; then skip the
+   hook, `define<Name>` and parts below, and add the barrel to the tsup barrel entries).
 3. Write `types.ts` first. The config object is the API.
 4. Write the rules in core (`<name>.logic.ts`), then `use<Name>.tsx` against the APG pattern.
    Reuse `nextIndexFromKey`, `useControllableState`, `useId`, `useEvent` and `dimensionVars`.

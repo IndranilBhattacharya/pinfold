@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 /**
  * RSC boundary check on the built @pinfold/react (D-07): client modules and
- * their chunks start with 'use client'; the barrels (which hold
- * defineConfig / defineAccordion) must not, or Server Components could not
- * call them.
+ * their chunks start with 'use client'; the barrels (every `index`: they hold
+ * defineConfig / defineAccordion, and atoms such as button are entirely their
+ * barrel, D-23) must not, or Server Components could not call them.
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, sep } from 'node:path';
 
 const dist = 'packages/react/dist';
-const barrels = new Set(['index.js', 'index.cjs', 'accordion/index.js', 'accordion/index.cjs']);
 const files = readdirSync(dist, { recursive: true })
   .map((f) => String(f).split(sep).join('/'))
   .filter((f) => /\.c?js$/.test(f));
@@ -17,7 +16,7 @@ const files = readdirSync(dist, { recursive: true })
 let failed = false;
 for (const file of files) {
   const client = /^['"]use client['"];/.test(readFileSync(join(dist, file), 'utf8'));
-  const want = !barrels.has(file);
+  const want = !/(^|\/)index\.c?js$/.test(file);
   if (client !== want) {
     failed = true;
     console.error(`  ${file}: expected ${want ? "a 'use client' directive" : "no 'use client' (server-safe barrel)"}`);

@@ -19,7 +19,7 @@ The docs, playground and palette studio live in the sibling repo [`../pinfold-ui
 | React | Floor `react >=18`. Use native `useId` and `useSyncExternalStore`. No `react-dom` import inside components. Must work with and without the React Compiler. |
 | Dependencies | Zero runtime dependencies in published packages. Dev dependencies are fine. The CLI may use dependencies, because they never reach the app bundle. |
 | Layers | `core` (logic, no framework) and `css` never import React or any other framework. The React layer owns hooks, views, `define*` and tags. |
-| API | Hooks first: `use<Name>(config)` returns a stable component that is also the controller and carries the parts. `define<Name>(config)` is the non-hook twin for Server Components. `<Name {...config}/>` is the courtesy tag. No compound children. |
+| API | Widgets (stateful or collection): hooks first, `use<Name>(config)` returns a stable component that is also the controller and carries the parts. `define<Name>(config)` is the non-hook twin for Server Components. `<Name {...config}/>` is the courtesy tag. No compound children. Atoms (stateless, D-23): a `forwardRef` tag with `children` for content, no hooks, no `'use client'`; unset `size`/`tone` inherit through CSS. |
 | Config | One flat object. Data first (`items`, `columns`, `options`), never `children`. Only the data is required. Behaviour options must be expressible as plain JSON. Callbacks are optional. |
 | Escape-hatch ladder | Every component exposes all of: config, then `classNames`/`styles`/`slotProps`, then slot `render` and `renderItem`, then parts, then prop getters. |
 | Styling | Every CSS value comes from a token. No literal colours. BEM class names `.pinfold-<comp>__<slot>`. State through `[data-state]`, `[data-disabled]`, never `.is-*`. All CSS inside `@layer pinfold.*`. JS never imports CSS. `unstyled` drops the classes but keeps ARIA and `data-*`. |
@@ -44,7 +44,7 @@ No Vue or Angular code is built now.
 ## Adding or changing a component
 
 1. The spec exists and is signed off (`docs/components/<name>.md`).
-2. `npx pinfold new <name>` scaffolds a package that already passes conformance.
+2. `npx pinfold new <name>` scaffolds a widget that already passes conformance; `npx pinfold new <name> --atom` scaffolds an atom (D-23; conformance with `kind: 'atom'`).
 3. Write the types first, then the core logic, then the hook (`use<Name>`), the view (a plain function), the CSS, and the tag.
 4. Tests cover ARIA wiring, every mode, the full keyboard map, disabled, controlled versus uncontrolled, slot overrides, and dimensions reaching CSS. Then add `describePinfoldConformance` (mandatory):
 

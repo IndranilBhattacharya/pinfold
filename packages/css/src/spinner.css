@@ -1,0 +1,44 @@
+/* Pinfold — spinner. A CSS ring: no icon, no SVG. Unset `tone` follows the
+   surrounding text colour; unset `size` follows the nearest control size. */
+
+@layer pinfold.components {
+  .pinfold-spinner {
+    --pinfold-spn-size: var(--pinfold-spinner-size, var(--pinfold-control-icon));
+
+    display: inline-block;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    inline-size: var(--pinfold-spn-size);
+    block-size: var(--pinfold-spn-size);
+    border: var(--pinfold-spinner-thickness, max(2px, calc(var(--pinfold-spn-size) / 9))) solid
+      color-mix(in oklch, currentColor 25%, transparent);
+    border-block-start-color: currentColor;
+    border-radius: var(--pinfold-radius-full);
+    vertical-align: middle;
+    animation: pinfold-spinner-spin 0.7s linear infinite;
+  }
+
+  .pinfold-spinner[data-tone] {
+    color: var(--pinfold-tone-text, var(--pinfold-color-accent));
+  }
+
+  @keyframes pinfold-spinner-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  /* Opted out of the reset's motion kill (`data-motion="essential"`): slower, not frozen. */
+  @media (prefers-reduced-motion: reduce) {
+    .pinfold-spinner {
+      animation-duration: 1.6s;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-spinner {
+      border-color: GrayText;
+      border-block-start-color: CanvasText;
+    }
+  }
+}

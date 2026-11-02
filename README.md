@@ -13,9 +13,9 @@ Created by **Indranil Bhattacharya**
 
 </div>
 
-> **Status: pre-release.** One component, the accordion, is complete: server and client APIs,
-> global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report
-> ([roadmap](docs/ROADMAP.md)). Published to npm as it grows: one component at a time (D-22). Items marked *Planned* are specified but not yet built.
+> **Status: pre-release.** The accordion is complete (server and client APIs,
+> global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report);
+> button and spinner are experimental ([roadmap](docs/ROADMAP.md)). Published to npm as it grows: one component at a time (D-22). Items marked *Planned* are specified but not yet built.
 
 ---
 
@@ -59,7 +59,7 @@ Faq.toggle('shipping')          // 2. its controller: open, close, openAll, focu
 
 ### On the server, too
 
-Server Components can't call hooks, so each component has a non-hook twin with the same config and the same tag:
+Server Components can't call hooks, so each stateful component has a non-hook twin with the same config and the same tag (simple ones such as `<Button>` and `<Spinner>` are plain tags that work on the server as they are):
 
 ```jsx
 import { defineAccordion } from '@pinfold/react/accordion';
@@ -126,6 +126,7 @@ The config never changes shape as you go deeper.
 |---|---|
 | [docs/VISION.md](docs/VISION.md) | What Pinfold is, and isn't |
 | [docs/components/accordion.md](docs/components/accordion.md) | Accordion spec |
+| [docs/components/button.md](docs/components/button.md) | Button and Spinner spec |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
 | [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
 | [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | Accessibility evidence: the automated report and the screen-reader matrix |

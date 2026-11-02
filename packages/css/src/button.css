@@ -1,0 +1,199 @@
+/* Pinfold — button.
+
+   Sizes come from the shared control tokens (--pinfold-control-*) and colour
+   from the shared tone tokens (--pinfold-tone-*), so an unset `size` or `tone`
+   follows the nearest provider through CSS alone (D-23). `dimensions` writes
+   --pinfold-button-* and wins through the var() fallbacks.
+
+   Disabled and loading are `aria-disabled`: the button keeps focus, so its
+   label is still read. */
+
+@layer pinfold.components {
+  .pinfold-button {
+    --pinfold-btn-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-btn-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    /* Text on a tint or on the page, pulled toward the theme text colour (darker on light,
+       lighter on dark) so it clears 4.5:1 on its own tint for every tone (a11y report). */
+    --pinfold-btn-text: color-mix(in oklch, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text));
+    --pinfold-btn-h: var(--pinfold-button-height, var(--pinfold-control-height));
+    --pinfold-btn-pad-x: var(--pinfold-button-padding-x, var(--pinfold-control-pad-x));
+    --pinfold-btn-gap: var(--pinfold-button-gap, var(--pinfold-control-gap));
+    --pinfold-btn-icon: var(--pinfold-button-icon-size, var(--pinfold-control-icon));
+    --pinfold-btn-radius: var(
+      --pinfold-button-radius,
+      calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1))
+    );
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pinfold-btn-gap);
+    box-sizing: border-box;
+    block-size: var(--pinfold-btn-h);
+    min-inline-size: var(--pinfold-button-min-width, auto);
+    padding-block: 0;
+    padding-inline: var(--pinfold-btn-pad-x);
+    margin: 0;
+    border: var(--pinfold-border-width) solid transparent;
+    border-radius: var(--pinfold-btn-radius);
+    background: transparent;
+    color: var(--pinfold-btn-text);
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-button-font-size, var(--pinfold-control-text));
+    font-weight: var(--pinfold-weight-medium);
+    line-height: 1;
+    letter-spacing: var(--pinfold-tracking-normal);
+    text-decoration: none;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background-color var(--pinfold-duration-fast) var(--pinfold-ease-out),
+      border-color var(--pinfold-duration-fast) var(--pinfold-ease-out),
+      color var(--pinfold-duration-fast) var(--pinfold-ease-out),
+      box-shadow var(--pinfold-duration-fast) var(--pinfold-ease-out),
+      transform var(--pinfold-duration-fast) var(--pinfold-ease-out);
+  }
+
+  .pinfold-button:focus-visible {
+    outline: none;
+    box-shadow: var(--pinfold-focus-ring);
+  }
+
+  .pinfold-button[data-full-width] {
+    inline-size: 100%;
+  }
+
+  .pinfold-button[data-icon-only] {
+    inline-size: var(--pinfold-btn-h);
+    padding-inline: 0;
+  }
+
+  /* ---------------------------------------------------------------- variants */
+  .pinfold-button[data-variant='solid'] {
+    background: var(--pinfold-btn-solid);
+    color: var(--pinfold-btn-on);
+    box-shadow: var(--pinfold-shadow-xs);
+  }
+  .pinfold-button[data-variant='soft'] {
+    background: color-mix(in oklch, var(--pinfold-btn-solid) 12%, transparent);
+  }
+  .pinfold-button[data-variant='outline'] {
+    border-color: color-mix(in oklch, var(--pinfold-btn-text) 35%, var(--pinfold-color-border));
+  }
+  .pinfold-button[data-variant='link'] {
+    block-size: auto;
+    padding-inline: 0;
+    border-radius: var(--pinfold-radius-xs);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklch, currentColor 40%, transparent);
+    text-underline-offset: 0.2em;
+  }
+
+  /* Hover and pressed: solid moves toward the text colour (darker on light, lighter on
+     dark); the others gain a tint. An open menu trigger (`aria-expanded`) looks hovered. */
+  .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true'])[data-variant='solid'] {
+    background: color-mix(in oklch, var(--pinfold-btn-solid) 86%, var(--pinfold-color-text));
+  }
+  .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true']):is([data-variant='soft']) {
+    background: color-mix(in oklch, var(--pinfold-btn-solid) 20%, transparent);
+  }
+  .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true']):is([data-variant='outline'], [data-variant='ghost']) {
+    background: color-mix(in oklch, var(--pinfold-btn-solid) 10%, transparent);
+  }
+  .pinfold-button:not([aria-disabled='true']):hover[data-variant='link'] {
+    text-decoration-color: currentColor;
+  }
+  .pinfold-button:not([aria-disabled='true'], [data-variant='link']):active {
+    transform: translateY(1px);
+  }
+
+  /* --------------------------------------------------------- disabled, loading */
+  .pinfold-button[aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+  .pinfold-button[data-disabled] {
+    opacity: 0.5;
+    box-shadow: none;
+  }
+  .pinfold-button[data-loading] {
+    cursor: progress;
+  }
+  /* Opacity, not visibility: the label stays the accessible name. */
+  .pinfold-button[data-loading] > :not(.pinfold-button__spinner) {
+    opacity: 0;
+  }
+
+  /* ------------------------------------------------------------------- slots */
+  .pinfold-button__label {
+    display: inline-block;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pinfold-button__icon,
+  .pinfold-button__endIcon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--pinfold-btn-icon);
+    line-height: 1;
+  }
+  .pinfold-button__icon > svg,
+  .pinfold-button__endIcon > svg {
+    inline-size: var(--pinfold-btn-icon);
+    block-size: var(--pinfold-btn-icon);
+  }
+  .pinfold-button__spinner {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    inline-size: var(--pinfold-btn-icon);
+    block-size: var(--pinfold-btn-icon);
+    border: max(2px, calc(var(--pinfold-btn-icon) / 9)) solid color-mix(in oklch, currentColor 25%, transparent);
+    border-block-start-color: currentColor;
+    border-radius: var(--pinfold-radius-full);
+    animation: pinfold-button-spin 0.7s linear infinite;
+  }
+
+  @keyframes pinfold-button-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  /* Touch: the hit area grows to 44px without changing the look. */
+  @media (pointer: coarse) {
+    .pinfold-button::after {
+      content: '';
+      position: absolute;
+      inset: min(0px, calc((var(--pinfold-btn-h) - 2.75rem) / 2));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pinfold-button__spinner {
+      animation-duration: 1.6s;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-button {
+      border-color: ButtonText;
+    }
+    .pinfold-button[data-variant='solid'] {
+      forced-color-adjust: none;
+      background: ButtonText;
+      color: ButtonFace;
+    }
+    .pinfold-button[data-disabled] {
+      border-color: GrayText;
+      color: GrayText;
+    }
+  }
+}

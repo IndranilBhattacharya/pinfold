@@ -48,8 +48,12 @@ const BUDGETS = [
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
   ['packages/react/dist/accordion/index.js', 8],
+  ['packages/react/dist/button/index.js', 2],
+  ['packages/react/dist/spinner/index.js', 1],
   ['packages/css/dist/core.css', 5],
   ['packages/css/dist/accordion.css', 4],
+  ['packages/css/dist/button.css', 2],
+  ['packages/css/dist/spinner.css', 1],
   ['packages/css/dist/packs.css', 2],
 ];
 

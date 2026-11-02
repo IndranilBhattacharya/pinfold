@@ -1,0 +1,29 @@
+import * as React from 'react';
+import { cn, dataAttr, dimensionVars, type PropsBag } from '@pinfold/core';
+import { renderSlot, slotProps } from '../slots';
+import type { __PASCAL__Props, __PASCAL__State } from './types';
+
+/**
+ * A stateless atom (D-23): no hooks, so it renders in Server Components with no
+ * client JavaScript. Unset `size` and `tone` follow the nearest provider through CSS.
+ */
+export const __PASCAL__ = React.forwardRef<HTMLSpanElement, __PASCAL__Props>(function __PASCAL__(props, ref) {
+  const { children, variant = 'solid', size, tone, dimensions, unstyled = false, className, style, classNames, styles, slotProps: slotOverrides, render, ...rest } = props;
+  const overrides = { classNames, styles, slotProps: slotOverrides, render };
+  const state: __PASCAL__State = { variant };
+  const vars = dimensionVars('__NAME__', dimensions);
+
+  const root: PropsBag = {
+    ...rest,
+    ref,
+    className: unstyled ? className : cn('pinfold pinfold-__NAME__', className),
+    style: vars || style ? { ...vars, ...style } : undefined,
+    'data-variant': variant,
+    'data-size': size,
+    'data-tone': tone,
+    'data-unstyled': dataAttr(unstyled),
+  };
+  const label = renderSlot(overrides, 'label', slotProps(overrides, 'label', { className: unstyled ? undefined : 'pinfold-__NAME____label' }), state, children, (p, c) => <span {...p}>{c}</span>);
+
+  return renderSlot(overrides, 'root', slotProps(overrides, 'root', root), state, label, (p, c) => <span {...p}>{c}</span>) as React.ReactElement;
+});

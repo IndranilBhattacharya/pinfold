@@ -12,7 +12,7 @@
 import { resolve } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
+import { accordionMeta, buttonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
 
 interface Entry {
   meta: ComponentMeta;
@@ -31,6 +31,9 @@ const COMPONENTS: Entry[] = [
     configs: ['AccordionConfig', 'AccordionMappedConfig'],
     nested: { items: 'AccordionItemConfig', dimensions: 'AccordionDimensions' },
   },
+  // Atoms: the own options only; native attributes pass through and are not meta.
+  { meta: buttonMeta, file: 'button/types.ts', configs: ['ButtonOptions'], nested: { dimensions: 'ButtonDimensions' } },
+  { meta: spinnerMeta, file: 'spinner/types.ts', configs: ['SpinnerOptions'], nested: { dimensions: 'SpinnerDimensions' } },
 ];
 
 for (const c of COMPONENTS) {
