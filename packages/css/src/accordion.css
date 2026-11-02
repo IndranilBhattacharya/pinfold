@@ -339,8 +339,7 @@
     transition: opacity var(--pinfold-acc-duration) var(--pinfold-ease),
       transform var(--pinfold-acc-duration) var(--pinfold-ease-out);
   }
-  .pinfold-accordion__trigger[data-state='open']
-    .pinfold-accordion__indicator:has(.pinfold-accordion__indicator-bar) {
+  .pinfold-accordion__trigger[data-state='open'] .pinfold-accordion__indicator[data-glyph='plus'] {
     transform: none;
   }
   .pinfold-accordion__trigger[data-state='open'] .pinfold-accordion__indicator-bar {
@@ -368,7 +367,7 @@
   /* Find-in-page: once the inner box carries hidden="until-found", the browser
      owns its visibility (content-visibility), so the panel itself must stay
      visible for matches to be found. Before hydration the rule above applies. */
-  .pinfold-accordion__panel[data-state='closed']:has(> [hidden='until-found']) {
+  .pinfold-accordion__panel[data-state='closed'][data-findable] {
     visibility: visible;
   }
 
@@ -436,10 +435,10 @@
       order: 2;
     }
     .pinfold-accordion__badge,
-    .pinfold-accordion__trigger:not(:has(.pinfold-accordion__badge)) .pinfold-accordion__end-icon {
+    .pinfold-accordion__trigger:not([data-has-badge]) .pinfold-accordion__end-icon {
       margin-inline-start: calc(var(--pinfold-acc-icon) + var(--pinfold-space-3));
     }
-    .pinfold-accordion__trigger:not(:has(.pinfold-accordion__icon)) :is(.pinfold-accordion__badge, .pinfold-accordion__end-icon) {
+    .pinfold-accordion__trigger:not([data-has-icon]) :is(.pinfold-accordion__badge, .pinfold-accordion__end-icon) {
       margin-inline-start: 0;
     }
   }

@@ -364,11 +364,15 @@ function untilFound(node: HTMLElement | null, hide: boolean, animate: boolean, o
   if (!prev) node.addEventListener('beforematch', () => findable.get(node)?.onFound());
   if (!hide) {
     if (node.hasAttribute('hidden')) node.removeAttribute('hidden');
+    node.parentElement?.removeAttribute('data-findable');
     return;
   }
   if (node.getAttribute('hidden') === 'until-found') return;
   const apply = () => {
-    if (findable.get(node)?.hide) node.setAttribute('hidden', 'until-found');
+    if (!findable.get(node)?.hide) return;
+    node.setAttribute('hidden', 'until-found');
+    // The panel stays visible for find-in-page; marked here so CSS needs no :has().
+    node.parentElement?.setAttribute('data-findable', '');
   };
   // Closing a visible panel: hide after the collapse, so content does not vanish mid-animation.
   const wait = animate && prev && !prev.hide ? transitionMs(node.parentElement ?? node) : 0;

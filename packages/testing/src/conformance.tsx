@@ -99,6 +99,11 @@ export function describePinfoldConformance(options: ConformanceOptions): void {
       expect(at(<PinfoldProvider size="sm" tone="danger" defaults={defaults}>{render({ size: 'md', tone: 'info' })}</PinfoldProvider>)).toEqual(['md', 'info']);
     });
 
+    it("honours the provider's disableAnimation (no data-animate on the root)", () => {
+      const root = mount(<PinfoldProvider disableAnimation>{render({})}</PinfoldProvider>, block);
+      expect(root.hasAttribute('data-animate')).toBe(false);
+    });
+
     if (preset) {
       it('resolves presets as use-site props > preset > defaults.<name> > provider', () => {
         const key = name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
@@ -244,6 +249,14 @@ export function describePinfoldConformance(options: ConformanceOptions): void {
         const css = readFileSync(cssPath, 'utf8');
         const offenders = findRawColors(css);
         expect(offenders).toEqual([]);
+      });
+
+      // The browser floor is Baseline 2023 (COMPATIBILITY.md). Newer CSS fails silently there,
+      // e.g. light-dark() made every status tone fall back to the primary colour.
+      it('uses no CSS newer than the Baseline 2023 floor', () => {
+        const css = stripComments(readFileSync(cssPath, 'utf8'));
+        const tooNew = ['light-dark(', ':has(', '@scope', 'anchor-name', 'position-anchor', 'field-sizing', '@starting-style', 'interpolate-size', 'calc-size('];
+        expect(tooNew.filter((feature) => css.includes(feature))).toEqual([]);
       });
 
       it('namespaces every class it defines', () => {
