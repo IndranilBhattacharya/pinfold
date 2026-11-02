@@ -2,6 +2,7 @@ import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describePinfoldConformance } from '@pinfold/testing';
+import { accordionMeta } from '@pinfold/core/meta';
 import { Accordion } from './Accordion';
 import { useAccordion } from './useAccordion';
 
@@ -305,6 +306,7 @@ describePinfoldConformance({
   optionalSlots: ['icon', 'badge', 'description'],
   dimension: { key: 'paddingX', value: 24 },
   cssFile: 'packages/css/src/accordion.css',
+  meta: accordionMeta,
   hook: { use: useAccordion as any, config: { items } },
   render: (config) => (
     <Accordion

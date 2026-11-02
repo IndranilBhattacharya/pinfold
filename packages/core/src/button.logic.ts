@@ -1,5 +1,5 @@
 /**
- * Button rules, framework-free. The React tag only adapts them.
+ * Button rules, framework-free. The React hook only adapts them.
  */
 
 /** The options that decide which other button options have a visible effect. */
@@ -7,9 +7,13 @@ export interface ButtonAppearanceInput {
   variant?: string;
   loading?: boolean;
   loadingText?: string;
+  iconOnly?: boolean;
   href?: string;
+  target?: string;
+  rel?: string;
   type?: string;
   radius?: unknown;
+  endIcon?: unknown;
 }
 
 /**
@@ -18,8 +22,13 @@ export interface ButtonAppearanceInput {
  */
 export function inactiveButtonOptions(config: ButtonAppearanceInput): Record<string, string> {
   const out: Record<string, string> = {};
-  if (!config.loading) out.loadingText = 'only read while `loading` is true.';
+  if (!config.loading) out.loadingText = 'only shown while `loading` is true.';
+  if (config.iconOnly) out.endIcon = 'an icon-only button shows only `icon`.';
   if (config.href) out.type = 'a link has no type; `href` renders an `<a>`.';
+  else {
+    out.target = 'only links (`href`) have a target.';
+    out.rel = 'only links (`href`) have a rel.';
+  }
   if (config.variant === 'link') out.radius = 'the `link` variant has no surface to round.';
   return out;
 }

@@ -40,23 +40,24 @@ const app = await build({
       import { useAccordion } from '@pinfold/react/accordion';
       import { Button } from '@pinfold/react/button';
       import { Spinner } from '@pinfold/react/spinner';
-      // Atoms: every variant x tone (contrast), plus disabled, loading, icon-only, link, sizes.
+      // Buttons: every variant x tone (contrast), plus disabled, loading, icon-only, link, sizes.
       function Buttons() {
         const e = React.createElement;
         const tones = ['primary', 'neutral', 'success', 'warning', 'danger', 'info'];
         const icon = e('svg', { viewBox: '0 0 16 16', width: 16, height: 16 }, e('path', { d: 'M3 8h10M8 3v10', stroke: 'currentColor' }));
         return e('section', { 'aria-label': 'buttons' }, e('h2', null, 'Buttons'),
           ...['solid', 'soft', 'outline', 'ghost', 'link'].map((variant) =>
-            e('p', { key: variant }, ...tones.map((tone) => e(Button, { key: tone, variant, tone }, variant + ' ' + tone)))),
+            e('p', { key: variant }, ...tones.map((tone) => e(Button, { key: tone, variant, tone, label: variant + ' ' + tone })))),
           e('p', null,
-            e(Button, { id: 'button-disabled', disabled: true }, 'Disabled'),
-            e(Button, { loading: true, loadingText: 'Saving' }, 'Save'),
-            e(Button, { icon, 'aria-label': 'Add' }),
-            e(Button, { icon, variant: 'ghost', 'aria-label': 'Add more' }),
-            e(Button, { href: '#top', target: '_blank' }, 'Docs'),
-            e(Button, { size: 'sm' }, 'Small'),
-            e(Button, { size: 'lg', endIcon: icon }, 'Large')),
-          e('p', null, e(Spinner), e(Spinner, { tone: 'success', label: 'Uploading' }), e(Spinner, { label: '' }), ' Loading text'),
+            e(Button, { label: 'Disabled', disabled: true, slotProps: { root: { id: 'button-disabled' } } }),
+            e(Button, { label: 'Save', loading: true, loadingText: 'Saving' }),
+            e(Button, { label: 'Add', icon, iconOnly: true }),
+            e(Button, { label: 'Add more', icon, iconOnly: true, variant: 'ghost' }),
+            e(Button, { label: 'Docs', href: '#top', target: '_blank' }),
+            e(Button, { label: 'Small', size: 'sm' }),
+            e(Button, { label: 'Large', size: 'lg', endIcon: icon }),
+            ...['soft', 'outline'].map((variant) => e(Button, { key: variant, label: 'Saving ' + variant, variant, loading: true }))),
+          e('p', null, e(Spinner), e(Spinner, { tone: 'success', label: 'Uploading' }), e(Spinner, { label: '', tone: 'current' }), ' Loading text'),
         );
       }
       const items = [

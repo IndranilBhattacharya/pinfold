@@ -48,8 +48,8 @@ const BUDGETS = [
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
   ['packages/react/dist/accordion/index.js', 8],
-  ['packages/react/dist/button/index.js', 2],
-  ['packages/react/dist/spinner/index.js', 1],
+  ['packages/react/dist/button/index.js', 5], // entry + the shared provider/component chunks, like accordion
+  ['packages/react/dist/spinner/index.js', 4],
   ['packages/css/dist/core.css', 5],
   ['packages/css/dist/accordion.css', 4],
   ['packages/css/dist/button.css', 2],

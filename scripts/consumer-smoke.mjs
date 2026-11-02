@@ -56,7 +56,7 @@ for (const text of ['Alpha', 'Alpha body', 'Beta body', 'aria-expanded', 'pinfol
 }
 const { Button } = ${load('@pinfold/react/button')};
 const { Spinner } = ${load('@pinfold/react/spinner')};
-const atoms = renderToString(React.createElement('div', null, React.createElement(Button, { tone: 'danger' }, 'Go'), React.createElement(Spinner)));
+const atoms = renderToString(React.createElement('div', null, React.createElement(Button, { label: 'Go', tone: 'danger' }), React.createElement(Spinner)));
 for (const text of ['pinfold-button', 'data-tone="danger"', '>Go<', 'role="status"']) {
   if (!atoms.includes(text)) throw new Error('atom HTML is missing ' + JSON.stringify(text) + ':\\n' + atoms);
 }

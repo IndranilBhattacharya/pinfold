@@ -1,36 +1,51 @@
 import * as React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { describePinfoldConformance } from '@pinfold/testing';
 import { resetWarnings } from '@pinfold/core';
+import { buttonMeta } from '@pinfold/core/meta';
 import { PinfoldProvider } from '@pinfold/react';
 import { Button } from './Button';
+import { useButton } from './useButton';
+import { defineButton } from './define';
+import type { ButtonConfig } from './types';
 
 afterEach(() => {
   vi.restoreAllMocks();
   resetWarnings();
 });
 
+function Hook(config: ButtonConfig & { onApi?: (api: ReturnType<typeof useButton>) => void }) {
+  const { onApi, ...rest } = config;
+  const Save = useButton(rest);
+  onApi?.(Save);
+  return <Save />;
+}
+
 describe('Button', () => {
-  it('is a native button of type "button" by default', () => {
-    render(<Button>Save</Button>);
+  it('renders from one config object: a native button of type "button"', () => {
+    render(<Hook label="Save" />);
     const button = screen.getByRole('button', { name: 'Save' });
     expect(button.tagName).toBe('BUTTON');
     expect(button.getAttribute('type')).toBe('button');
     expect(button.getAttribute('data-variant')).toBe('solid');
+    expect(button.getAttribute('data-size')).toBe('md');
+    expect(button.getAttribute('data-tone')).toBe('primary');
   });
 
-  it('passes native attributes and the ref through', () => {
-    const ref = React.createRef<HTMLButtonElement>();
-    const onClick = vi.fn();
-    render(<Button ref={ref} id="save" name="intent" value="save" type="submit" onClick={onClick}>Save</Button>);
-    const button = screen.getByRole('button');
-    expect(ref.current).toBe(button);
-    expect(button.id).toBe('save');
+  it('takes element attributes on the returned component', () => {
+    function Demo() {
+      const Send = useButton({ label: 'Send', type: 'submit' });
+      return <Send form="f" name="intent" value="send" className="mt-4" data-track="send" />;
+    }
+    render(<Demo />);
+    const button = screen.getByRole('button', { name: 'Send' });
+    expect(button.getAttribute('form')).toBe('f');
     expect(button.getAttribute('type')).toBe('submit');
-    fireEvent.click(button);
-    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(button.classList.contains('mt-4')).toBe(true);
+    expect(button.classList.contains('pinfold-button')).toBe(true);
+    expect(button.getAttribute('data-track')).toBe('send');
   });
 
   it('stays focusable when disabled, and swallows clicks and form submits', () => {
@@ -38,7 +53,7 @@ describe('Button', () => {
     const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
     render(
       <form onSubmit={onSubmit}>
-        <Button type="submit" disabled onClick={onClick}>Send</Button>
+        <Hook label="Send" type="submit" disabled onClick={onClick} />
       </form>,
     );
     const button = screen.getByRole('button', { name: 'Send' });
@@ -51,27 +66,51 @@ describe('Button', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it('shows a decorative spinner while loading, keeps the label, and announces loadingText', () => {
-    const onClick = vi.fn();
-    const { container, rerender } = render(<Button loading onClick={onClick}>Save</Button>);
+  it('keeps the label visible while loading, with the spinner in the icon slot', () => {
+    const { container, rerender } = render(<Hook label="Save" icon={<svg data-icon />} loading />);
     const button = screen.getByRole('button', { name: 'Save' });
     expect(button.getAttribute('aria-busy')).toBe('true');
     expect(button.getAttribute('aria-disabled')).toBe('true');
-    expect(button.hasAttribute('data-loading')).toBe(true);
+    expect(container.querySelector('.pinfold-button__label')!.textContent).toBe('Save');
+    expect(container.querySelector('[data-icon]')).toBeNull();
     const spinner = container.querySelector('.pinfold-button__spinner')!;
     expect(spinner.getAttribute('aria-hidden')).toBe('true');
     expect(spinner.getAttribute('data-motion')).toBe('essential');
-    fireEvent.click(button);
-    expect(onClick).not.toHaveBeenCalled();
 
-    rerender(<Button loading loadingText="Saving">Save</Button>);
-    expect(screen.getByRole('button', { name: 'Saving' })).toBeTruthy();
-    rerender(<Button loadingText="Saving">Save</Button>);
+    rerender(<Hook label="Save" loading loadingText="Saving…" />);
+    expect(screen.getByRole('button', { name: 'Saving…' })).toBeTruthy();
+    rerender(<Hook label="Save" loadingText="Saving…" />);
     expect(screen.getByRole('button', { name: 'Save' }).hasAttribute('aria-busy')).toBe(false);
   });
 
+  it('shows the loading state while an async onClick runs, then clears it', async () => {
+    let finish!: () => void;
+    const onClick = vi.fn(() => new Promise<void>((resolve) => (finish = resolve)));
+    render(<Hook label="Save" loadingText="Saving…" onClick={onClick} />);
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.getByRole('button', { name: 'Saving…' }).getAttribute('aria-busy')).toBe('true');
+    // A second click while pending is swallowed.
+    fireEvent.click(screen.getByRole('button'));
+    expect(onClick).toHaveBeenCalledTimes(1);
+    await act(async () => finish());
+    expect(screen.getByRole('button', { name: 'Save' }).hasAttribute('aria-busy')).toBe(false);
+  });
+
+  it('is a controller: loading, setLoading, focus and click', () => {
+    let api!: ReturnType<typeof useButton>;
+    const onClick = vi.fn();
+    render(<Hook label="Go" onClick={onClick} onApi={(a) => (api = a)} />);
+    act(() => api.setLoading(true));
+    expect(api.loading).toBe(true);
+    act(() => api.setLoading(false));
+    act(() => api.focus());
+    expect(document.activeElement).toBe(screen.getByRole('button'));
+    act(() => api.click());
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
   it('renders a link for href, adding noopener noreferrer to new tabs', () => {
-    render(<Button href="https://example.com" target="_blank" rel="external">Docs</Button>);
+    render(<Hook label="Docs" href="https://example.com" target="_blank" rel="external" />);
     const link = screen.getByRole('link', { name: 'Docs' });
     expect(link.getAttribute('href')).toBe('https://example.com');
     expect(link.getAttribute('rel')).toBe('external noopener noreferrer');
@@ -79,60 +118,57 @@ describe('Button', () => {
   });
 
   it('a disabled link cannot navigate but stays focusable', () => {
-    render(<Button href="/next" disabled>Next</Button>);
+    render(<Hook label="Next" href="/next" disabled />);
     const link = screen.getByRole('link', { name: 'Next' });
     expect(link.hasAttribute('href')).toBe(false);
     expect(link.getAttribute('tabindex')).toBe('0');
     expect(link.getAttribute('aria-disabled')).toBe('true');
   });
 
-  it('is icon-only and square with an icon and no label, and warns without a name', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const { container, rerender } = render(<Button icon={<svg />} />);
-    const button = container.querySelector('button')!;
+  it('icon-only: the label becomes the accessible name and the tooltip', () => {
+    const { container } = render(<Hook label="Delete" icon={<svg />} iconOnly endIcon={<svg data-end />} />);
+    const button = screen.getByRole('button', { name: 'Delete' });
     expect(button.hasAttribute('data-icon-only')).toBe(true);
+    expect(button.getAttribute('title')).toBe('Delete');
+    expect(container.querySelector('.pinfold-button__label')).toBeNull();
+    expect(container.querySelector('[data-end]')).toBeNull();
     expect(container.querySelector('.pinfold-button__icon')!.getAttribute('aria-hidden')).toBe('true');
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('icon-only button needs `aria-label`'));
-
-    warn.mockClear();
-    resetWarnings();
-    rerender(<Button icon={<svg />} aria-label="Delete" />);
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeTruthy();
-    expect(warn).not.toHaveBeenCalled();
   });
 
-  it('warns about options with no effect', () => {
+  it('warns about options with no effect and about config mistakes', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    render(<Button href="/a" type="submit" variant="link" radius="full">A</Button>);
+    render(<Hook label="A" href="/a" type="submit" variant="link" radius="full" />);
+    render(<Hook {...({ label: 'B', varient: 'soft' } as unknown as ButtonConfig)} />);
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 20));
+    });
     const messages = warn.mock.calls.map((c) => String(c[0]));
-    expect(messages.some((m) => m.includes('`type` has no effect'))).toBe(true);
-    expect(messages.some((m) => m.includes('`radius` has no effect'))).toBe(true);
+    expect(messages.some((m) => m.includes('`type` has no visible effect'))).toBe(true);
+    expect(messages.some((m) => m.includes('`radius` has no visible effect'))).toBe(true);
+    expect(messages.some((m) => m.includes('Did you mean `variant`?'))).toBe(true);
   });
 
-  it('writes size and tone only when set, so the provider applies otherwise', () => {
-    const { container } = render(
-      <PinfoldProvider size="lg" tone="success">
-        <Button>Inherit</Button>
-        <Button size="sm" tone="danger">Own</Button>
+  it('component config beats defaults.button, which beats the provider', () => {
+    render(
+      <PinfoldProvider size="sm" defaults={{ button: { size: 'lg', variant: 'soft' } }}>
+        <Hook label="Defaults" />
+        <Hook label="Own" size="md" variant="outline" />
       </PinfoldProvider>,
     );
-    const wrapper = container.firstElementChild!;
-    expect(wrapper.getAttribute('data-pinfold-size')).toBe('lg');
-    expect(wrapper.getAttribute('data-pinfold-tone')).toBe('success');
-    const [inherit, own] = screen.getAllByRole('button');
-    expect(inherit.hasAttribute('data-size')).toBe(false);
-    expect(inherit.hasAttribute('data-tone')).toBe(false);
-    expect(own.getAttribute('data-size')).toBe('sm');
-    expect(own.getAttribute('data-tone')).toBe('danger');
+    const [fromDefaults, own] = screen.getAllByRole('button');
+    expect(fromDefaults.getAttribute('data-size')).toBe('lg');
+    expect(fromDefaults.getAttribute('data-variant')).toBe('soft');
+    expect(own.getAttribute('data-size')).toBe('md');
+    expect(own.getAttribute('data-variant')).toBe('outline');
   });
 
   it('maps radius presets and lengths onto the radius variable', () => {
     const { container } = render(
       <>
-        <Button radius="full">A</Button>
-        <Button radius="lg">B</Button>
-        <Button radius={20}>C</Button>
-        <Button radius="lg" dimensions={{ radius: 4 }}>D</Button>
+        <Button label="A" radius="full" />
+        <Button label="B" radius="lg" />
+        <Button label="C" radius={20} />
+        <Button label="D" radius="lg" dimensions={{ radius: 4 }} />
       </>,
     );
     const radius = (i: number) => (container.querySelectorAll('button')[i] as HTMLElement).style.getPropertyValue('--pinfold-button-radius');
@@ -143,33 +179,29 @@ describe('Button', () => {
   });
 
   it('swaps the root element through render.root, keeping behaviour props', () => {
-    render(
-      <Button href="/docs" render={{ root: ({ props, children }) => <a {...props} data-router="yes">{children}</a> }}>
-        Docs
-      </Button>,
-    );
+    render(<Hook label="Docs" href="/docs" render={{ root: ({ props, children }) => <a {...props} data-router="yes">{children}</a> }} />);
     const link = screen.getByRole('link', { name: 'Docs' });
     expect(link.getAttribute('data-router')).toBe('yes');
     expect(link.getAttribute('href')).toBe('/docs');
-    expect(link.classList.contains('pinfold-button')).toBe(true);
   });
 
-  it('uses no hooks, so it renders where hooks cannot (Server Components)', () => {
-    // Calling the render function outside React would throw "Invalid hook call" if it used one.
-    const element = (Button as unknown as { render: (p: object, r: null) => React.ReactElement }).render({ children: 'Go', tone: 'info' }, null);
-    expect(renderToString(element)).toContain('data-tone="info"');
+  it('defineButton renders the same button with no hook in the caller (Server Components)', () => {
+    const Docs = defineButton({ label: 'Docs', href: '/docs', variant: 'soft' });
+    const html = renderToString(<Docs className="x" />);
+    expect(html).toContain('href="/docs"');
+    expect(html).toContain('data-variant="soft"');
+    expect(html).toContain('>Docs<');
   });
 });
 
 describePinfoldConformance({
   name: 'button',
-  kind: 'atom',
   slots: ['root', 'icon', 'label', 'endIcon', 'spinner'],
+  // Loading replaces the icon with the spinner, so one of them is always absent.
+  optionalSlots: ['icon', 'spinner'],
   dimension: { key: 'paddingX', value: 24 },
   cssFile: 'packages/css/src/button.css',
-  render: (config) => (
-    <Button icon={<svg />} endIcon={<svg />} loading {...config}>
-      Save
-    </Button>
-  ),
+  meta: buttonMeta,
+  hook: { use: useButton as any, config: { label: 'Save' } },
+  render: (config) => <Button label="Save" icon={<svg />} endIcon={<svg />} {...config} />,
 });

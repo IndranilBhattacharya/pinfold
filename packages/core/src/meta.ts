@@ -56,11 +56,6 @@ export interface PropMeta {
 export interface ComponentMeta {
   name: string;
   displayName: string;
-  /**
-   * `atom`: a stateless tag (`<Button>`), server-safe, children allowed.
-   * `widget` (the default): `use<Name>` / `define<Name>` / tag over a config object.
-   */
-  kind?: 'atom' | 'widget';
   description: string;
   /** WAI-ARIA APG pattern URL. */
   pattern: string;
@@ -253,8 +248,6 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
     title: `${meta.displayName}Config`,
     description: meta.description,
     ...shape(meta.props),
-    // An atom also takes any attribute of its element (`onClick`, `aria-*`, `form`…).
-    ...(meta.kind === 'atom' ? { additionalProperties: true } : {}),
   };
 }
 
@@ -285,11 +278,7 @@ export function metaToMarkdown(meta: ComponentMeta): string {
     ...meta.examples.flatMap((e) => [`## ${e.title}`, '', '```tsx', e.code, '```', '']),
     '## Options',
     '',
-    meta.kind === 'atom'
-      ? 'Every option is optional. Any other attribute of the element (`onClick`, `aria-*`, `id`…) is passed through. Unset `size` and `tone` inherit the nearest `PinfoldProvider` through CSS, so this works in Server Components.'
-      : 'Only `items` is required. Every other option has a default; global defaults come from `defineConfig({ defaults: { ' +
-        meta.name +
-        ': {...} } })`.',
+    `Required: ${Object.entries(meta.props).filter(([, p]) => p.required).map(([k]) => '`' + k + '`').join(', ') || 'nothing'}. Precedence for every other option: the component config, then \`defaults.${meta.name}\` in \`defineConfig()\`, then the provider (size, tone, dir), then the library default.`,
     '',
     table(meta.props),
     '',

@@ -10,9 +10,8 @@ import type { Plugin } from 'esbuild';
  *    'use client' banner. Code splitting puts shared modules (provider,
  *    hooks) in common chunks, so every subpath sees one React context.
  * 2. Barrels (every `index`) stay server-safe: they hold `defineConfig` /
- *    `defineAccordion` and re-export their sibling client module, which is kept
- *    external (`./client` -> `./client.js`). Atoms (button, spinner) have
- *    no client module at all; their barrel is the whole component.
+ *    `define<Name>` and re-export their sibling client module, which is kept
+ *    external (`./client` -> `./client.js`).
  *
  * Entry names must match package.json `exports`.
  */
@@ -50,7 +49,13 @@ const shared: Options = {
 export default defineConfig([
   {
     ...shared,
-    entry: { client: 'src/client.ts', 'accordion/client': 'src/accordion/client.ts', 'accordion/lazy': 'src/accordion/lazy.ts' },
+    entry: {
+      client: 'src/client.ts',
+      'accordion/client': 'src/accordion/client.ts',
+      'accordion/lazy': 'src/accordion/lazy.ts',
+      'button/client': 'src/button/client.ts',
+      'spinner/client': 'src/spinner/client.ts',
+    },
     splitting: true,
     // Rollup's tree-shaking pass strips module directives; esbuild's own tree-shaking keeps the banner.
     treeshake: false,

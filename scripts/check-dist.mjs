@@ -2,8 +2,7 @@
 /**
  * RSC boundary check on the built @pinfold/react: client modules and
  * their chunks start with 'use client'; the barrels (every `index`: they hold
- * defineConfig / defineAccordion, and atoms such as button are entirely their
- * barrel) must not, or Server Components could not call them.
+ * defineConfig / define<Name>) must not, or Server Components could not call them.
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, sep } from 'node:path';

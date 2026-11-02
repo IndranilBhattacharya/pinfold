@@ -40,7 +40,7 @@ export interface PinfoldProviderProps extends PinfoldConfig {
   /** A whole config from `defineConfig()`. Individual props override it. */
   config?: PinfoldConfig;
   /**
-   * Write `data-pinfold-theme` / `-radius` / `-style` / `-size` / `-tone`
+   * Write `data-pinfold-theme` / `data-pinfold-radius` / `data-pinfold-style`
    * onto `<html>` instead of a wrapper element. Use this when portals
    * (dialogs, tooltips) must inherit the theme. Default: false.
    */
@@ -67,13 +67,11 @@ export function PinfoldProvider(props: PinfoldProviderProps): React.ReactElement
       ['data-pinfold-theme', value.theme === 'system' ? null : value.theme],
       ['data-pinfold-radius', value.radius],
       ['data-pinfold-style', value.stylePack === 'default' ? null : value.stylePack],
-      ['data-pinfold-size', value.size],
-      ['data-pinfold-tone', value.tone],
     ];
     const previous = attrs.map(([name]) => el.getAttribute(name));
     attrs.forEach(([name, v]) => restore(el, name, v));
     return () => attrs.forEach(([name], i) => restore(el, name, previous[i]));
-  }, [applyToDocument, value.theme, value.radius, value.stylePack, value.size, value.tone]);
+  }, [applyToDocument, value.theme, value.radius, value.stylePack]);
 
   const body = applyToDocument ? (
     children
@@ -84,9 +82,6 @@ export function PinfoldProvider(props: PinfoldProviderProps): React.ReactElement
       data-pinfold-theme={value.theme === 'system' ? undefined : value.theme}
       data-pinfold-radius={value.radius}
       data-pinfold-style={value.stylePack === 'default' ? undefined : value.stylePack}
-      // Atoms read size and tone through CSS, so they work in Server Components too.
-      data-pinfold-size={value.size}
-      data-pinfold-tone={value.tone}
     >
       {children}
     </div>

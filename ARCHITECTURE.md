@@ -14,8 +14,7 @@ the next twelve components without inventing a single decision.
                <name>.logic.ts (rules), <name>.meta.ts (metadata), meta.ts (validator, JSON schema)
 @pinfold/css     tokens.css, reset.css, <name>.css, packs.css (style packs), shadcn.css (variable bridge),
                Tailwind v3 preset + v4 theme
-@pinfold/react   widgets: use<Name>, define<Name>, <Name> tag, <Name>View; atoms: <Name> tag;
-               PinfoldProvider, defineConfig
+@pinfold/react   use<Name>, define<Name>, <Name> tag, <Name>View, PinfoldProvider, defineConfig
 pinfold          CLI
 ```
 
@@ -30,26 +29,11 @@ pinfold          CLI
 
 ## 1. The layering rule
 
-**Two kinds of component.** *Widgets* (stateful or collection: accordion, tabs, dialog,
-select) follow everything below. *Atoms* (stateless: button, spinner, badge, card…) are one tag,
-`<Button tone="danger">Delete</Button>`, with `children` for content:
+Every component, from a button to a data table, uses the same shape: `use<Name>(config)`
+returns `<Name />`, `define<Name>(config)` is its server twin, and the config is one flat object.
+A button is `const Save = useButton({ label: 'Save', onClick: save }); return <Save />`.
 
-| Layer | File | Owns |
-| --- | --- | --- |
-| Rules | `core/<name>.logic.ts` (when there are any) | pure helpers, e.g. `buttonRel`, `inactiveButtonOptions` |
-| Tag | `<name>/<Name>.tsx` | `forwardRef`, markup, ARIA, `data-*`, slots via `slotProps` / `renderSlot` |
-| Style | `<name>.css` | tokens turned into CSS |
-
-An atom uses **no hooks** and its barrel has **no `'use client'`**, so it renders in a Server
-Component with no client JavaScript (`check-dist.mjs` asserts every `index` entry is server-safe;
-each atom test calls its render function outside React to prove it uses no hooks). Since Server
-Components cannot read context, an unset `size` / `tone` inherits through CSS: the provider writes
-`data-pinfold-size` / `data-pinfold-tone`, which set the shared `--pinfold-control-*` (height,
-padding, gap, text, icon size, radius unit) and `--pinfold-tone-*` (solid, on, text) tokens; an
-atom's own `data-size` / `data-tone` sets the same tokens on itself, so the nearest one wins.
-Atoms provide rungs 1–3 of the ladder; `render.root` swaps the element (a router link).
-
-Each widget splits into these concerns, in this order:
+Each component splits into these concerns, in this order:
 
 | Layer | File | Owns | Never touches |
 | --- | --- | --- | --- |
@@ -151,14 +135,42 @@ Rules:
 6. **Defaults expressible as plain JSON.** Every behaviour option can be written as plain JSON.
    Functions are opt-in extras. This is what lets a CMS, a server component or a language model
    drive the component.
-7. **Appearance inherits** from the global config. Precedence, highest first: component
-   config, `defaults.<component>` in `pinfold.config`, the global theme, library defaults. A nested
-   `PinfoldProvider` scopes a section.
+7. **One precedence, every option, every component** (see "Precedence" below): component config,
+   then `defaults.<component>` in `pinfold.config`, then the provider, then the library default.
+   A nested `PinfoldProvider` scopes a section.
 8. **Dev validation.** `meta.ts` drives dev-only warnings for unknown keys, wrong
    types and invalid enum values, because JS users have no compiler to catch them. It sits behind a
    literal `process.env.NODE_ENV` check, so bundlers drop the validator and the meta in production.
 
 ---
+
+## 2a. Precedence and metadata
+
+**Precedence.** Every option of every component resolves the same way, highest first:
+
+1. the component's own config (`useButton({ size: 'lg' })`),
+2. `defaults.<component>` in the global config (`defineConfig({ defaults: { button: { size: 'sm' } } })`),
+3. the nearest `PinfoldProvider` (`size`, `tone`, `dir`),
+4. the library default (the `@default` in the types, equal to the meta default).
+
+The hook resolves this in JavaScript (`{ ...ctx.defaults.<name>, ...config }`, then
+`config.size ?? ctx.size`) and writes the result onto the root as `data-size`, `data-tone`,
+`data-variant`, so CSS only ever reads the component's own attributes. There is no second,
+CSS-only inheritance path. Per-instance data (`label`, `items`, `onClick`, `href`, `value`) is
+excluded from `defaults` by its type.
+
+**One source of truth, checked four ways.** `<name>.meta.ts` holds every option, its type, values
+and default. It must agree with:
+
+| Check | Test |
+| --- | --- |
+| The types (names, nested shapes, every `@default`) | `types-meta.test.ts` (TypeScript compiler API) |
+| The runtime (each enum the root reflects as `data-<option>` shows the meta default when unset, and every value reaches the DOM) | conformance, `meta` option |
+| Precedence (config > `defaults.<name>` > provider > library) | conformance, every component |
+| Options with no visible effect | `inactive<Name>Options` in core, used by the dev warning and the playground |
+
+A new option is not done until all four agree. The playground and the generated code read the same
+meta, so they cannot drift either.
 
 ## 3. Prop getters
 
@@ -385,8 +397,7 @@ packages/
 ## 9. Adding a component: the checklist
 
 1. The spec `docs/components/<name>.md` is researched and agreed in an issue first.
-2. `npx pinfold new <name>` (a widget) or `npx pinfold new <name> --atom` (then skip the
-   hook, `define<Name>` and parts below, and add the barrel to the tsup barrel entries).
+2. `npx pinfold new <name>`.
 3. Write `types.ts` first. The config object is the API.
 4. Write the rules in core (`<name>.logic.ts`), then `use<Name>.tsx` against the APG pattern.
    Reuse `nextIndexFromKey`, `useControllableState`, `useId`, `useEvent` and `dimensionVars`.

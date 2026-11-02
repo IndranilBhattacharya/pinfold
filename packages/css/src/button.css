@@ -1,9 +1,9 @@
 /* Pinfold — button.
 
    Sizes come from the shared control tokens (--pinfold-control-*) and colour
-   from the shared tone tokens (--pinfold-tone-*), so an unset `size` or `tone`
-   follows the nearest provider through CSS alone. `dimensions` writes
-   --pinfold-button-* and wins through the var() fallbacks.
+   from the shared tone tokens (--pinfold-tone-*), selected by the root's
+   `data-size` / `data-tone` (the hook writes the resolved values). `dimensions`
+   writes --pinfold-button-* and wins through the var() fallbacks.
 
    Disabled and loading are `aria-disabled`: the button keeps focus, so its
    label is still read. */
@@ -123,10 +123,6 @@
   .pinfold-button[data-loading] {
     cursor: progress;
   }
-  /* Opacity, not visibility: the label stays the accessible name. */
-  .pinfold-button[data-loading] > :not(.pinfold-button__spinner) {
-    opacity: 0;
-  }
 
   /* ------------------------------------------------------------------- slots */
   .pinfold-button__label {
@@ -149,10 +145,10 @@
     inline-size: var(--pinfold-btn-icon);
     block-size: var(--pinfold-btn-icon);
   }
+  /* While loading, the spinner sits where the icon was; the label stays visible. */
   .pinfold-button__spinner {
-    position: absolute;
-    inset: 0;
-    margin: auto;
+    flex-shrink: 0;
+    box-sizing: border-box;
     inline-size: var(--pinfold-btn-icon);
     block-size: var(--pinfold-btn-icon);
     border: max(2px, calc(var(--pinfold-btn-icon) / 9)) solid color-mix(in oklch, currentColor 25%, transparent);

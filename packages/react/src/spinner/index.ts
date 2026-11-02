@@ -1,5 +1,7 @@
 /* Styles ship separately: import '@pinfold/css/core.css'; import '@pinfold/css/spinner.css'.
-   A stateless atom: server-safe, no 'use client'. */
+   Server-safe barrel: `defineSpinner` here, the client module re-exported. */
 
-export { Spinner, Spinner as default } from './Spinner';
-export type { SpinnerProps, SpinnerOptions, SpinnerSlot, SpinnerState, SpinnerDimensions } from './types';
+export { Spinner, useSpinner } from './client';
+export { Spinner as default } from './client';
+export { defineSpinner, type DefinedSpinner } from './define';
+export type { SpinnerApi, SpinnerComponent, SpinnerConfig, SpinnerDimensions, SpinnerRootProps, SpinnerSlot, SpinnerState, SpinnerTone } from './types';

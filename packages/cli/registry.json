@@ -23,12 +23,10 @@
         "ghost"
       ],
       "hook": "useAccordion",
-      "snippet": "<Accordion items={[{ title: 'Shipping', content: 'Ships in 2 days.' }]} />",
-      "kind": "widget"
+      "snippet": "<Accordion items={[{ title: 'Shipping', content: 'Ships in 2 days.' }]} />"
     },
     {
       "name": "button",
-      "kind": "atom",
       "import": "@pinfold/react/button",
       "styles": "@pinfold/css/button.css",
       "status": "experimental",
@@ -40,17 +38,18 @@
         "ghost",
         "link"
       ],
-      "snippet": "<Button onClick={save}>Save</Button>"
+      "snippet": "<Button label=\"Save\" onClick={save} />",
+      "hook": "useButton"
     },
     {
       "name": "spinner",
-      "kind": "atom",
       "import": "@pinfold/react/spinner",
       "styles": "@pinfold/css/spinner.css",
       "status": "experimental",
       "description": "An indeterminate loading indicator with a live status label.",
       "variants": [],
-      "snippet": "<Spinner />"
+      "snippet": "<Spinner label=\"Loading\" />",
+      "hook": "useSpinner"
     }
   ],
   "planned": [

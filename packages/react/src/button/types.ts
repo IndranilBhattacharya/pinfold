@@ -1,12 +1,12 @@
 import type * as React from 'react';
-import type { Length, PinfoldRadius, PinfoldSize, PinfoldTone } from '@pinfold/core';
-import type { SlotOverrides } from '../types';
+import type { Length, PinfoldRadius, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { PinfoldComponent } from '../component';
+import type { SlotOverrides, Slottable } from '../types';
 
 /*
  * Typing rules (CONTRIBUTING.md, "Typed API"): every option with a default carries `@default`,
- * checked against the meta. `size` and `tone` have none: unset, they follow the nearest
- * provider through CSS. No option is conditionally required; an icon-only button
- * without `aria-label` is a dev warning.
+ * checked against the meta. `label` is the one required option: it is the visible text, and the
+ * accessible name of an icon-only button, so an unnamed button cannot be written.
  */
 
 export type ButtonSlot = 'root' | 'icon' | 'label' | 'endIcon' | 'spinner';
@@ -14,14 +14,18 @@ export type ButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost' | 'link';
 /** A radius preset (scales the size's radius) or a length: `20` is px, strings pass through. */
 export type ButtonRadius = PinfoldRadius | number | (string & {});
 
-/** Passed to every slot `render` override. */
+/** Live state, passed to function-valued fields and slot `render` overrides. */
 export interface ButtonState {
   variant: ButtonVariant;
+  size: PinfoldSize;
+  tone: PinfoldTone;
   disabled: boolean;
   loading: boolean;
-  /** An icon and no label. */
   iconOnly: boolean;
 }
+
+/** Anything renderable, or a function of the live state. */
+export type ButtonNode = Slottable<ButtonState>;
 
 export interface ButtonDimensions {
   height?: Length;
@@ -33,31 +37,39 @@ export interface ButtonDimensions {
   iconSize?: Length;
 }
 
-/** The button's own options. Every other attribute goes to the element. */
-export interface ButtonOptions extends SlotOverrides<ButtonSlot, ButtonState> {
-  /** The label. */
-  children?: React.ReactNode;
+/**
+ * The whole button as one object:
+ *
+ *   const Save = useButton({ label: 'Save', tone: 'success', onClick: save });
+ *   return <Save />;
+ */
+export interface ButtonConfig extends SlotOverrides<ButtonSlot, ButtonState> {
+  /** The text. Required: it is also the accessible name when `iconOnly`. */
+  label: ButtonNode;
   /**
-   * Surface: filled, tinted, framed, none, or underlined text.
-   * @default 'solid'
+   * Show only the icon, square; `label` becomes the accessible name and the tooltip.
+   * @default false
    */
+  iconOnly?: boolean;
+  /** @default 'solid' */
   variant?: ButtonVariant;
-  /** Size preset. Unset follows the nearest provider (md by default). */
+  /** @default 'md' */
   size?: PinfoldSize;
-  /** Colour role. Unset follows the nearest provider (primary by default). */
+  /** @default 'primary' */
   tone?: PinfoldTone;
   /** Corner radius: a preset or a length. Unset follows the theme radius. */
   radius?: ButtonRadius;
-  /** A visual before the label. With no label the button is icon-only: give it `aria-label`. */
-  icon?: React.ReactNode;
+  /** A visual before the label (a node, an emoji or an icon-font ligature). */
+  icon?: ButtonNode;
   /** A visual after the label. */
-  endIcon?: React.ReactNode;
+  endIcon?: ButtonNode;
   /**
-   * A spinner over the content, same width, `aria-busy`, activation blocked, still focusable.
+   * Shows a spinner in place of the icon and blocks activation; the label stays visible.
+   * Unset, the button manages it: an `onClick` that returns a promise shows it until the promise settles.
    * @default false
    */
   loading?: boolean;
-  /** Announced instead of the label while loading, e.g. "Saving". */
+  /** Shown instead of the label while loading, e.g. "Saving…". */
   loadingText?: string;
   /**
    * Blocks activation with `aria-disabled`; the button stays focusable.
@@ -69,13 +81,19 @@ export interface ButtonOptions extends SlotOverrides<ButtonSlot, ButtonState> {
    * @default false
    */
   fullWidth?: boolean;
-  /** Renders an `<a>`. `target="_blank"` adds `rel="noopener noreferrer"`. */
+  /** Renders a link (`<a>`). */
   href?: string;
+  /** Link target. `_blank` gets `rel="noopener noreferrer"` added. */
+  target?: string;
+  /** Link relationship, kept and extended for new tabs. */
+  rel?: string;
   /**
    * The native button type. `button`, so a button in a form never submits it by accident.
    * @default 'button'
    */
   type?: 'button' | 'submit' | 'reset';
+  /** Activation. Return a promise and the button shows its loading state until it settles. */
+  onClick?: (event: React.MouseEvent<HTMLElement>) => unknown;
   /** Exact measurements over the size preset. Numbers are px. */
   dimensions?: ButtonDimensions;
   /**
@@ -85,12 +103,27 @@ export interface ButtonOptions extends SlotOverrides<ButtonSlot, ButtonState> {
   unstyled?: boolean;
   /** Class on the root. */
   className?: string;
+  /** Inline style on the root. */
+  style?: React.CSSProperties;
 }
 
-type AnchorExtras = Pick<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'target' | 'rel' | 'download' | 'hrefLang' | 'referrerPolicy' | 'ping'>;
+/** What `<Save />` accepts: layout props and any attribute of the element (`form`, `name`, `aria-*`, `data-*`). */
+export type ButtonRootProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'type' | 'onClick' | 'disabled'> & {
+  [key: `data-${string}`]: unknown;
+};
 
-/** Everything `<Button>` accepts: its options, any button attribute, and the link attributes for `href`. */
-export interface ButtonProps
-  extends ButtonOptions,
-    Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof ButtonOptions>,
-    AnchorExtras {}
+/** The controller: the same value that renders as `<Save />`. */
+export interface ButtonApi {
+  /** Whether the button is loading right now (config, or a pending promise from `onClick`). */
+  loading: boolean;
+  /** Start or stop the loading state by hand. Ignored while `loading` is set in the config. */
+  setLoading: (loading: boolean) => void;
+  focus: () => void;
+  /** Activate it from code, exactly as a click would (blocked while disabled or loading). */
+  click: () => void;
+  /** Rung 5 of the ladder: every attribute the root needs, merged over yours. */
+  getRootProps: (props?: PropsBag) => PropsBag;
+  render: (props?: ButtonRootProps) => React.ReactElement;
+}
+
+export type ButtonComponent = PinfoldComponent<ButtonApi, ButtonRootProps>;

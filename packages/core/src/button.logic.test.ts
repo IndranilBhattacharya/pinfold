@@ -11,8 +11,8 @@ describe('button logic', () => {
   });
 
   it('names options with no visible effect', () => {
-    expect(Object.keys(inactiveButtonOptions({}))).toEqual(['loadingText']);
-    expect(inactiveButtonOptions({ loading: true })).toEqual({});
-    expect(Object.keys(inactiveButtonOptions({ loading: true, href: '/x', variant: 'link' }))).toEqual(['type', 'radius']);
+    expect(Object.keys(inactiveButtonOptions({})).sort()).toEqual(['loadingText', 'rel', 'target']);
+    expect(Object.keys(inactiveButtonOptions({ loading: true, href: '/x' }))).toEqual(['type']);
+    expect(Object.keys(inactiveButtonOptions({ loading: true, href: '/x', variant: 'link', iconOnly: true })).sort()).toEqual(['endIcon', 'radius', 'type']);
   });
 });
