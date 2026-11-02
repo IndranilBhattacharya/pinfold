@@ -9,7 +9,7 @@
 
 export { Accordion, useAccordion } from './client';
 export { Accordion as default } from './client';
-export { defineAccordion, type DefinedAccordion } from './define';
+export { defineAccordion, type DefinedAccordion, type AccordionPresetProps } from './define';
 export type {
   AccordionConfig,
   AccordionMappedConfig,

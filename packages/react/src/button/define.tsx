@@ -1,23 +1,31 @@
 import * as React from 'react';
+import { mergeConfig } from '../preset';
 import { Button } from './client';
-import type { ButtonConfig, ButtonRootProps } from './types';
+import type { ButtonConfig, ButtonPresetProps, ButtonTagProps } from './types';
 
-/** What `defineButton` returns: a component with the config baked in. */
-export type DefinedButton = ((props: ButtonRootProps) => React.ReactElement) & { config: ButtonConfig; displayName?: string };
+/** What `defineButton` returns: a button with the preset baked in, taking any part of the config as props. */
+export type DefinedButton<P extends Partial<ButtonConfig> = Partial<ButtonConfig>> = ((props: ButtonPresetProps<P>) => React.ReactElement) & {
+  /** The preset, e.g. to spread into `useButton({ ...Danger.config, label })` when you need the controller. */
+  config: P;
+  displayName?: string;
+};
 
 /**
- * The non-hook twin of `useButton`, for Server Components. Same config, same tag:
+ * A reusable button, defined once (at module scope, outside components) and used in one line:
  *
- *   const Docs = defineButton({ label: 'Read the docs', href: '/docs', variant: 'soft' });
- *   return <Docs />;
+ *   // ui/buttons.ts
+ *   export const Danger = defineButton({ variant: 'soft', tone: 'danger' });
  *
- * From a Server Component the config must be serialisable: no `onClick` (use `href`, or
- * `type: 'submit'` inside a form with a server action). For the controller use `useButton`.
+ *   // any component, in a loop, in a Server Component (no functions there)
+ *   <Danger label="Delete" onClick={() => remove(row.id)} />
+ *
+ * Props win over the preset, which wins over `defaults.button`, the provider and the library
+ * defaults. It is a plain function, not a hook, so it is free to call anywhere.
  */
-export function defineButton(config: ButtonConfig): DefinedButton {
-  const Tag = Button as unknown as (props: ButtonConfig & ButtonRootProps) => React.ReactElement;
-  const Defined = ((props: ButtonRootProps) => React.createElement(Tag, { ...config, ...props })) as unknown as DefinedButton;
-  Defined.config = config;
+export function defineButton<P extends Partial<ButtonConfig>>(preset: P): DefinedButton<P> {
+  const Defined = ((props: ButtonPresetProps<P>) =>
+    React.createElement(Button, mergeConfig<ButtonTagProps>(preset as Partial<ButtonTagProps>, props as Partial<ButtonTagProps>))) as DefinedButton<P>;
+  Defined.config = preset;
   Defined.displayName = 'DefinedButton';
   return Defined;
 }

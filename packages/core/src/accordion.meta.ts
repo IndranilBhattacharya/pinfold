@@ -332,6 +332,10 @@ export const accordionMeta: ComponentMeta = {
   ],
   examples: [
     {
+      title: 'Preset: one look, many accordions',
+      code: "import { defineAccordion } from '@pinfold/react/accordion';\n\nexport const Faq = defineAccordion({ variant: 'separated', mode: 'multiple' });\n\n// a loop, a Server Component, anywhere\n{categories.map((c) => <Faq key={c.id} items={c.questions} />)}",
+    },
+    {
       title: 'Client hook',
       code: "import { useAccordion } from '@pinfold/react/accordion';\n\nexport function Faq() {\n  const Faq = useAccordion({ items: [{ title: 'What is Pinfold?', content: 'Config in, accessible UI out.' }] });\n  return <Faq />;\n}",
     },

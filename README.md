@@ -57,6 +57,27 @@ Faq.toggle('shipping')          // 2. its controller: open, close, openAll, focu
 <Faq.Panel id="shipping" />     // 3. its parts, for layouts that config can't express
 ```
 
+### Presets: decide the look once
+
+Many buttons, many accordions, rows in a table: define each look once, outside your components,
+and use it in one line. A preset is a plain function call, so it works in loops, conditions and
+Server Components.
+
+```jsx
+// ui/presets.js
+export const Primary = defineButton({ tone: 'primary' });
+export const Danger = defineButton({ variant: 'soft', tone: 'danger' });
+export const Faq = defineAccordion({ variant: 'separated' });
+
+// anywhere
+<Primary label="Save" onClick={save} />
+{rows.map((r) => <Danger key={r.id} label="Delete" onClick={() => remove(r.id)} />)}
+<Faq items={questions} />
+```
+
+Precedence for every option: use-site props, the preset, `defaults.<name>` in your global config,
+the provider, then the library default.
+
 ### On the server, too
 
 Server Components can't call hooks, so every component has a non-hook twin with the same config and the same tag:

@@ -78,20 +78,24 @@ Conformance fails the build on:
 The rules that keep every component predictable (details in ARCHITECTURE.md, "Precedence and
 metadata"):
 
-1. **Config is the API.** Everything a developer or a model writes is one object passed to
-   `use<Name>`. Content lives in it (`label`, `items`); the returned component takes only layout
-   and element attributes (`className`, `style`, `form`, `aria-*`, `data-*`).
-2. **One precedence:** component config, then `defaults.<name>`, then the provider, then the library
-   default. The hook resolves it and writes the result as `data-*` on the root. CSS never infers
+1. **Config is the API, presets carry the look.** Everything a developer or a model writes is one
+   config object. `define<Name>(preset)` (module scope) is the default way to use a component: it
+   returns a component whose props are any part of the config. `use<Name>` is for the controller.
+   Content lives in the config (`label`, `items`), never in `children`.
+2. **One precedence:** use-site props, then the preset, then `defaults.<name>`, then the provider,
+   then the library default. The hook resolves it and writes the result as `data-*` on the root. CSS never infers
    a setting from an ancestor.
 3. **The library does the work.** If a common pattern needs glue code, the component absorbs it
    (example: an `onClick` that returns a promise drives the button's loading state).
 4. **Required means meaningful.** Only what the component cannot render correctly without is
    required (a button's `label`, which is also its accessible name).
-5. **Meta, types, runtime and playground agree.** Add the component's meta to its conformance call;
+5. **Meta, types, runtime and playground agree.** Add the component's meta and its `preset` factory
+   to its conformance call and its key list to `config-keys.test.ts`;
    the suite fails on a default or value that does not reach the DOM, and `types-meta.test.ts`
    fails on a type that disagrees with the meta.
-6. **No silent options.** An option that has no visible effect in the current config is listed by
+6. **Buttons inside components are data.** A composite component takes `actions` (an array of
+   button configs) instead of asking the developer to build buttons.
+7. **No silent options.** An option that has no visible effect in the current config is listed by
    `inactive<Name>Options` (dev warning, disabled playground control).
 
 ## Typed API

@@ -50,6 +50,7 @@ describePinfoldConformance({
   dimension: { key: 'size', value: 24 },
   cssFile: 'packages/css/src/spinner.css',
   meta: spinnerMeta,
+  preset: { define: defineSpinner as any, props: {} },
   hook: { use: useSpinner as any, config: {} },
   render: (config) => <Spinner {...config} />,
 });

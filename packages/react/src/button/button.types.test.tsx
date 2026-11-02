@@ -9,6 +9,7 @@ import { Button } from './Button';
 import { useButton } from './useButton';
 import { useSpinner } from '../spinner/useSpinner';
 import { defineConfig } from '../config';
+import { defineButton } from './define';
 
 function Valid() {
   // Everyday patterns must compile with no friction.
@@ -33,6 +34,24 @@ function Valid() {
 }
 
 defineConfig({ size: 'sm', defaults: { button: { variant: 'soft', radius: 'full' }, spinner: { tone: 'current' } } });
+
+// Presets: label is required at the use site unless the preset has one.
+const Danger = defineButton({ variant: 'soft', tone: 'danger' });
+const Docs = defineButton({ label: 'Docs', href: '/docs' });
+function Presets() {
+  return (
+    <>
+      <Danger label="Delete" onClick={() => {}} form="f" />
+      <Docs />
+      <Docs label="Read the docs" variant="link" />
+      {/* @ts-expect-error label is required: the preset has none */}
+      <Danger />
+      {/* @ts-expect-error not a tone */}
+      <Danger label="x" tone="red" />
+    </>
+  );
+}
+void Presets;
 
 function Invalid() {
   // @ts-expect-error label is required: every button has a name

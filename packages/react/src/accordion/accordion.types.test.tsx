@@ -64,6 +64,21 @@ defineAccordion({ items, defaultValue: ['nope'] });
 const Defined = defineAccordion({ items: rows, fields: { title: 'question', content: 'answer' } });
 void badTag;
 
+// Presets: no rows in the preset means `items` is required where it is used.
+const Faq = defineAccordion({ variant: 'separated', mode: 'multiple' });
+const usePreset = (
+  <>
+    <Faq items={[{ title: 'Q', content: 'A' }]} />
+    <Faq items={rows} fields={{ title: 'question', content: 'answer' }} variant="ghost" />
+    <Defined variant="solid" />
+    {/* @ts-expect-error items is required: the preset has none */}
+    <Faq />
+    {/* @ts-expect-error not a variant */}
+    <Faq items={[]} variant="cards" />
+  </>
+);
+void usePreset;
+
 describe('accordion types', () => {
   it('renders the valid cases', () => {
     render(

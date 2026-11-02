@@ -1,15 +1,17 @@
 import type * as React from 'react';
+import { splitProps } from '../preset';
+import { ACCORDION_KEYS } from './keys';
 import { useAccordion } from './useAccordion';
-import type { AccordionConfig, AccordionMappedConfig, AnyAccordionConfig } from './types';
+import type { AccordionConfig, AccordionMappedConfig, AccordionRootProps, AnyAccordionConfig } from './types';
 
 /**
- * Thin JSX wrapper over `useAccordion()`, for one-off accordions that never
- * need the controller. It adds nothing the hook does not already do.
+ * The accordion as a tag: the same config as props, plus `data-*` for the root. For one-off
+ * accordions that never need the controller; works in loops (`cats.map(c => <Accordion items={c.faq} />)`).
  */
-export function Accordion<Id extends string = string>(config: AccordionConfig<Id>): React.ReactElement;
-export function Accordion<Row extends object>(config: AccordionMappedConfig<Row>): React.ReactElement;
-export function Accordion(config: AnyAccordionConfig): React.ReactElement {
-  return useAccordion(config as AccordionConfig).render();
+export function Accordion<Id extends string = string>(props: AccordionConfig<Id> & AccordionRootProps): React.ReactElement;
+export function Accordion<Row extends object>(props: AccordionMappedConfig<Row> & AccordionRootProps): React.ReactElement;
+export function Accordion(props: AnyAccordionConfig & AccordionRootProps): React.ReactElement {
+  const [config, root] = splitProps<AccordionConfig>(props as unknown as Record<string, unknown>, ACCORDION_KEYS);
+  return useAccordion(config).render(root as AccordionRootProps);
 }
 
-Accordion.displayName = 'Accordion';

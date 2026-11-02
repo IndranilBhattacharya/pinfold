@@ -5,6 +5,24 @@ Patterns: [WAI-ARIA APG Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/
 
 ## Usage
 
+Define the looks you repeat once, outside components, and use each in one line:
+
+```tsx
+// ui/buttons.ts
+import { defineButton } from '@pinfold/react/button';
+export const Primary = defineButton({ tone: 'primary' });
+export const Quiet = defineButton({ variant: 'ghost', tone: 'neutral' });
+export const Danger = defineButton({ variant: 'soft', tone: 'danger' });
+
+// any component: loops, conditions and Server Components (no functions there) all work
+<Primary label="Save" onClick={save} />
+<Quiet label="Cancel" onClick={close} />
+{rows.map((r) => <Danger key={r.id} label="Delete" iconOnly icon={<TrashIcon />} onClick={() => remove(r.id)} />)}
+```
+
+Preset props are any part of the config; `label` is required at the use site unless the preset has
+one. The hook is for the controller:
+
 ```tsx
 import { useButton } from '@pinfold/react/button';
 
@@ -35,8 +53,10 @@ The same value is the controller: `Save.loading`, `Save.setLoading(true)`, `Save
 `Save.click()`, `Save.getRootProps()`.
 
 ## Precedence
-Every option: the config above, then `defaults.button` in `defineConfig()`, then the provider
-(`size`, `tone`), then the library default. With `<PinfoldProvider size="sm">` a button is small;
+Every option: use-site props (or the hook's config), then the preset, then `defaults.button` in
+`defineConfig()`, then the provider (`size`, `tone`), then the library default. Nested maps
+(`classNames`, `styles`, `slotProps`, `render`, `dimensions`) merge one level deep and class names
+add up. With `<PinfoldProvider size="sm">` a button is small;
 `useButton({ label: 'Go', size: 'lg' })` is large. The conformance suite asserts this for every
 component.
 

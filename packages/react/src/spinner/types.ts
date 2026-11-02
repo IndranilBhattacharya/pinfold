@@ -49,6 +49,9 @@ export interface SpinnerConfig extends SlotOverrides<SpinnerSlot, SpinnerState> 
 
 export type SpinnerRootProps = Omit<React.HTMLAttributes<HTMLSpanElement>, 'children'> & { [key: `data-${string}`]: unknown };
 
+/** `<Spinner>` and preset props: the config plus any attribute of the element. */
+export type SpinnerTagProps = SpinnerConfig & Omit<SpinnerRootProps, keyof SpinnerConfig>;
+
 export interface SpinnerApi {
   getRootProps: (props?: PropsBag) => PropsBag;
   render: (props?: SpinnerRootProps) => React.ReactElement;

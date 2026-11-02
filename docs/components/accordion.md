@@ -6,6 +6,12 @@ Pattern: [WAI-ARIA APG Accordion](https://www.w3.org/WAI/ARIA/apg/patterns/accor
 ## Usage
 
 ```tsx
+// A preset: one look, many accordions (a loop, a Server Component, anywhere)
+import { defineAccordion } from '@pinfold/react/accordion';
+export const Faq = defineAccordion({ variant: 'separated', mode: 'multiple' });
+{categories.map((c) => <Faq key={c.id} items={c.questions} />)}
+```
+```tsx
 // Client, in any React 18+ setup
 import { useAccordion } from '@pinfold/react/accordion';
 const Faq = useAccordion({ items });

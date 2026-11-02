@@ -29,9 +29,33 @@ pinfold          CLI
 
 ## 1. The layering rule
 
-Every component, from a button to a data table, uses the same shape: `use<Name>(config)`
-returns `<Name />`, `define<Name>(config)` is its server twin, and the config is one flat object.
-A button is `const Save = useButton({ label: 'Save', onClick: save }); return <Save />`.
+Every component, from a button to a data table, has the same three entry points over one flat
+config object:
+
+| Entry point | Where | Use it for |
+| --- | --- | --- |
+| `define<Name>(preset)` | module scope, outside components (it is not a hook) | **the default.** A look you repeat, or a complete config. Returns a component whose props are any part of the config; works in loops, conditions and Server Components |
+| `<Name {...config} />` | anywhere | a one-off, with the config as props |
+| `use<Name>(config)` | inside a client component | when you need the controller (`Faq.openAll()`, `Save.setLoading()`) or parts |
+
+```tsx
+// ui/buttons.ts: the design system, written once
+export const Primary = defineButton({ tone: 'primary' });
+export const Danger = defineButton({ variant: 'soft', tone: 'danger' });
+export const Faq = defineAccordion({ variant: 'separated', mode: 'multiple' });
+
+// a screen: one line per instance, only instance data
+<Primary label="Save" onClick={save} />
+{rows.map((r) => <Danger key={r.id} label="Delete" onClick={() => remove(r.id)} />)}
+<Faq items={questions} />
+```
+
+The design rule behind it: appearance is decided once (a preset or `defaults.<name>`), instance data
+(`label`, `items`, handlers) is written where it is used, and runtime control goes through the hook.
+Composite components (dialog, card, alert, empty state) take their buttons as data (`actions`:
+an array of button configs), so a screen rarely creates a button object at all. Tag and preset
+props are split into config and root attributes by a key list that `config-keys.test.ts` keeps
+equal to the meta.
 
 Each component splits into these concerns, in this order:
 
@@ -148,10 +172,12 @@ Rules:
 
 **Precedence.** Every option of every component resolves the same way, highest first:
 
-1. the component's own config (`useButton({ size: 'lg' })`),
-2. `defaults.<component>` in the global config (`defineConfig({ defaults: { button: { size: 'sm' } } })`),
-3. the nearest `PinfoldProvider` (`size`, `tone`, `dir`),
-4. the library default (the `@default` in the types, equal to the meta default).
+1. the component's own config: use-site props of a preset (`<Danger size="lg" />`), or the hook's config,
+2. the preset (`defineButton({ size: 'sm' })`); nested maps (`classNames`, `styles`, `slotProps`,
+   `render`, `dimensions`) merge one level deep and class names add up,
+3. `defaults.<component>` in the global config (`defineConfig({ defaults: { button: { size: 'sm' } } })`),
+4. the nearest `PinfoldProvider` (`size`, `tone`, `dir`),
+5. the library default (the `@default` in the types, equal to the meta default).
 
 The hook resolves this in JavaScript (`{ ...ctx.defaults.<name>, ...config }`, then
 `config.size ?? ctx.size`) and writes the result onto the root as `data-size`, `data-tone`,
@@ -166,7 +192,8 @@ and default. It must agree with:
 | --- | --- |
 | The types (names, nested shapes, every `@default`) | `types-meta.test.ts` (TypeScript compiler API) |
 | The runtime (each enum the root reflects as `data-<option>` shows the meta default when unset, and every value reaches the DOM) | conformance, `meta` option |
-| Precedence (config > `defaults.<name>` > provider > library) | conformance, every component |
+| Precedence (use site > preset > `defaults.<name>` > provider > library) | conformance (`preset` option), every component |
+| Tag and preset props split correctly (no option leaks onto the DOM) | `config-keys.test.ts` |
 | Options with no visible effect | `inactive<Name>Options` in core, used by the dev warning and the playground |
 
 A new option is not done until all four agree. The playground and the generated code read the same

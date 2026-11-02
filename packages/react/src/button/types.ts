@@ -112,6 +112,17 @@ export type ButtonRootProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>
   [key: `data-${string}`]: unknown;
 };
 
+/** `<Button>` props: the config plus any attribute of the element. */
+export type ButtonTagProps = ButtonConfig & Omit<ButtonRootProps, keyof ButtonConfig>;
+
+/**
+ * Props of a `defineButton` preset: any part of the config, plus element attributes. `label` is
+ * required unless the preset already has one, so a button can never end up unnamed.
+ */
+export type ButtonPresetProps<P> = Omit<Partial<ButtonConfig>, 'label'> &
+  Omit<ButtonRootProps, keyof ButtonConfig> &
+  ('label' extends keyof P ? { label?: ButtonNode } : { label: ButtonNode });
+
 /** The controller: the same value that renders as `<Save />`. */
 export interface ButtonApi {
   /** Whether the button is loading right now (config, or a pending promise from `onClick`). */

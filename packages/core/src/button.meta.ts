@@ -129,7 +129,11 @@ export const buttonMeta: ComponentMeta = {
   ],
   examples: [
     {
-      title: 'Client hook',
+      title: 'Presets: define once, use in one line',
+      code: "// ui/buttons.ts\nimport { defineButton } from '@pinfold/react/button';\nexport const Primary = defineButton({ tone: 'primary' });\nexport const Danger = defineButton({ variant: 'soft', tone: 'danger' });\n\n// any component, loops included\n<Primary label=\"Save\" onClick={save} />\n{rows.map((r) => <Danger key={r.id} label=\"Delete\" onClick={() => remove(r.id)} />)}",
+    },
+    {
+      title: 'Client hook (when you need the controller)',
       code: "import { useButton } from '@pinfold/react/button';\n\nexport function SaveButton() {\n  const Save = useButton({ label: 'Save', tone: 'success', onClick: save });\n  return <Save />;\n}",
     },
     { title: 'Async: loading comes for free', code: "const Save = useButton({ label: 'Save', loadingText: 'Saving…', onClick: async () => { await api.save(); } });" },
