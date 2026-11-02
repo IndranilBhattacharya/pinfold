@@ -8,6 +8,10 @@ updates:
       dev-dependencies:
         dependency-type: development
     open-pull-requests-limit: 5
+    ignore:
+      # The declaration build (tsup, rollup-plugin-dts) needs the TypeScript 6 compiler API.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
