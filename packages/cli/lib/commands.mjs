@@ -97,7 +97,8 @@ async function commit(plan, flags, out) {
 
 /* ------------------------------------------------------------ registry */
 
-export function componentFile(name, language) {
+/** The owned file for one component. Atoms (D-23) are a tag only: no hook, no define, no config type. */
+export function componentFile(name, language, kind = 'widget') {
   const pascal = name.replace(/(^|-)([a-z])/g, (_, __, ch) => ch.toUpperCase());
   const head = [
     '/**',
@@ -106,6 +107,11 @@ export function componentFile(name, language) {
     ` * Docs: https://pinfold.indranildev.in/docs/${name}`,
     ' */',
   ];
+  if (kind === 'atom') {
+    const tag = `export { ${pascal} } from '@pinfold/react/${name}';`;
+    if (language === 'ts') return [...head, tag, `export type { ${pascal}Props } from '@pinfold/react/${name}';`, ''].join('\n');
+    return [...head, `/** @typedef {import('@pinfold/react/${name}').${pascal}Props} ${pascal}Props */`, tag, ''].join('\n');
+  }
   const values = `export { use${pascal}, define${pascal}, ${pascal} } from '@pinfold/react/${name}';`;
   if (language === 'ts') {
     return [...head, values, `export type { ${pascal}Config, ${pascal}ItemConfig, ${pascal}Api } from '@pinfold/react/${name}';`, ''].join('\n');
@@ -114,8 +120,9 @@ export function componentFile(name, language) {
 }
 
 /** Plan one component: its owned file and its stylesheet import. */
-function planComponent(plan, project, name) {
-  plan.create(posix.join(project.componentsDir, `${name}.${ext(project)}`), componentFile(name, project.language));
+function planComponent(plan, project, name, registry) {
+  const kind = registry.components.find((c) => c.name === name)?.kind;
+  plan.create(posix.join(project.componentsDir, `${name}.${ext(project)}`), componentFile(name, project.language, kind));
   if (project.entryFile) plan.update(toPosix(project.entryFile), (src) => addImports(src, ['@pinfold/css/core.css', `@pinfold/css/${name}.css`]));
 }
 
@@ -131,7 +138,7 @@ export async function add(names, flags, out, registry) {
       plan.note(`skip ${name}: not in the registry yet`);
       continue;
     }
-    planComponent(plan, project, name);
+    planComponent(plan, project, name, registry);
   }
   if (!project.entryFile) plan.note(`no entry file found: import '@pinfold/css/core.css' and each component's CSS yourself`);
   ensurePackages(project, flags, out);
@@ -174,7 +181,7 @@ export async function init(flags, out, registry, answers = {}) {
   plan.generate(themeFile, themeCss(palette));
 
   // 3. Components and their stylesheets.
-  for (const name of components) planComponent(plan, project, name);
+  for (const name of components) planComponent(plan, project, name, registry);
 
   if (project.entryFile) {
     const entry = toPosix(project.entryFile);

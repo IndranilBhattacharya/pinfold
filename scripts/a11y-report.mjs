@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Accessibility evidence for the accordion (A9, D-19), from the *built*
+ * Accessibility evidence (A9, D-19) for every built component, from the *built*
  * packages in a real browser (Chromium via Playwright). Run `npm run build` first.
  *
  *   node scripts/a11y-report.mjs            writes a11y-report/ (report.md, report.json, PNGs)
@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'a11y-report');
 const require = createRequire(import.meta.url);
-const { accordionMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
+const { accordionMeta, buttonMeta, spinnerMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
@@ -38,6 +38,27 @@ const app = await build({
       import { createRoot } from 'react-dom/client';
       import { PinfoldProvider } from '@pinfold/react';
       import { useAccordion } from '@pinfold/react/accordion';
+      import { Button } from '@pinfold/react/button';
+      import { Spinner } from '@pinfold/react/spinner';
+      // Atoms: every variant x tone (contrast), plus disabled, loading, icon-only, link, sizes.
+      function Buttons() {
+        const e = React.createElement;
+        const tones = ['primary', 'neutral', 'success', 'warning', 'danger', 'info'];
+        const icon = e('svg', { viewBox: '0 0 16 16', width: 16, height: 16 }, e('path', { d: 'M3 8h10M8 3v10', stroke: 'currentColor' }));
+        return e('section', { 'aria-label': 'buttons' }, e('h2', null, 'Buttons'),
+          ...['solid', 'soft', 'outline', 'ghost', 'link'].map((variant) =>
+            e('p', { key: variant }, ...tones.map((tone) => e(Button, { key: tone, variant, tone }, variant + ' ' + tone)))),
+          e('p', null,
+            e(Button, { id: 'button-disabled', disabled: true }, 'Disabled'),
+            e(Button, { loading: true, loadingText: 'Saving' }, 'Save'),
+            e(Button, { icon, 'aria-label': 'Add' }),
+            e(Button, { icon, variant: 'ghost', 'aria-label': 'Add more' }),
+            e(Button, { href: '#top', target: '_blank' }, 'Docs'),
+            e(Button, { size: 'sm' }, 'Small'),
+            e(Button, { size: 'lg', endIcon: icon }, 'Large')),
+          e('p', null, e(Spinner), e(Spinner, { tone: 'success', label: 'Uploading' }), e(Spinner, { label: '' }), ' Loading text'),
+        );
+      }
       const items = [
         { id: 'a', title: 'Shipping', description: 'Rates and times', badge: 'New', content: React.createElement('p', null, 'Ships in 2 days. ', React.createElement('a', { href: '#a' }, 'Rates')) },
         { id: 'b', title: 'Returns', content: React.createElement('p', null, '30 days. ', React.createElement('a', { href: '#b', id: 'closed-link' }, 'Policy')) },
@@ -62,6 +83,7 @@ const app = await build({
           React.createElement('h1', null, 'Pinfold accordion: accessibility fixture'),
           ...cases.map((c) => React.createElement(Faq, { key: c.label, ...c })),
           React.createElement(PinfoldProvider, { dir: 'rtl', stylePack: 'glass' }, React.createElement(Faq, { label: 'rtl glass', dir: 'rtl' })),
+          React.createElement(Buttons),
         );
       }
       createRoot(document.getElementById('root')).render(React.createElement(App));
@@ -75,6 +97,8 @@ const app = await build({
     '@pinfold/core': './packages/core/dist/index.js',
     '@pinfold/react': './packages/react/dist/index.js',
     '@pinfold/react/accordion': './packages/react/dist/accordion/index.js',
+    '@pinfold/react/button': './packages/react/dist/button/index.js',
+    '@pinfold/react/spinner': './packages/react/dist/spinner/index.js',
   },
   logLevel: 'silent',
 });
@@ -122,6 +146,15 @@ for (const scheme of ['light', 'dark']) {
   check(`axe WCAG 2.2 AA + best practices, ${scheme} mode`, res.violations.length === 0, `${res.passes.length} rules pass, ${res.violations.length} violations`);
   await page.screenshot({ path: join(outDir, `${scheme}.png`), fullPage: true });
   results.snapshots.push(`${scheme}.png`);
+  await page.close();
+}
+
+// Atoms: a disabled button stays in the tab order and swallows activation.
+{
+  const page = await open();
+  await page.focus('#button-disabled');
+  const focused = await page.evaluate(() => document.activeElement?.id);
+  check('Button: disabled stays focusable (aria-disabled, no disabled attribute)', focused === 'button-disabled');
   await page.close();
 }
 
@@ -204,7 +237,7 @@ await browser.close();
 const failed = results.checks.filter((c) => !c.pass);
 const violations = Object.values(results.axe).flatMap((r) => r.violations);
 const md = [
-  '# Accordion accessibility report',
+  '# Accessibility report: accordion, button, spinner',
   '',
   `Generated ${new Date().toISOString()} by \`scripts/a11y-report.mjs\` on the built packages, in Chromium.`,
   `Pattern: ${accordionMeta.pattern}`,
@@ -230,6 +263,7 @@ const md = [
   '',
   ...accordionMeta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
   '',
+  ...[buttonMeta, spinnerMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
   '## Snapshots',
   '',
   ...results.snapshots.map((s) => `- ![${s}](${s})`),

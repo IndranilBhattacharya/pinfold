@@ -12,7 +12,9 @@
     "accessibility",
     "aria",
     "design-system",
-    "pinfold"
+    "pinfold",
+    "button",
+    "spinner"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -58,6 +60,26 @@
         "default": "./dist/accordion/lazy.cjs"
       }
     },
+    "./button": {
+      "import": {
+        "types": "./dist/button/index.d.ts",
+        "default": "./dist/button/index.js"
+      },
+      "require": {
+        "types": "./dist/button/index.d.cts",
+        "default": "./dist/button/index.cjs"
+      }
+    },
+    "./spinner": {
+      "import": {
+        "types": "./dist/spinner/index.d.ts",
+        "default": "./dist/spinner/index.js"
+      },
+      "require": {
+        "types": "./dist/spinner/index.d.cts",
+        "default": "./dist/spinner/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -67,12 +89,20 @@
       ],
       "accordion/lazy": [
         "./dist/accordion/lazy.d.cts"
+      ],
+      "button": [
+        "./dist/button/index.d.cts"
+      ],
+      "spinner": [
+        "./dist/spinner/index.d.cts"
       ]
     }
   },
   "files": [
     "dist",
     "accordion",
+    "button",
+    "spinner",
     "registry",
     "schema",
     "llms.txt",

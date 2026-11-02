@@ -1,5 +1,5 @@
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { defineConfig, type Options } from 'tsup';
 import type { Plugin } from 'esbuild';
 
@@ -9,9 +9,10 @@ import type { Plugin } from 'esbuild';
  * 1. Client modules (`client`, `accordion/client`, `accordion/lazy`) get a
  *    'use client' banner. Code splitting puts shared modules (provider,
  *    hooks) in common chunks, so every subpath sees one React context.
- * 2. Barrels (`index`, `accordion/index`) stay server-safe: they hold
- *    `defineConfig` / `defineAccordion` and re-export their sibling client
- *    module, which is kept external (`./client` -> `./client.js`).
+ * 2. Barrels (every `index`) stay server-safe: they hold `defineConfig` /
+ *    `defineAccordion` and re-export their sibling client module, which is kept
+ *    external (`./client` -> `./client.js`). Atoms (D-23: button, spinner) have
+ *    no client module at all; their barrel is the whole component.
  *
  * Entry names must match package.json `exports`.
  */
@@ -24,13 +25,12 @@ const keepClientExternal = (ext: string): Plugin => ({
 
 /** tsup's ESM-to-CJS pass for split chunks drops the banner; put it back on every client .cjs file. */
 function directiveOnClientCjs() {
-  const barrels = new Set(['index.cjs', join('accordion', 'index.cjs')]);
   const walk = (dir: string): string[] =>
     readdirSync(join('dist', dir), { withFileTypes: true }).flatMap((e) =>
       e.isDirectory() ? walk(join(dir, e.name)) : e.name.endsWith('.cjs') ? [join(dir, e.name)] : [],
     );
   for (const file of walk('')) {
-    if (barrels.has(file)) continue;
+    if (basename(file) === 'index.cjs') continue; // barrels stay server-safe
     const code = readFileSync(join('dist', file), 'utf8');
     if (!code.startsWith("'use client'") && !code.startsWith('"use client"')) {
       writeFileSync(join('dist', file), '"use client";\n' + code);
@@ -63,7 +63,12 @@ export default defineConfig([
       format: [format],
       // One declaration build is enough for both formats; tsup names them .d.ts / .d.cts.
       dts: true,
-      entry: { index: 'src/index.ts', 'accordion/index': 'src/accordion/index.ts' },
+      entry: {
+        index: 'src/index.ts',
+        'accordion/index': 'src/accordion/index.ts',
+        'button/index': 'src/button/index.ts',
+        'spinner/index': 'src/spinner/index.ts',
+      },
       splitting: false,
       esbuildPlugins: [keepClientExternal(format === 'esm' ? '.js' : '.cjs')],
     }),

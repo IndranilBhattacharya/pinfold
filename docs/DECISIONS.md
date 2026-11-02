@@ -123,3 +123,12 @@ Format: **D-nn · title** · date · status. Then: the decision, why, and what w
 - Publish to npm now, starting with the accordion (0.1.0 on `latest`), and publish again as each new component is finished. Components are still built one at a time, each researched and specified first.
 - Why: the owner prefers to ship early and grow in public. Versions below 1.0.0 signal that the API may still change.
 - The first publish of each package is manual (a package must exist before a trusted publisher can be attached); every later release goes through `release.yml` with trusted publishing and provenance.
+
+**D-23 · Two component kinds: atoms and widgets** · 2026-11-02 · Locked (amends D-07)
+- **Widgets** (stateful or collection components: accordion, tabs, dialog, select…) keep D-07: `use<Name>` returns the component, controller and parts; `define<Name>` is the server twin; `<Name>` is the courtesy tag; all five rungs of the ladder.
+- **Atoms** (stateless: button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress) are a tag only: `<Button tone="danger" loading={busy}>Delete</Button>`. `children` carries the content. They take the shared appearance props, rungs 1–3 of the ladder (`classNames`, `styles`, `slotProps`, `render` per slot; `render.root` swaps the element, e.g. a router link) and `unstyled`. Any other attribute goes to the element.
+- Atoms use no hooks and have no `'use client'`, so they render in Server Components and ship no client JavaScript of their own.
+- Because a Server Component cannot read React context, an atom's unset `size` and `tone` come from the nearest provider **through CSS**: the provider writes `data-pinfold-size` / `data-pinfold-tone`, which set the shared `--pinfold-control-*` and `--pinfold-tone-*` tokens; an atom's own `data-size` / `data-tone` sets the same tokens on itself. Theme, radius and style pack already worked this way.
+- Consequence: `defaults.<atom>` in `pinfold.config` is not supported (only size, tone, radius, theme and style pack reach atoms). To change an atom's default variant app-wide, re-export a wrapped tag from the owned file (`components/ui/button.tsx`).
+- Why: a hook that returns a component adds API, docs and tests to a button with no gain, and server-safe atoms keep pages light.
+- Rejected: the use/define pair for every component (no user benefit); atoms as client components reading context (every badge and card would hydrate).

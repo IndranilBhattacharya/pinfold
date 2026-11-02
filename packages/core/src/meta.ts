@@ -9,6 +9,8 @@
  */
 
 import { accordionMeta } from './accordion.meta';
+import { buttonMeta } from './button.meta';
+import { spinnerMeta } from './spinner.meta';
 
 export type PropType =
   | 'string'
@@ -54,6 +56,11 @@ export interface PropMeta {
 export interface ComponentMeta {
   name: string;
   displayName: string;
+  /**
+   * `atom`: a stateless tag (`<Button>`), server-safe, children allowed (D-23).
+   * `widget` (the default): `use<Name>` / `define<Name>` / tag over a config object.
+   */
+  kind?: 'atom' | 'widget';
   description: string;
   /** WAI-ARIA APG pattern URL. */
   pattern: string;
@@ -246,6 +253,8 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
     title: `${meta.displayName}Config`,
     description: meta.description,
     ...shape(meta.props),
+    // An atom also takes any attribute of its element (`onClick`, `aria-*`, `form`…).
+    ...(meta.kind === 'atom' ? { additionalProperties: true } : {}),
   };
 }
 
@@ -276,9 +285,11 @@ export function metaToMarkdown(meta: ComponentMeta): string {
     ...meta.examples.flatMap((e) => [`## ${e.title}`, '', '```tsx', e.code, '```', '']),
     '## Options',
     '',
-    'Only `items` is required. Every other option has a default; global defaults come from `defineConfig({ defaults: { ' +
-      meta.name +
-      ': {...} } })`.',
+    meta.kind === 'atom'
+      ? 'Every option is optional. Any other attribute of the element (`onClick`, `aria-*`, `id`…) is passed through. Unset `size` and `tone` inherit the nearest `PinfoldProvider` through CSS, so this works in Server Components.'
+      : 'Only `items` is required. Every other option has a default; global defaults come from `defineConfig({ defaults: { ' +
+        meta.name +
+        ': {...} } })`.',
     '',
     table(meta.props),
     '',
@@ -303,5 +314,5 @@ export function metaToMarkdown(meta: ComponentMeta): string {
 }
 
 /** Every component's meta. Tooling iterates this. */
-export const componentMetas: readonly ComponentMeta[] = [accordionMeta];
-export { accordionMeta };
+export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta];
+export { accordionMeta, buttonMeta, spinnerMeta };

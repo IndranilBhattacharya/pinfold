@@ -3,7 +3,7 @@
 **Rule:** milestones run in order; each one is verified (`npm run verify`, CI green) before the next starts.
 Milestones A1–A9 apply to the **accordion only**. Component #2 starts after A9.
 
-Current milestone: **A1–A8 complete, A9 automated evidence complete (2026-11-01).** Open: the manual screen-reader pass (A9), then component #2.
+Current milestone: **component round 1 (Button + Spinner), experimental (2026-11-02).** A1–A9 automated evidence is complete; the manual screen-reader pass (A9) stays open.
 
 ## Component lifecycle
 
@@ -71,6 +71,38 @@ Current milestone: **A1–A8 complete, A9 automated evidence complete (2026-11-0
 - [x] Zero known vulnerabilities: `rimraf` removed; `npm audit` gates CI and the release, and the consumer smoke test audits what a user installs.
 - [x] `scripts/publish.mjs`: the release publishes only versions that are not on npm yet.
 
-## After A9
-- Component #2, most likely dialog or popover, because it forces the overlay and positioning layer to exist. Then the next components, one at a time.
-- Before the public launch: the trademark search, an npm org check, the launch essay, and the shadcn index listing.
+## Components
+
+Deduplicated from shadcn/ui, HeroUI and MUI, filtered for modern use, ordered so shared
+infrastructure lands first. One round per component (tiny atoms share a round); the owner reviews
+each in the playground before the next starts. **Kind** is D-23: atoms are tags, widgets are hooks.
+
+| Wave | Round | Component | Kind | Status |
+|---|---|---|---|---|
+| W1 atoms | 1 | Button (+ Spinner) | atom | experimental |
+| | 2 | Separator, Kbd, Skeleton | atom | Planned |
+| | 3 | Badge (+ count/dot) | atom | Planned |
+| | 4 | Alert | atom | Planned |
+| | 5 | Avatar (+ group) | atom | Planned |
+| | 6 | Card | atom | Planned |
+| | 7 | Progress (+ meter) | atom | Planned |
+| W2 overlays | 8–12 | Tooltip, Popover (+ hover card), Dialog (+ alert dialog, sheet placements), Menu (dropdown + context), Toast | widget | Planned |
+| W3 forms | 13–20 | Field + Input (group, textarea, search), Checkbox (+ group), Radio group, Switch, Toggle + Toggle group + Button group, Slider, Number field, Input OTP | widget | Planned |
+| W4 navigation | 21–24 | Tabs, Breadcrumb, Pagination, Stepper | widget | Planned |
+| W5 collections | 25–28 | Select (+ native), Combobox, Tag group, Command | widget | Planned |
+| W6 data and dates | 29–31 | Table (data table), Calendar (single/range), Date picker | widget | Planned |
+| W7 on demand | | Carousel, Resizable, Navigation menu, Sidebar, Empty, Timeline, Color picker, Rating | | Planned, if asked for |
+
+Shared layers built on the way: the overlay layer in core (W2: top layer through native
+`<dialog>` and the Popover API, CSS anchor positioning, a dismiss stack, focus trap and restore,
+scroll lock), field wiring and native validation (W3), a listbox engine with typeahead (W5), and
+date math on `Intl` (W6). No runtime dependencies at any point.
+
+Left out on purpose: Aspect Ratio, Box/Container/Grid/Stack, Image List, Masonry, Typography, Link,
+Scroll Area (native CSS or HTML does it); Direction (the provider's `dir`); Icons, Chart, Code
+Block (they need dependencies); App Bar, Bottom Navigation, Speed Dial, FAB (Button and Tabs cover
+them); Transfer List, Menubar (niche); a chat kit (attachment, message, bubble) is a separate
+future package.
+
+## Before the public launch
+- The trademark search, an npm org check, the launch essay, and the shadcn index listing.

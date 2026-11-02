@@ -22,7 +22,7 @@ import { describe as describeProject, detect } from '../lib/detect.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REGISTRY = JSON.parse(readFileSync(join(HERE, '..', 'registry.json'), 'utf8'));
-const TEMPLATES = join(HERE, '..', 'templates', 'component');
+const TEMPLATES = join(HERE, '..', 'templates');
 
 const tty = process.stdout.isTTY && !process.env.NO_COLOR;
 const paint = (code) => (s) => (tty ? `\x1b[${code}m${s}\x1b[0m` : String(s));
@@ -114,7 +114,8 @@ function list() {
   console.log(color.bold('\n  Available\n'));
   for (const x of REGISTRY.components) {
     console.log(`  ${color.accent(x.name.padEnd(14))}${x.description}`);
-    console.log(`  ${''.padEnd(14)}${color.dim(`variants: ${x.variants.join(', ')} · hook: ${x.hook}()`)}`);
+    const api = x.kind === 'atom' ? `tag: <${x.name[0].toUpperCase()}${x.name.slice(1)}>` : `hook: ${x.hook}()`;
+    console.log(`  ${''.padEnd(14)}${color.dim([x.variants.length ? `variants: ${x.variants.join(', ')}` : '', api].filter(Boolean).join(' · '))}`);
   }
   console.log(color.bold('\n  Planned\n'));
   console.log('  ' + color.dim(REGISTRY.planned.join(', ')) + '\n');
@@ -147,8 +148,11 @@ function scaffold(name, flags) {
       else writeFileSync(dest, apply(readFileSync(src, 'utf8')));
     }
   };
-  copy(join(TEMPLATES, 'react'), reactDir);
-  writeFileSync(cssFile, apply(readFileSync(join(TEMPLATES, 'css', '__NAME__.css.tmpl'), 'utf8')));
+  // --atom (D-23): a stateless, server-safe tag; otherwise a hook-first widget.
+  const atom = flags.atom === true;
+  const set = join(TEMPLATES, atom ? 'atom' : 'component');
+  copy(join(set, 'react'), reactDir);
+  writeFileSync(cssFile, apply(readFileSync(join(set, 'css', '__NAME__.css.tmpl'), 'utf8')));
 
   // The exports map drives the tsup entries and the webpack-4 stubs.
   const pkg = JSON.parse(readFileSync(pkgFile, 'utf8'));
@@ -157,16 +161,21 @@ function scaffold(name, flags) {
     require: { types: `./dist/${p}.d.cts`, default: `./dist/${p}.cjs` },
   });
   const { ['./package.json']: pkgJson, ...rest } = pkg.exports;
-  pkg.exports = { ...rest, [`./${name}`]: sub(`${name}/index`), [`./${name}/lazy`]: sub(`${name}/lazy`), './package.json': pkgJson };
+  const lazy = atom ? {} : { [`./${name}/lazy`]: sub(`${name}/lazy`) };
+  pkg.exports = { ...rest, [`./${name}`]: sub(`${name}/index`), ...lazy, './package.json': pkgJson };
   pkg.typesVersions['*'][name] = [`./dist/${name}/index.d.cts`];
-  pkg.typesVersions['*'][`${name}/lazy`] = [`./dist/${name}/lazy.d.cts`];
+  if (!atom) pkg.typesVersions['*'][`${name}/lazy`] = [`./dist/${name}/lazy.d.cts`];
   pkg.files = [...new Set([...pkg.files, name])];
   writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + '\n');
 
   console.log(`\n  ${color.ok('created')} ${reactDir}\n  ${color.ok('created')} ${cssFile}`);
   console.log(`  ${color.ok('wired')}   @pinfold/react/${name} in packages/react/package.json\n`);
   console.log(`  Next: write docs/components/${name}.md, implement the WAI-ARIA pattern, add the`);
-  console.log(`  client/define split and the tsup entries, register it, then ${color.accent('npm run verify')}\n`);
+  console.log(
+    atom
+      ? `  tsup barrel entry, the meta and the size budget, register it, then ${color.accent('npm run verify')}\n`
+      : `  client/define split and the tsup entries, register it, then ${color.accent('npm run verify')}\n`,
+  );
 }
 
 function help() {
@@ -181,7 +190,7 @@ function help() {
   ${color.accent('doctor')}
   ${color.accent('palette')}  preview every built-in hue
   ${color.accent('list')}     show the registry
-  ${color.accent('new')}      <name> [--root path]   scaffold a component (repo contributors)
+  ${color.accent('new')}      <name> [--atom] [--root path]   scaffold a component (repo contributors)
 
   Hues: ${color.dim(Object.keys(HUES).join(', '))}. Any 0-360 number works too.
 `);

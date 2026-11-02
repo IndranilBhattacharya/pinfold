@@ -54,6 +54,12 @@ const html = renderToString(React.createElement(Accordion, {
 for (const text of ['Alpha', 'Alpha body', 'Beta body', 'aria-expanded', 'pinfold-accordion']) {
   if (!html.includes(text)) throw new Error('server HTML is missing ' + JSON.stringify(text) + ':\\n' + html);
 }
+const { Button } = ${load('@pinfold/react/button')};
+const { Spinner } = ${load('@pinfold/react/spinner')};
+const atoms = renderToString(React.createElement('div', null, React.createElement(Button, { tone: 'danger' }, 'Go'), React.createElement(Spinner)));
+for (const text of ['pinfold-button', 'data-tone="danger"', '>Go<', 'role="status"']) {
+  if (!atoms.includes(text)) throw new Error('atom HTML is missing ' + JSON.stringify(text) + ':\\n' + atoms);
+}
 if (!createTheme({ primary: 'emerald' }).vars['--pinfold-primary-500']) throw new Error('palette broken');
 console.log('ok', ${JSON.stringify(pm)}, React.version);
 `;

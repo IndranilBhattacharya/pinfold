@@ -348,6 +348,79 @@
   [data-pinfold-density="comfortable"] { --pinfold-density: 1; }
   [data-pinfold-density="spacious"] { --pinfold-density: 1.25; }
 
+  /* Control sizes, shared by every control (D-23). The nearest provider size
+     (`data-pinfold-size`) or a component's own `data-size` redeclares the whole set,
+     so the closest one wins, with no JS and in Server Components too. */
+  :root,
+  [data-pinfold-size="md"],
+  [data-size="md"] {
+    --pinfold-control-height: 2.5rem;
+    --pinfold-control-pad-x: var(--pinfold-space-4);
+    --pinfold-control-gap: var(--pinfold-space-2);
+    --pinfold-control-text: var(--pinfold-text-sm);
+    --pinfold-control-icon: 1.125rem;
+    --pinfold-control-radius-unit: 0.5rem;
+  }
+  [data-pinfold-size="sm"],
+  [data-size="sm"] {
+    --pinfold-control-height: 2rem;
+    --pinfold-control-pad-x: var(--pinfold-space-3);
+    --pinfold-control-gap: var(--pinfold-space-1);
+    --pinfold-control-text: var(--pinfold-text-xs);
+    --pinfold-control-icon: 1rem;
+    --pinfold-control-radius-unit: 0.375rem;
+  }
+  [data-pinfold-size="lg"],
+  [data-size="lg"] {
+    --pinfold-control-height: 3rem;
+    --pinfold-control-pad-x: var(--pinfold-space-5);
+    --pinfold-control-gap: var(--pinfold-space-2);
+    --pinfold-control-text: var(--pinfold-text-md);
+    --pinfold-control-icon: 1.25rem;
+    --pinfold-control-radius-unit: 0.625rem;
+  }
+
+  /* Tones (D-23): the nearest provider tone or a component's own `data-tone`.
+     Components read them with the primary accent as fallback, so `primary`
+     clears them (`initial`) and each element resolves its own theme's accent.
+     The status roles flip with the colour scheme through light-dark(). */
+  [data-pinfold-tone="primary"],
+  [data-tone="primary"] {
+    --pinfold-tone-solid: initial;
+    --pinfold-tone-on: initial;
+    --pinfold-tone-text: initial;
+  }
+  [data-pinfold-tone="neutral"],
+  [data-tone="neutral"] {
+    --pinfold-tone-solid: light-dark(var(--pinfold-neutral-900), var(--pinfold-neutral-100));
+    --pinfold-tone-on: light-dark(oklch(1 0 0), var(--pinfold-neutral-950));
+    --pinfold-tone-text: light-dark(var(--pinfold-neutral-900), var(--pinfold-neutral-100));
+  }
+  [data-pinfold-tone="success"],
+  [data-tone="success"] {
+    --pinfold-tone-solid: light-dark(var(--pinfold-success-700), var(--pinfold-success-300));
+    --pinfold-tone-on: light-dark(oklch(1 0 0), var(--pinfold-neutral-950));
+    --pinfold-tone-text: light-dark(var(--pinfold-success-700), var(--pinfold-success-300));
+  }
+  [data-pinfold-tone="warning"],
+  [data-tone="warning"] {
+    --pinfold-tone-solid: light-dark(var(--pinfold-warning-700), var(--pinfold-warning-300));
+    --pinfold-tone-on: light-dark(oklch(1 0 0), var(--pinfold-neutral-950));
+    --pinfold-tone-text: light-dark(var(--pinfold-warning-700), var(--pinfold-warning-300));
+  }
+  [data-pinfold-tone="danger"],
+  [data-tone="danger"] {
+    --pinfold-tone-solid: light-dark(var(--pinfold-danger-700), var(--pinfold-danger-300));
+    --pinfold-tone-on: light-dark(oklch(1 0 0), var(--pinfold-neutral-950));
+    --pinfold-tone-text: light-dark(var(--pinfold-danger-700), var(--pinfold-danger-300));
+  }
+  [data-pinfold-tone="info"],
+  [data-tone="info"] {
+    --pinfold-tone-solid: light-dark(var(--pinfold-info-700), var(--pinfold-info-300));
+    --pinfold-tone-on: light-dark(oklch(1 0 0), var(--pinfold-neutral-950));
+    --pinfold-tone-text: light-dark(var(--pinfold-info-700), var(--pinfold-info-300));
+  }
+
   /* Browsers without color-mix get flat approximations rather than nothing. */
   @supports not (color: color-mix(in oklch, red, blue)) {
     :root {
