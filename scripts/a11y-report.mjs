@@ -41,15 +41,17 @@ const app = await build({
       import { Button } from '@pinfold/react/button';
       import { Spinner } from '@pinfold/react/spinner';
       // Buttons: every variant x tone (contrast), plus disabled, loading, icon-only, link, sizes.
-      function Buttons() {
+      function Buttons({ pack = 'default' }) {
+        const first = pack === 'default';
         const e = React.createElement;
         const tones = ['primary', 'neutral', 'success', 'warning', 'danger', 'info'];
         const icon = e('svg', { viewBox: '0 0 16 16', width: 16, height: 16 }, e('path', { d: 'M3 8h10M8 3v10', stroke: 'currentColor' }));
-        return e('section', { 'aria-label': 'buttons' }, e('h2', null, 'Buttons'),
+        return e('section', { 'aria-label': 'buttons, ' + pack + ' pack' }, e('h2', null, 'Buttons (' + pack + ')'),
           ...['solid', 'soft', 'outline', 'ghost', 'link'].map((variant) =>
             e('p', { key: variant }, ...tones.map((tone) => e(Button, { key: tone, variant, tone, label: variant + ' ' + tone })))),
           e('p', null,
-            e(Button, { label: 'Disabled', disabled: true, slotProps: { root: { id: 'button-disabled' } } }),
+            e(Button, { label: 'Disabled', disabled: true, slotProps: { root: { id: first ? 'button-disabled' : undefined } } }),
+            e(Button, { label: 'Focus probe', slotProps: { root: { id: first ? 'button-solid' : undefined } } }),
             e(Button, { label: 'Save', loading: true, loadingText: 'Saving' }),
             e(Button, { label: 'Add', icon, iconOnly: true }),
             e(Button, { label: 'Add more', icon, iconOnly: true, variant: 'ghost' }),
@@ -57,7 +59,7 @@ const app = await build({
             e(Button, { label: 'Small', size: 'sm' }),
             e(Button, { label: 'Large', size: 'lg', endIcon: icon }),
             ...['soft', 'outline'].map((variant) => e(Button, { key: variant, label: 'Saving ' + variant, variant, loading: true }))),
-          e('p', null, e(Spinner), e(Spinner, { tone: 'success', label: 'Uploading' }), e(Spinner, { label: '', tone: 'current' }), ' Loading text'),
+          e('p', null, ...['ring', 'arc', 'dots', 'bars', 'pulse', 'orbit'].map((variant) => e(Spinner, { key: variant, variant, label: 'Loading ' + variant })), e(Spinner, { tone: 'success', label: 'Uploading' }), e(Spinner, { label: '', tone: 'current' }), ' Loading text'),
         );
       }
       const items = [
@@ -85,6 +87,7 @@ const app = await build({
           ...cases.map((c) => React.createElement(Faq, { key: c.label, ...c })),
           React.createElement(PinfoldProvider, { dir: 'rtl', stylePack: 'glass' }, React.createElement(Faq, { label: 'rtl glass', dir: 'rtl' })),
           React.createElement(Buttons),
+          ...['glass', 'material', 'noise', 'brutalist'].map((pack) => React.createElement(PinfoldProvider, { key: pack, stylePack: pack }, React.createElement(Buttons, { pack }))),
         );
       }
       createRoot(document.getElementById('root')).render(React.createElement(App));
@@ -156,6 +159,12 @@ for (const scheme of ['light', 'dark']) {
   await page.focus('#button-disabled');
   const focused = await page.evaluate(() => document.activeElement?.id);
   check('Button: disabled stays focusable (aria-disabled, no disabled attribute)', focused === 'button-disabled');
+  // Keyboard focus (Tab), so :focus-visible applies; a variant shadow must never replace the ring.
+  await page.focus('#button-disabled');
+  await page.keyboard.press('Tab');
+  await page.waitForTimeout(400); // let the box-shadow transition finish
+  const ring = await page.evaluate(() => ({ id: document.activeElement?.id, shadow: getComputedStyle(document.activeElement).boxShadow }));
+  check('Button: a focused solid button shows the focus ring', ring.id === 'button-solid' && /0px 0px 0px [1-9]/.test(ring.shadow), ring.shadow);
   await page.close();
 }
 

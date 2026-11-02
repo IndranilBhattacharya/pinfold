@@ -30,11 +30,17 @@ describe('Spinner', () => {
     expect(root.getAttribute('data-tone')).toBe('current');
   });
 
+  it('renders the moving parts each variant needs', () => {
+    const parts = (variant: string) => render(<Spinner variant={variant as never} />).container.querySelectorAll('.pinfold-spinner__part').length;
+    expect([parts('ring'), parts('arc'), parts('dots'), parts('bars'), parts('pulse'), parts('orbit')]).toEqual([0, 0, 3, 4, 2, 1]);
+  });
+
   it('maps dimensions onto its variables', () => {
-    const { container } = render(<Spinner dimensions={{ size: 32, thickness: '3px' }} />);
+    const { container } = render(<Spinner dimensions={{ size: 32, thickness: '3px', duration: '2s' }} />);
     const root = container.firstElementChild as HTMLElement;
     expect(root.style.getPropertyValue('--pinfold-spinner-size')).toBe('32px');
     expect(root.style.getPropertyValue('--pinfold-spinner-thickness')).toBe('3px');
+    expect(root.style.getPropertyValue('--pinfold-spinner-duration')).toBe('2s');
   });
 
   it('defineSpinner renders on the server', () => {
@@ -45,7 +51,6 @@ describe('Spinner', () => {
 
 describePinfoldConformance({
   name: 'spinner',
-  variants: false,
   slots: ['root'],
   dimension: { key: 'size', value: 24 },
   cssFile: 'packages/css/src/spinner.css',

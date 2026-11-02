@@ -5,6 +5,9 @@ import { usePinfoldComponent } from '../component';
 import { renderSlot, slotProps } from '../slots';
 import type { SpinnerApi, SpinnerComponent, SpinnerConfig, SpinnerRootProps, SpinnerState } from './types';
 
+/** Moving parts per variant (the rest are drawn by the root alone). */
+const PARTS: Record<SpinnerState['variant'], number> = { ring: 0, arc: 0, dots: 3, bars: 4, pulse: 2, orbit: 1 };
+
 /**
  * An indeterminate loading indicator, as a hook that hands back a component.
  *
@@ -25,7 +28,7 @@ export function useSpinner(input: SpinnerConfig = {}): SpinnerComponent {
   }
 
   const label = config.label ?? 'Loading';
-  const state: SpinnerState = { size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, decorative: label === '' };
+  const state: SpinnerState = { variant: config.variant ?? 'ring', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, decorative: label === '' };
 
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
@@ -33,6 +36,7 @@ export function useSpinner(input: SpinnerConfig = {}): SpinnerComponent {
         role: state.decorative ? undefined : 'status',
         'aria-label': state.decorative ? undefined : label,
         'aria-hidden': state.decorative || undefined,
+        'data-variant': state.variant,
         'data-size': state.size,
         'data-tone': state.tone,
         // Opts out of the reset's reduced-motion kill: it slows down instead of freezing.
@@ -57,7 +61,12 @@ export function useSpinner(input: SpinnerConfig = {}): SpinnerComponent {
         ),
       ),
     );
-    return renderSlot(config, 'root', root, state, null, (p) => <span {...p} />) as React.ReactElement;
+    // Moving parts for the variants that need them (dots, bars, pulse, orbit); decorative.
+    const count = PARTS[state.variant];
+    const parts = count
+      ? Array.from({ length: count }, (_, i) => <span key={i} className={config.unstyled ? undefined : 'pinfold-spinner__part'} />)
+      : null;
+    return renderSlot(config, 'root', root, state, parts, (p, c) => <span {...p}>{c}</span>) as React.ReactElement;
   };
 
   const api: SpinnerApi = { getRootProps, render };

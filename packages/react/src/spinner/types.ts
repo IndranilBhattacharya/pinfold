@@ -4,11 +4,13 @@ import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
 export type SpinnerSlot = 'root';
+export type SpinnerVariant = 'ring' | 'arc' | 'dots' | 'bars' | 'pulse' | 'orbit';
 /** A colour role, or `current` to follow the surrounding text colour. */
 export type SpinnerTone = PinfoldTone | 'current';
 
 /** Passed to the `render.root` override. */
 export interface SpinnerState {
+  variant: SpinnerVariant;
   size: PinfoldSize;
   tone: SpinnerTone;
   /** `label: ''`: no role, hidden from assistive tech. */
@@ -18,6 +20,7 @@ export interface SpinnerState {
 export interface SpinnerDimensions {
   size?: Length;
   thickness?: Length;
+  duration?: Length;
 }
 
 /**
@@ -30,6 +33,11 @@ export interface SpinnerConfig extends SlotOverrides<SpinnerSlot, SpinnerState> 
    * @default 'Loading'
    */
   label?: string;
+  /**
+   * The animation.
+   * @default 'ring'
+   */
+  variant?: SpinnerVariant;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

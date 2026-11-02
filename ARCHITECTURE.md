@@ -305,7 +305,9 @@ the CLI, the build and the runtime share one implementation.
 - **Dark mode flips the semantic layer only.** The ramps are untouched.
 - **Contrast is reported, not assumed:** `createTheme().contrast` and `npx pinfold theme --check`.
 - **Style packs** (glass, material, noise, brutalist) are token and surface recipes behind
-  `data-pinfold-style`. They are never forks of the components, and they follow the palette: every
+  `data-pinfold-style`. Controls read the pack's control tokens (`--pinfold-control-edge`,
+  `-shadow`, `-surface`, `-press`, `-glow`, `-round`), each with a fallback, so a new control
+  follows every pack without per-pack CSS. They are never forks of the components, and they follow the palette: every
   colour a pack sets is mixed from palette tokens (a test fails on a literal colour). Each one respects `prefers-contrast`,
   `prefers-reduced-transparency` and `forced-colors`, and must pass the contrast check.
 
