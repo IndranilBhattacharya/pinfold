@@ -4,18 +4,17 @@ The contract every Pinfold component follows. Read this once and you can add
 the next twelve components without inventing a single decision.
 
 > Anything not built yet is marked **Planned**.
-> Each decision is referenced as D-nn ([docs/DECISIONS.md](docs/DECISIONS.md)).
 
 ---
 
-## 0. Layers and packages (D-04, D-05)
+## 0. Layers and packages
 
 ```
 @pinfold/core    no framework: utils, variants, keyboard nav, dimensions, dev warnings, palette, types,
                <name>.logic.ts (rules), <name>.meta.ts (metadata), meta.ts (validator, JSON schema)
 @pinfold/css     tokens.css, reset.css, <name>.css, packs.css (style packs), shadcn.css (variable bridge),
                Tailwind v3 preset + v4 theme
-@pinfold/react   widgets: use<Name>, define<Name>, <Name> tag, <Name>View; atoms: <Name> tag (D-23);
+@pinfold/react   widgets: use<Name>, define<Name>, <Name> tag, <Name>View; atoms: <Name> tag;
                PinfoldProvider, defineConfig
 pinfold          CLI
 ```
@@ -31,7 +30,7 @@ pinfold          CLI
 
 ## 1. The layering rule
 
-**Two kinds of component (D-23).** *Widgets* (stateful or collection: accordion, tabs, dialog,
+**Two kinds of component.** *Widgets* (stateful or collection: accordion, tabs, dialog,
 select) follow everything below. *Atoms* (stateless: button, spinner, badge, card…) are one tag,
 `<Button tone="danger">Delete</Button>`, with `children` for content:
 
@@ -81,7 +80,7 @@ with the real compiler). Each hook render bumps a per-instance version; the comp
 subscribe through `useSyncExternalStore` and re-render after commit if they missed it. Without a
 memoising parent the snapshot already matches, so there is no extra render.
 
-**Server Components (D-07).** Hooks can't run in a Server Component, so
+**Server Components.** Hooks can't run in a Server Component, so
 `define<Name>(config)` is a plain function. It returns a component that renders the
 `'use client'` tag with the same config, adding no extra DOM. The controller and the parts are
 client-only. Function values in the config can't cross the server/client boundary (React rejects
@@ -105,7 +104,7 @@ root (`calc(<size unit> * var(--pinfold-radius-scale))`), so the inherited theme
 or a style pack always reaches them; a configured `radius` / `itemRadius` preset replaces the scale,
 a length replaces the value.
 
-### Where the config model stops: the escape-hatch ladder (D-09)
+### Where the config model stops: the escape-hatch ladder
 
 Config fits repeated, uniform rows. It doesn't fit page layout, so every component provides the
 same ladder down, enforced by conformance:
@@ -152,7 +151,7 @@ Rules:
 6. **Defaults expressible as plain JSON.** Every behaviour option can be written as plain JSON.
    Functions are opt-in extras. This is what lets a CMS, a server component or a language model
    drive the component.
-7. **Appearance inherits** from the global config (D-08). Precedence, highest first: component
+7. **Appearance inherits** from the global config. Precedence, highest first: component
    config, `defaults.<component>` in `pinfold.config`, the global theme, library defaults. A nested
    `PinfoldProvider` scopes a section.
 8. **Dev validation.** `meta.ts` drives dev-only warnings for unknown keys, wrong
@@ -237,7 +236,7 @@ accessibility breaks. That is documented, not defended against.
 - Every component ships its own CSS file. **JS never imports CSS,** because that breaks SSR, CJS and
   Jest consumers. The CLI adds the import to the app entry instead.
 
-## 5a. Responsive contract (D-11)
+## 5a. Responsive contract
 
 - **Container first.** The component root is a query container (`container-type: inline-size`).
   Layout changes use `@container`, so a component behaves the same in a sidebar and in a full-width
@@ -286,7 +285,7 @@ A literal colour in a component stylesheet is a bug. The conformance suite fails
 
 ---
 
-## 6. Accessibility gate (D-19)
+## 6. Accessibility gate
 
 Evidence: `scripts/a11y-report.mjs` (CI job `a11y`) runs axe, the keyboard map and the
 reduced-motion and forced-colors checks on the built packages in Chromium, every build. Screen
@@ -306,13 +305,13 @@ A component is not done until:
 
 ---
 
-## 7. Compatibility rules (D-06, D-14)
+## 7. Compatibility rules
 
 | Rule | Why |
 | --- | --- |
 | `peerDependencies: react >=18` | Native `useId` and `useSyncExternalStore`, no shims, deterministic SSR ids |
 | Must work with the React Compiler on and off | Both eras of React |
-| Classic JSX runtime (`jsx: "react"`) in the build | Works in every toolchain. Keep it unless D-06 changes. |
+| Classic JSX runtime (`jsx: "react"`) in the build | Works in every toolchain. Keep it unless the React floor changes. |
 | No `react-dom` import in components | Keeps non-DOM renderers viable |
 | No runtime dependencies in any published package | Install size and supply-chain safety |
 | ES2018 output, ESM and CJS, `.d.ts`, JSDoc | Old bundlers, Jest, plain JS projects |
@@ -321,7 +320,7 @@ A component is not done until:
 
 The full matrix is in [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
 
-## 7a. SSR, RSC and lazy loading (D-12, D-13)
+## 7a. SSR, RSC and lazy loading
 
 - **One import path.** `@pinfold/react` and `@pinfold/react/<name>` are server-safe barrels (no
   `'use client'`) that hold `defineConfig` / `define<Name>` and re-export a sibling client module.
@@ -338,7 +337,7 @@ The full matrix is in [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
   declares (`eager` for the light accordion). Lazy entries render on the client; the main entry
   gives complete server HTML.
 
-## 7b. Metadata (D-10)
+## 7b. Metadata
 
 `core/<name>.meta.ts` is the single source of truth. It holds the shared design-system base plus
 that component's own config schema, defaults, events, keyboard map, ARIA notes, slots, CSS
@@ -385,8 +384,8 @@ packages/
 
 ## 9. Adding a component: the checklist
 
-1. The spec `docs/components/<name>.md` is researched and signed off by the owner.
-2. `npx pinfold new <name>` (a widget) or `npx pinfold new <name> --atom` (D-23; then skip the
+1. The spec `docs/components/<name>.md` is researched and agreed in an issue first.
+2. `npx pinfold new <name>` (a widget) or `npx pinfold new <name> --atom` (then skip the
    hook, `define<Name>` and parts below, and add the barrel to the tsup barrel entries).
 3. Write `types.ts` first. The config object is the API.
 4. Write the rules in core (`<name>.logic.ts`), then `use<Name>.tsx` against the APG pattern.

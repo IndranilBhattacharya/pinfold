@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Dev dependencies only: published packages have zero runtime dependencies (D-18).
+  # Dev dependencies only: published packages have zero runtime dependencies.
   - package-ecosystem: npm
     directory: /
     schedule: { interval: weekly }

@@ -1,13 +1,13 @@
 name: Release
 
-# Manual only: a human decides when to publish. D-18.
+# Manual only: a human decides when to publish.
 # Prerequisite: each package has npm trusted publishing configured for this
 # repository and workflow (npmjs.com → package → Settings → Trusted publisher).
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'npm dist-tag: latest for releases, next for pre-release previews (D-22)'
+        description: 'npm dist-tag: latest for releases, next for pre-release previews'
         required: true
         default: latest
 

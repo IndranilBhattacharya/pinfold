@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Accessibility evidence (A9, D-19) for every built component, from the *built*
+ * Accessibility evidence for every built component, from the *built*
  * packages in a real browser (Chromium via Playwright). Run `npm run build` first.
  *
  *   node scripts/a11y-report.mjs            writes a11y-report/ (report.md, report.json, PNGs)

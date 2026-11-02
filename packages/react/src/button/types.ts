@@ -5,7 +5,7 @@ import type { SlotOverrides } from '../types';
 /*
  * Typing rules (CONTRIBUTING.md, "Typed API"): every option with a default carries `@default`,
  * checked against the meta. `size` and `tone` have none: unset, they follow the nearest
- * provider through CSS (D-23). No option is conditionally required; an icon-only button
+ * provider through CSS. No option is conditionally required; an icon-only button
  * without `aria-label` is a dev warning.
  */
 

@@ -10,7 +10,7 @@ Expect an acknowledgement within 72 hours and a fix or mitigation plan within 14
 ## Supported versions
 Pre-release: only the latest `next` tag is supported. After 1.0, the latest minor of the current major is supported.
 
-## Supply-chain policy (D-18)
+## Supply-chain policy
 - **Zero runtime dependencies** in published packages. A release fails if one appears.
 - **No install scripts** (`preinstall`, `install`, `postinstall`) in published packages.
 - **Trusted publishing.** Releases are published only from GitHub Actions through npm's OIDC trusted publishing, with **provenance** (`npm publish --provenance`). There are no long-lived npm tokens.

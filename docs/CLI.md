@@ -1,6 +1,6 @@
 # CLI: `npx pinfold`
 
-Status: **shipped (A6).** `packages/cli`: `bin/pinfold.mjs` (arguments, prompts), `lib/detect.mjs`
+Status: **shipped.** `packages/cli`: `bin/pinfold.mjs` (arguments, prompts), `lib/detect.mjs`
 (project detection), `lib/plan.mjs` (the change plan and source edits), `lib/commands.mjs` (init,
 add, theme, doctor). The prompts use `@clack/prompts`, the only dependency besides
 `@pinfold/core`; CLI dependencies never reach the app bundle.

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * RSC boundary check on the built @pinfold/react (D-07): client modules and
+ * RSC boundary check on the built @pinfold/react: client modules and
  * their chunks start with 'use client'; the barrels (every `index`: they hold
  * defineConfig / defineAccordion, and atoms such as button are entirely their
- * barrel, D-23) must not, or Server Components could not call them.
+ * barrel) must not, or Server Components could not call them.
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, sep } from 'node:path';

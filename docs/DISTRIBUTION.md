@@ -1,9 +1,8 @@
 # Distribution
 
-Status: the four packages below exist in this repo and build; only the `pinfold` name placeholder is
-published so far.
+Status: all four packages are published to npm under the `@pinfold` scope (and `pinfold` for the CLI).
 
-## Packages (D-05)
+## Packages
 | Package | Contents | Imports |
 |---|---|---|
 | `@pinfold/core` | Framework-free: logic for each component, keyboard navigation, ids, palette engine, meta (validator, JSON schema, docs renderer), config types | `@pinfold/core`, `@pinfold/core/palette`, `@pinfold/core/meta` |
@@ -37,12 +36,12 @@ each component's reference as a resource. Nothing is hosted.
 ```
 
 ## The shadcn registry
-- Namespaced: add `"registries": { "@pinfold": "https://pinfold.indranildev.in/r/{name}.json" }` to `components.json`, then `npx shadcn add @pinfold/accordion`. Listing in shadcn's public registry index (a pull request to shadcn) is a launch step for the owner.
+- Namespaced: add `"registries": { "@pinfold": "https://pinfold.indranildev.in/r/{name}.json" }` to `components.json`, then `npx shadcn add @pinfold/accordion`. Listing in shadcn's public registry index is **Planned**.
 - Served by the site from the npm package. The fallback URL is `https://cdn.jsdelivr.net/npm/@pinfold/react/registry/accordion.json`.
 - Tokens map onto shadcn's CSS variables (`--primary`, `--background`, …) as an opt-in, so Pinfold components look at home in shadcn apps (`@pinfold/css/shadcn.css`).
 
-## Release process (D-18)
-- Changesets for versioning and changelogs (**Planned**, before the first publish).
+## Release process
+- Changesets for versioning and changelogs (**Planned**).
 - Publish from GitHub Actions (`.github/workflows/release.yml`, manual trigger) with **npm trusted publishing** (OIDC) and `--provenance`. No long-lived tokens. The very first publish of each package is manual (a package must exist before a trusted publisher can be attached). The workflow audits the dependency tree and the installed tarballs (`npm audit`, zero findings allowed), then runs `scripts/publish.mjs`, which publishes only the package versions that are not on npm yet: bump a version to release that package; a re-run is safe.
-- Owner account: 2FA with passkeys. Packages have no install scripts. A release fails if a runtime dependency appears.
+- Maintainer account: 2FA with passkeys. Packages have no install scripts. A release fails if a runtime dependency appears.
 - Pre-release tags (`next`) for internal feedback before each stable release.

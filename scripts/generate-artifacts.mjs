@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generate what ships inside @pinfold/react next to the code (D-15, D-17),
+ * Generate what ships inside @pinfold/react next to the code,
  * all from component meta, so none of it can drift from the API:
  *
  *   registry/registry.json     shadcn registry index (namespace @pinfold)

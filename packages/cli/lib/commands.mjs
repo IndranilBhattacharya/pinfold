@@ -97,7 +97,7 @@ async function commit(plan, flags, out) {
 
 /* ------------------------------------------------------------ registry */
 
-/** The owned file for one component. Atoms (D-23) are a tag only: no hook, no define, no config type. */
+/** The owned file for one component. Atoms are a tag only: no hook, no define, no config type. */
 export function componentFile(name, language, kind = 'widget') {
   const pascal = name.replace(/(^|-)([a-z])/g, (_, __, ch) => ch.toUpperCase());
   const head = [

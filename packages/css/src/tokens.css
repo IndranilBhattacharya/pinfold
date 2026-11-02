@@ -348,7 +348,7 @@
   [data-pinfold-density="comfortable"] { --pinfold-density: 1; }
   [data-pinfold-density="spacious"] { --pinfold-density: 1.25; }
 
-  /* Control sizes, shared by every control (D-23). The nearest provider size
+  /* Control sizes, shared by every control. The nearest provider size
      (`data-pinfold-size`) or a component's own `data-size` redeclares the whole set,
      so the closest one wins, with no JS and in Server Components too. */
   :root,
@@ -380,7 +380,7 @@
     --pinfold-control-radius-unit: 0.625rem;
   }
 
-  /* Tones (D-23): the nearest provider tone or a component's own `data-tone`.
+  /* Tones: the nearest provider tone or a component's own `data-tone`.
      Components read them with the primary accent as fallback, so `primary`
      clears them (`initial`) and each element resolves its own theme's accent.
      The status roles flip with the colour scheme through light-dark(). */

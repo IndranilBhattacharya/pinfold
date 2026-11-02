@@ -9,7 +9,7 @@ import type { SpinnerProps, SpinnerState } from './types';
  *   <Spinner />                 // role="status", announced as "Loading"
  *   <Spinner label="" />        // decorative, next to visible text
  *
- * A stateless atom (D-23): server-safe, no client JavaScript of its own.
+ * A stateless atom: server-safe, no client JavaScript of its own.
  */
 export const Spinner = React.forwardRef<HTMLSpanElement, SpinnerProps>(function Spinner(props, ref) {
   const { size, tone, label = 'Loading', dimensions, unstyled = false, className, style, classNames, styles, slotProps: slotOverrides, render, ...rest } = props;
