@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Real apps on the packed packages (A4, D-07, D-13). Run `npm run build` first.
+ * Real apps on the packed packages. Run `npm run build` first.
  *
  *   node scripts/fixture-apps.mjs [--app next|webpack|all] [--cli]
  *
@@ -11,7 +11,7 @@
  * webpack  A plain-JS (CommonJS, no JSX) app, webpack production build: the
  *          bundle must work and must not contain the dev-only validator.
  * --cli    Before building, run `pinfold init --yes` and `pinfold add accordion`
- *          in each app, twice, and require the second run to change nothing (A6).
+ *          in each app, twice, and require the second run to change nothing.
  */
 import { execSync, spawn } from 'node:child_process';
 import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';

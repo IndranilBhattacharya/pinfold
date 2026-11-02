@@ -4,7 +4,7 @@ import { renderSlot, slotProps } from '../slots';
 import type { __PASCAL__Props, __PASCAL__State } from './types';
 
 /**
- * A stateless atom (D-23): no hooks, so it renders in Server Components with no
+ * A stateless atom: no hooks, so it renders in Server Components with no
  * client JavaScript. Unset `size` and `tone` follow the nearest provider through CSS.
  */
 export const __PASCAL__ = React.forwardRef<HTMLSpanElement, __PASCAL__Props>(function __PASCAL__(props, ref) {

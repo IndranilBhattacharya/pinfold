@@ -15,7 +15,7 @@ Created by **Indranil Bhattacharya**
 
 > **Status: pre-release.** The accordion is complete (server and client APIs,
 > global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report);
-> button and spinner are experimental ([roadmap](docs/ROADMAP.md)). Published to npm as it grows: one component at a time (D-22). Items marked *Planned* are specified but not yet built.
+> button and spinner are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
 
 ---
 
@@ -131,7 +131,6 @@ The config never changes shape as you go deeper.
 | [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
 | [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | Accessibility evidence: the automated report and the screen-reader matrix |
 | [docs/CLI.md](docs/CLI.md) · [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Tooling and packages |
-| [docs/DECISIONS.md](docs/DECISIONS.md) · [docs/ROADMAP.md](docs/ROADMAP.md) · [docs/STRATEGY.md](docs/STRATEGY.md) | Why, what's next, and the market |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Setup, hard constraints and the component checklist |
 
 The website, playground and palette studio live in [pinfold-ui](https://github.com/IndranilBhattacharya/pinfold-ui), served at `pinfold.indranildev.in`.

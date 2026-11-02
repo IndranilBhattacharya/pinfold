@@ -40,14 +40,14 @@ Also guaranteed:
 
 - Copying MUI, HeroUI or shadcn wholesale. Each component is filtered for real, modern use.
 - A CSS-in-JS runtime or styling through `sx` props.
-- Vue and Angular in this repo. The architecture supports them later (D-04).
-- Lazy loading by default, at the expense of SEO or Core Web Vitals (D-12).
-- Supporting React 16 or 17 (D-06).
+- Vue and Angular in this repo. The architecture supports them later.
+- Lazy loading by default, at the expense of SEO or Core Web Vitals.
+- Supporting React 16 or 17.
 
 ## Principles
 
 - **Data over markup.** Config can be expressed as plain JSON. Functions are optional extras.
 - **Defaults that need no thought.** Only the data is required, and every default meets enterprise standards.
-- **A ladder, never a wall.** When config can't express something, the next rung down is always available (D-09).
+- **A ladder, never a wall.** When config can't express something, the next rung down is always available.
 - **Platform first.** CSS for motion, layout and theming. Native browser features before JavaScript.
 - **Safety first.** Zero dependencies, provenance on every release, and accessibility as a hard gate.

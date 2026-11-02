@@ -57,7 +57,7 @@ export interface ComponentMeta {
   name: string;
   displayName: string;
   /**
-   * `atom`: a stateless tag (`<Button>`), server-safe, children allowed (D-23).
+   * `atom`: a stateless tag (`<Button>`), server-safe, children allowed.
    * `widget` (the default): `use<Name>` / `define<Name>` / tag over a config object.
    */
   kind?: 'atom' | 'widget';

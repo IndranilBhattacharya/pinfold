@@ -8,7 +8,7 @@ export interface ConformanceOptions {
   /** Component name in kebab-case, e.g. `accordion`. Drives the expected classes. */
   name: string;
   /**
-   * `atom` (D-23): a stateless tag. Unset `size` / `tone` mean "inherit the provider
+   * `atom`: a stateless tag. Unset `size` / `tone` mean "inherit the provider
    * through CSS", so they are only required when set. Default `widget`.
    */
   kind?: 'atom' | 'widget';

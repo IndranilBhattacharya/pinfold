@@ -21,7 +21,7 @@ const filled = (node: React.ReactNode) => node != null && node !== false && node
  *   <Button onClick={save}>Save</Button>
  *   <Button tone="danger" variant="soft" loading={busy}>Delete</Button>
  *
- * A stateless atom (D-23): no hooks, so it renders in Server Components with no
+ * A stateless atom: no hooks, so it renders in Server Components with no
  * client JavaScript. Unset `size` and `tone` follow the nearest provider through
  * CSS. Disabled and loading use `aria-disabled` and swallow activation, so the
  * button keeps its place in the tab order.

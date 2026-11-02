@@ -26,7 +26,7 @@ jobs:
       - run: npm audit --audit-level=low
       - run: npm run verify
 
-  # D-06 / COMPATIBILITY.md: every OS × Node × React. The test suite includes the
+  # COMPATIBILITY.md: every OS × Node × React. The test suite includes the
   # React Compiler suite, so each leg runs compiled and uncompiled consumers.
   matrix:
     name: ${{ matrix.os }} · node ${{ matrix.node }} · react ${{ matrix.react }}
@@ -92,7 +92,7 @@ jobs:
       - run: node scripts/consumer-smoke.mjs --pm ${{ matrix.pm }} --react 19
 
   # Real apps on the packed tarballs: Next.js (RSC + ISR, Pages Router) and a
-  # JS-only webpack production build. The CLI runs init/add twice in each (A6).
+  # JS-only webpack production build. The CLI runs init/add twice in each.
   fixtures:
     name: fixture apps (next.js, webpack, cli)
     needs: verify
@@ -105,7 +105,7 @@ jobs:
       - run: npm run build
       - run: node scripts/fixture-apps.mjs --app all --cli
 
-  # Accessibility evidence in a real browser (D-19): axe (WCAG 2.2 AA) in light and dark mode,
+  # Accessibility evidence in a real browser: axe (WCAG 2.2 AA) in light and dark mode,
   # the keyboard map, focus, reduced motion and forced colours. The report is uploaded per run.
   a11y:
     name: accessibility report

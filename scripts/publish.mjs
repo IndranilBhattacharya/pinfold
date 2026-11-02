@@ -2,7 +2,7 @@
 /**
  * Publish every package whose version is not on npm yet, in dependency order.
  * Versions already on the registry are skipped, so a release can be re-run and a package
- * that did not change keeps its version (D-22).
+ * that did not change keeps its version.
  *
  *   node scripts/publish.mjs --tag latest [--dry-run]
  *

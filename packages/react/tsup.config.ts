@@ -4,14 +4,14 @@ import { defineConfig, type Options } from 'tsup';
 import type { Plugin } from 'esbuild';
 
 /**
- * Two builds, so one import path works in Server and Client Components (D-07):
+ * Two builds, so one import path works in Server and Client Components:
  *
  * 1. Client modules (`client`, `accordion/client`, `accordion/lazy`) get a
  *    'use client' banner. Code splitting puts shared modules (provider,
  *    hooks) in common chunks, so every subpath sees one React context.
  * 2. Barrels (every `index`) stay server-safe: they hold `defineConfig` /
  *    `defineAccordion` and re-export their sibling client module, which is kept
- *    external (`./client` -> `./client.js`). Atoms (D-23: button, spinner) have
+ *    external (`./client` -> `./client.js`). Atoms (button, spinner) have
  *    no client module at all; their barrel is the whole component.
  *
  * Entry names must match package.json `exports`.

@@ -1,6 +1,6 @@
 # Compatibility
 
-Supported targets (D-06, D-14). Shipped: `@pinfold/react` declares `react >=18` and builds ES2018
+Supported targets. Shipped: `@pinfold/react` declares `react >=18` and builds ES2018
 ESM + CJS + `.d.ts`, with `typesVersions` and a stub folder per subpath.
 
 | Area | Supported | How it's verified |

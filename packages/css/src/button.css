@@ -2,7 +2,7 @@
 
    Sizes come from the shared control tokens (--pinfold-control-*) and colour
    from the shared tone tokens (--pinfold-tone-*), so an unset `size` or `tone`
-   follows the nearest provider through CSS alone (D-23). `dimensions` writes
+   follows the nearest provider through CSS alone. `dimensions` writes
    --pinfold-button-* and wins through the var() fallbacks.
 
    Disabled and loading are `aria-disabled`: the button keeps focus, so its

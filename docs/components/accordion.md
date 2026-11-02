@@ -2,7 +2,6 @@
 
 Status: **stable API**.
 Pattern: [WAI-ARIA APG Accordion](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/).
-Owner sign-off: 2026-10-31 (session plan).
 
 ## Usage
 
@@ -28,7 +27,7 @@ It becomes controlled only when you pass `value` together with `onValueChange`.
 
 ## Config
 
-Only `items` is required. Defaults come from the global config first (D-08).
+Only `items` is required. Defaults come from the global config first.
 
 ### Behaviour
 | Key | Type | Default | Status |
@@ -105,7 +104,7 @@ its control:
 | `indicatorPosition`, `animateIndicator` | `indicator: 'none'` | |
 | `disabledIds` | `disabled: true` | |
 
-### Escape-hatch ladder (D-09)
+### Escape-hatch ladder
 | Rung | What it is |
 |---|---|
 | 1 | Config |

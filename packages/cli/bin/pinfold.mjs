@@ -148,7 +148,7 @@ function scaffold(name, flags) {
       else writeFileSync(dest, apply(readFileSync(src, 'utf8')));
     }
   };
-  // --atom (D-23): a stateless, server-safe tag; otherwise a hook-first widget.
+  // --atom: a stateless, server-safe tag; otherwise a hook-first widget.
   const atom = flags.atom === true;
   const set = join(TEMPLATES, atom ? 'atom' : 'component');
   copy(join(set, 'react'), reactDir);

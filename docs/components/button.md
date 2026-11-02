@@ -1,7 +1,7 @@
 # Button and Spinner: spec
 
-Status: **experimental** (round 1 of the component roadmap, awaiting owner review).
-Kind: **atom** (D-23): a tag, no hooks, server-safe.
+Status: **experimental**.
+Kind: **atom**: a tag, no hooks, server-safe.
 Patterns: [WAI-ARIA APG Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/), [`status` role](https://www.w3.org/TR/wai-aria-1.2/#status).
 
 ## Usage
@@ -84,7 +84,7 @@ keeps the behaviour props, which replaces shadcn's `asChild`:
 A CSS ring (no icon, no SVG). Under `prefers-reduced-motion` it slows down instead of freezing, because
 a still spinner says nothing (`data-motion="essential"` opts it out of the reset's motion kill).
 
-## Inheritance (D-23)
+## Inheritance
 Unset `size` and `tone` follow the nearest `PinfoldProvider` through CSS (`data-pinfold-size` /
 `data-pinfold-tone` set the shared `--pinfold-control-*` and `--pinfold-tone-*` tokens), so this works
 in Server Components too. `defaults.button` in `pinfold.config` is not read; to change the default

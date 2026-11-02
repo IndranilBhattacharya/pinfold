@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Install the *packed* packages into a throwaway app and use them the way a
- * consumer would. Proves the published artefacts, not the source. D-14.
+ * consumer would. Proves the published artefacts, not the source.
  *
  *   node scripts/consumer-smoke.mjs [--pm npm|pnpm|yarn|bun] [--react 18|19] [--ts 5.6.3]
  *

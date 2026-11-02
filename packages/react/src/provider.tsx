@@ -84,7 +84,7 @@ export function PinfoldProvider(props: PinfoldProviderProps): React.ReactElement
       data-pinfold-theme={value.theme === 'system' ? undefined : value.theme}
       data-pinfold-radius={value.radius}
       data-pinfold-style={value.stylePack === 'default' ? undefined : value.stylePack}
-      // Atoms (D-23) read size and tone through CSS, so they work in Server Components too.
+      // Atoms read size and tone through CSS, so they work in Server Components too.
       data-pinfold-size={value.size}
       data-pinfold-tone={value.tone}
     >
