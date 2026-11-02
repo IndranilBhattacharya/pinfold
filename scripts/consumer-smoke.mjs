@@ -56,9 +56,9 @@ for (const text of ['Alpha', 'Alpha body', 'Beta body', 'aria-expanded', 'pinfol
 }
 const { Button } = ${load('@pinfold/react/button')};
 const { Spinner } = ${load('@pinfold/react/spinner')};
-const atoms = renderToString(React.createElement('div', null, React.createElement(Button, { label: 'Go', tone: 'danger' }), React.createElement(Spinner)));
+const buttons = renderToString(React.createElement('div', null, React.createElement(Button, { label: 'Go', tone: 'danger' }), React.createElement(Spinner)));
 for (const text of ['pinfold-button', 'data-tone="danger"', '>Go<', 'role="status"']) {
-  if (!atoms.includes(text)) throw new Error('atom HTML is missing ' + JSON.stringify(text) + ':\\n' + atoms);
+  if (!buttons.includes(text)) throw new Error('button HTML is missing ' + JSON.stringify(text) + ':\\n' + buttons);
 }
 if (!createTheme({ primary: 'emerald' }).vars['--pinfold-primary-500']) throw new Error('palette broken');
 console.log('ok', ${JSON.stringify(pm)}, React.version);

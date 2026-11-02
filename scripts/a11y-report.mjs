@@ -150,7 +150,7 @@ for (const scheme of ['light', 'dark']) {
   await page.close();
 }
 
-// Atoms: a disabled button stays in the tab order and swallows activation.
+// Button: a disabled button stays in the tab order and swallows activation.
 {
   const page = await open();
   await page.focus('#button-disabled');
