@@ -14,6 +14,15 @@ export interface ConformanceOptions {
    * against it: the meta default appears when unset, and every listed value reaches the DOM.
    */
   meta?: ComponentMeta;
+  /**
+   * The component's preset factory (`define<Name>`) and the props a use site must add (e.g. a
+   * button's `label`). The suite proves use-site props beat the preset, which beats
+   * `defaults.<name>` and the provider, and that nested and class props merge.
+   */
+  preset?: {
+    define: (preset: Record<string, unknown>) => React.ComponentType<any>;
+    props: Record<string, unknown>;
+  };
   /** `false` for a component with no `variant` option (e.g. spinner). */
   variants?: boolean;
   /** Every slot the component documents. */
@@ -56,7 +65,7 @@ const BLOCK = (name: string) => `pinfold-${name}`;
  * focusable disabled controls — are tests, not documentation.
  */
 export function describePinfoldConformance(options: ConformanceOptions): void {
-  const { name, meta, variants = true, slots, render, dimension, cssFile, hook, optionalSlots = [] } = options;
+  const { name, meta, preset, variants = true, slots, render, dimension, cssFile, hook, optionalSlots = [] } = options;
   const block = BLOCK(name);
 
   describe(`${name} — Pinfold conformance`, () => {
@@ -89,6 +98,23 @@ export function describePinfoldConformance(options: ConformanceOptions): void {
       expect(at(<PinfoldProvider size="sm" tone="danger" defaults={defaults}>{render({})}</PinfoldProvider>)).toEqual(['lg', 'success']);
       expect(at(<PinfoldProvider size="sm" tone="danger" defaults={defaults}>{render({ size: 'md', tone: 'info' })}</PinfoldProvider>)).toEqual(['md', 'info']);
     });
+
+    if (preset) {
+      it('resolves presets as use-site props > preset > defaults.<name> > provider', () => {
+        const key = name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+        const Preset = preset.define({ size: 'lg', tone: 'success', className: 'from-preset', classNames: { root: 'preset-root' } });
+        const defaults = { [key]: { size: 'sm', tone: 'danger' } } as never;
+        const inside = (el: React.ReactElement) => mount(<PinfoldProvider size="sm" tone="warning" defaults={defaults}>{el}</PinfoldProvider>, block);
+
+        const fromPreset = inside(<Preset {...preset.props} />);
+        expect([fromPreset.getAttribute('data-size'), fromPreset.getAttribute('data-tone')]).toEqual(['lg', 'success']);
+
+        const own = inside(<Preset {...preset.props} size="md" tone="info" className="from-use" classNames={{ root: 'use-root' }} />);
+        expect([own.getAttribute('data-size'), own.getAttribute('data-tone')]).toEqual(['md', 'info']);
+        // Classes add up instead of replacing each other; per-slot maps merge.
+        for (const cls of ['from-preset', 'from-use', 'use-root']) expect(`${cls}:${own.classList.contains(cls)}`).toBe(`${cls}:true`);
+      });
+    }
 
     if (meta) {
       it('keeps meta, defaults and the DOM in sync for every reflected option', () => {

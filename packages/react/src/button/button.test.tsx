@@ -192,6 +192,46 @@ describe('Button', () => {
     expect(html).toContain('data-variant="soft"');
     expect(html).toContain('>Docs<');
   });
+
+  it('a preset is defined once and used in one line, in loops, with its own handler per row', () => {
+    const Danger = defineButton({ variant: 'soft', tone: 'danger', iconOnly: true, icon: <svg /> });
+    const removed: string[] = [];
+    const rows = ['a', 'b', 'c'];
+    render(
+      <>
+        {rows.map((id) => (
+          <Danger key={id} label={`Delete ${id}`} onClick={() => removed.push(id)} />
+        ))}
+      </>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Delete b' }));
+    expect(removed).toEqual(['b']);
+    for (const button of screen.getAllByRole('button')) {
+      expect(button.getAttribute('data-variant')).toBe('soft');
+      expect(button.getAttribute('data-tone')).toBe('danger');
+    }
+  });
+
+  it('use-site props win over the preset; element attributes reach the root', () => {
+    const Quiet = defineButton({ variant: 'ghost', tone: 'neutral', dimensions: { paddingX: 10, gap: 4 } });
+    render(<Quiet label="Go" variant="outline" dimensions={{ paddingX: 20 }} form="f" aria-describedby="hint" />);
+    const button = screen.getByRole('button', { name: 'Go' });
+    expect(button.getAttribute('data-variant')).toBe('outline');
+    expect(button.getAttribute('data-tone')).toBe('neutral');
+    expect(button.style.getPropertyValue('--pinfold-button-padding-x')).toBe('20px');
+    expect(button.style.getPropertyValue('--pinfold-button-gap')).toBe('4px');
+    expect(button.getAttribute('form')).toBe('f');
+    expect(button.getAttribute('aria-describedby')).toBe('hint');
+    expect(Quiet.config).toEqual({ variant: 'ghost', tone: 'neutral', dimensions: { paddingX: 10, gap: 4 } });
+  });
+
+  it('the tag passes element attributes through and keeps config out of the DOM', () => {
+    render(<Button label="Go" tone="info" name="intent" value="go" />);
+    const button = screen.getByRole('button', { name: 'Go' });
+    expect(button.getAttribute('name')).toBe('intent');
+    expect(button.hasAttribute('tone')).toBe(false);
+    expect(button.hasAttribute('label')).toBe(false);
+  });
 });
 
 describePinfoldConformance({
@@ -202,6 +242,7 @@ describePinfoldConformance({
   dimension: { key: 'paddingX', value: 24 },
   cssFile: 'packages/css/src/button.css',
   meta: buttonMeta,
+  preset: { define: defineButton as any, props: { label: 'Save' } },
   hook: { use: useButton as any, config: { label: 'Save' } },
   render: (config) => <Button label="Save" icon={<svg />} endIcon={<svg />} {...config} />,
 });

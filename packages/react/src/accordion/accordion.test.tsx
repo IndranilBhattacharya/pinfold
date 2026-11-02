@@ -5,6 +5,7 @@ import { describePinfoldConformance } from '@pinfold/testing';
 import { accordionMeta } from '@pinfold/core/meta';
 import { Accordion } from './Accordion';
 import { useAccordion } from './useAccordion';
+import { defineAccordion } from './define';
 
 const items = [
   { id: 'a', title: 'First', content: 'One' },
@@ -307,6 +308,7 @@ describePinfoldConformance({
   dimension: { key: 'paddingX', value: 24 },
   cssFile: 'packages/css/src/accordion.css',
   meta: accordionMeta,
+  preset: { define: defineAccordion as any, props: { items } },
   hook: { use: useAccordion as any, config: { items } },
   render: (config) => (
     <Accordion

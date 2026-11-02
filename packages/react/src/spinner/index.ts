@@ -4,4 +4,4 @@
 export { Spinner, useSpinner } from './client';
 export { Spinner as default } from './client';
 export { defineSpinner, type DefinedSpinner } from './define';
-export type { SpinnerApi, SpinnerComponent, SpinnerConfig, SpinnerDimensions, SpinnerRootProps, SpinnerSlot, SpinnerState, SpinnerTone } from './types';
+export type { SpinnerApi, SpinnerComponent, SpinnerConfig, SpinnerDimensions, SpinnerRootProps, SpinnerSlot, SpinnerState, SpinnerTone, SpinnerTagProps } from './types';

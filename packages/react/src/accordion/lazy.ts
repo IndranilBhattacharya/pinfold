@@ -9,7 +9,7 @@ import type { AnyAccordionConfig } from './types';
  *   import { Accordion } from '@pinfold/react/accordion/lazy';
  */
 export const Accordion = createLazyComponent<AnyAccordionConfig>(
-  () => import('./client').then((m) => ({ default: m.Accordion as (config: AnyAccordionConfig) => React.ReactElement })),
+  () => import('./client').then((m) => ({ default: m.Accordion as unknown as (config: AnyAccordionConfig) => React.ReactElement })),
   { displayName: 'LazyAccordion' },
 );
 

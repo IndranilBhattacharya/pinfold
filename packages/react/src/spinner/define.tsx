@@ -1,14 +1,17 @@
 import * as React from 'react';
+import { mergeConfig } from '../preset';
 import { Spinner } from './client';
-import type { SpinnerConfig, SpinnerRootProps } from './types';
+import type { SpinnerConfig, SpinnerTagProps } from './types';
 
-export type DefinedSpinner = ((props: SpinnerRootProps) => React.ReactElement) & { config: SpinnerConfig; displayName?: string };
+export type DefinedSpinner<P extends SpinnerConfig = SpinnerConfig> = ((props: SpinnerTagProps) => React.ReactElement) & { config: P; displayName?: string };
 
-/** The non-hook twin of `useSpinner`, for Server Components: `const Loading = defineSpinner({ label: 'Loading' })`. */
-export function defineSpinner(config: SpinnerConfig = {}): DefinedSpinner {
-  const Tag = Spinner as unknown as (props: SpinnerConfig & SpinnerRootProps) => React.ReactElement;
-  const Defined = ((props: SpinnerRootProps) => React.createElement(Tag, { ...config, ...props })) as unknown as DefinedSpinner;
-  Defined.config = config;
+/**
+ * A reusable spinner, defined once and used in one line: `const Inline = defineSpinner({ label: '', tone: 'current' })`,
+ * then `<Inline />`. Props win over the preset, then `defaults.spinner`, the provider and the library defaults.
+ */
+export function defineSpinner<P extends SpinnerConfig>(preset: P = {} as P): DefinedSpinner<P> {
+  const Defined = ((props: SpinnerTagProps) => React.createElement(Spinner, mergeConfig<SpinnerTagProps>(preset as unknown as Partial<SpinnerTagProps>, props))) as DefinedSpinner<P>;
+  Defined.config = preset;
   Defined.displayName = 'DefinedSpinner';
   return Defined;
 }

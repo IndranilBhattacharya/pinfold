@@ -73,6 +73,7 @@ export const spinnerMeta: ComponentMeta = {
   ],
   cssVariables: ['--pinfold-spinner-size', '--pinfold-spinner-thickness'],
   examples: [
+    { title: 'Preset', code: "import { defineSpinner } from '@pinfold/react/spinner';\n\nexport const InlineSpinner = defineSpinner({ label: '', tone: 'current', size: 'sm' });\n// <p><InlineSpinner /> Loading results…</p>" },
     { title: 'Client hook', code: "import { useSpinner } from '@pinfold/react/spinner';\n\nconst Loading = useSpinner({ label: 'Loading invoices' });\nreturn <Loading />;" },
     { title: 'Decorative, next to text', code: "const Loading = useSpinner({ label: '', tone: 'current' });\nreturn <p><Loading /> Loading results…</p>;" },
   ],

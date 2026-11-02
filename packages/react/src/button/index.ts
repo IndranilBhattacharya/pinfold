@@ -15,6 +15,8 @@ export type {
   ButtonNode,
   ButtonRadius,
   ButtonRootProps,
+  ButtonTagProps,
+  ButtonPresetProps,
   ButtonSlot,
   ButtonState,
   ButtonVariant,
