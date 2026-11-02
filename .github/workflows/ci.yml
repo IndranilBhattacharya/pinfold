@@ -120,7 +120,7 @@ jobs:
       - run: npm run build
       - run: node scripts/a11y-report.mjs
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with: { name: a11y-report, path: a11y-report }
 
   # Published .d.ts files under node10, node16 and (TS 5+) bundler resolution.
