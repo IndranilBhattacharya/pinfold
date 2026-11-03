@@ -1,0 +1,76 @@
+/* Pinfold — skeleton. A tint of the text colour, so it follows the theme and every pack; corners
+   follow the radius scale. The shimmer runs only with `data-animate` (off with the provider's
+   disableAnimation) and the reset stops it under reduced motion. */
+
+@layer pinfold.components {
+  .pinfold-skeleton {
+    --pinfold-skel-line: var(--pinfold-skeleton-height, 1rem);
+    --pinfold-skel-gap: var(--pinfold-skeleton-gap, 0.625rem);
+    --pinfold-skel-circle: 2.5rem;
+    --pinfold-skel-fill: color-mix(in oklch, var(--pinfold-color-text) 9%, transparent);
+
+    display: block;
+    max-inline-size: 100%;
+  }
+  .pinfold-skeleton[data-size='sm'] {
+    --pinfold-skel-line: var(--pinfold-skeleton-height, 0.75rem);
+    --pinfold-skel-gap: var(--pinfold-skeleton-gap, 0.5rem);
+    --pinfold-skel-circle: 2rem;
+  }
+  .pinfold-skeleton[data-size='lg'] {
+    --pinfold-skel-line: var(--pinfold-skeleton-height, 1.25rem);
+    --pinfold-skel-gap: var(--pinfold-skeleton-gap, 0.75rem);
+    --pinfold-skel-circle: 3.5rem;
+  }
+
+  .pinfold-skeleton[data-loading] {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pinfold-skel-gap);
+    inline-size: var(--pinfold-skeleton-width, 100%);
+  }
+  .pinfold-skeleton[data-loading] .pinfold-skeleton__line {
+    display: block;
+    block-size: var(--pinfold-skel-line);
+    max-inline-size: 100%;
+    border-radius: var(--pinfold-skeleton-radius, var(--pinfold-radius-sm));
+    background-color: var(--pinfold-skel-fill);
+  }
+  .pinfold-skeleton[data-loading][data-variant='rect'] .pinfold-skeleton__line {
+    block-size: var(--pinfold-skeleton-height, 6rem);
+    border-radius: var(--pinfold-skeleton-radius, var(--pinfold-radius-md));
+  }
+  .pinfold-skeleton[data-loading][data-variant='circle'] {
+    inline-size: var(--pinfold-skeleton-width, var(--pinfold-skel-circle));
+  }
+  .pinfold-skeleton[data-loading][data-variant='circle'] .pinfold-skeleton__line {
+    block-size: var(--pinfold-skeleton-height, var(--pinfold-skeleton-width, var(--pinfold-skel-circle)));
+    border-radius: var(--pinfold-skeleton-radius, var(--pinfold-control-round, 50%));
+  }
+
+  .pinfold-skeleton[data-animate][data-animation='pulse'] .pinfold-skeleton__line {
+    animation: pinfold-skeleton-pulse 1.6s var(--pinfold-ease-in-out) infinite;
+  }
+  .pinfold-skeleton[data-animate][data-animation='wave'] .pinfold-skeleton__line {
+    background-image: linear-gradient(90deg, transparent 0%, color-mix(in oklch, var(--pinfold-color-bg) 55%, transparent) 50%, transparent 100%);
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    animation: pinfold-skeleton-wave 1.8s linear infinite;
+  }
+
+  @keyframes pinfold-skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+  @keyframes pinfold-skeleton-wave {
+    from { background-position: 150% 0; }
+    to { background-position: -50% 0; }
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-skeleton[data-loading] .pinfold-skeleton__line {
+      background: GrayText;
+    }
+  }
+}

@@ -12,7 +12,7 @@
 import { resolve } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, buttonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
+import { accordionMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
 
 interface Entry {
   meta: ComponentMeta;
@@ -33,6 +33,9 @@ const COMPONENTS: Entry[] = [
   },
   { meta: buttonMeta, file: 'button/types.ts', configs: ['ButtonConfig'], nested: { dimensions: 'ButtonDimensions' } },
   { meta: spinnerMeta, file: 'spinner/types.ts', configs: ['SpinnerConfig'], nested: { dimensions: 'SpinnerDimensions' } },
+  { meta: separatorMeta, file: 'separator/types.ts', configs: ['SeparatorConfig'], nested: { dimensions: 'SeparatorDimensions' } },
+  { meta: kbdMeta, file: 'kbd/types.ts', configs: ['KbdConfig'], nested: { dimensions: 'KbdDimensions' } },
+  { meta: skeletonMeta, file: 'skeleton/types.ts', configs: ['SkeletonConfig'], nested: { dimensions: 'SkeletonDimensions' } },
 ];
 
 for (const c of COMPONENTS) {

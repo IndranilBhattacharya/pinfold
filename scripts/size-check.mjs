@@ -44,16 +44,22 @@ function withChunks(file, seen = new Set()) {
  * overrides and state-function config fields.
  */
 const BUDGETS = [
-  ['packages/core/dist/index.js', 3],
+  ['packages/core/dist/index.js', 5], // every component's rules live here; apps tree-shake to what they use (see the app row)
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
   ['packages/react/dist/accordion/index.js', 9], // 2026-11-03: presets, tag prop split, no :has(); the app row is what ships
   ['packages/react/dist/button/index.js', 5], // entry + the shared provider/component chunks, like accordion
   ['packages/react/dist/spinner/index.js', 4],
+  ['packages/react/dist/separator/index.js', 4],
+  ['packages/react/dist/kbd/index.js', 4],
+  ['packages/react/dist/skeleton/index.js', 4],
   ['packages/css/dist/core.css', 5],
   ['packages/css/dist/accordion.css', 4],
   ['packages/css/dist/button.css', 2],
   ['packages/css/dist/spinner.css', 2], // six animations (ring, arc, dots, bars, pulse, orbit)
+  ['packages/css/dist/separator.css', 1],
+  ['packages/css/dist/kbd.css', 1],
+  ['packages/css/dist/skeleton.css', 1],
   ['packages/css/dist/packs.css', 2],
 ];
 

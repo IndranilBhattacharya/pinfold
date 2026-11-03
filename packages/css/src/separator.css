@@ -1,0 +1,70 @@
+/* Pinfold — separator. The line colour and thickness are the theme's border tokens, so style
+   packs restyle it (brutalist: a 2px rule in the text colour). */
+
+@layer pinfold.components {
+  .pinfold-separator {
+    --pinfold-sep-thick: var(--pinfold-separator-thickness, var(--pinfold-border-width));
+    --pinfold-sep-space: var(--pinfold-separator-spacing, 0px);
+    --pinfold-sep-color: var(--pinfold-color-border);
+
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--pinfold-space-3);
+    box-sizing: border-box;
+    color: var(--pinfold-color-text-muted);
+    font-size: var(--pinfold-text-xs);
+    font-weight: var(--pinfold-weight-medium);
+    letter-spacing: var(--pinfold-tracking-wide);
+    line-height: 1;
+  }
+  .pinfold-separator[data-spacing='sm'] { --pinfold-sep-space: var(--pinfold-separator-spacing, var(--pinfold-space-2)); }
+  .pinfold-separator[data-spacing='md'] { --pinfold-sep-space: var(--pinfold-separator-spacing, var(--pinfold-space-4)); }
+  .pinfold-separator[data-spacing='lg'] { --pinfold-sep-space: var(--pinfold-separator-spacing, var(--pinfold-space-6)); }
+
+  .pinfold-separator[data-orientation='horizontal'] {
+    inline-size: var(--pinfold-separator-length, 100%);
+    max-inline-size: 100%;
+    margin-block: var(--pinfold-sep-space);
+  }
+  .pinfold-separator[data-orientation='vertical'] {
+    flex-direction: column;
+    align-self: stretch;
+    block-size: var(--pinfold-separator-length, auto);
+    min-block-size: 1em;
+    margin-inline: var(--pinfold-sep-space);
+  }
+
+  .pinfold-separator__line {
+    flex: 1 1 0;
+    min-inline-size: 0;
+    border: 0 var(--pinfold-sep-color);
+  }
+  .pinfold-separator[data-orientation='horizontal'] .pinfold-separator__line {
+    border-block-start-width: var(--pinfold-sep-thick);
+    border-block-start-style: solid;
+  }
+  .pinfold-separator[data-orientation='vertical'] .pinfold-separator__line {
+    border-inline-start-width: var(--pinfold-sep-thick);
+    border-inline-start-style: solid;
+  }
+  .pinfold-separator[data-variant='dashed'] .pinfold-separator__line { border-style: dashed; }
+  .pinfold-separator[data-variant='dotted'] .pinfold-separator__line { border-style: dotted; }
+
+  /* A label at the start or end: the line before or after it is a short lead-in. */
+  .pinfold-separator[data-label-position='start'] .pinfold-separator__line:first-child,
+  .pinfold-separator[data-label-position='end'] .pinfold-separator__line:last-child {
+    flex: 0 0 var(--pinfold-space-4);
+  }
+  .pinfold-separator__label {
+    flex-shrink: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-separator { --pinfold-sep-color: CanvasText; }
+  }
+}

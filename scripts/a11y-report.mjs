@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'a11y-report');
 const require = createRequire(import.meta.url);
-const { accordionMeta, buttonMeta, spinnerMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
+const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
@@ -40,6 +40,9 @@ const app = await build({
       import { useAccordion } from '@pinfold/react/accordion';
       import { Button } from '@pinfold/react/button';
       import { Spinner } from '@pinfold/react/spinner';
+      import { Separator } from '@pinfold/react/separator';
+      import { Kbd } from '@pinfold/react/kbd';
+      import { Skeleton } from '@pinfold/react/skeleton';
       // Buttons: every variant x tone (contrast), plus disabled, loading, icon-only, link, sizes.
       function Buttons({ pack = 'default' }) {
         const first = pack === 'default';
@@ -60,6 +63,11 @@ const app = await build({
             e(Button, { label: 'Large', size: 'lg', endIcon: icon }),
             ...['soft', 'outline'].map((variant) => e(Button, { key: variant, label: 'Saving ' + variant, variant, loading: true }))),
           e('p', null, ...['ring', 'arc', 'dots', 'bars', 'pulse', 'orbit'].map((variant) => e(Spinner, { key: variant, variant, label: 'Loading ' + variant })), e(Spinner, { tone: 'success', label: 'Uploading' }), e(Spinner, { label: '', tone: 'current' }), ' Loading text'),
+          e(Separator, { label: 'or', spacing: 'md' }),
+          e(Separator, { decorative: false, variant: 'dashed' }),
+          e('p', null, 'Search ', ...['outline', 'solid', 'ghost'].map((variant) => e(Kbd, { key: variant, variant, keys: ['mod', 'shift', 'k'] })), ' ', e(Kbd, { keys: ['mod', 'k'], display: 'symbols' })),
+          e(Skeleton, { lines: 3, label: 'Loading ' + pack }),
+          e('div', { style: { display: 'flex', gap: 12 } }, e(Skeleton, { variant: 'circle' }), e(Skeleton, { variant: 'rect', animation: 'wave' })),
         );
       }
       const items = [
@@ -103,6 +111,9 @@ const app = await build({
     '@pinfold/react/accordion': './packages/react/dist/accordion/index.js',
     '@pinfold/react/button': './packages/react/dist/button/index.js',
     '@pinfold/react/spinner': './packages/react/dist/spinner/index.js',
+    '@pinfold/react/separator': './packages/react/dist/separator/index.js',
+    '@pinfold/react/kbd': './packages/react/dist/kbd/index.js',
+    '@pinfold/react/skeleton': './packages/react/dist/skeleton/index.js',
   },
   logLevel: 'silent',
 });
@@ -247,7 +258,7 @@ await browser.close();
 const failed = results.checks.filter((c) => !c.pass);
 const violations = Object.values(results.axe).flatMap((r) => r.violations);
 const md = [
-  '# Accessibility report: accordion, button, spinner',
+  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton',
   '',
   `Generated ${new Date().toISOString()} by \`scripts/a11y-report.mjs\` on the built packages, in Chromium.`,
   `Pattern: ${accordionMeta.pattern}`,
@@ -273,7 +284,7 @@ const md = [
   '',
   ...accordionMeta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
   '',
-  ...[buttonMeta, spinnerMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
+  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
   '## Snapshots',
   '',
   ...results.snapshots.map((s) => `- ![${s}](${s})`),
