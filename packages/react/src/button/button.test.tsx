@@ -139,13 +139,13 @@ describe('Button', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     render(<Hook label="A" href="/a" type="submit" variant="link" radius="full" />);
     render(<Hook {...({ label: 'B', varient: 'soft' } as unknown as ButtonConfig)} />);
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 20));
-    });
-    const messages = warn.mock.calls.map((c) => String(c[0]));
-    expect(messages.some((m) => m.includes('`type` has no visible effect'))).toBe(true);
-    expect(messages.some((m) => m.includes('`radius` has no visible effect'))).toBe(true);
-    expect(messages.some((m) => m.includes('Did you mean `variant`?'))).toBe(true);
+    // The validator is a dev-only dynamic import: wait for its warnings rather than a fixed delay.
+    const messages = () => warn.mock.calls.map((c) => String(c[0]));
+    await vi.waitFor(() => {
+      expect(messages().some((m) => m.includes('`type` has no visible effect'))).toBe(true);
+      expect(messages().some((m) => m.includes('`radius` has no visible effect'))).toBe(true);
+      expect(messages().some((m) => m.includes('Did you mean `variant`?'))).toBe(true);
+    }, { timeout: 3000 });
   });
 
   it('component config beats defaults.button, which beats the provider', () => {

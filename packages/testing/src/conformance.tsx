@@ -22,7 +22,14 @@ export interface ConformanceOptions {
   preset?: {
     define: (preset: Record<string, unknown>) => React.ComponentType<any>;
     props: Record<string, unknown>;
+    /** The option the precedence is proven on, and three of its values. Default the first inherited setting, else `variant`. */
+    probe?: { key: string; values: readonly [string, string, string] };
   };
+  /**
+   * Provider settings the component follows. Default both. A separator or a skeleton has no
+   * tone, so a provider tone must not reach it.
+   */
+  inherits?: ReadonlyArray<'size' | 'tone'>;
   /** `false` for a component with no `variant` option (e.g. spinner). */
   variants?: boolean;
   /** Every slot the component documents. */
@@ -65,7 +72,7 @@ const BLOCK = (name: string) => `pinfold-${name}`;
  * focusable disabled controls — are tests, not documentation.
  */
 export function describePinfoldConformance(options: ConformanceOptions): void {
-  const { name, meta, preset, variants = true, slots, render, dimension, cssFile, hook, optionalSlots = [] } = options;
+  const { name, meta, preset, inherits = ['size', 'tone'], variants = true, slots, render, dimension, cssFile, hook, optionalSlots = [] } = options;
   const block = BLOCK(name);
 
   describe(`${name} — Pinfold conformance`, () => {
@@ -79,24 +86,35 @@ export function describePinfoldConformance(options: ConformanceOptions): void {
       const root = mount(render({}), block);
       // CSS keys off these, so headless consumers can reuse the stylesheet.
       if (variants) expect(root.getAttribute('data-variant')).toBeTruthy();
-      expect(root.getAttribute('data-size')).toBeTruthy();
-      expect(root.getAttribute('data-tone')).toBeTruthy();
+      for (const key of inherits) expect(root.getAttribute(`data-${key}`)).toBeTruthy();
       expect(root.className).not.toMatch(/\bis-[a-z]/);
     });
 
     // One precedence for every component and every option:
     // component config > `defaults.<name>` in the global config > provider > library default.
-    it('resolves size and tone as config > defaults.<name> > provider > library default', () => {
+    // Values per setting: [library default, provider, defaults.<name>, component config].
+    const LADDER = {"size":["md","sm","lg","md"],"tone":["primary","danger","success","info"]} as const;
+    it('resolves inherited settings as config > defaults.<name> > provider > library default', () => {
       const key = name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+      const provider = { size: LADDER.size[1], tone: LADDER.tone[1] };
+      const defaults = { [key]: Object.fromEntries(inherits.map((k) => [k, LADDER[k][2]])) } as never;
+      const own = Object.fromEntries(inherits.map((k) => [k, LADDER[k][3]]));
       const at = (element: React.ReactElement) => {
         const root = mount(element, block);
-        return [root.getAttribute('data-size'), root.getAttribute('data-tone')];
+        return Object.fromEntries((['size', 'tone'] as const).map((k) => [k, root.getAttribute(`data-${k}`)]));
       };
-      expect(at(render({}))).toEqual(['md', 'primary']);
-      expect(at(<PinfoldProvider size="sm" tone="danger">{render({})}</PinfoldProvider>)).toEqual(['sm', 'danger']);
-      const defaults = { [key]: { size: 'lg', tone: 'success' } } as never;
-      expect(at(<PinfoldProvider size="sm" tone="danger" defaults={defaults}>{render({})}</PinfoldProvider>)).toEqual(['lg', 'success']);
-      expect(at(<PinfoldProvider size="sm" tone="danger" defaults={defaults}>{render({ size: 'md', tone: 'info' })}</PinfoldProvider>)).toEqual(['md', 'info']);
+      const pick = (i: number) => Object.fromEntries(inherits.map((k) => [k, LADDER[k][i]]));
+      const expectAt = (got: Record<string, string | null>, i: number) => {
+        for (const k of inherits) expect(`${k}=${got[k]}`).toBe(`${k}=${pick(i)[k]}`);
+        // A setting the component does not follow must never leak from the provider.
+        for (const k of ['size', 'tone'] as const) if (!inherits.includes(k)) expect(got[k]).not.toBe(provider[k]);
+      };
+      expectAt(at(render({})), 0);
+      expectAt(at(<PinfoldProvider {...provider}>{render({})}</PinfoldProvider>), 1);
+      if (inherits.length) {
+        expectAt(at(<PinfoldProvider {...provider} defaults={defaults}>{render({})}</PinfoldProvider>), 2);
+        expectAt(at(<PinfoldProvider {...provider} defaults={defaults}>{render(own)}</PinfoldProvider>), 3);
+      }
     });
 
     it("honours the provider's disableAnimation (no data-animate on the root)", () => {
@@ -107,15 +125,16 @@ export function describePinfoldConformance(options: ConformanceOptions): void {
     if (preset) {
       it('resolves presets as use-site props > preset > defaults.<name> > provider', () => {
         const key = name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
-        const Preset = preset.define({ size: 'lg', tone: 'success', className: 'from-preset', classNames: { root: 'preset-root' } });
-        const defaults = { [key]: { size: 'sm', tone: 'danger' } } as never;
+        const probe = preset.probe ?? (inherits.length ? { key: inherits[0], values: inherits[0] === 'size' ? (['lg', 'sm', 'md'] as const) : (['success', 'danger', 'info'] as const) } : { key: 'variant', values: ['', '', ''] as const });
+        const [fromPresetValue, defaultsValue, ownValue] = probe.values;
+        const Preset = preset.define({ [probe.key]: fromPresetValue, className: 'from-preset', classNames: { root: 'preset-root' } });
+        const defaults = { [key]: { [probe.key]: defaultsValue } } as never;
         const inside = (el: React.ReactElement) => mount(<PinfoldProvider size="sm" tone="warning" defaults={defaults}>{el}</PinfoldProvider>, block);
+        const attr = `data-${probe.key.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())}`;
 
-        const fromPreset = inside(<Preset {...preset.props} />);
-        expect([fromPreset.getAttribute('data-size'), fromPreset.getAttribute('data-tone')]).toEqual(['lg', 'success']);
-
-        const own = inside(<Preset {...preset.props} size="md" tone="info" className="from-use" classNames={{ root: 'use-root' }} />);
-        expect([own.getAttribute('data-size'), own.getAttribute('data-tone')]).toEqual(['md', 'info']);
+        expect(inside(<Preset {...preset.props} />).getAttribute(attr)).toBe(fromPresetValue);
+        const own = inside(<Preset {...preset.props} {...{ [probe.key]: ownValue }} className="from-use" classNames={{ root: 'use-root' }} />);
+        expect(own.getAttribute(attr)).toBe(ownValue);
         // Classes add up instead of replacing each other; per-slot maps merge.
         for (const cls of ['from-preset', 'from-use', 'use-root']) expect(`${cls}:${own.classList.contains(cls)}`).toBe(`${cls}:true`);
       });

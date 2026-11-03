@@ -11,6 +11,9 @@
 import { accordionMeta } from './accordion.meta';
 import { buttonMeta } from './button.meta';
 import { spinnerMeta } from './spinner.meta';
+import { separatorMeta } from './separator.meta';
+import { kbdMeta } from './kbd.meta';
+import { skeletonMeta } from './skeleton.meta';
 
 export type PropType =
   | 'string'
@@ -303,5 +306,5 @@ export function metaToMarkdown(meta: ComponentMeta): string {
 }
 
 /** Every component's meta. Tooling iterates this. */
-export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta];
-export { accordionMeta, buttonMeta, spinnerMeta };
+export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta];
+export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta };

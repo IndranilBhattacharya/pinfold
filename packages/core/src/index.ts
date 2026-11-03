@@ -17,6 +17,9 @@ export { nextIndexFromKey, type ListNavOptions } from './navigation';
 export { dimensionVars } from './dimensions';
 export * from './accordion.logic';
 export * from './button.logic';
+export * from './kbd.logic';
+export * from './separator.logic';
+export * from './skeleton.logic';
 export { __DEV__, warnOnce, resetWarnings } from './dev';
 export type {
   PinfoldSize,
@@ -33,4 +36,4 @@ export type {
 } from './types';
 
 /** Package version. Set with `npm run version:set -- x.y.z` (versions.test.ts keeps every copy in sync). */
-export const version = '0.3.0';
+export const version = '0.4.0';

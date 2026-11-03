@@ -50,12 +50,51 @@
       "variants": [],
       "snippet": "<Spinner label=\"Loading\" />",
       "hook": "useSpinner"
+    },
+    {
+      "name": "separator",
+      "import": "@pinfold/react/separator",
+      "styles": "@pinfold/css/separator.css",
+      "status": "experimental",
+      "description": "A line between groups of content, with an optional label; solid, dashed or dotted.",
+      "variants": [
+        "solid",
+        "dashed",
+        "dotted"
+      ],
+      "hook": "useSeparator",
+      "snippet": "<Separator label=\"or\" />"
+    },
+    {
+      "name": "kbd",
+      "import": "@pinfold/react/kbd",
+      "styles": "@pinfold/css/kbd.css",
+      "status": "experimental",
+      "description": "A keyboard shortcut that adapts to the platform (⌘ on Apple, Ctrl elsewhere).",
+      "variants": [
+        "outline",
+        "solid",
+        "ghost"
+      ],
+      "hook": "useKbd",
+      "snippet": "<Kbd keys={['mod', 'k']} />"
+    },
+    {
+      "name": "skeleton",
+      "import": "@pinfold/react/skeleton",
+      "styles": "@pinfold/css/skeleton.css",
+      "status": "experimental",
+      "description": "A loading placeholder that swaps to the real content.",
+      "variants": [
+        "text",
+        "rect",
+        "circle"
+      ],
+      "hook": "useSkeleton",
+      "snippet": "<Skeleton lines={3} />"
     }
   ],
   "planned": [
-    "separator",
-    "kbd",
-    "skeleton",
     "badge",
     "alert",
     "avatar",
