@@ -106,13 +106,58 @@
       ],
       "hook": "useBadge",
       "snippet": "<Badge label=\"New\" />"
+    },
+    {
+      "name": "alert",
+      "import": "@pinfold/react/alert",
+      "styles": "@pinfold/css/alert.css",
+      "status": "experimental",
+      "description": "A message box with a tone icon, title, description, actions and dismiss.",
+      "variants": [
+        "soft",
+        "outline",
+        "accent"
+      ],
+      "hook": "useAlert",
+      "snippet": "<Alert title=\"Saved\" tone=\"success\" />"
+    },
+    {
+      "name": "avatar",
+      "import": "@pinfold/react/avatar",
+      "styles": "@pinfold/css/avatar.css",
+      "status": "experimental",
+      "description": "A picture with initials as the fallback, a presence dot, or a stacked group.",
+      "variants": [],
+      "hook": "useAvatar",
+      "snippet": "<Avatar name=\"Ada Lovelace\" />"
+    },
+    {
+      "name": "card",
+      "import": "@pinfold/react/card",
+      "styles": "@pinfold/css/card.css",
+      "status": "experimental",
+      "description": "A surface with an image, a real heading, content and actions; optionally one link.",
+      "variants": [
+        "outline",
+        "elevated",
+        "filled",
+        "ghost"
+      ],
+      "hook": "useCard",
+      "snippet": "<Card title=\"Pro\" description=\"For teams\" />"
+    },
+    {
+      "name": "progress",
+      "import": "@pinfold/react/progress",
+      "styles": "@pinfold/css/progress.css",
+      "status": "experimental",
+      "description": "A progress bar or ring, determinate or indeterminate, or a meter.",
+      "variants": [],
+      "hook": "useProgress",
+      "snippet": "<Progress label=\"Uploading\" value={40} />"
     }
   ],
   "planned": [
-    "alert",
-    "avatar",
-    "card",
-    "progress",
     "tooltip",
     "popover",
     "dialog",

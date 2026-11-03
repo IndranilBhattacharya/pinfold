@@ -1,0 +1,86 @@
+/* Pinfold — alert. Colour from the shared tone tokens (--pinfold-tone-*) selected by the root's
+   `data-tone`; the body text stays the theme text colour, so only the icon, title and edge carry
+   the tone. Style packs reach it through the surface, edge, radius and texture tokens. */
+
+@layer pinfold.components {
+  .pinfold-alert {
+    --pinfold-alt-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-alt-text: color-mix(in oklch, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text));
+    --pinfold-alt-pad: var(--pinfold-alert-padding, var(--pinfold-space-4));
+    --pinfold-alt-gap: var(--pinfold-alert-gap, var(--pinfold-space-3));
+    --pinfold-alt-icon: var(--pinfold-alert-icon-size, 1.25rem);
+
+    display: flex;
+    align-items: flex-start;
+    gap: var(--pinfold-alt-gap);
+    box-sizing: border-box;
+    inline-size: 100%;
+    padding: var(--pinfold-alt-pad);
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-text-sm);
+    line-height: 1.5;
+    color: var(--pinfold-color-text);
+    border: var(--pinfold-border-width) solid transparent;
+    border-radius: var(--pinfold-alert-radius, var(--pinfold-radius-md));
+    background-image: var(--pinfold-texture);
+  }
+  .pinfold-alert[hidden] { display: none; }
+
+  .pinfold-alert[data-variant='soft'] {
+    background-color: color-mix(in oklch, var(--pinfold-alt-solid) 12%, var(--pinfold-color-surface));
+    border-color: var(--pinfold-control-edge, color-mix(in oklch, var(--pinfold-alt-solid) 28%, transparent));
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-alert[data-variant='outline'] {
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border-color: var(--pinfold-control-edge, color-mix(in oklch, var(--pinfold-alt-solid) 55%, var(--pinfold-color-border)));
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-alert[data-variant='accent'] {
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border-color: var(--pinfold-color-border);
+    border-inline-start: 0.25rem solid var(--pinfold-alt-solid);
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+
+  .pinfold-alert__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    /* Centred on the first line of text. */
+    margin-block-start: calc((1.5em - var(--pinfold-alt-icon)) / 2);
+    color: var(--pinfold-alt-text);
+  }
+  .pinfold-alert__icon > svg {
+    inline-size: var(--pinfold-alt-icon);
+    block-size: var(--pinfold-alt-icon);
+  }
+  .pinfold-alert__content {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: var(--pinfold-space-1);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+  .pinfold-alert__title {
+    font-weight: var(--pinfold-weight-semibold);
+    color: var(--pinfold-alt-text);
+  }
+  .pinfold-alert__description { color: var(--pinfold-color-text-muted); }
+  .pinfold-alert__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pinfold-space-2);
+    margin-block-start: var(--pinfold-space-2);
+  }
+  .pinfold-alert__dismiss {
+    display: inline-flex;
+    flex-shrink: 0;
+    margin-block: calc(-1 * var(--pinfold-space-1));
+    margin-inline-end: calc(-1 * var(--pinfold-space-1));
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-alert { border-color: CanvasText; }
+  }
+}

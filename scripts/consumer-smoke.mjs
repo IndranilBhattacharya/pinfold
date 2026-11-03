@@ -60,8 +60,12 @@ const { Separator } = ${load('@pinfold/react/separator')};
 const { Kbd } = ${load('@pinfold/react/kbd')};
 const { Skeleton } = ${load('@pinfold/react/skeleton')};
 const { Badge } = ${load('@pinfold/react/badge')};
-const buttons = renderToString(React.createElement('div', null, React.createElement(Button, { label: 'Go', tone: 'danger' }), React.createElement(Spinner), React.createElement(Separator, { label: 'or' }), React.createElement(Kbd, { keys: ['mod', 'k'] }), React.createElement(Skeleton, { lines: 2 }), React.createElement(Badge, { count: 120 })));
-for (const text of ['pinfold-button', 'data-tone="danger"', '>Go<', 'role="status"', 'pinfold-separator', '>or<', 'Ctrl', 'aria-busy="true"', '>99+<']) {
+const { Alert } = ${load('@pinfold/react/alert')};
+const { Avatar } = ${load('@pinfold/react/avatar')};
+const { Card } = ${load('@pinfold/react/card')};
+const { Progress } = ${load('@pinfold/react/progress')};
+const buttons = renderToString(React.createElement('div', null, React.createElement(Button, { label: 'Go', tone: 'danger' }), React.createElement(Spinner), React.createElement(Separator, { label: 'or' }), React.createElement(Kbd, { keys: ['mod', 'k'] }), React.createElement(Skeleton, { lines: 2 }), React.createElement(Badge, { count: 120 }), React.createElement(Alert, { title: 'Saved', live: 'polite' }), React.createElement(Avatar, { name: 'Ada Lovelace' }), React.createElement(Card, { title: 'Pro', href: '/pro' }), React.createElement(Progress, { label: 'Up', value: 5 })));
+for (const text of ['pinfold-button', 'data-tone="danger"', '>Go<', 'role="status"', 'pinfold-separator', '>or<', 'Ctrl', 'aria-busy="true"', '>99+<', 'role="status"', '>AL<', 'href="/pro"', 'aria-valuenow="5"']) {
   if (!buttons.includes(text)) throw new Error('button HTML is missing ' + JSON.stringify(text) + ':\\n' + buttons);
 }
 if (!createTheme({ primary: 'emerald' }).vars['--pinfold-primary-500']) throw new Error('palette broken');

@@ -1,0 +1,136 @@
+/* Pinfold — card. A surface from the theme tokens, so style packs restyle it (glass panes,
+   material depth, brutalist offsets). A linked card stretches its title link over the whole
+   card and draws the focus ring around it. */
+
+@layer pinfold.components {
+  .pinfold-card {
+    --pinfold-crd-pad: var(--pinfold-card-padding, var(--pinfold-space-5));
+    --pinfold-crd-gap: var(--pinfold-card-gap, var(--pinfold-space-2));
+    --pinfold-crd-radius: var(--pinfold-card-radius, var(--pinfold-radius-lg));
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    overflow: hidden;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-text-sm);
+    line-height: 1.5;
+    color: var(--pinfold-color-text);
+    border: var(--pinfold-border-width) solid transparent;
+    border-radius: var(--pinfold-crd-radius);
+    background-image: var(--pinfold-texture);
+  }
+  li.pinfold-card { list-style: none; }
+  .pinfold-card[data-padding='none'] { --pinfold-crd-pad: var(--pinfold-card-padding, 0px); }
+  .pinfold-card[data-padding='sm'] { --pinfold-crd-pad: var(--pinfold-card-padding, var(--pinfold-space-3)); }
+  .pinfold-card[data-padding='lg'] { --pinfold-crd-pad: var(--pinfold-card-padding, var(--pinfold-space-8)); }
+
+  .pinfold-card[data-variant='outline'] {
+    background-color: var(--pinfold-color-surface);
+    border-color: var(--pinfold-color-border);
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-card[data-variant='elevated'] {
+    background-color: var(--pinfold-color-surface);
+    border-color: var(--pinfold-control-edge, transparent);
+    box-shadow: var(--pinfold-shadow-md);
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-card[data-variant='filled'] {
+    background-color: var(--pinfold-color-bg-subtle);
+    border-color: var(--pinfold-control-edge, transparent);
+  }
+  .pinfold-card[data-variant='ghost'] { background-image: none; }
+
+  .pinfold-card__media {
+    display: block;
+    inline-size: 100%;
+    block-size: var(--pinfold-card-media-size, auto);
+    max-block-size: 20rem;
+    object-fit: cover;
+    background: var(--pinfold-color-bg-subtle);
+  }
+  .pinfold-card__body {
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: var(--pinfold-crd-gap);
+    min-inline-size: 0;
+    padding: var(--pinfold-crd-pad);
+    overflow-wrap: anywhere;
+  }
+  .pinfold-card__title {
+    margin: 0;
+    font-size: var(--pinfold-text-lg, 1.125rem);
+    font-weight: var(--pinfold-weight-semibold);
+    line-height: 1.3;
+    color: var(--pinfold-color-text);
+  }
+  .pinfold-card__description {
+    margin: 0;
+    color: var(--pinfold-color-text-muted);
+  }
+  .pinfold-card__content { min-inline-size: 0; }
+  .pinfold-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pinfold-space-2);
+    margin-block-start: auto;
+    padding-block-start: var(--pinfold-space-2);
+  }
+
+  /* Image at the start. The two parts wrap onto separate rows when the card is narrower than
+     both minimums together (about 30rem): responsive with no media or container query. */
+  .pinfold-card[data-orientation='horizontal'] {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .pinfold-card[data-orientation='horizontal'] > .pinfold-card__media {
+    flex: 1 1 var(--pinfold-card-media-size, 12rem);
+    inline-size: auto;
+    min-inline-size: 0;
+    block-size: auto;
+    min-block-size: 10rem;
+    max-block-size: none;
+  }
+  .pinfold-card[data-orientation='horizontal'] > .pinfold-card__body { flex: 999 1 18rem; }
+
+  /* A linked card: the title link covers the card; buttons inside sit above it. */
+  .pinfold-card__link {
+    color: inherit;
+    text-decoration: none;
+  }
+  /* The ring goes around the card (below), not around the title text. */
+  .pinfold-card__link:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  .pinfold-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+  }
+  .pinfold-card[data-link] .pinfold-card__actions,
+  .pinfold-card[data-link] .pinfold-card__content a,
+  .pinfold-card[data-link] .pinfold-card__content button {
+    position: relative;
+    z-index: 2;
+  }
+  .pinfold-card[data-link]:hover .pinfold-card__link { text-decoration: underline; text-underline-offset: 0.2em; }
+  .pinfold-card[data-link]:hover { border-color: var(--pinfold-control-edge, var(--pinfold-color-border-strong)); }
+  .pinfold-card__link:focus-visible::after {
+    /* Inset: the card clips its corners (overflow hidden), an outer ring would be cut off. */
+    box-shadow: inset 0 0 0 2px var(--pinfold-color-ring, var(--pinfold-color-accent)), inset 0 0 0 4px var(--pinfold-color-bg);
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-card { border-color: CanvasText; }
+    .pinfold-card__link:focus-visible::after { outline: 2px solid Highlight; outline-offset: -2px; }
+  }
+}

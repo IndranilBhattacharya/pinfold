@@ -4,6 +4,8 @@ import { formatKeys, inactiveKbdOptions, kbdOs } from './kbd.logic';
 import { inactiveSeparatorOptions } from './separator.logic';
 import { inactiveSkeletonOptions, skeletonLineWidths } from './skeleton.logic';
 import { badgeCount, inactiveBadgeOptions } from './badge.logic';
+import { avatarInitials, avatarOverflow, avatarTone, inactiveAvatarOptions } from './avatar.logic';
+import { inactiveProgressOptions, progressPercent, progressValueText } from './progress.logic';
 
 describe('kbd logic', () => {
   it('maps mod to Command on Apple platforms and Ctrl elsewhere, with spoken names', () => {
@@ -62,5 +64,44 @@ describe('badge logic', () => {
     expect(Object.keys(inactiveBadgeOptions({}))).toEqual(['max', 'showZero']);
     expect(inactiveBadgeOptions({ count: 3 })).toEqual({});
     expect(Object.keys(inactiveBadgeOptions({ dot: true, count: 3 }))).toEqual(['max', 'showZero', 'icon', 'radius']);
+  });
+});
+
+describe('avatar logic', () => {
+  it('makes initials and a stable tone from a name', () => {
+    expect(avatarInitials('Ada Lovelace')).toBe('AL');
+    expect(avatarInitials('  grace  brewster murray hopper ')).toBe('GH');
+    expect(avatarInitials('Ümit')).toBe('Ü');
+    expect(avatarInitials('')).toBe('');
+    expect(avatarTone('Ada Lovelace')).toBe(avatarTone('Ada Lovelace'));
+    expect(['primary', 'info', 'success', 'warning', 'neutral']).toContain(avatarTone('x'));
+  });
+
+  it('folds a group into +N, never +1', () => {
+    expect(avatarOverflow(3, 4)).toEqual({ shown: 3, rest: 0 });
+    expect(avatarOverflow(5, 4)).toEqual({ shown: 5, rest: 0 });
+    expect(avatarOverflow(9, 4)).toEqual({ shown: 4, rest: 5 });
+  });
+
+  it('lists per-person options as inactive in a group', () => {
+    expect(Object.keys(inactiveAvatarOptions({}))).toEqual(['max', 'label']);
+    expect(Object.keys(inactiveAvatarOptions({ items: [] }))).toContain('src');
+  });
+});
+
+describe('progress logic', () => {
+  it('maps a value onto 0-100, clamped; no value is null', () => {
+    expect(progressPercent(42)).toBe(42);
+    expect(progressPercent(5, 0, 20)).toBe(25);
+    expect(progressPercent(150)).toBe(100);
+    expect(progressPercent(-1)).toBe(0);
+    expect(progressPercent(undefined)).toBeNull();
+    expect(progressPercent(3, 5, 5)).toBe(0);
+    expect(progressValueText(42.4)).toBe('42%');
+  });
+
+  it('lists the value options as inactive while indeterminate', () => {
+    expect(Object.keys(inactiveProgressOptions({}))).toEqual(['showValue', 'formatValue']);
+    expect(inactiveProgressOptions({ value: 3 })).toEqual({});
   });
 });

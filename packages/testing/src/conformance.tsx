@@ -148,8 +148,10 @@ export function describePinfoldConformance(options: ConformanceOptions): void {
           const attr = `data-${kebabKey(key)}`;
           const plain = mount(render({}), block);
           if (!plain.hasAttribute(attr)) continue; // not reflected on the root
-          if (prop.default !== undefined) expect(`${key}=${plain.getAttribute(attr)}`).toBe(`${key}=${prop.default}`);
+          // `auto` resolves to a concrete value (an avatar's tone comes from the name), so only real values must round-trip.
+          if (prop.default !== undefined && prop.default !== 'auto') expect(`${key}=${plain.getAttribute(attr)}`).toBe(`${key}=${prop.default}`);
           for (const value of prop.values) {
+            if (value === 'auto') continue;
             const root = mount(render({ [key]: value }), block);
             expect(`${key}=${root.getAttribute(attr)}`).toBe(`${key}=${value}`);
           }

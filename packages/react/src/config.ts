@@ -6,6 +6,10 @@ import type { SeparatorConfig } from './separator/types';
 import type { KbdConfig } from './kbd/types';
 import type { SkeletonConfig } from './skeleton/types';
 import type { BadgeConfig } from './badge/types';
+import type { ProgressConfig } from './progress/types';
+import type { CardConfig } from './card/types';
+import type { AvatarConfig } from './avatar/types';
+import type { AlertConfig } from './alert/types';
 
 /** Per-component defaults. Data, state and ids never belong here, only how components look and behave. */
 export interface PinfoldComponentDefaults {
@@ -16,6 +20,10 @@ export interface PinfoldComponentDefaults {
   kbd?: Omit<KbdConfig, 'keys'>;
   skeleton?: Omit<SkeletonConfig, 'content' | 'loading'>;
   badge?: Omit<BadgeConfig, 'label' | 'count'>;
+  progress?: Omit<ProgressConfig, 'value' | 'label'>;
+  card?: Omit<CardConfig, 'title' | 'description' | 'content' | 'image' | 'actions' | 'href' | 'target' | 'rel'>;
+  avatar?: Omit<AvatarConfig, 'name' | 'src' | 'alt' | 'initials' | 'status' | 'items' | 'label'>;
+  alert?: Omit<AlertConfig, 'title' | 'description' | 'actions' | 'onDismiss'>;
 }
 
 /**
