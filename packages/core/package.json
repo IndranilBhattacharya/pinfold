@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Pinfold core: framework-free logic, palette engine and helpers shared by every Pinfold adapter.",
   "author": "Indranil Bhattacharya",
   "keywords": [

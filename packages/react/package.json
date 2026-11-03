@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -112,7 +112,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.2.0"
+    "@pinfold/core": "0.3.0"
   },
   "peerDependencies": {
     "react": ">=18"

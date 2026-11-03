@@ -41,7 +41,13 @@ each component's reference as a resource. Nothing is hosted.
 - Tokens map onto shadcn's CSS variables (`--primary`, `--background`, …) as an opt-in, so Pinfold components look at home in shadcn apps (`@pinfold/css/shadcn.css`).
 
 ## Release process
-- Changesets for versioning and changelogs (**Planned**).
-- Publish from GitHub Actions (`.github/workflows/release.yml`, manual trigger) with **npm trusted publishing** (OIDC) and `--provenance`. No long-lived tokens. The very first publish of each package is manual (a package must exist before a trusted publisher can be attached). The workflow audits the dependency tree and the installed tarballs (`npm audit`, zero findings allowed), then runs `scripts/publish.mjs`, which publishes only the package versions that are not on npm yet: bump a version to release that package; a re-run is safe.
+- One version for every package. Releasing:
+  1. `npm run version:set -- 0.4.0` writes it into every `package.json`, the `@pinfold/*` dependencies,
+     the `version` constant in `@pinfold/core` and the CLI's MCP server, and refreshes the lockfile
+     (`versions.test.ts` fails if any copy drifts).
+  2. Commit and push; wait for CI.
+  3. Actions → Release → Run workflow, then approve it (the `npm` environment requires a reviewer).
+- Publish from GitHub Actions (`.github/workflows/release.yml`, manual trigger) with **npm trusted publishing** (OIDC) and `--provenance`. No long-lived tokens. The very first publish of each package is manual (a package must exist before a trusted publisher can be attached). The workflow audits the dependency tree and the installed tarballs (`npm audit`, zero findings allowed), then runs `scripts/publish.mjs`, which publishes the versions that are not on npm yet (a half-finished release can be re-run) and **fails when there is nothing new to publish**, so a forgotten version bump shows up red instead of a silent success.
+- Changesets for changelogs (**Planned**).
 - Maintainer account: 2FA with passkeys. Packages have no install scripts. A release fails if a runtime dependency appears.
 - Pre-release tags (`next`) for internal feedback before each stable release.
