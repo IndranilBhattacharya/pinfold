@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -18,7 +18,11 @@
     "separator",
     "kbd",
     "skeleton",
-    "badge"
+    "badge",
+    "alert",
+    "avatar",
+    "card",
+    "progress"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -124,6 +128,46 @@
         "default": "./dist/badge/index.cjs"
       }
     },
+    "./alert": {
+      "import": {
+        "types": "./dist/alert/index.d.ts",
+        "default": "./dist/alert/index.js"
+      },
+      "require": {
+        "types": "./dist/alert/index.d.cts",
+        "default": "./dist/alert/index.cjs"
+      }
+    },
+    "./avatar": {
+      "import": {
+        "types": "./dist/avatar/index.d.ts",
+        "default": "./dist/avatar/index.js"
+      },
+      "require": {
+        "types": "./dist/avatar/index.d.cts",
+        "default": "./dist/avatar/index.cjs"
+      }
+    },
+    "./card": {
+      "import": {
+        "types": "./dist/card/index.d.ts",
+        "default": "./dist/card/index.js"
+      },
+      "require": {
+        "types": "./dist/card/index.d.cts",
+        "default": "./dist/card/index.cjs"
+      }
+    },
+    "./progress": {
+      "import": {
+        "types": "./dist/progress/index.d.ts",
+        "default": "./dist/progress/index.js"
+      },
+      "require": {
+        "types": "./dist/progress/index.d.cts",
+        "default": "./dist/progress/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -151,6 +195,18 @@
       ],
       "badge": [
         "./dist/badge/index.d.cts"
+      ],
+      "alert": [
+        "./dist/alert/index.d.cts"
+      ],
+      "avatar": [
+        "./dist/avatar/index.d.cts"
+      ],
+      "card": [
+        "./dist/card/index.d.cts"
+      ],
+      "progress": [
+        "./dist/progress/index.d.cts"
       ]
     }
   },
@@ -163,6 +219,10 @@
     "kbd",
     "skeleton",
     "badge",
+    "alert",
+    "avatar",
+    "card",
+    "progress",
     "registry",
     "schema",
     "llms.txt",
@@ -172,7 +232,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.5.0"
+    "@pinfold/core": "0.6.0"
   },
   "peerDependencies": {
     "react": ">=18"

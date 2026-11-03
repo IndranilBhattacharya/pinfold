@@ -21,6 +21,10 @@ export * from './kbd.logic';
 export * from './separator.logic';
 export * from './skeleton.logic';
 export * from './badge.logic';
+export * from './alert.logic';
+export * from './avatar.logic';
+export * from './card.logic';
+export * from './progress.logic';
 export { __DEV__, warnOnce, resetWarnings } from './dev';
 export type {
   PinfoldSize,
@@ -37,4 +41,4 @@ export type {
 } from './types';
 
 /** Package version. Set with `npm run version:set -- x.y.z` (versions.test.ts keeps every copy in sync). */
-export const version = '0.5.0';
+export const version = '0.6.0';

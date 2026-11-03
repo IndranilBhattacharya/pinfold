@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'a11y-report');
 const require = createRequire(import.meta.url);
-const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
+const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
@@ -44,6 +44,10 @@ const app = await build({
       import { Kbd } from '@pinfold/react/kbd';
       import { Skeleton } from '@pinfold/react/skeleton';
       import { Badge } from '@pinfold/react/badge';
+      import { Alert } from '@pinfold/react/alert';
+      import { Avatar } from '@pinfold/react/avatar';
+      import { Card } from '@pinfold/react/card';
+      import { Progress } from '@pinfold/react/progress';
       // Buttons: every variant x tone (contrast), plus disabled, loading, icon-only, link, sizes.
       function Buttons({ pack = 'default' }) {
         const first = pack === 'default';
@@ -72,6 +76,13 @@ const app = await build({
           ...['solid', 'soft', 'outline'].map((variant) => e('p', { key: 'badge-' + variant }, ...tones.map((tone) => e(Badge, { key: tone, variant, tone, label: variant + ' ' + tone })))),
           e('p', null, e(Badge, { count: 120, label: 'unread messages' }), e(Badge, { count: 0 }), e(Badge, { dot: true, tone: 'success', label: 'Online' }), e(Badge, { size: 'sm', label: 'Small' }), e(Badge, { size: 'lg', label: 'Large', icon })),
           e('p', null, e('span', { style: { position: 'relative', display: 'inline-flex' } }, e(Button, { label: 'Inbox', icon, iconOnly: true, variant: 'ghost' }), e(Badge, { count: 3, tone: 'danger', placement: 'top-end', label: 'unread' }))),
+          ...['soft', 'outline', 'accent'].flatMap((variant) => tones.map((tone) => e(Alert, { key: variant + tone, variant, tone, title: variant + ' ' + tone + ' (' + pack + ')', description: 'Details for this message.', actions: [{ label: 'Retry' }, { label: 'Details' }], dismissible: true }))),
+          e(Alert, { tone: 'danger', live: 'assertive', title: 'Live alert ' + pack }),
+          e('p', null, e(Avatar, { name: 'Ada Lovelace', status: 'online' }), e(Avatar, { name: 'Grace Hopper', size: 'lg', shape: 'square', status: 'offline' }), e(Avatar, { name: 'Alan Turing', tone: 'danger', size: 'sm' }), e(Avatar, { items: ['Ada Lovelace', 'Grace Hopper', 'Alan Turing', 'Katherine Johnson', 'Edsger Dijkstra', 'Barbara Liskov'].map((name) => ({ name })), max: 3, label: 'Members ' + pack })),
+          ...['outline', 'elevated', 'filled', 'ghost'].map((variant) => e(Card, { key: variant, variant, title: 'Card ' + variant + ' ' + pack, description: 'A short description.', content: 'Body text.', actions: [{ label: 'Open' }, { label: 'Share' }] })),
+          e(Card, { title: 'Linked card ' + pack, description: 'Whole card is a link.', href: '#top', orientation: 'horizontal', image: { src: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=', alt: '' } }),
+          ...tones.map((tone) => e(Progress, { key: tone, tone, label: 'Upload ' + tone + ' ' + pack, value: 40, showValue: true })),
+          e(Progress, { label: 'Loading ' + pack }), e(Progress, { shape: 'circle', label: 'Ring ' + pack, value: 70, showValue: true }), e(Progress, { kind: 'meter', label: 'Storage ' + pack, value: 16, max: 64 }),
         );
       }
       const items = [
@@ -119,6 +130,10 @@ const app = await build({
     '@pinfold/react/kbd': './packages/react/dist/kbd/index.js',
     '@pinfold/react/skeleton': './packages/react/dist/skeleton/index.js',
     '@pinfold/react/badge': './packages/react/dist/badge/index.js',
+    '@pinfold/react/alert': './packages/react/dist/alert/index.js',
+    '@pinfold/react/avatar': './packages/react/dist/avatar/index.js',
+    '@pinfold/react/card': './packages/react/dist/card/index.js',
+    '@pinfold/react/progress': './packages/react/dist/progress/index.js',
   },
   logLevel: 'silent',
 });
@@ -263,7 +278,7 @@ await browser.close();
 const failed = results.checks.filter((c) => !c.pass);
 const violations = Object.values(results.axe).flatMap((r) => r.violations);
 const md = [
-  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge',
+  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress',
   '',
   `Generated ${new Date().toISOString()} by \`scripts/a11y-report.mjs\` on the built packages, in Chromium.`,
   `Pattern: ${accordionMeta.pattern}`,
@@ -289,7 +304,7 @@ const md = [
   '',
   ...accordionMeta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
   '',
-  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
+  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
   '## Snapshots',
   '',
   ...results.snapshots.map((s) => `- ![${s}](${s})`),
