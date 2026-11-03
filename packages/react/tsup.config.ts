@@ -58,6 +58,7 @@ export default defineConfig([
       'separator/client': 'src/separator/client.ts',
       'kbd/client': 'src/kbd/client.ts',
       'skeleton/client': 'src/skeleton/client.ts',
+      'badge/client': 'src/badge/client.ts',
     },
     splitting: true,
     // Rollup's tree-shaking pass strips module directives; esbuild's own tree-shaking keeps the banner.
@@ -79,6 +80,7 @@ export default defineConfig([
         'separator/index': 'src/separator/index.ts',
         'kbd/index': 'src/kbd/index.ts',
         'skeleton/index': 'src/skeleton/index.ts',
+        'badge/index': 'src/badge/index.ts',
       },
       splitting: false,
       esbuildPlugins: [keepClientExternal(format === 'esm' ? '.js' : '.cjs')],

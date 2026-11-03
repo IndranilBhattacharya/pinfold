@@ -1,0 +1,131 @@
+/* Pinfold — badge. Colour from the shared tone tokens (--pinfold-tone-*) selected by the
+   root's `data-tone`; style packs reach it through the control tokens (edge, surface, round)
+   and the texture. `dimensions` writes --pinfold-badge-* and wins through the fallbacks. */
+
+@layer pinfold.components {
+  .pinfold-badge {
+    --pinfold-bdg-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-bdg-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    /* Same formula as the button: tone text pulled toward the theme text, 4.5:1 on its tint. */
+    --pinfold-bdg-text: color-mix(in oklch, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text));
+    --pinfold-bdg-h: var(--pinfold-badge-height, 1.375rem);
+    --pinfold-bdg-px: var(--pinfold-badge-padding-x, 0.5rem);
+    --pinfold-bdg-font: var(--pinfold-badge-font-size, 0.75rem);
+    --pinfold-bdg-dot: var(--pinfold-badge-dot-size, 0.5rem);
+    --pinfold-bdg-radius: var(--pinfold-radius-full);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pinfold-badge-gap, 0.25rem);
+    box-sizing: border-box;
+    min-inline-size: var(--pinfold-bdg-h);
+    max-inline-size: 100%;
+    block-size: var(--pinfold-bdg-h);
+    padding-inline: var(--pinfold-bdg-px);
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-bdg-font);
+    font-weight: var(--pinfold-weight-medium);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    white-space: nowrap;
+    vertical-align: middle;
+    color: var(--pinfold-bdg-text);
+    border: var(--pinfold-border-width) solid transparent;
+    border-radius: var(--pinfold-bdg-radius);
+  }
+  .pinfold-badge[hidden] { display: none; }
+
+  .pinfold-badge[data-size='sm'] {
+    --pinfold-bdg-h: var(--pinfold-badge-height, 1.125rem);
+    --pinfold-bdg-px: var(--pinfold-badge-padding-x, 0.375rem);
+    --pinfold-bdg-font: var(--pinfold-badge-font-size, 0.6875rem);
+    --pinfold-bdg-dot: var(--pinfold-badge-dot-size, 0.375rem);
+  }
+  .pinfold-badge[data-size='lg'] {
+    --pinfold-bdg-h: var(--pinfold-badge-height, 1.75rem);
+    --pinfold-bdg-px: var(--pinfold-badge-padding-x, 0.625rem);
+    --pinfold-bdg-font: var(--pinfold-badge-font-size, 0.875rem);
+    --pinfold-bdg-dot: var(--pinfold-badge-dot-size, 0.625rem);
+  }
+
+  .pinfold-badge[data-radius='none'] { --pinfold-bdg-radius: 0; }
+  .pinfold-badge[data-radius='sm'] { --pinfold-bdg-radius: calc(0.25rem * var(--pinfold-radius-scale, 1)); }
+  .pinfold-badge[data-radius='md'] { --pinfold-bdg-radius: calc(0.375rem * var(--pinfold-radius-scale, 1)); }
+
+  .pinfold-badge[data-variant='solid'] {
+    background-color: var(--pinfold-bdg-solid);
+    background-image: var(--pinfold-texture);
+    color: var(--pinfold-bdg-on);
+    border-color: var(--pinfold-control-edge, transparent);
+  }
+  .pinfold-badge[data-variant='soft'] {
+    background-color: color-mix(in oklch, var(--pinfold-bdg-solid) 14%, var(--pinfold-control-surface, transparent));
+    background-image: var(--pinfold-texture);
+    border-color: var(--pinfold-control-edge, transparent);
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-badge[data-variant='outline'] {
+    background-color: var(--pinfold-control-surface, transparent);
+    border-color: var(--pinfold-control-edge, color-mix(in oklch, var(--pinfold-bdg-text) 45%, var(--pinfold-color-border)));
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+
+  .pinfold-badge[data-kind='dot'] {
+    min-inline-size: 0;
+    inline-size: var(--pinfold-bdg-dot);
+    block-size: var(--pinfold-bdg-dot);
+    padding: 0;
+    border-radius: var(--pinfold-control-round, 50%);
+  }
+  /* A dot is too small to read a tint: soft is the fill with a halo, outline a ring. */
+  .pinfold-badge[data-kind='dot'][data-variant='soft'] {
+    background-color: var(--pinfold-bdg-solid);
+    box-shadow: 0 0 0 calc(var(--pinfold-bdg-dot) / 3) color-mix(in oklch, var(--pinfold-bdg-solid) 32%, transparent);
+  }
+  .pinfold-badge[data-kind='dot'][data-variant='outline'] {
+    border-width: max(2px, calc(var(--pinfold-bdg-dot) / 4));
+    border-color: var(--pinfold-bdg-solid);
+  }
+
+  .pinfold-badge__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    margin-inline-start: calc(var(--pinfold-bdg-px) * -0.25);
+  }
+  .pinfold-badge__icon > svg {
+    inline-size: 1.1em;
+    block-size: 1.1em;
+  }
+  .pinfold-badge__label {
+    min-inline-size: 0;
+    /* Room for descenders: the label clips (ellipsis), line-height 1 would cut "g" and "y". */
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Pinned to a corner of the nearest positioned parent, centred on it; a ring in the page
+     colour keeps it apart from the icon or avatar underneath. Logical insets flip in RTL. */
+  .pinfold-badge:not([data-placement='inline']) {
+    --pinfold-bdg-off: calc(var(--pinfold-bdg-h) / -2);
+    position: absolute;
+    z-index: 1;
+    box-shadow: 0 0 0 2px var(--pinfold-color-bg);
+    pointer-events: none;
+  }
+  /* A dot sits just inside the corner, on the edge of a round avatar. */
+  .pinfold-badge[data-kind='dot']:not([data-placement='inline']) { --pinfold-bdg-off: 0px; }
+  .pinfold-badge[data-kind='dot'][data-variant='soft']:not([data-placement='inline']) {
+    box-shadow: 0 0 0 2px var(--pinfold-color-bg), 0 0 0 calc(2px + var(--pinfold-bdg-dot) / 3) color-mix(in oklch, var(--pinfold-bdg-solid) 32%, transparent);
+  }
+  .pinfold-badge[data-placement='top-end'] { inset-block-start: var(--pinfold-bdg-off); inset-inline-end: var(--pinfold-bdg-off); }
+  .pinfold-badge[data-placement='top-start'] { inset-block-start: var(--pinfold-bdg-off); inset-inline-start: var(--pinfold-bdg-off); }
+  .pinfold-badge[data-placement='bottom-end'] { inset-block-end: var(--pinfold-bdg-off); inset-inline-end: var(--pinfold-bdg-off); }
+  .pinfold-badge[data-placement='bottom-start'] { inset-block-end: var(--pinfold-bdg-off); inset-inline-start: var(--pinfold-bdg-off); }
+
+  @media (forced-colors: active) {
+    .pinfold-badge { border-color: CanvasText; }
+    .pinfold-badge[data-kind='dot'] { forced-color-adjust: none; background: CanvasText; }
+  }
+}

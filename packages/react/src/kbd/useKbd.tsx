@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { cn, dimensionVars, formatKeys, inactiveKbdOptions, kbdOs, mergeProps, warnOnce, type KbdOs, type PropsBag } from '@pinfold/core';
 import { usePinfold } from '../provider';
+import { VISUALLY_HIDDEN } from '../a11y';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
 import type { KbdApi, KbdComponent, KbdConfig, KbdRootProps, KbdState } from './types';
 
-/** Visually hidden but read: the spoken name of a symbol. Inline, so it holds in unstyled mode too. */
-const SPOKEN: React.CSSProperties = { position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0 };
 
 const subscribe = () => () => {};
 const clientOs = (): KbdOs => {
@@ -82,7 +81,7 @@ export function useKbd(input: KbdConfig): KbdComponent {
           ) : (
             <>
               <span aria-hidden="true">{key.display}</span>
-              <span style={SPOKEN}>{key.spoken}</span>
+              <span style={VISUALLY_HIDDEN}>{key.spoken}</span>
             </>
           ),
           (p, c) => <kbd {...p}>{c}</kbd>,

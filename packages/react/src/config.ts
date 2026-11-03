@@ -5,6 +5,7 @@ import type { SpinnerConfig } from './spinner/types';
 import type { SeparatorConfig } from './separator/types';
 import type { KbdConfig } from './kbd/types';
 import type { SkeletonConfig } from './skeleton/types';
+import type { BadgeConfig } from './badge/types';
 
 /** Per-component defaults. Data, state and ids never belong here, only how components look and behave. */
 export interface PinfoldComponentDefaults {
@@ -14,6 +15,7 @@ export interface PinfoldComponentDefaults {
   separator?: Omit<SeparatorConfig, 'label'>;
   kbd?: Omit<KbdConfig, 'keys'>;
   skeleton?: Omit<SkeletonConfig, 'content' | 'loading'>;
+  badge?: Omit<BadgeConfig, 'label' | 'count'>;
 }
 
 /**

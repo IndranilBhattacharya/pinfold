@@ -59,8 +59,9 @@ const { Spinner } = ${load('@pinfold/react/spinner')};
 const { Separator } = ${load('@pinfold/react/separator')};
 const { Kbd } = ${load('@pinfold/react/kbd')};
 const { Skeleton } = ${load('@pinfold/react/skeleton')};
-const buttons = renderToString(React.createElement('div', null, React.createElement(Button, { label: 'Go', tone: 'danger' }), React.createElement(Spinner), React.createElement(Separator, { label: 'or' }), React.createElement(Kbd, { keys: ['mod', 'k'] }), React.createElement(Skeleton, { lines: 2 })));
-for (const text of ['pinfold-button', 'data-tone="danger"', '>Go<', 'role="status"', 'pinfold-separator', '>or<', 'Ctrl', 'aria-busy="true"']) {
+const { Badge } = ${load('@pinfold/react/badge')};
+const buttons = renderToString(React.createElement('div', null, React.createElement(Button, { label: 'Go', tone: 'danger' }), React.createElement(Spinner), React.createElement(Separator, { label: 'or' }), React.createElement(Kbd, { keys: ['mod', 'k'] }), React.createElement(Skeleton, { lines: 2 }), React.createElement(Badge, { count: 120 })));
+for (const text of ['pinfold-button', 'data-tone="danger"', '>Go<', 'role="status"', 'pinfold-separator', '>or<', 'Ctrl', 'aria-busy="true"', '>99+<']) {
   if (!buttons.includes(text)) throw new Error('button HTML is missing ' + JSON.stringify(text) + ':\\n' + buttons);
 }
 if (!createTheme({ primary: 'emerald' }).vars['--pinfold-primary-500']) throw new Error('palette broken');
