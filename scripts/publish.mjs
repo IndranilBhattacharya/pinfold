@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * Publish every package whose version is not on npm yet, in dependency order.
- * Versions already on the registry are skipped, so a release can be re-run and a package
- * that did not change keeps its version.
+ * Versions already on the registry are skipped, so a half-finished release can be re-run.
+ * A run with nothing new to publish fails: bump with `npm run version:set -- <x.y.z>` first.
  *
  *   node scripts/publish.mjs --tag latest [--dry-run]
  *
@@ -12,7 +12,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 const args = process.argv.slice(2);
-const tag = args[args.indexOf('--tag') + 1] ?? 'latest';
+const tag = args.includes('--tag') ? args[args.indexOf('--tag') + 1] : 'latest';
 const dryRun = args.includes('--dry-run');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const run = (argv) => execFileSync(npm, argv, { encoding: 'utf8', shell: process.platform === 'win32' });
@@ -33,8 +33,9 @@ function published({ name, version }) {
 const todo = packages.filter((p) => !published(p));
 for (const p of packages) console.log(`${todo.includes(p) ? 'publish' : 'skip   '}  ${p.name}@${p.version}`);
 if (!todo.length) {
-  console.log('\nEvery version is already on npm. Bump a version to release it.');
-  process.exit(0);
+  // A release that publishes nothing is a mistake, not a success: fail so it shows up red.
+  console.error('\nNothing to publish: every version is already on npm. Run `npm run version:set -- <x.y.z>`, commit, push, then release again.');
+  process.exit(1);
 }
 
 for (const { name } of todo) {

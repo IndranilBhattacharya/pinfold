@@ -17,7 +17,8 @@
     "verify": "npm run typecheck && npm test && npm run build && node scripts/check-dist.mjs && npm run size:strict && npm run types:check",
     "types:check": "attw --pack packages/core && attw --pack packages/react",
     "smoke": "node scripts/consumer-smoke.mjs",
-    "fixtures": "node scripts/fixture-apps.mjs"
+    "fixtures": "node scripts/fixture-apps.mjs",
+    "version:set": "node scripts/set-version.mjs"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",

@@ -32,5 +32,5 @@ export type {
   Ref,
 } from './types';
 
-/** Package version, injected at publish time by the release script. */
-export const version = '0.2.0';
+/** Package version. Set with `npm run version:set -- x.y.z` (versions.test.ts keeps every copy in sync). */
+export const version = '0.3.0';
