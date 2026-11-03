@@ -53,6 +53,7 @@ const BUDGETS = [
   ['packages/react/dist/separator/index.js', 4],
   ['packages/react/dist/kbd/index.js', 4],
   ['packages/react/dist/skeleton/index.js', 4],
+  ['packages/react/dist/badge/index.js', 4],
   ['packages/css/dist/core.css', 5],
   ['packages/css/dist/accordion.css', 4],
   ['packages/css/dist/button.css', 2],
@@ -60,6 +61,7 @@ const BUDGETS = [
   ['packages/css/dist/separator.css', 1],
   ['packages/css/dist/kbd.css', 1],
   ['packages/css/dist/skeleton.css', 1],
+  ['packages/css/dist/badge.css', 2],
   ['packages/css/dist/packs.css', 2],
 ];
 

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { formatKeys, inactiveKbdOptions, kbdOs } from './kbd.logic';
 import { inactiveSeparatorOptions } from './separator.logic';
 import { inactiveSkeletonOptions, skeletonLineWidths } from './skeleton.logic';
+import { badgeCount, inactiveBadgeOptions } from './badge.logic';
 
 describe('kbd logic', () => {
   it('maps mod to Command on Apple platforms and Ctrl elsewhere, with spoken names', () => {
@@ -42,5 +43,24 @@ describe('separator and skeleton logic', () => {
     expect(Object.keys(inactiveSkeletonOptions({ loading: false })).sort()).toEqual(['animation', 'lines']);
     expect(skeletonLineWidths(3)).toEqual(['100%', '100%', '62%']);
     expect(skeletonLineWidths(1)).toEqual(['100%']);
+  });
+});
+
+describe('badge logic', () => {
+  it('caps counts, hides zero and junk', () => {
+    expect(badgeCount(5)).toBe('5');
+    expect(badgeCount(120)).toBe('99+');
+    expect(badgeCount(1000, 999)).toBe('999+');
+    expect(badgeCount(0)).toBeNull();
+    expect(badgeCount(0, 99, true)).toBe('0');
+    expect(badgeCount(-3, 99, true)).toBe('0');
+    expect(badgeCount(Number.NaN)).toBeNull();
+    expect(badgeCount(2.7)).toBe('2');
+  });
+
+  it('lists what a dot or a missing count ignores', () => {
+    expect(Object.keys(inactiveBadgeOptions({}))).toEqual(['max', 'showZero']);
+    expect(inactiveBadgeOptions({ count: 3 })).toEqual({});
+    expect(Object.keys(inactiveBadgeOptions({ dot: true, count: 3 }))).toEqual(['max', 'showZero', 'icon', 'radius']);
   });
 });

@@ -92,10 +92,23 @@
       ],
       "hook": "useSkeleton",
       "snippet": "<Skeleton lines={3} />"
+    },
+    {
+      "name": "badge",
+      "import": "@pinfold/react/badge",
+      "styles": "@pinfold/css/badge.css",
+      "status": "experimental",
+      "description": "A status label, a count or a dot, in six tones.",
+      "variants": [
+        "solid",
+        "soft",
+        "outline"
+      ],
+      "hook": "useBadge",
+      "snippet": "<Badge label=\"New\" />"
     }
   ],
   "planned": [
-    "badge",
     "alert",
     "avatar",
     "card",

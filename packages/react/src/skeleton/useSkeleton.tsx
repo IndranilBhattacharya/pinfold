@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { cn, dimensionVars, inactiveSkeletonOptions, mergeProps, skeletonLineWidths, warnOnce, type PropsBag } from '@pinfold/core';
 import { usePinfold } from '../provider';
+import { VISUALLY_HIDDEN } from '../a11y';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
 import type { SkeletonApi, SkeletonComponent, SkeletonConfig, SkeletonRootProps, SkeletonState } from './types';
 
-/** Visually hidden but read. Inline, so it holds in unstyled mode too. */
-const SPOKEN: React.CSSProperties = { position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0 };
 
 /**
  * A placeholder that swaps to the real content, as a hook that hands back a component.
@@ -70,7 +69,7 @@ export function useSkeleton(input: SkeletonConfig = {}): SkeletonComponent {
               {renderSlot(config, 'line', slotProps(config, 'line', { className: cls('pinfold-skeleton__line'), 'aria-hidden': true, style: variant === 'text' ? { inlineSize: width } : undefined }), state, null, (p) => <span {...p} />)}
             </React.Fragment>
           ))}
-          {config.label ? <span style={SPOKEN}>{config.label}</span> : null}
+          {config.label ? <span style={VISUALLY_HIDDEN}>{config.label}</span> : null}
         </>
       );
     }

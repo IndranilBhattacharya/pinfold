@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'a11y-report');
 const require = createRequire(import.meta.url);
-const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
+const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
@@ -43,6 +43,7 @@ const app = await build({
       import { Separator } from '@pinfold/react/separator';
       import { Kbd } from '@pinfold/react/kbd';
       import { Skeleton } from '@pinfold/react/skeleton';
+      import { Badge } from '@pinfold/react/badge';
       // Buttons: every variant x tone (contrast), plus disabled, loading, icon-only, link, sizes.
       function Buttons({ pack = 'default' }) {
         const first = pack === 'default';
@@ -68,6 +69,9 @@ const app = await build({
           e('p', null, 'Search ', ...['outline', 'solid', 'ghost'].map((variant) => e(Kbd, { key: variant, variant, keys: ['mod', 'shift', 'k'] })), ' ', e(Kbd, { keys: ['mod', 'k'], display: 'symbols' })),
           e(Skeleton, { lines: 3, label: 'Loading ' + pack }),
           e('div', { style: { display: 'flex', gap: 12 } }, e(Skeleton, { variant: 'circle' }), e(Skeleton, { variant: 'rect', animation: 'wave' })),
+          ...['solid', 'soft', 'outline'].map((variant) => e('p', { key: 'badge-' + variant }, ...tones.map((tone) => e(Badge, { key: tone, variant, tone, label: variant + ' ' + tone })))),
+          e('p', null, e(Badge, { count: 120, label: 'unread messages' }), e(Badge, { count: 0 }), e(Badge, { dot: true, tone: 'success', label: 'Online' }), e(Badge, { size: 'sm', label: 'Small' }), e(Badge, { size: 'lg', label: 'Large', icon })),
+          e('p', null, e('span', { style: { position: 'relative', display: 'inline-flex' } }, e(Button, { label: 'Inbox', icon, iconOnly: true, variant: 'ghost' }), e(Badge, { count: 3, tone: 'danger', placement: 'top-end', label: 'unread' }))),
         );
       }
       const items = [
@@ -114,6 +118,7 @@ const app = await build({
     '@pinfold/react/separator': './packages/react/dist/separator/index.js',
     '@pinfold/react/kbd': './packages/react/dist/kbd/index.js',
     '@pinfold/react/skeleton': './packages/react/dist/skeleton/index.js',
+    '@pinfold/react/badge': './packages/react/dist/badge/index.js',
   },
   logLevel: 'silent',
 });
@@ -258,7 +263,7 @@ await browser.close();
 const failed = results.checks.filter((c) => !c.pass);
 const violations = Object.values(results.axe).flatMap((r) => r.violations);
 const md = [
-  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton',
+  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge',
   '',
   `Generated ${new Date().toISOString()} by \`scripts/a11y-report.mjs\` on the built packages, in Chromium.`,
   `Pattern: ${accordionMeta.pattern}`,
@@ -284,7 +289,7 @@ const md = [
   '',
   ...accordionMeta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
   '',
-  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
+  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
   '## Snapshots',
   '',
   ...results.snapshots.map((s) => `- ![${s}](${s})`),

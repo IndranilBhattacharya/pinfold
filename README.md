@@ -15,7 +15,7 @@ Created by **Indranil Bhattacharya**
 
 > **Status: pre-release.** The accordion is complete (server and client APIs,
 > global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report);
-> button, spinner, separator, kbd and skeleton are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
+> button, spinner, separator, kbd, skeleton and badge are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
 
 ---
 
@@ -148,7 +148,7 @@ The config never changes shape as you go deeper.
 | [docs/VISION.md](docs/VISION.md) | What Pinfold is, and isn't |
 | [docs/components/accordion.md](docs/components/accordion.md) | Accordion spec |
 | [docs/components/button.md](docs/components/button.md) | Button and Spinner spec |
-| [docs/components/separator.md](docs/components/separator.md) · [kbd.md](docs/components/kbd.md) · [skeleton.md](docs/components/skeleton.md) | Separator, Kbd and Skeleton specs |
+| [docs/components/separator.md](docs/components/separator.md) · [kbd.md](docs/components/kbd.md) · [skeleton.md](docs/components/skeleton.md) · [badge.md](docs/components/badge.md) | Separator, Kbd, Skeleton and Badge specs |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
 | [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
 | [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | Accessibility evidence: the automated report and the screen-reader matrix |
