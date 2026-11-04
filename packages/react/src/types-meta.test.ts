@@ -12,7 +12,7 @@
 import { resolve } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
+import { accordionMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
 
 interface Entry {
   meta: ComponentMeta;
@@ -37,6 +37,10 @@ const COMPONENTS: Entry[] = [
   { meta: kbdMeta, file: 'kbd/types.ts', configs: ['KbdConfig'], nested: { dimensions: 'KbdDimensions' } },
   { meta: skeletonMeta, file: 'skeleton/types.ts', configs: ['SkeletonConfig'], nested: { dimensions: 'SkeletonDimensions' } },
   { meta: badgeMeta, file: 'badge/types.ts', configs: ['BadgeConfig'], nested: { dimensions: 'BadgeDimensions' } },
+  { meta: switchMeta, file: 'switch/types.ts', configs: ['SwitchConfig'], nested: { dimensions: 'SwitchDimensions' } },
+  { meta: radioMeta, file: 'radio/types.ts', configs: ['RadioConfig'], nested: { dimensions: 'RadioDimensions' } },
+  { meta: checkboxMeta, file: 'checkbox/types.ts', configs: ['CheckboxConfig'], nested: { dimensions: 'CheckboxDimensions' } },
+  { meta: inputMeta, file: 'input/types.ts', configs: ['InputConfig'], nested: { dimensions: 'InputDimensions' } },
   { meta: toastMeta, file: 'toast/types.ts', configs: ['ToastConfig'], nested: { dimensions: 'ToastDimensions' } },
   { meta: menuMeta, file: 'menu/types.ts', configs: ['MenuConfig'], nested: { dimensions: 'MenuDimensions' } },
   { meta: dialogMeta, file: 'dialog/types.ts', configs: ['DialogConfig'], nested: { dimensions: 'DialogDimensions' } },

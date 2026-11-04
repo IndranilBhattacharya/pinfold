@@ -14,6 +14,7 @@
      --pinfold-control-press    the pressed transform (unset: 1px down)
      --pinfold-control-glow     a filter for indicators such as the spinner (unset: none)
      --pinfold-control-round    corner of round indicators (unset: a circle)
+     --pinfold-field-edge       frame of form fields, at least 3:1 (unset: muted text on the surface)
 
    Packs follow your palette, they never replace it. Every colour a pack sets is
    mixed from the palette's own tokens (primary, surface, text), so changing the
@@ -96,6 +97,7 @@
     --pinfold-control-surface: var(--pinfold-color-surface);
     --pinfold-control-press: translate(3px, 3px);
     --pinfold-control-round: var(--pinfold-radius-xs);
+    --pinfold-field-edge: var(--pinfold-color-text);
   }
 
   /* ------------------------------------------------------- user preferences */

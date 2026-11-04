@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'a11y-report');
 const require = createRequire(import.meta.url);
-const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
+const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
@@ -54,6 +54,10 @@ const app = await build({
       import { Dialog } from '@pinfold/react/dialog';
       import { Menu } from '@pinfold/react/menu';
       import { Toast } from '@pinfold/react/toast';
+      import { Input } from '@pinfold/react/input';
+      import { Checkbox } from '@pinfold/react/checkbox';
+      import { Radio } from '@pinfold/react/radio';
+      import { Switch } from '@pinfold/react/switch';
       // Overlays sit in the page flow here, not the top layer, so axe can measure their contrast.
       delete HTMLElement.prototype.showPopover;
       const toastStores = {};
@@ -104,6 +108,12 @@ const app = await build({
           e(Menu, { defaultOpen: true, label: 'Menu ' + pack, trigger: { label: 'Open menu ' + pack }, items: [{ label: 'Edit', shortcut: 'E' }, { label: 'Off', disabled: true }, { type: 'separator' }, { type: 'checkbox', label: 'Wrap', checked: true }, { type: 'group', label: 'Sort', items: [{ type: 'radio', label: 'Name', checked: true }] }, ...['danger', 'success', 'warning', 'info'].map((tone) => ({ label: 'Row ' + tone, tone }))] }),
           e(Dialog, { defaultOpen: true, modal: false, title: 'Dialog ' + pack, description: 'A description.', content: 'Body text.', actions: [{ label: 'Cancel' }, { label: 'Delete', tone: 'danger' }] }),
           e(Toast, { label: 'Notifications ' + pack, store: toastStore(pack) }),
+          ...['outline', 'filled'].map((variant) => e(Input, { key: variant, variant, label: 'Input ' + variant + ' ' + pack, description: 'Help text.', placeholder: 'Placeholder', clearable: true, defaultValue: variant === 'filled' ? 'Value' : undefined })),
+          e(Input, { label: 'Invalid ' + pack, error: 'This is wrong.', required: true }), e(Input, { label: 'Read only ' + pack, readOnly: true, defaultValue: 'Fixed' }), e(Input, { label: 'Notes ' + pack, multiline: true, autosize: true }), e(Input, { label: 'Search ' + pack, hideLabel: true, type: 'search' }),
+          ...tones.flatMap((tone) => [e(Checkbox, { key: 'c' + tone, tone, label: 'Check ' + tone + ' ' + pack, defaultChecked: true }), e(Switch, { key: 's' + tone, tone, label: 'Switch ' + tone + ' ' + pack, defaultChecked: true })]),
+          e(Checkbox, { label: 'Some ' + pack, indeterminate: true }), e(Checkbox, { label: 'Topics ' + pack, variant: 'card', orientation: 'horizontal', description: 'Pick any.', error: 'Pick one.', items: [{ value: 'a', label: 'News', description: 'Weekly' }, { value: 'b', label: 'Tips', disabled: true }] }),
+          e(Radio, { label: 'Plan ' + pack, defaultValue: 'a', name: 'plan-' + pack, description: 'Pick one.', items: [{ value: 'a', label: 'Free', description: 'Trying it out' }, { value: 'b', label: 'Pro' }, { value: 'c', label: 'Off', disabled: true }] }), e(Radio, { label: 'Cards ' + pack, variant: 'card', orientation: 'horizontal', error: 'Pick one.', required: true, items: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }] }),
+          e(Switch, { label: 'Off switch ' + pack, labelPosition: 'start', description: 'Daily.' }),
         );
       }
       const items = [
@@ -160,6 +170,10 @@ const app = await build({
     '@pinfold/react/dialog': './packages/react/dist/dialog/index.js',
     '@pinfold/react/menu': './packages/react/dist/menu/index.js',
     '@pinfold/react/toast': './packages/react/dist/toast/index.js',
+    '@pinfold/react/input': './packages/react/dist/input/index.js',
+    '@pinfold/react/checkbox': './packages/react/dist/checkbox/index.js',
+    '@pinfold/react/radio': './packages/react/dist/radio/index.js',
+    '@pinfold/react/switch': './packages/react/dist/switch/index.js',
   },
   logLevel: 'silent',
 });
@@ -304,7 +318,7 @@ await browser.close();
 const failed = results.checks.filter((c) => !c.pass);
 const violations = Object.values(results.axe).flatMap((r) => r.violations);
 const md = [
-  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast',
+  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch',
   '',
   `Generated ${new Date().toISOString()} by \`scripts/a11y-report.mjs\` on the built packages, in Chromium.`,
   `Pattern: ${accordionMeta.pattern}`,
@@ -330,7 +344,7 @@ const md = [
   '',
   ...accordionMeta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
   '',
-  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
+  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
   '## Snapshots',
   '',
   ...results.snapshots.map((s) => `- ![${s}](${s})`),

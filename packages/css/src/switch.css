@@ -1,0 +1,49 @@
+/* Pinfold — switch. The row, the input and the shared box are in field.css (core.css): this is the
+   track and thumb. The thumb moves with logical alignment, so it flips in RTL; state is never colour
+   alone. */
+
+@layer pinfold.components {
+  .pinfold-switch {
+    --pinfold-swt-w: var(--pinfold-switch-width, 2.25rem);
+    --pinfold-swt-h: var(--pinfold-switch-height, 1.25rem);
+  }
+  .pinfold-switch[data-size='sm'] {
+    --pinfold-swt-w: var(--pinfold-switch-width, 1.75rem);
+    --pinfold-swt-h: var(--pinfold-switch-height, 1rem);
+  }
+  .pinfold-switch[data-size='lg'] {
+    --pinfold-swt-w: var(--pinfold-switch-width, 2.75rem);
+    --pinfold-swt-h: var(--pinfold-switch-height, 1.5rem);
+  }
+  .pinfold-switch[data-label-position='start'] .pinfold-switch__item {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+  }
+  .pinfold-switch__box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    inline-size: var(--pinfold-swt-w);
+    block-size: var(--pinfold-swt-h);
+    padding: 0.125rem;
+    border-radius: var(--pinfold-control-round, var(--pinfold-radius-full));
+  }
+  .pinfold-switch__input:checked + .pinfold-switch__box { justify-content: flex-end; }
+  .pinfold-switch__thumb {
+    display: block;
+    flex-shrink: 0;
+    /* A square in the track's inner height. */
+    block-size: 100%;
+    aspect-ratio: 1;
+    background: var(--pinfold-fld-edge);
+    border-radius: inherit;
+  }
+  .pinfold-switch__input:checked + .pinfold-switch__box .pinfold-switch__thumb {
+    background: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-switch__thumb { forced-color-adjust: none; background: CanvasText; }
+    .pinfold-switch__input:checked + .pinfold-switch__box .pinfold-switch__thumb { background: Canvas; }
+  }
+}

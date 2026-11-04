@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -27,7 +27,11 @@
     "popover",
     "dialog",
     "menu",
-    "toast"
+    "toast",
+    "input",
+    "checkbox",
+    "radio",
+    "switch"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -223,6 +227,46 @@
         "default": "./dist/toast/index.cjs"
       }
     },
+    "./input": {
+      "import": {
+        "types": "./dist/input/index.d.ts",
+        "default": "./dist/input/index.js"
+      },
+      "require": {
+        "types": "./dist/input/index.d.cts",
+        "default": "./dist/input/index.cjs"
+      }
+    },
+    "./checkbox": {
+      "import": {
+        "types": "./dist/checkbox/index.d.ts",
+        "default": "./dist/checkbox/index.js"
+      },
+      "require": {
+        "types": "./dist/checkbox/index.d.cts",
+        "default": "./dist/checkbox/index.cjs"
+      }
+    },
+    "./radio": {
+      "import": {
+        "types": "./dist/radio/index.d.ts",
+        "default": "./dist/radio/index.js"
+      },
+      "require": {
+        "types": "./dist/radio/index.d.cts",
+        "default": "./dist/radio/index.cjs"
+      }
+    },
+    "./switch": {
+      "import": {
+        "types": "./dist/switch/index.d.ts",
+        "default": "./dist/switch/index.js"
+      },
+      "require": {
+        "types": "./dist/switch/index.d.cts",
+        "default": "./dist/switch/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -277,6 +321,18 @@
       ],
       "toast": [
         "./dist/toast/index.d.cts"
+      ],
+      "input": [
+        "./dist/input/index.d.cts"
+      ],
+      "checkbox": [
+        "./dist/checkbox/index.d.cts"
+      ],
+      "radio": [
+        "./dist/radio/index.d.cts"
+      ],
+      "switch": [
+        "./dist/switch/index.d.cts"
       ]
     }
   },
@@ -298,6 +354,10 @@
     "dialog",
     "menu",
     "toast",
+    "input",
+    "checkbox",
+    "radio",
+    "switch",
     "registry",
     "schema",
     "llms.txt",
@@ -307,7 +367,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.7.0"
+    "@pinfold/core": "0.8.0"
   },
   "peerDependencies": {
     "react": ">=18"

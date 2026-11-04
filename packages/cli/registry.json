@@ -208,14 +208,60 @@
       "variants": [],
       "hook": "useToast",
       "snippet": "<Toast />"
+    },
+    {
+      "name": "input",
+      "import": "@pinfold/react/input",
+      "styles": "@pinfold/css/input.css",
+      "status": "experimental",
+      "description": "A text field with its label, help text and error wired up.",
+      "variants": [
+        "outline",
+        "filled"
+      ],
+      "hook": "useInput",
+      "snippet": "<Input label=\"Email\" name=\"email\" />"
+    },
+    {
+      "name": "checkbox",
+      "import": "@pinfold/react/checkbox",
+      "styles": "@pinfold/css/checkbox.css",
+      "status": "experimental",
+      "description": "A native checkbox, or a group from a list.",
+      "variants": [
+        "plain",
+        "card"
+      ],
+      "hook": "useCheckbox",
+      "snippet": "<Checkbox label=\"I accept\" name=\"terms\" />"
+    },
+    {
+      "name": "radio",
+      "import": "@pinfold/react/radio",
+      "styles": "@pinfold/css/radio.css",
+      "status": "experimental",
+      "description": "One choice from a list, as native radios.",
+      "variants": [
+        "plain",
+        "card"
+      ],
+      "hook": "useRadio",
+      "snippet": "<Radio label=\"Plan\" items={[{ value: \"a\", label: \"A\" }]} />"
+    },
+    {
+      "name": "switch",
+      "import": "@pinfold/react/switch",
+      "styles": "@pinfold/css/switch.css",
+      "status": "experimental",
+      "description": "An on/off setting: a native checkbox with the switch role.",
+      "variants": [],
+      "hook": "useSwitch",
+      "snippet": "<Switch label=\"Alerts\" />"
     }
   ],
   "planned": [
     "field",
-    "input",
-    "checkbox",
     "radio-group",
-    "switch",
     "toggle-group",
     "slider",
     "number-field",

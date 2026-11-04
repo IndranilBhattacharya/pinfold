@@ -1,0 +1,126 @@
+/* Pinfold — what every form control shares: label, help text, error, and the checkbox/radio/switch
+   row. Part of core.css, so each control's own stylesheet stays small. The control edge mixes the
+   muted text colour into the surface, which clears the 3:1 that WCAG 1.4.11 asks of a control's
+   boundary; the decorative border token does not, nor does a pack's translucent control edge, so
+   fields read --pinfold-field-edge instead. */
+
+@layer pinfold.components {
+  .pinfold-field {
+    --pinfold-fld-edge: var(--pinfold-field-edge, color-mix(in oklch, var(--pinfold-color-text-muted) 78%, var(--pinfold-color-surface)));
+    --pinfold-fld-danger: color-mix(in oklch, var(--pinfold-color-danger) 82%, var(--pinfold-color-text));
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--pinfold-space-1);
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-control-text);
+    line-height: 1.4;
+    color: var(--pinfold-color-text);
+  }
+  .pinfold-field[data-disabled] { opacity: 0.6; }
+  .pinfold-field__label {
+    padding: 0;
+    font-weight: var(--pinfold-weight-medium);
+    overflow-wrap: anywhere;
+  }
+  legend.pinfold-field__label { margin-block-end: var(--pinfold-space-2); }
+  .pinfold-field__required { color: var(--pinfold-fld-danger); }
+  .pinfold-field__description { color: var(--pinfold-color-text-muted); font-size: 0.92em; overflow-wrap: anywhere; }
+  .pinfold-field__error { color: var(--pinfold-fld-danger); font-size: 0.92em; overflow-wrap: anywhere; }
+
+  /* ------------------------------------------------- checkbox, radio, switch */
+  .pinfold-choice__items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pinfold-choice-gap, var(--pinfold-space-2));
+    min-inline-size: 0;
+  }
+  .pinfold-field[data-orientation='horizontal'] .pinfold-choice__items {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--pinfold-choice-gap, var(--pinfold-space-2) var(--pinfold-space-4));
+  }
+  .pinfold-choice__item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--pinfold-space-2);
+    box-sizing: border-box;
+    min-inline-size: 0;
+    /* 24 CSS px: the target size WCAG 2.5.8 asks for. */
+    min-block-size: 1.5rem;
+    cursor: pointer;
+  }
+  .pinfold-choice__item[data-disabled] { cursor: not-allowed; opacity: 0.6; }
+  .pinfold-choice__control {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    /* The first line of text is 1.4em tall: centre the box on it. */
+    min-block-size: 1.4em;
+  }
+  .pinfold-choice__input {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+  }
+  .pinfold-choice__box {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    box-sizing: border-box;
+    color: transparent;
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border: var(--pinfold-border-width) solid var(--pinfold-fld-edge);
+    pointer-events: none;
+  }
+  .pinfold-choice__box > svg { inline-size: 100%; block-size: 100%; }
+  .pinfold-choice__input:checked + .pinfold-choice__box,
+  .pinfold-choice__input[type='checkbox']:indeterminate + .pinfold-choice__box {
+    color: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    background-color: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    border-color: var(--pinfold-control-edge, var(--pinfold-tone-solid, var(--pinfold-color-accent)));
+  }
+  .pinfold-field[data-invalid] .pinfold-choice__box { border-color: var(--pinfold-fld-danger); }
+  .pinfold-choice__input:focus-visible + .pinfold-choice__box { box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-choice__input:focus-visible { outline: none; box-shadow: none; }
+  .pinfold-field[data-animate] .pinfold-choice__box { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), border-color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+
+  .pinfold-choice__text {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+  .pinfold-choice__description { color: var(--pinfold-color-text-muted); font-size: 0.92em; }
+
+  /* `:indeterminate` above names the checkbox on purpose: it also matches every radio in a group with
+     nothing selected, which would draw them all as selected. */
+
+  /* Each row a card. The drawn ring follows the row, so the whole card shows focus and selection. */
+  .pinfold-field[data-variant='card'] .pinfold-choice__item {
+    padding: var(--pinfold-space-3);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-color-border-strong);
+    border-radius: var(--pinfold-radius-md);
+  }
+  .pinfold-field[data-variant='card'][data-orientation='horizontal'] .pinfold-choice__item { flex: 1 1 10rem; }
+
+  @media (forced-colors: active) {
+    .pinfold-choice__box { border-color: CanvasText; forced-color-adjust: none; background: Canvas; }
+    .pinfold-choice__input:checked + .pinfold-choice__box,
+    .pinfold-choice__input[type='checkbox']:indeterminate + .pinfold-choice__box { background: Highlight; color: Canvas; border-color: Highlight; }
+    .pinfold-choice__input:focus-visible + .pinfold-choice__box { outline: 2px solid Highlight; outline-offset: 2px; }
+  }
+}
