@@ -64,8 +64,13 @@ const { Alert } = ${load('@pinfold/react/alert')};
 const { Avatar } = ${load('@pinfold/react/avatar')};
 const { Card } = ${load('@pinfold/react/card')};
 const { Progress } = ${load('@pinfold/react/progress')};
-const buttons = renderToString(React.createElement('div', null, React.createElement(Button, { label: 'Go', tone: 'danger' }), React.createElement(Spinner), React.createElement(Separator, { label: 'or' }), React.createElement(Kbd, { keys: ['mod', 'k'] }), React.createElement(Skeleton, { lines: 2 }), React.createElement(Badge, { count: 120 }), React.createElement(Alert, { title: 'Saved', live: 'polite' }), React.createElement(Avatar, { name: 'Ada Lovelace' }), React.createElement(Card, { title: 'Pro', href: '/pro' }), React.createElement(Progress, { label: 'Up', value: 5 })));
-for (const text of ['pinfold-button', 'data-tone="danger"', '>Go<', 'role="status"', 'pinfold-separator', '>or<', 'Ctrl', 'aria-busy="true"', '>99+<', 'role="status"', '>AL<', 'href="/pro"', 'aria-valuenow="5"']) {
+const { Tooltip } = ${load('@pinfold/react/tooltip')};
+const { Popover } = ${load('@pinfold/react/popover')};
+const { Dialog } = ${load('@pinfold/react/dialog')};
+const { Menu } = ${load('@pinfold/react/menu')};
+const { Toast } = ${load('@pinfold/react/toast')};
+const buttons = renderToString(React.createElement('div', null, React.createElement(Button, { label: 'Go', tone: 'danger' }), React.createElement(Spinner), React.createElement(Separator, { label: 'or' }), React.createElement(Kbd, { keys: ['mod', 'k'] }), React.createElement(Skeleton, { lines: 2 }), React.createElement(Badge, { count: 120 }), React.createElement(Alert, { title: 'Saved', live: 'polite' }), React.createElement(Avatar, { name: 'Ada Lovelace' }), React.createElement(Card, { title: 'Pro', href: '/pro' }), React.createElement(Progress, { label: 'Up', value: 5 }), React.createElement(Tooltip, { content: 'Hint', trigger: { label: 'Tip' } }), React.createElement(Popover, { title: 'P', trigger: { label: 'Pop' } }), React.createElement(Dialog, { title: 'D', trigger: { label: 'Dlg' } }), React.createElement(Menu, { items: [{ label: 'E' }], trigger: { label: 'Mnu' } }), React.createElement(Toast)));
+for (const text of ['pinfold-button', 'data-tone="danger"', '>Go<', 'role="status"', 'pinfold-separator', '>or<', 'Ctrl', 'aria-busy="true"', '>99+<', 'role="status"', '>AL<', 'href="/pro"', 'aria-valuenow="5"', '>Tip<', '>Pop<', '<dialog', 'aria-haspopup="menu"', 'aria-label="Notifications"']) {
   if (!buttons.includes(text)) throw new Error('button HTML is missing ' + JSON.stringify(text) + ':\\n' + buttons);
 }
 if (!createTheme({ primary: 'emerald' }).vars['--pinfold-primary-500']) throw new Error('palette broken');

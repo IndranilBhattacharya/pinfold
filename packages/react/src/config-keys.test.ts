@@ -4,7 +4,7 @@
  * must equal the meta, or a new option would silently land on the DOM element instead of the hook.
  */
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta } from '@pinfold/core/meta';
+import { accordionMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta } from '@pinfold/core/meta';
 import { ACCORDION_KEYS } from './accordion/keys';
 import { BUTTON_KEYS } from './button/keys';
 import { SPINNER_KEYS } from './spinner/keys';
@@ -12,6 +12,11 @@ import { SEPARATOR_KEYS } from './separator/keys';
 import { KBD_KEYS } from './kbd/keys';
 import { SKELETON_KEYS } from './skeleton/keys';
 import { BADGE_KEYS } from './badge/keys';
+import { TOAST_KEYS } from './toast/keys';
+import { MENU_KEYS } from './menu/keys';
+import { DIALOG_KEYS } from './dialog/keys';
+import { POPOVER_KEYS } from './popover/keys';
+import { TOOLTIP_KEYS } from './tooltip/keys';
 import { PROGRESS_KEYS } from './progress/keys';
 import { CARD_KEYS } from './card/keys';
 import { AVATAR_KEYS } from './avatar/keys';
@@ -26,6 +31,11 @@ describe('config key lists match the meta', () => {
     [kbdMeta, KBD_KEYS],
     [skeletonMeta, SKELETON_KEYS],
     [badgeMeta, BADGE_KEYS],
+    [toastMeta, TOAST_KEYS],
+    [menuMeta, MENU_KEYS],
+    [dialogMeta, DIALOG_KEYS],
+    [popoverMeta, POPOVER_KEYS],
+    [tooltipMeta, TOOLTIP_KEYS],
     [progressMeta, PROGRESS_KEYS],
     [cardMeta, CARD_KEYS],
     [avatarMeta, AVATAR_KEYS],

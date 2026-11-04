@@ -1,0 +1,62 @@
+/* Pinfold — tooltip. `inverse` is the text colour as a fill, so it stands out in every theme;
+   `surface` follows the panel tokens, so style packs reach it. Position comes from JS (top and
+   left), the side it landed on from `data-side`. */
+
+@layer pinfold.components {
+  .pinfold-tooltip {
+    --pinfold-ttp-bg: var(--pinfold-color-text);
+    --pinfold-ttp-fg: var(--pinfold-color-bg);
+    --pinfold-ttp-edge: transparent;
+
+    z-index: var(--pinfold-z-tooltip);
+    box-sizing: border-box;
+    inline-size: max-content;
+    max-inline-size: min(var(--pinfold-tooltip-max-width, 18rem), calc(100vw - 1rem));
+    padding: var(--pinfold-space-1) var(--pinfold-space-2);
+    overflow: visible;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-text-xs);
+    font-weight: var(--pinfold-weight-medium);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    color: var(--pinfold-ttp-fg);
+    background: var(--pinfold-ttp-bg);
+    border: var(--pinfold-border-width) solid var(--pinfold-ttp-edge);
+    border-radius: var(--pinfold-radius-sm);
+    box-shadow: var(--pinfold-shadow-md);
+  }
+  .pinfold-tooltip[data-variant='surface'] {
+    --pinfold-ttp-bg: var(--pinfold-color-surface);
+    --pinfold-ttp-fg: var(--pinfold-color-text);
+    --pinfold-ttp-edge: var(--pinfold-control-edge, var(--pinfold-color-border));
+  }
+  .pinfold-tooltip[data-animate] { animation: pinfold-tooltip-in var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+
+  /* A square turned 45°, half out of the edge it sits on. */
+  .pinfold-tooltip__arrow {
+    position: absolute;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: var(--pinfold-ttp-bg);
+    border: var(--pinfold-border-width) solid var(--pinfold-ttp-edge);
+    border-block-start-color: transparent;
+    border-inline-start-color: transparent;
+    /* Physical on purpose: `data-side` and the arrow offset are measured on screen. */
+    left: calc(var(--pinfold-overlay-arrow, 50%) - 0.25rem);
+  }
+  .pinfold-tooltip[data-side='top'] .pinfold-tooltip__arrow { bottom: -0.3rem; transform: rotate(45deg); }
+  .pinfold-tooltip[data-side='bottom'] .pinfold-tooltip__arrow { top: -0.3rem; transform: rotate(225deg); }
+  .pinfold-tooltip[data-side='left'] .pinfold-tooltip__arrow,
+  .pinfold-tooltip[data-side='right'] .pinfold-tooltip__arrow { top: calc(var(--pinfold-overlay-arrow, 50%) - 0.25rem); }
+  .pinfold-tooltip[data-side='left'] .pinfold-tooltip__arrow { left: auto; right: -0.3rem; transform: rotate(-45deg); }
+  .pinfold-tooltip[data-side='right'] .pinfold-tooltip__arrow { left: -0.3rem; transform: rotate(135deg); }
+
+  @keyframes pinfold-tooltip-in {
+    from { opacity: 0; }
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-tooltip { border-color: CanvasText; }
+    .pinfold-tooltip__arrow { display: none; }
+  }
+}

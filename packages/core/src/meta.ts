@@ -19,6 +19,11 @@ import { alertMeta } from './alert.meta';
 import { avatarMeta } from './avatar.meta';
 import { cardMeta } from './card.meta';
 import { progressMeta } from './progress.meta';
+import { toastMeta } from './toast.meta';
+import { menuMeta } from './menu.meta';
+import { dialogMeta } from './dialog.meta';
+import { popoverMeta } from './popover.meta';
+import { tooltipMeta } from './tooltip.meta';
 
 export type PropType =
   | 'string'
@@ -312,4 +317,4 @@ export function metaToMarkdown(meta: ComponentMeta): string {
 
 /** Every component's meta. Tooling iterates this. */
 export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta];
-export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta };
+export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta };

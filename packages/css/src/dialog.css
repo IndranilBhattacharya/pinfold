@@ -1,0 +1,119 @@
+/* Pinfold — dialog. The `<dialog>` element itself is a transparent full-viewport box (a press on it
+   is a press on the backdrop); the panel sits inside it and carries the surface tokens, so style
+   packs restyle it. Never set `display` on a closed dialog: that would show it. */
+
+@layer pinfold.components {
+  .pinfold-dialog {
+    --pinfold-dlg-width: var(--pinfold-dialog-width, 32rem);
+    --pinfold-dlg-pad: var(--pinfold-dialog-padding, var(--pinfold-space-6));
+    --pinfold-dlg-radius: var(--pinfold-dialog-radius, var(--pinfold-radius-xl));
+
+    position: fixed;
+    inset: 0;
+    z-index: var(--pinfold-z-modal);
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: none;
+    max-block-size: none;
+    margin: 0;
+    padding: var(--pinfold-space-4);
+    color: var(--pinfold-color-text);
+    background: transparent;
+    border: 0;
+    overflow: hidden;
+  }
+  .pinfold-dialog[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pinfold-dialog:not([data-modal]) { pointer-events: none; }
+  .pinfold-dialog::backdrop { background: var(--pinfold-color-overlay); }
+  .pinfold-dialog[data-size='sm'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 24rem); }
+  .pinfold-dialog[data-size='lg'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 44rem); }
+  .pinfold-dialog[data-size='xl'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 60rem); }
+  .pinfold-dialog[data-size='full'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 100%); }
+
+  .pinfold-dialog__panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pinfold-space-2);
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: var(--pinfold-dlg-width);
+    max-block-size: 100%;
+    padding: var(--pinfold-dlg-pad);
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-text-sm);
+    line-height: 1.5;
+    pointer-events: auto;
+    background-color: var(--pinfold-color-surface);
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border-radius: var(--pinfold-dlg-radius);
+    box-shadow: var(--pinfold-shadow-xl);
+  }
+  .pinfold-dialog[data-size='full'] .pinfold-dialog__panel { block-size: 100%; }
+
+  /* Sheets: flush with one edge, no padding around the panel. */
+  .pinfold-dialog:not([data-placement='center'])[open] { padding: 0; }
+  .pinfold-dialog[data-placement='top'][open] { align-items: flex-start; }
+  .pinfold-dialog[data-placement='bottom'][open] { align-items: flex-end; }
+  .pinfold-dialog[data-placement='start'][open] { justify-content: flex-start; align-items: stretch; }
+  .pinfold-dialog[data-placement='end'][open] { justify-content: flex-end; align-items: stretch; }
+  .pinfold-dialog[data-placement='top'] .pinfold-dialog__panel,
+  .pinfold-dialog[data-placement='bottom'] .pinfold-dialog__panel {
+    max-inline-size: 100%;
+    block-size: var(--pinfold-dialog-height, auto);
+    border-radius: 0;
+  }
+  .pinfold-dialog[data-placement='bottom'] .pinfold-dialog__panel { border-start-start-radius: var(--pinfold-dlg-radius); border-start-end-radius: var(--pinfold-dlg-radius); }
+  .pinfold-dialog[data-placement='top'] .pinfold-dialog__panel { border-end-start-radius: var(--pinfold-dlg-radius); border-end-end-radius: var(--pinfold-dlg-radius); }
+  .pinfold-dialog[data-placement='start'] .pinfold-dialog__panel,
+  .pinfold-dialog[data-placement='end'] .pinfold-dialog__panel {
+    max-inline-size: min(var(--pinfold-dialog-width, 24rem), 100%);
+    border-radius: 0;
+  }
+
+  .pinfold-dialog__title {
+    margin: 0;
+    /* Clear of the close button. */
+    padding-inline-end: var(--pinfold-space-6);
+    font-size: var(--pinfold-text-lg);
+    font-weight: var(--pinfold-weight-semibold);
+    line-height: 1.3;
+  }
+  .pinfold-dialog__description { margin: 0; color: var(--pinfold-color-text-muted); }
+  .pinfold-dialog__content { min-inline-size: 0; margin-block-start: var(--pinfold-space-2); }
+  .pinfold-dialog__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--pinfold-space-2);
+    margin-block-start: auto;
+    padding-block-start: var(--pinfold-space-4);
+  }
+  .pinfold-dialog__close {
+    position: absolute;
+    inset-block-start: var(--pinfold-space-3);
+    inset-inline-end: var(--pinfold-space-3);
+    display: inline-flex;
+  }
+
+  .pinfold-dialog[data-animate][open] .pinfold-dialog__panel { animation: pinfold-dialog-in var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-dialog[data-animate][open]::backdrop { animation: pinfold-dialog-fade var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  @keyframes pinfold-dialog-in {
+    from { opacity: 0; transform: translateY(0.5rem); }
+  }
+  @keyframes pinfold-dialog-fade {
+    from { opacity: 0; }
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-dialog__panel { border-color: CanvasText; }
+  }
+}

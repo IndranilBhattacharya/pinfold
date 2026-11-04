@@ -155,14 +155,62 @@
       "variants": [],
       "hook": "useProgress",
       "snippet": "<Progress label=\"Uploading\" value={40} />"
+    },
+    {
+      "name": "tooltip",
+      "import": "@pinfold/react/tooltip",
+      "styles": "@pinfold/css/tooltip.css",
+      "status": "experimental",
+      "description": "A hint on hover or keyboard focus.",
+      "variants": [
+        "inverse",
+        "surface"
+      ],
+      "hook": "useTooltip",
+      "snippet": "<Tooltip content=\"Copies the link\" trigger={{ label: \"Share\" }} />"
+    },
+    {
+      "name": "popover",
+      "import": "@pinfold/react/popover",
+      "styles": "@pinfold/css/popover.css",
+      "status": "experimental",
+      "description": "A floating panel anchored to a trigger; a hover card with openOn: hover.",
+      "variants": [],
+      "hook": "usePopover",
+      "snippet": "<Popover title=\"Share\" trigger={{ label: \"Share\" }} />"
+    },
+    {
+      "name": "dialog",
+      "import": "@pinfold/react/dialog",
+      "styles": "@pinfold/css/dialog.css",
+      "status": "experimental",
+      "description": "A native modal dialog: centred, a sheet from any edge, or an alert dialog.",
+      "variants": [],
+      "hook": "useDialog",
+      "snippet": "<Dialog title=\"Settings\" trigger={{ label: \"Open\" }} />"
+    },
+    {
+      "name": "menu",
+      "import": "@pinfold/react/menu",
+      "styles": "@pinfold/css/menu.css",
+      "status": "experimental",
+      "description": "A dropdown or context menu from a list of rows, with keyboard support and typeahead.",
+      "variants": [],
+      "hook": "useMenu",
+      "snippet": "<Menu trigger={{ label: \"Actions\" }} items={[{ label: \"Edit\" }]} />"
+    },
+    {
+      "name": "toast",
+      "import": "@pinfold/react/toast",
+      "styles": "@pinfold/css/toast.css",
+      "status": "experimental",
+      "description": "Queued messages in a corner, paused while read and announced to screen readers.",
+      "variants": [],
+      "hook": "useToast",
+      "snippet": "<Toast />"
     }
   ],
   "planned": [
-    "tooltip",
-    "popover",
-    "dialog",
-    "menu",
-    "toast",
     "field",
     "input",
     "checkbox",
