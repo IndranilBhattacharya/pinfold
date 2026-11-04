@@ -12,7 +12,7 @@
 import { resolve } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
+import { accordionMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
 
 interface Entry {
   meta: ComponentMeta;
@@ -37,6 +37,11 @@ const COMPONENTS: Entry[] = [
   { meta: kbdMeta, file: 'kbd/types.ts', configs: ['KbdConfig'], nested: { dimensions: 'KbdDimensions' } },
   { meta: skeletonMeta, file: 'skeleton/types.ts', configs: ['SkeletonConfig'], nested: { dimensions: 'SkeletonDimensions' } },
   { meta: badgeMeta, file: 'badge/types.ts', configs: ['BadgeConfig'], nested: { dimensions: 'BadgeDimensions' } },
+  { meta: toastMeta, file: 'toast/types.ts', configs: ['ToastConfig'], nested: { dimensions: 'ToastDimensions' } },
+  { meta: menuMeta, file: 'menu/types.ts', configs: ['MenuConfig'], nested: { dimensions: 'MenuDimensions' } },
+  { meta: dialogMeta, file: 'dialog/types.ts', configs: ['DialogConfig'], nested: { dimensions: 'DialogDimensions' } },
+  { meta: popoverMeta, file: 'popover/types.ts', configs: ['PopoverConfig'], nested: { dimensions: 'PopoverDimensions' } },
+  { meta: tooltipMeta, file: 'tooltip/types.ts', configs: ['TooltipConfig'], nested: { dimensions: 'TooltipDimensions' } },
   { meta: progressMeta, file: 'progress/types.ts', configs: ['ProgressConfig'], nested: { dimensions: 'ProgressDimensions' } },
   { meta: cardMeta, file: 'card/types.ts', configs: ['CardConfig'], nested: { dimensions: 'CardDimensions' } },
   { meta: avatarMeta, file: 'avatar/types.ts', configs: ['AvatarConfig'], nested: { dimensions: 'AvatarDimensions' } },

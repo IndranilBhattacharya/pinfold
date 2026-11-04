@@ -1,0 +1,91 @@
+/* Pinfold — toast. The region is a click-through column in a corner; each toast is a surface with
+   a tone-coloured icon and title, so style packs restyle it. */
+
+@layer pinfold.components {
+  .pinfold-toast {
+    --pinfold-tst-inset: var(--pinfold-toast-inset, var(--pinfold-space-4));
+
+    position: fixed;
+    inset: auto;
+    z-index: var(--pinfold-z-toast);
+    display: flex;
+    flex-direction: column;
+    gap: var(--pinfold-toast-gap, var(--pinfold-space-2));
+    box-sizing: border-box;
+    inline-size: min(var(--pinfold-toast-width, 22rem), calc(100vw - 2 * var(--pinfold-tst-inset)));
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    color: var(--pinfold-color-text);
+    background: transparent;
+    border: 0;
+    pointer-events: none;
+  }
+  .pinfold-toast[data-placement^='top'] { inset-block-start: var(--pinfold-tst-inset); }
+  .pinfold-toast[data-placement^='bottom'] {
+    inset-block-end: var(--pinfold-tst-inset);
+    flex-direction: column-reverse;
+  }
+  .pinfold-toast[data-placement$='start'] { inset-inline-start: var(--pinfold-tst-inset); }
+  .pinfold-toast[data-placement$='end'] { inset-inline-end: var(--pinfold-tst-inset); }
+  .pinfold-toast[data-placement='top'],
+  .pinfold-toast[data-placement='bottom'] {
+    inset-inline: 0;
+    margin-inline: auto;
+  }
+
+  .pinfold-toast__item {
+    --pinfold-tst-text: color-mix(in oklch, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--pinfold-space-2) var(--pinfold-space-3);
+    box-sizing: border-box;
+    padding: var(--pinfold-space-3);
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-text-sm);
+    line-height: 1.5;
+    background-color: var(--pinfold-color-surface);
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border-radius: var(--pinfold-radius-lg);
+    box-shadow: var(--pinfold-shadow-lg);
+    pointer-events: auto;
+  }
+  .pinfold-toast[data-animate] .pinfold-toast__item { animation: pinfold-toast-in var(--pinfold-duration-md) var(--pinfold-ease-out); }
+
+  .pinfold-toast__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: var(--pinfold-tst-text);
+  }
+  .pinfold-toast__icon > svg {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+  }
+  /* 1 0 0 with a floor: the text takes the row, and the action wraps below it when narrow. */
+  .pinfold-toast__content {
+    flex: 1 1 10rem;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+  .pinfold-toast__title { font-weight: var(--pinfold-weight-semibold); }
+  .pinfold-toast__item[data-tone='danger'] .pinfold-toast__title,
+  .pinfold-toast__item[data-tone='success'] .pinfold-toast__title,
+  .pinfold-toast__item[data-tone='warning'] .pinfold-toast__title,
+  .pinfold-toast__item[data-tone='info'] .pinfold-toast__title { color: var(--pinfold-tst-text); }
+  .pinfold-toast__description { color: var(--pinfold-color-text-muted); }
+  .pinfold-toast__action,
+  .pinfold-toast__dismiss {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  @keyframes pinfold-toast-in {
+    from { opacity: 0; transform: translateY(0.5rem); }
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-toast__item { border-color: CanvasText; }
+  }
+}

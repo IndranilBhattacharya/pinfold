@@ -25,6 +25,8 @@ export * from './alert.logic';
 export * from './avatar.logic';
 export * from './card.logic';
 export * from './progress.logic';
+export * from './overlay.logic';
+export * from './toast.logic';
 export { __DEV__, warnOnce, resetWarnings } from './dev';
 export type {
   PinfoldSize,
@@ -41,4 +43,4 @@ export type {
 } from './types';
 
 /** Package version. Set with `npm run version:set -- x.y.z` (versions.test.ts keeps every copy in sync). */
-export const version = '0.6.0';
+export const version = '0.7.0';

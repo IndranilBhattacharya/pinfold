@@ -1,0 +1,104 @@
+/* Pinfold — menu. A panel from the surface tokens, so style packs restyle it. One highlight for
+   pointer and keyboard: the focused row. Position comes from JS (top and left). */
+
+@layer pinfold.components {
+  .pinfold-menu {
+    --pinfold-mnu-row: 2.25rem;
+    --pinfold-mnu-px: var(--pinfold-space-2);
+    --pinfold-mnu-font: var(--pinfold-text-sm);
+
+    z-index: var(--pinfold-z-dropdown);
+    box-sizing: border-box;
+    inline-size: var(--pinfold-menu-width, max-content);
+    min-inline-size: 10rem;
+    max-inline-size: calc(100vw - 1rem);
+    max-block-size: min(var(--pinfold-menu-max-height, 24rem), calc(100dvh - 1rem));
+    padding: var(--pinfold-space-1);
+    overflow-y: auto;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-mnu-font);
+    color: var(--pinfold-color-text);
+    background-color: var(--pinfold-color-surface);
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border-radius: var(--pinfold-radius-md);
+    box-shadow: var(--pinfold-shadow-lg);
+    outline: none;
+  }
+  .pinfold-menu[data-size='sm'] {
+    --pinfold-mnu-row: 1.75rem;
+    --pinfold-mnu-font: var(--pinfold-text-xs);
+  }
+  .pinfold-menu[data-size='lg'] {
+    --pinfold-mnu-row: 2.75rem;
+    --pinfold-mnu-px: var(--pinfold-space-3);
+    --pinfold-mnu-font: var(--pinfold-text-md);
+  }
+  .pinfold-menu[data-animate] { animation: pinfold-menu-in var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+
+  .pinfold-menu__item {
+    --pinfold-mnu-tone: var(--pinfold-color-text);
+    display: flex;
+    align-items: center;
+    gap: var(--pinfold-space-2);
+    box-sizing: border-box;
+    min-block-size: var(--pinfold-mnu-row);
+    padding-inline: var(--pinfold-mnu-px);
+    color: var(--pinfold-mnu-tone);
+    text-decoration: none;
+    border-radius: var(--pinfold-radius-sm);
+    cursor: pointer;
+    user-select: none;
+  }
+  .pinfold-menu__item[data-tone] { --pinfold-mnu-tone: color-mix(in oklch, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text)); }
+  /* Selector weight over the reset's focus ring: the row's fill is the indicator. */
+  .pinfold-menu .pinfold-menu__item:focus-visible,
+  .pinfold-menu .pinfold-menu__item:focus {
+    outline: 2px solid transparent;
+    box-shadow: none;
+    background: color-mix(in oklch, var(--pinfold-mnu-tone) 12%, transparent);
+  }
+  .pinfold-menu__item[data-disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .pinfold-menu__indicator {
+    display: inline-flex;
+    flex-shrink: 0;
+    justify-content: center;
+    inline-size: 1em;
+    font-weight: var(--pinfold-weight-semibold);
+  }
+  .pinfold-menu__item[data-type='radio'] .pinfold-menu__indicator { font-size: 0.6em; inline-size: 1.67em; }
+  .pinfold-menu__icon { display: inline-flex; flex-shrink: 0; }
+  .pinfold-menu__icon > svg { inline-size: 1.15em; block-size: 1.15em; }
+  .pinfold-menu__label { flex: 1 1 auto; min-inline-size: 0; overflow-wrap: anywhere; }
+  .pinfold-menu__shortcut {
+    flex-shrink: 0;
+    margin-inline-start: var(--pinfold-space-6);
+    color: var(--pinfold-color-text-muted);
+    font-size: 0.9em;
+  }
+  .pinfold-menu__separator {
+    block-size: var(--pinfold-border-width);
+    margin-block: var(--pinfold-space-1);
+    margin-inline: calc(-1 * var(--pinfold-space-1));
+    background: var(--pinfold-color-border);
+  }
+  .pinfold-menu__group-label {
+    padding: var(--pinfold-space-1) var(--pinfold-mnu-px);
+    color: var(--pinfold-color-text-muted);
+    font-size: var(--pinfold-text-xs);
+    font-weight: var(--pinfold-weight-medium);
+  }
+
+  @keyframes pinfold-menu-in {
+    from { opacity: 0; transform: translateY(0.25rem); }
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-menu { border-color: CanvasText; }
+    .pinfold-menu .pinfold-menu__item:focus { outline-color: Highlight; }
+    .pinfold-menu__separator { background: CanvasText; }
+  }
+}

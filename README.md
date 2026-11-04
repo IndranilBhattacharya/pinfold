@@ -15,7 +15,7 @@ Created by **Indranil Bhattacharya**
 
 > **Status: pre-release.** The accordion is complete (server and client APIs,
 > global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report);
-> button, spinner, separator, kbd, skeleton, badge, alert, avatar, card and progress are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
+> button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu and toast are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
 
 ---
 
@@ -150,6 +150,7 @@ The config never changes shape as you go deeper.
 | [docs/components/button.md](docs/components/button.md) | Button and Spinner spec |
 | [docs/components/separator.md](docs/components/separator.md) · [kbd.md](docs/components/kbd.md) · [skeleton.md](docs/components/skeleton.md) · [badge.md](docs/components/badge.md) | Separator, Kbd, Skeleton and Badge specs |
 | [alert.md](docs/components/alert.md) · [avatar.md](docs/components/avatar.md) · [card.md](docs/components/card.md) · [progress.md](docs/components/progress.md) | Alert, Avatar, Card and Progress specs |
+| [tooltip.md](docs/components/tooltip.md) · [popover.md](docs/components/popover.md) · [dialog.md](docs/components/dialog.md) · [menu.md](docs/components/menu.md) · [toast.md](docs/components/toast.md) | Tooltip, Popover, Dialog, Menu and Toast specs |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
 | [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
 | [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | Accessibility evidence: the automated report and the screen-reader matrix |

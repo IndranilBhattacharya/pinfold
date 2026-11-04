@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'a11y-report');
 const require = createRequire(import.meta.url);
-const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
+const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
@@ -38,6 +38,7 @@ const app = await build({
       import { createRoot } from 'react-dom/client';
       import { PinfoldProvider } from '@pinfold/react';
       import { useAccordion } from '@pinfold/react/accordion';
+      import { createToastStore } from '@pinfold/core';
       import { Button } from '@pinfold/react/button';
       import { Spinner } from '@pinfold/react/spinner';
       import { Separator } from '@pinfold/react/separator';
@@ -48,6 +49,21 @@ const app = await build({
       import { Avatar } from '@pinfold/react/avatar';
       import { Card } from '@pinfold/react/card';
       import { Progress } from '@pinfold/react/progress';
+      import { Tooltip } from '@pinfold/react/tooltip';
+      import { Popover } from '@pinfold/react/popover';
+      import { Dialog } from '@pinfold/react/dialog';
+      import { Menu } from '@pinfold/react/menu';
+      import { Toast } from '@pinfold/react/toast';
+      // Overlays sit in the page flow here, not the top layer, so axe can measure their contrast.
+      delete HTMLElement.prototype.showPopover;
+      const toastStores = {};
+      function toastStore(pack) {
+        if (toastStores[pack]) return toastStores[pack];
+        const store = createToastStore();
+        for (const tone of ['neutral', 'success', 'warning', 'danger', 'info', 'primary']) store.show({ id: tone, title: 'Toast ' + tone, description: 'A description.', tone, duration: 0, action: { label: 'Undo ' + tone } });
+        store.configure({ max: 6 });
+        return (toastStores[pack] = store);
+      }
       // Buttons: every variant x tone (contrast), plus disabled, loading, icon-only, link, sizes.
       function Buttons({ pack = 'default' }) {
         const first = pack === 'default';
@@ -83,6 +99,11 @@ const app = await build({
           e(Card, { title: 'Linked card ' + pack, description: 'Whole card is a link.', href: '#top', orientation: 'horizontal', image: { src: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=', alt: '' } }),
           ...tones.map((tone) => e(Progress, { key: tone, tone, label: 'Upload ' + tone + ' ' + pack, value: 40, showValue: true })),
           e(Progress, { label: 'Loading ' + pack }), e(Progress, { shape: 'circle', label: 'Ring ' + pack, value: 70, showValue: true }), e(Progress, { kind: 'meter', label: 'Storage ' + pack, value: 16, max: 64 }),
+          ...['inverse', 'surface'].map((variant) => e(Tooltip, { key: variant, variant, defaultOpen: true, content: 'Tooltip ' + variant, trigger: { label: 'Hint ' + variant + ' ' + pack, variant: 'outline' } })),
+          e(Popover, { defaultOpen: true, arrow: true, title: 'Popover ' + pack, description: 'A description.', content: 'Body text.', actions: [{ label: 'Save' }, { label: 'Close' }], trigger: { label: 'Open popover ' + pack } }),
+          e(Menu, { defaultOpen: true, label: 'Menu ' + pack, trigger: { label: 'Open menu ' + pack }, items: [{ label: 'Edit', shortcut: 'E' }, { label: 'Off', disabled: true }, { type: 'separator' }, { type: 'checkbox', label: 'Wrap', checked: true }, { type: 'group', label: 'Sort', items: [{ type: 'radio', label: 'Name', checked: true }] }, ...['danger', 'success', 'warning', 'info'].map((tone) => ({ label: 'Row ' + tone, tone }))] }),
+          e(Dialog, { defaultOpen: true, modal: false, title: 'Dialog ' + pack, description: 'A description.', content: 'Body text.', actions: [{ label: 'Cancel' }, { label: 'Delete', tone: 'danger' }] }),
+          e(Toast, { label: 'Notifications ' + pack, store: toastStore(pack) }),
         );
       }
       const items = [
@@ -134,13 +155,18 @@ const app = await build({
     '@pinfold/react/avatar': './packages/react/dist/avatar/index.js',
     '@pinfold/react/card': './packages/react/dist/card/index.js',
     '@pinfold/react/progress': './packages/react/dist/progress/index.js',
+    '@pinfold/react/tooltip': './packages/react/dist/tooltip/index.js',
+    '@pinfold/react/popover': './packages/react/dist/popover/index.js',
+    '@pinfold/react/dialog': './packages/react/dist/dialog/index.js',
+    '@pinfold/react/menu': './packages/react/dist/menu/index.js',
+    '@pinfold/react/toast': './packages/react/dist/toast/index.js',
   },
   logLevel: 'silent',
 });
 
 const css = ['all.css'].map((f) => readFileSync(join(root, 'packages/css/dist', f), 'utf8')).join('\n');
 const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Pinfold a11y fixture</title>
-<style>${css}</style><style>body{margin:0;padding:24px;max-width:720px;font-family:system-ui;background:var(--pinfold-color-bg);color:var(--pinfold-color-text)} section{margin:24px 0}</style>
+<style>${css}</style><style>.pinfold-tooltip,.pinfold-popover,.pinfold-menu,.pinfold-dialog,.pinfold-toast{position:static!important;inline-size:auto!important;max-inline-size:100%!important} body{margin:0;padding:24px;max-width:720px;font-family:system-ui;background:var(--pinfold-color-bg);color:var(--pinfold-color-text)} section{margin:24px 0}</style>
 </head><body><div id="root"></div><script>${app.outputFiles[0].text}</script></body></html>`;
 
 const browser = await chromium.launch();
@@ -278,7 +304,7 @@ await browser.close();
 const failed = results.checks.filter((c) => !c.pass);
 const violations = Object.values(results.axe).flatMap((r) => r.violations);
 const md = [
-  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress',
+  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast',
   '',
   `Generated ${new Date().toISOString()} by \`scripts/a11y-report.mjs\` on the built packages, in Chromium.`,
   `Pattern: ${accordionMeta.pattern}`,
@@ -304,7 +330,7 @@ const md = [
   '',
   ...accordionMeta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
   '',
-  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
+  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
   '## Snapshots',
   '',
   ...results.snapshots.map((s) => `- ![${s}](${s})`),

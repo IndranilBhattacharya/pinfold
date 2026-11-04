@@ -19,6 +19,7 @@ ESM + CJS + `.d.ts`, with `typesVersions` and a stub folder per subpath.
 | SSR and RSC | Next.js App Router (RSC, ISR, streaming), Next.js Pages Router, Remix / React Router 7, Vite SSR, Gatsby, Astro islands | `fixture-apps.mjs`: Next.js 16 App Router (Server Component + `defineAccordion` + ISR, Client Component) and Pages Router (ISR), built and served. Plain `renderToString` (what Vite SSR, React Router 7 and Astro call) in the consumer smoke test, and a hydration test with zero warnings. |
 | Styling | Plain CSS, Tailwind v3 and v4, CSS Modules, and fully `unstyled` | Conformance plus the CLI merge tests |
 | Browsers | Baseline 2023: Chrome and Edge 111+, Firefox 113+, Safari 16.4+ | These are needed for `@layer`, `color-mix()`, container queries and OKLCH (sRGB hex fallbacks are emitted) |
+| Overlays | Popover API where available (Chrome and Edge 114+, Firefox 125+, Safari 17+) | Tooltips, popovers, menus and toasts join the top layer, so no ancestor can clip them. Below that they are `position: fixed` with a z-index token and work the same, except that an ancestor with `transform`, `filter` or `backdrop-filter` becomes their containing block. Dialogs use the native `<dialog>` on every supported browser. |
 | Progressive enhancement | `hidden="until-found"` (Chromium), glass refraction (Chromium) | Other browsers degrade gracefully: panels stay closed, glass becomes a blur |
 
 ## Not supported

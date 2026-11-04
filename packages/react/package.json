@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -22,7 +22,12 @@
     "alert",
     "avatar",
     "card",
-    "progress"
+    "progress",
+    "tooltip",
+    "popover",
+    "dialog",
+    "menu",
+    "toast"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -168,6 +173,56 @@
         "default": "./dist/progress/index.cjs"
       }
     },
+    "./tooltip": {
+      "import": {
+        "types": "./dist/tooltip/index.d.ts",
+        "default": "./dist/tooltip/index.js"
+      },
+      "require": {
+        "types": "./dist/tooltip/index.d.cts",
+        "default": "./dist/tooltip/index.cjs"
+      }
+    },
+    "./popover": {
+      "import": {
+        "types": "./dist/popover/index.d.ts",
+        "default": "./dist/popover/index.js"
+      },
+      "require": {
+        "types": "./dist/popover/index.d.cts",
+        "default": "./dist/popover/index.cjs"
+      }
+    },
+    "./dialog": {
+      "import": {
+        "types": "./dist/dialog/index.d.ts",
+        "default": "./dist/dialog/index.js"
+      },
+      "require": {
+        "types": "./dist/dialog/index.d.cts",
+        "default": "./dist/dialog/index.cjs"
+      }
+    },
+    "./menu": {
+      "import": {
+        "types": "./dist/menu/index.d.ts",
+        "default": "./dist/menu/index.js"
+      },
+      "require": {
+        "types": "./dist/menu/index.d.cts",
+        "default": "./dist/menu/index.cjs"
+      }
+    },
+    "./toast": {
+      "import": {
+        "types": "./dist/toast/index.d.ts",
+        "default": "./dist/toast/index.js"
+      },
+      "require": {
+        "types": "./dist/toast/index.d.cts",
+        "default": "./dist/toast/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -207,6 +262,21 @@
       ],
       "progress": [
         "./dist/progress/index.d.cts"
+      ],
+      "tooltip": [
+        "./dist/tooltip/index.d.cts"
+      ],
+      "popover": [
+        "./dist/popover/index.d.cts"
+      ],
+      "dialog": [
+        "./dist/dialog/index.d.cts"
+      ],
+      "menu": [
+        "./dist/menu/index.d.cts"
+      ],
+      "toast": [
+        "./dist/toast/index.d.cts"
       ]
     }
   },
@@ -223,6 +293,11 @@
     "avatar",
     "card",
     "progress",
+    "tooltip",
+    "popover",
+    "dialog",
+    "menu",
+    "toast",
     "registry",
     "schema",
     "llms.txt",
@@ -232,7 +307,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.6.0"
+    "@pinfold/core": "0.7.0"
   },
   "peerDependencies": {
     "react": ">=18"
