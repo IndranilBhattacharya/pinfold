@@ -1,0 +1,83 @@
+/* Pinfold — input. Heights come from the shared control tokens, so a field and a button in one row
+   line up. The frame is the `control` slot and shows focus for everything inside it. Label, help
+   text and error styles are shared: see field.css in core.css. */
+
+@layer pinfold.components {
+  .pinfold-input {
+    inline-size: var(--pinfold-input-width, 100%);
+  }
+  .pinfold-input__control {
+    display: flex;
+    align-items: center;
+    gap: var(--pinfold-control-gap);
+    box-sizing: border-box;
+    min-block-size: var(--pinfold-input-height, var(--pinfold-control-height));
+    padding-inline: var(--pinfold-input-padding-x, calc(var(--pinfold-control-pad-x) * 0.75));
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border: var(--pinfold-border-width) solid var(--pinfold-fld-edge);
+    border-radius: var(--pinfold-input-radius, calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1)));
+    box-shadow: var(--pinfold-control-shadow, none);
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-input[data-variant='filled'] .pinfold-input__control {
+    background-color: var(--pinfold-color-bg-subtle);
+  }
+  .pinfold-input[data-animate] .pinfold-input__control {
+    transition: border-color var(--pinfold-duration-fast) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-fast) var(--pinfold-ease-out);
+  }
+  .pinfold-input:not([data-disabled]) .pinfold-input__control:hover { border-color: var(--pinfold-color-text-muted); }
+  .pinfold-input[data-invalid] .pinfold-input__control,
+  .pinfold-input[data-invalid] .pinfold-input__control:hover { border-color: var(--pinfold-fld-danger); }
+  .pinfold-input[data-readonly] .pinfold-input__control {
+    background-color: var(--pinfold-color-bg-subtle);
+    border-style: dashed;
+  }
+  /* After the states above: the ring always shows. */
+  .pinfold-input .pinfold-input__control:focus-within { box-shadow: var(--pinfold-focus-ring); }
+
+  .pinfold-input__input {
+    flex: 1 1 auto;
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    background: transparent;
+    border: 0;
+    outline: none;
+  }
+  /* The frame carries the ring. */
+  .pinfold-input .pinfold-input__input:focus-visible { box-shadow: none; outline: none; }
+  .pinfold-input__input::placeholder {
+    color: var(--pinfold-color-text-muted);
+    opacity: 1;
+  }
+  .pinfold-input__input::-webkit-search-cancel-button { appearance: none; }
+  .pinfold-input[data-multiline] .pinfold-input__control { align-items: flex-start; padding-block: var(--pinfold-space-2); }
+  textarea.pinfold-input__input { display: block; resize: vertical; }
+
+  .pinfold-input__startContent,
+  .pinfold-input__endContent {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    color: var(--pinfold-color-text-muted);
+  }
+  .pinfold-input__startContent > svg,
+  .pinfold-input__endContent > svg {
+    inline-size: var(--pinfold-control-icon);
+    block-size: var(--pinfold-control-icon);
+  }
+  .pinfold-input__clear {
+    display: inline-flex;
+    flex-shrink: 0;
+    margin-inline-end: calc(var(--pinfold-space-1) * -1);
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-input__control { border-color: CanvasText; }
+    .pinfold-input .pinfold-input__control:focus-within { outline: 2px solid Highlight; outline-offset: 1px; }
+  }
+}

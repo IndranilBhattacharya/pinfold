@@ -1,0 +1,21 @@
+/* Pinfold — checkbox. The row, the input and the shared box are in field.css (core.css): this is
+   only the box's size and shape, and which mark it shows. */
+
+@layer pinfold.components {
+  .pinfold-checkbox__box {
+    inline-size: var(--pinfold-checkbox-size, 1.125rem);
+    block-size: var(--pinfold-checkbox-size, 1.125rem);
+    border-radius: min(var(--pinfold-radius-sm), 0.3125rem);
+  }
+  .pinfold-checkbox[data-size='sm'] .pinfold-checkbox__box {
+    inline-size: var(--pinfold-checkbox-size, 1rem);
+    block-size: var(--pinfold-checkbox-size, 1rem);
+  }
+  .pinfold-checkbox[data-size='lg'] .pinfold-checkbox__box {
+    inline-size: var(--pinfold-checkbox-size, 1.375rem);
+    block-size: var(--pinfold-checkbox-size, 1.375rem);
+  }
+  .pinfold-checkbox__dash { display: none; }
+  .pinfold-checkbox__input:indeterminate + .pinfold-checkbox__box .pinfold-checkbox__check { display: none; }
+  .pinfold-checkbox__input:indeterminate + .pinfold-checkbox__box .pinfold-checkbox__dash { display: inline; }
+}

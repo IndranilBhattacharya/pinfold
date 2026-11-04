@@ -19,6 +19,10 @@ import { alertMeta } from './alert.meta';
 import { avatarMeta } from './avatar.meta';
 import { cardMeta } from './card.meta';
 import { progressMeta } from './progress.meta';
+import { switchMeta } from './switch.meta';
+import { radioMeta } from './radio.meta';
+import { checkboxMeta } from './checkbox.meta';
+import { inputMeta } from './input.meta';
 import { toastMeta } from './toast.meta';
 import { menuMeta } from './menu.meta';
 import { dialogMeta } from './dialog.meta';
@@ -317,4 +321,4 @@ export function metaToMarkdown(meta: ComponentMeta): string {
 
 /** Every component's meta. Tooling iterates this. */
 export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta];
-export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta };
+export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta };

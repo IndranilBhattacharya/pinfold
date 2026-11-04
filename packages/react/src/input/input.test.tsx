@@ -1,0 +1,157 @@
+import * as React from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
+import { describePinfoldConformance } from '@pinfold/testing';
+import { inputMeta } from '@pinfold/core/meta';
+import { PinfoldProvider } from '../provider';
+import { Input } from './Input';
+import { useInput } from './useInput';
+import { defineInput } from './define';
+import type { InputComponent } from './types';
+
+describe('Input', () => {
+  it('names the control and links its help text and error', () => {
+    render(<Input label="Email" description="We never share it" error="Not valid" />);
+    const box = screen.getByRole('textbox', { name: 'Email' }) as HTMLInputElement;
+    expect(box.getAttribute('aria-invalid')).toBe('true');
+    const ids = box.getAttribute('aria-describedby')!.split(' ');
+    expect(ids.map((id) => document.getElementById(id)!.textContent)).toEqual(['We never share it', 'Not valid']);
+  });
+
+  it('a hidden label still names it; required is native with an aria-hidden marker', () => {
+    const { container } = render(<Input label="Search" hideLabel required />);
+    const box = screen.getByRole('textbox', { name: /Search/ }) as HTMLInputElement;
+    expect(box.required).toBe(true);
+    expect(container.querySelector('label')!.getAttribute('style')).toContain('position: absolute');
+    expect(container.querySelector('.pinfold-field__required')!.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('reports values; uncontrolled stays native', () => {
+    const onChange = vi.fn();
+    render(<Input label="Name" defaultValue="Ada" onChange={onChange} />);
+    const box = screen.getByRole('textbox') as HTMLInputElement;
+    expect(box.value).toBe('Ada');
+    fireEvent.change(box, { target: { value: 'Grace' } });
+    expect(onChange).toHaveBeenCalledWith('Grace', expect.anything());
+  });
+
+  it('the clear button empties it and refocuses, uncontrolled or controlled', () => {
+    const onChange = vi.fn();
+    const { rerender } = render(<Input label="Name" defaultValue="Ada" clearable onChange={onChange} />);
+    const box = screen.getByRole('textbox') as HTMLInputElement;
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    expect(box.value).toBe('');
+    expect(onChange).toHaveBeenLastCalledWith('');
+    expect(document.activeElement).toBe(box);
+    expect(screen.queryByRole('button', { name: 'Clear' })).toBeNull();
+    rerender(<Input label="Name" value="Ada" clearable onChange={onChange} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    expect(onChange).toHaveBeenLastCalledWith('');
+  });
+
+  it('no clear button when read-only or disabled', () => {
+    const { rerender } = render(<Input label="Name" defaultValue="Ada" clearable readOnly />);
+    expect(screen.queryByRole('button')).toBeNull();
+    rerender(<Input label="Name" defaultValue="Ada" clearable disabled />);
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('multiline is a textarea, without a type', () => {
+    render(<Input label="Notes" multiline rows={5} />);
+    const box = screen.getByRole('textbox') as HTMLTextAreaElement;
+    expect(box.tagName).toBe('TEXTAREA');
+    expect(box.rows).toBe(5);
+    expect(box.hasAttribute('type')).toBe(false);
+  });
+
+  it('shows the browser message instead of its bubble, focuses the first invalid, and recovers', () => {
+    render(
+      <form noValidate={false}>
+        <Input label="First" required name="a" />
+        <Input label="Second" required name="b" />
+      </form>,
+    );
+    const first = screen.getByRole('textbox', { name: /First/ }) as HTMLInputElement;
+    const second = screen.getByRole('textbox', { name: /Second/ }) as HTMLInputElement;
+    const event = new Event('invalid', { cancelable: true });
+    act(() => void second.dispatchEvent(event));
+    act(() => void first.dispatchEvent(new Event('invalid', { cancelable: true })));
+    expect(event.defaultPrevented).toBe(true);
+    expect(first.getAttribute('aria-invalid')).toBe('true');
+    expect(document.activeElement).toBe(first);
+    fireEvent.change(first, { target: { value: 'x' } });
+    expect(first.getAttribute('aria-invalid')).toBeNull();
+    expect(second.getAttribute('aria-invalid')).toBe('true');
+  });
+
+  it('`error` wins over native messages; nativeErrors off leaves the bubble', () => {
+    const { rerender } = render(<Input label="A" required error="Mine" />);
+    const box = screen.getByRole('textbox');
+    act(() => void box.dispatchEvent(new Event('invalid', { cancelable: true })));
+    expect(document.getElementById(box.getAttribute('aria-describedby')!)!.textContent).toBe('Mine');
+    rerender(<Input label="A" required nativeErrors={false} />);
+    const event = new Event('invalid', { cancelable: true });
+    act(() => void box.dispatchEvent(event));
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it('a form reset restores the value and clears native messages', async () => {
+    const { container } = render(
+      <form>
+        <Input label="A" required defaultValue="Ada" clearable />
+      </form>,
+    );
+    const box = screen.getByRole('textbox') as HTMLInputElement;
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    act(() => void box.dispatchEvent(new Event('invalid', { cancelable: true })));
+    expect(box.getAttribute('aria-invalid')).toBe('true');
+    act(() => container.querySelector('form')!.reset());
+    expect(box.value).toBe('Ada');
+    expect(box.getAttribute('aria-invalid')).toBeNull();
+    await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Clear' })).toBeTruthy());
+  });
+
+  it('has a controller', () => {
+    let ctrl!: InputComponent;
+    function Host() {
+      const I = useInput({ label: 'A', defaultValue: 'x' });
+      ctrl = I;
+      return <I />;
+    }
+    render(<Host />);
+    act(() => ctrl.focus());
+    expect(document.activeElement).toBe(screen.getByRole('textbox'));
+    act(() => ctrl.clear());
+    expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe('');
+  });
+
+  it('follows the provider size', () => {
+    const { container } = render(
+      <PinfoldProvider size="lg">
+        <Input label="A" />
+      </PinfoldProvider>,
+    );
+    expect(container.querySelector('.pinfold-input')!.getAttribute('data-size')).toBe('lg');
+  });
+
+  it('a preset renders on the server, with the value', () => {
+    const Email = defineInput({ type: 'email', required: true });
+    const html = renderToString(<Email label="Email" name="email" defaultValue="a@b.co" />);
+    expect(html).toContain('type="email"');
+    expect(html).toContain('value="a@b.co"');
+    expect(html).toContain('for="');
+  });
+});
+
+describePinfoldConformance({
+  name: 'input',
+  inherits: ['size'],
+  slots: ['root', 'label', 'control', 'input', 'startContent', 'endContent', 'clear', 'description', 'error'],
+  dimension: { key: 'width', value: 300 },
+  cssFile: 'packages/css/src/input.css',
+  meta: inputMeta,
+  preset: { define: defineInput as any, props: { label: 'Name' } },
+  hook: { use: useInput as any, config: { label: 'Name' } },
+  render: (config) => <Input label="Name" defaultValue="Ada" description="Help" error="Bad" clearable startContent={<svg />} endContent={<svg />} {...config} />,
+});

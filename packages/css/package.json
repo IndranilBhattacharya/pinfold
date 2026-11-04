@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/css",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Pinfold styles: tokens, reset and per-component CSS in cascade layers, plus the Tailwind v3 preset and v4 theme. Framework-free.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -25,6 +25,7 @@
   ],
   "exports": {
     "./core.css": "./dist/core.css",
+    "./field.css": "./dist/field.css",
     "./reset.css": "./dist/reset.css",
     "./tokens.css": "./dist/tokens.css",
     "./all.css": "./dist/all.css",
@@ -35,6 +36,10 @@
     "./kbd.css": "./dist/kbd.css",
     "./skeleton.css": "./dist/skeleton.css",
     "./badge.css": "./dist/badge.css",
+    "./switch.css": "./dist/switch.css",
+    "./radio.css": "./dist/radio.css",
+    "./checkbox.css": "./dist/checkbox.css",
+    "./input.css": "./dist/input.css",
     "./toast.css": "./dist/toast.css",
     "./menu.css": "./dist/menu.css",
     "./dialog.css": "./dist/dialog.css",
