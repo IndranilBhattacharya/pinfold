@@ -17,6 +17,7 @@ export const RADIO_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'onChange',
   'orientation',
   'variant',
+  'animation',
   'size',
   'tone',
   'dimensions',

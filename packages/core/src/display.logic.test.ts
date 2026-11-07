@@ -4,10 +4,18 @@ import { formatKeys, inactiveKbdOptions, kbdOs } from './kbd.logic';
 import { inactiveSeparatorOptions } from './separator.logic';
 import { inactiveSkeletonOptions, skeletonLineWidths } from './skeleton.logic';
 import { badgeCount, badgeDotOnly, inactiveBadgeOptions } from './badge.logic';
+import { inactiveInputOptions } from './forms.logic';
 import { avatarInitials, avatarOverflow, avatarTone, inactiveAvatarOptions } from './avatar.logic';
 import { inactiveProgressOptions, progressPercent, progressValueText } from './progress.logic';
 
 describe('kbd logic', () => {
+  it('input: options that do nothing in the current config', () => {
+    expect(Object.keys(inactiveInputOptions({}))).toEqual(['autosize', 'rows', 'resize', 'resizeIcon', 'clearLabel', 'clearIcon']);
+    expect(Object.keys(inactiveInputOptions({ multiline: true, autosize: true, clearable: true }))).toEqual(['type', 'resize', 'resizeIcon']);
+    expect(Object.keys(inactiveInputOptions({ multiline: true, resize: 'none', clearable: true }))).toEqual(['type', 'resizeIcon']);
+    expect(Object.keys(inactiveInputOptions({ clearable: true, readOnly: true, hideLabel: true }))).toEqual(['autosize', 'rows', 'resize', 'resizeIcon', 'clearable', 'labelPlacement']);
+  });
+
   it('maps mod to Command on Apple platforms and Ctrl elsewhere, with spoken names', () => {
     expect(formatKeys(['mod', 'shift', 'k'], 'apple')).toEqual([
       { display: '⌘', spoken: 'Command' },
@@ -63,7 +71,8 @@ describe('badge logic', () => {
 
   it('lists what a missing count, a missing anchor or a lone dot ignores', () => {
     expect(Object.keys(inactiveBadgeOptions({}))).toEqual(['max', 'showZero', 'placement', 'anchorShape']);
-    expect(inactiveBadgeOptions({ count: 3, anchor: 'x' })).toEqual({});
+    expect(inactiveBadgeOptions({ count: 0, anchor: 'x' })).toEqual({});
+    expect(Object.keys(inactiveBadgeOptions({ count: 3, anchor: 'x' }))).toEqual(['showZero']);
     expect(Object.keys(inactiveBadgeOptions({ dot: true, anchor: 'x' }))).toEqual(['max', 'showZero', 'radius', 'variant']);
     expect(Object.keys(inactiveBadgeOptions({ dot: true, label: 'Online', anchor: 'x' }))).toEqual(['max', 'showZero']);
   });

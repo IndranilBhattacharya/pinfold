@@ -12,6 +12,17 @@ const ROWS = '[role^="menuitem"]';
 const rowsOf = (menu: HTMLElement | null) => (menu ? Array.from(menu.querySelectorAll<HTMLElement>(ROWS)) : []);
 const TYPEAHEAD_RESET = 500;
 
+const TICK = (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" focusable="false">
+    <path d="M3.5 8.5l3 3 6-7" />
+  </svg>
+);
+const DOT = (
+  <svg viewBox="0 0 16 16" fill="currentColor" focusable="false">
+    <circle cx="8" cy="8" r="3" />
+  </svg>
+);
+
 /**
  * A dropdown or context menu from a list of rows, as a hook that hands back a component.
  *
@@ -188,7 +199,7 @@ export function useMenu(input: MenuConfig): MenuComponent {
     };
     const content = (
       <>
-        {check ? slot('indicator', (item as MenuCheckItem).checked ? (item.type === 'radio' ? '●' : '✓') : null, 'span', { 'aria-hidden': true }) : null}
+        {check ? slot('indicator', (item as MenuCheckItem).checked ? (item.type === 'radio' ? DOT : TICK) : null, 'span', { 'aria-hidden': true }) : null}
         {item.icon != null && item.icon !== false ? slot('icon', item.icon, 'span', { 'aria-hidden': true }) : null}
         {slot('label', item.label, 'span')}
         {item.shortcut != null && item.shortcut !== false ? slot('shortcut', item.shortcut, 'span') : null}

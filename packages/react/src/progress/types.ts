@@ -38,7 +38,7 @@ export interface ProgressConfig extends SlotOverrides<ProgressSlot, ProgressStat
   label?: React.ReactNode;
   /** @default false */
   hideLabel?: boolean;
-  /** @default false */
+  /** @default true */
   showValue?: boolean;
   /** The value text, shown and read. Default: a whole percentage in the reader's locale. */
   formatValue?: (value: number, range: { min: number; max: number; percent: number }) => string;

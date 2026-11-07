@@ -46,7 +46,7 @@ export function useRadio(input: RadioConfig): RadioComponent {
         'data-disabled': dataAttr(config.disabled),
         'data-variant': config.variant ?? 'plain',
         'data-orientation': config.orientation ?? 'vertical',
-        'data-animate': dataAttr(!ctx.disableAnimation),
+        'data-animate': ctx.disableAnimation || config.animation === 'none' ? undefined : config.animation ?? 'spring',
         'data-unstyled': dataAttr(config.unstyled),
       },
       props,

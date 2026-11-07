@@ -7,6 +7,14 @@ import { renderSlot, slotProps } from '../slots';
 import { filled, labelContent, renderChoice, useField } from '../field';
 import type { SwitchApi, SwitchComponent, SwitchConfig, SwitchRootProps, SwitchSlot, SwitchState } from './types';
 
+// Both marks are drawn; the input's state picks one in CSS, so it works uncontrolled and before hydration.
+const THUMB_ICONS = (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2.25} strokeLinecap="round" strokeLinejoin="round" focusable="false">
+    <path className="pinfold-switch__on" d="M4.5 8.5l2.5 2.5 4.5-5" />
+    <path className="pinfold-switch__off" d="M5.5 5.5l5 5m0-5l-5 5" />
+  </svg>
+);
+
 /**
  * An on/off setting, a native checkbox with `role="switch"`, as a hook that hands back a component.
  *
@@ -27,7 +35,7 @@ export function useSwitch(input: SwitchConfig): SwitchComponent {
     warnOnce(!filled(config.label), 'Switch: give it a `label` (`hideLabel` keeps it for screen readers only).');
   }
 
-  const state: SwitchState = { size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, invalid: field.invalid };
+  const state: SwitchState = { variant: config.variant ?? 'solid', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, invalid: field.invalid };
 
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
@@ -36,9 +44,10 @@ export function useSwitch(input: SwitchConfig): SwitchComponent {
         'data-size': state.size,
         'data-tone': state.tone,
         'data-label-position': config.labelPosition ?? 'end',
+        'data-variant': state.variant,
         'data-invalid': dataAttr(field.invalid),
         'data-disabled': dataAttr(config.disabled),
-        'data-animate': dataAttr(!ctx.disableAnimation),
+        'data-animate': ctx.disableAnimation || config.animation === 'none' ? undefined : config.animation ?? 'spring',
         'data-unstyled': dataAttr(config.unstyled),
       },
       props,
@@ -70,7 +79,7 @@ export function useSwitch(input: SwitchConfig): SwitchComponent {
           row: { label: config.label, disabled: config.disabled },
           labelText: labelContent(config, config.unstyled),
           hideLabel: config.hideLabel,
-          indicator: slot('thumb', null, 'span'),
+          indicator: slot('thumb', state.variant === 'icon' ? THUMB_ICONS : null, 'span'),
           describedBy: field.describedBy,
           input: {
             type: 'checkbox',

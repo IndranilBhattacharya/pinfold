@@ -1,16 +1,18 @@
-/* Pinfold — toast. The region is a click-through column in a corner; each toast is a surface with
-   a tone-coloured icon and title, so style packs restyle it. */
+/* Pinfold — toast. The region is a click-through corner; the list inside it holds the toasts, newest
+   at the screen edge. Piled (the default), the cards behind the newest are moved onto it by a
+   transform the script measures (--pinfold-tst-pile); hover or focus drops the transform and they fan
+   out in the list's own flow, which scrolls past `visible` toasts with no scrollbar. Each toast is a
+   surface with a tone icon, so style packs restyle it. */
 
 @layer pinfold.components {
   .pinfold-toast {
     --pinfold-tst-inset: var(--pinfold-toast-inset, var(--pinfold-space-4));
+    --pinfold-tst-gap: var(--pinfold-toast-gap, var(--pinfold-space-2));
+    --pinfold-tst-move: 420ms;
 
     position: fixed;
     inset: auto;
     z-index: var(--pinfold-z-toast);
-    display: flex;
-    flex-direction: column;
-    gap: var(--pinfold-toast-gap, var(--pinfold-space-2));
     box-sizing: border-box;
     inline-size: min(var(--pinfold-toast-width, 22rem), calc(100vw - 2 * var(--pinfold-tst-inset)));
     margin: 0;
@@ -22,10 +24,7 @@
     pointer-events: none;
   }
   .pinfold-toast[data-placement^='top'] { inset-block-start: var(--pinfold-tst-inset); }
-  .pinfold-toast[data-placement^='bottom'] {
-    inset-block-end: var(--pinfold-tst-inset);
-    flex-direction: column-reverse;
-  }
+  .pinfold-toast[data-placement^='bottom'] { inset-block-end: var(--pinfold-tst-inset); }
   .pinfold-toast[data-placement$='start'] { inset-inline-start: var(--pinfold-tst-inset); }
   .pinfold-toast[data-placement$='end'] { inset-inline-end: var(--pinfold-tst-inset); }
   .pinfold-toast[data-placement='top'],
@@ -34,14 +33,36 @@
     margin-inline: auto;
   }
 
+  /* The padding is room for shadows inside the scroll area; the negative margin gives it back. */
+  .pinfold-toast__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pinfold-tst-gap);
+    max-block-size: calc(var(--pinfold-tst-room, 100vh) + 2rem);
+    margin: -1rem;
+    padding: 1rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    pointer-events: none;
+  }
+  .pinfold-toast__list::-webkit-scrollbar { display: none; }
+  .pinfold-toast[data-placement^='bottom'] .pinfold-toast__list { flex-direction: column-reverse; }
+  /* Open, the gaps between toasts belong to it too, so the pointer can cross them. */
+  .pinfold-toast[data-expanded] .pinfold-toast__list { pointer-events: auto; }
+  .pinfold-toast[data-stack]:not([data-expanded]) .pinfold-toast__list { overflow-y: hidden; }
+
   .pinfold-toast__item {
     --pinfold-tst-text: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text));
+    position: relative;
     display: flex;
+    flex-shrink: 0;
     flex-wrap: wrap;
     align-items: flex-start;
     gap: var(--pinfold-space-2) var(--pinfold-space-3);
     box-sizing: border-box;
-    padding: var(--pinfold-space-3);
+    padding: var(--pinfold-space-3) var(--pinfold-space-3) var(--pinfold-space-3) var(--pinfold-space-4);
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-text-sm);
     line-height: 1.5;
@@ -50,13 +71,45 @@
     border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
     border-radius: var(--pinfold-radius-lg);
     box-shadow: var(--pinfold-shadow-lg);
+    backdrop-filter: var(--pinfold-backdrop);
     pointer-events: auto;
+    transform-origin: 50% 100%;
   }
-  .pinfold-toast[data-animate] .pinfold-toast__item { animation: pinfold-toast-in var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-toast[data-placement^='top'] .pinfold-toast__item { transform-origin: 50% 0; }
+  .pinfold-toast__item > * { transition: opacity var(--pinfold-duration-md) var(--pinfold-ease-out); }
+
+  /* The pile. */
+  .pinfold-toast[data-stack]:not([data-expanded]) .pinfold-toast__item { transform: var(--pinfold-tst-pile, none); }
+  .pinfold-toast[data-stack]:not([data-expanded]) .pinfold-toast__item[data-behind] > * { opacity: 0; }
+  .pinfold-toast[data-stack]:not([data-expanded]) .pinfold-toast__item[data-buried] { opacity: 0; pointer-events: none; }
+  .pinfold-toast[data-stack]:not([data-expanded]) .pinfold-toast__item[data-behind] { pointer-events: none; }
+  .pinfold-toast[data-stack]:not([data-expanded]) .pinfold-toast__item[data-index='1'] { pointer-events: auto; }
+
+  .pinfold-toast[data-animate] .pinfold-toast__item {
+    transition: transform var(--pinfold-tst-move) var(--pinfold-ease), opacity var(--pinfold-tst-move) var(--pinfold-ease);
+    animation: pinfold-toast-in var(--pinfold-tst-move) var(--pinfold-ease);
+  }
+  .pinfold-toast[data-animate][data-placement^='top'] .pinfold-toast__item { animation-name: pinfold-toast-in-top; }
+
+  /* Leaving: the card fades toward the edge while its space closes, so the rest glide into place. */
+  .pinfold-toast__item[data-leaving] { pointer-events: none; }
+  .pinfold-toast__item[data-closing] {
+    margin-block-end: calc(var(--pinfold-tst-gap) * -1);
+    padding-block: 0;
+    overflow: hidden;
+    border-block-width: 0;
+    opacity: 0;
+    translate: 0 30%;
+  }
+  .pinfold-toast[data-placement^='top'] .pinfold-toast__item[data-closing] { translate: 0 -30%; }
+  .pinfold-toast[data-animate] .pinfold-toast__item[data-closing] {
+    transition: block-size 240ms var(--pinfold-ease), margin 240ms var(--pinfold-ease), padding 240ms var(--pinfold-ease), border-width 240ms var(--pinfold-ease), opacity 180ms var(--pinfold-ease-out), translate 240ms var(--pinfold-ease), transform 240ms var(--pinfold-ease);
+  }
 
   .pinfold-toast__icon {
     display: inline-flex;
     flex-shrink: 0;
+    margin-block-start: 0.0625rem;
     color: var(--pinfold-tst-text);
   }
   .pinfold-toast__icon > svg {
@@ -80,9 +133,13 @@
     display: inline-flex;
     flex-shrink: 0;
   }
+  .pinfold-toast__dismiss { margin: calc(var(--pinfold-space-1) * -1) calc(var(--pinfold-space-1) * -1) 0 0; }
 
   @keyframes pinfold-toast-in {
-    from { opacity: 0; transform: translateY(0.5rem); }
+    from { opacity: 0; translate: 0 110%; scale: 0.96; }
+  }
+  @keyframes pinfold-toast-in-top {
+    from { opacity: 0; translate: 0 -110%; scale: 0.96; }
   }
 
   @media (forced-colors: active) {

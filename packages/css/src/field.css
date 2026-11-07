@@ -95,7 +95,11 @@
   .pinfold-field[data-invalid] .pinfold-choice__box { border-color: var(--pinfold-fld-danger); }
   .pinfold-choice__input:focus-visible + .pinfold-choice__box { box-shadow: var(--pinfold-focus-ring); }
   .pinfold-choice__input:focus-visible { outline: none; box-shadow: none; }
-  .pinfold-field[data-animate] .pinfold-choice__box { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), border-color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-field[data-animate] .pinfold-choice__box { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), border-color var(--pinfold-duration-fast) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
+  .pinfold-choice__item:not([data-disabled]):hover .pinfold-choice__input:not(:checked) + .pinfold-choice__box { border-color: var(--pinfold-color-text-muted); }
+  /* A press gives: the box dips and springs back. The switch has its own. */
+  .pinfold-checkbox[data-animate] .pinfold-choice__input:active + .pinfold-choice__box,
+  .pinfold-radio[data-animate] .pinfold-choice__input:active + .pinfold-choice__box { transform: scale(0.86); }
 
   .pinfold-choice__text {
     display: flex;
@@ -119,6 +123,29 @@
     backdrop-filter: var(--pinfold-backdrop);
   }
   .pinfold-field[data-variant='card'][data-orientation='horizontal'] .pinfold-choice__item { flex: 1 1 10rem; }
+  /* The selected card: a frame drawn by a sibling of the input, so it needs no :has(). The input
+     covers the whole card, and the frame sits under the text. */
+  .pinfold-choice__frame { display: none; }
+  .pinfold-field[data-variant='card'] .pinfold-choice__item { position: relative; isolation: isolate; }
+  .pinfold-field[data-variant='card'] .pinfold-choice__control { position: static; }
+  .pinfold-field[data-variant='card'] .pinfold-choice__frame {
+    display: block;
+    position: absolute;
+    inset: calc(var(--pinfold-border-width) * -1);
+    z-index: -1;
+    border: 1.5px solid transparent;
+    border-radius: var(--pinfold-radius-md);
+    pointer-events: none;
+  }
+  .pinfold-field[data-variant='card'][data-animate] .pinfold-choice__frame { transition: border-color var(--pinfold-duration-md) var(--pinfold-ease-out), background-color var(--pinfold-duration-md) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-field[data-variant='card'] .pinfold-choice__item:not([data-disabled]):hover .pinfold-choice__frame { border-color: var(--pinfold-color-text-muted); }
+  .pinfold-field[data-variant='card'] .pinfold-choice__input:checked ~ .pinfold-choice__frame,
+  .pinfold-field[data-variant='card'] .pinfold-choice__item:hover .pinfold-choice__input:checked ~ .pinfold-choice__frame {
+    background-color: color-mix(in oklab, var(--pinfold-tone-solid, var(--pinfold-color-accent)) 9%, transparent);
+    border-color: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+  }
+  .pinfold-field[data-variant='card'] .pinfold-choice__input:focus-visible + .pinfold-choice__box { box-shadow: none; }
+  .pinfold-field[data-variant='card'] .pinfold-choice__input:focus-visible ~ .pinfold-choice__frame { box-shadow: var(--pinfold-focus-ring); }
 
   @media (forced-colors: active) {
     .pinfold-choice__box { border-color: CanvasText; forced-color-adjust: none; background: Canvas; }

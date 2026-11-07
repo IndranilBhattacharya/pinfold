@@ -4,6 +4,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { describePinfoldConformance } from '@pinfold/testing';
 import { checkboxMeta, radioMeta, switchMeta } from '@pinfold/core/meta';
+import { PinfoldProvider } from '../provider';
 import { Checkbox } from './Checkbox';
 import { useCheckbox } from './useCheckbox';
 import { defineCheckbox } from './define';
@@ -139,11 +140,47 @@ describe('Switch', () => {
     expect(new FormData(container.querySelector('form')!).get('alerts')).toBe('yes');
   });
 
+  it('variants: the icon thumb carries both marks; others draw none', () => {
+    const { container, rerender } = render(<Switch label="Wi-Fi" />);
+    expect(container.firstElementChild!.getAttribute('data-variant')).toBe('solid');
+    expect(container.querySelector('.pinfold-switch__thumb svg')).toBeNull();
+    rerender(<Switch label="Wi-Fi" variant="icon" />);
+    expect(container.querySelectorAll('.pinfold-switch__thumb path')).toHaveLength(2);
+    expect(container.querySelector('.pinfold-switch__box')!.getAttribute('aria-hidden')).toBe('true');
+  });
+
   it('a preset renders on the server, checked', () => {
     const Setting = defineSwitch({ labelPosition: 'start' });
     const html = renderToString(<Setting label="Alerts" defaultChecked />);
     expect(html).toContain('role="switch"');
     expect(html).toContain('checked');
+  });
+});
+
+describe('Choice motion', () => {
+  it('names the animation on the root, and none or the provider turns it off', () => {
+    const root = (el: React.ReactElement) => render(el).container.firstElementChild!.getAttribute('data-animate');
+    expect(root(<Checkbox label="A" />)).toBe('draw');
+    expect(root(<Checkbox label="A" animation="pop" />)).toBe('pop');
+    expect(root(<Checkbox label="A" animation="none" />)).toBeNull();
+    expect(root(<Radio label="R" items={rows} />)).toBe('spring');
+    expect(root(<Radio label="R" items={rows} animation="ripple" />)).toBe('ripple');
+    expect(root(<Switch label="S" />)).toBe('spring');
+    expect(root(<Switch label="S" animation="slide" />)).toBe('slide');
+    expect(root(<PinfoldProvider disableAnimation><Switch label="S" /></PinfoldProvider>)).toBeNull();
+  });
+
+  it('the tick has a path length of 1, so it can be traced at any size', () => {
+    const { container } = render(<Checkbox label="A" />);
+    expect(container.querySelector('.pinfold-checkbox__check')!.getAttribute('pathLength')).toBe('1');
+  });
+
+  it('a card row draws its selection frame beside the input, decorative', () => {
+    const { container } = render(<Radio label="R" items={rows} variant="card" />);
+    const frames = container.querySelectorAll('.pinfold-choice__frame');
+    expect(frames).toHaveLength(3);
+    expect(frames[0].getAttribute('aria-hidden')).toBe('true');
+    expect(frames[0].previousElementSibling!.classList.contains('pinfold-choice__box')).toBe(true);
   });
 });
 

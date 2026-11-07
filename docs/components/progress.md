@@ -6,7 +6,7 @@ Status: **experimental**. Roles: [progressbar](https://www.w3.org/TR/wai-aria-1.
 ```tsx
 import { defineProgress } from '@pinfold/react/progress';
 
-export const Upload = defineProgress({ showValue: true });
+export const Upload = defineProgress();
 export const Disk = defineProgress({ kind: 'meter', tone: 'warning', formatValue: (v, { max }) => `${v} of ${max} GB` });
 export const Busy = defineProgress({ shape: 'circle', hideLabel: true });
 
@@ -24,7 +24,7 @@ the preset, `defaults.progress`, the provider (size, tone), the library default.
 | `min`, `max` | `number` | `0`, `100` |
 | `label` | node, the accessible name | none |
 | `hideLabel` | `boolean`, label for screen readers only | `false` |
-| `showValue` | `boolean`, the value text beside the label or inside the ring | `false` |
+| `showValue` | `boolean`, the value text beside the label or inside the ring | `true` |
 | `formatValue` | `(value, { min, max, percent }) => string`, shown and read | whole percent |
 | `kind` | `'progress' \| 'meter'` | `'progress'` |
 | `shape` | `'bar' \| 'circle'` | `'bar'` |

@@ -68,7 +68,13 @@ describe('Badge', () => {
     expect(wrap.contains(root(container))).toBe(true);
     expect(root(container).getAttribute('data-placement')).toBe('top-end');
     expect(root(container).getAttribute('data-anchor-shape')).toBe('rect');
+    // A zero-size box on the corner holds the badge, so any width centres on the corner itself.
+    const corner = root(container).parentElement!;
+    expect(corner.classList.contains('pinfold-badge__corner')).toBe(true);
+    expect(corner.getAttribute('data-placement')).toBe('top-end');
+    expect(corner.parentElement).toBe(wrap);
     rerender(<Badge count={3} anchor={<button>Inbox</button>} placement="bottom-start" anchorShape="circle" />);
+    expect(root(container).parentElement!.getAttribute('data-anchor-shape')).toBe('circle');
     expect(root(container).getAttribute('data-placement')).toBe('bottom-start');
     expect(root(container).getAttribute('data-anchor-shape')).toBe('circle');
     rerender(<Badge count={3} />);

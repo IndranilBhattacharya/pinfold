@@ -29,7 +29,7 @@ export function useBadge(input: BadgeConfig = {}): BadgeComponent {
       for (const problem of validateConfig(badgeMeta, input)) warnOnce(true, problem.message);
     });
     // Static mistakes only: a count arrives at runtime, so `max` without one never warns.
-    const inactive = inactiveBadgeOptions({ ...config, count: config.count ?? 0 });
+    const inactive = inactiveBadgeOptions({ ...config, count: 0 });
     for (const key in inactive) warnOnce((input as Record<string, unknown>)[key] !== undefined, `Badge: \`${key}\` has no visible effect here. ${inactive[key]}`);
     warnOnce(dotOnly && !config.srLabel, 'Badge: a dot on its own says nothing to screen readers. Give it an `srLabel`, e.g. "Online".');
     warnOnce(!config.dot && !hasLabel && !filled(config.icon) && typeof config.count !== 'number', 'Badge: nothing to show. Give it a `label`, a `count` or `dot: true`.');
@@ -81,7 +81,14 @@ export function useBadge(input: BadgeConfig = {}): BadgeComponent {
       </>
     );
     const badge = renderSlot(config, 'root', root, state, content, (p, c) => <span {...p}>{c}</span>) as React.ReactElement;
-    return anchored ? (slot('anchor', <>{config.anchor}{badge}</>) as React.ReactElement) : badge;
+    if (!anchored) return badge;
+    // A zero-size box on the anchor's corner, the badge centred on it: any width sits right, in any direction.
+    const corner = (
+      <span className={config.unstyled ? undefined : 'pinfold-badge__corner'} data-placement={config.placement ?? 'top-end'} data-anchor-shape={config.anchorShape ?? 'rect'}>
+        {badge}
+      </span>
+    );
+    return slot('anchor', <>{config.anchor}{corner}</>) as React.ReactElement;
   };
 
   const api: BadgeApi = { getRootProps, render };

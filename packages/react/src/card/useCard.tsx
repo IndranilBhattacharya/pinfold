@@ -41,6 +41,7 @@ export function useCard(input: CardConfig = {}): CardComponent {
         'data-padding': config.padding ?? 'md',
         'data-orientation': state.orientation,
         'data-link': linked ? '' : undefined,
+        'data-animate': ctx.disableAnimation ? undefined : '',
         'data-unstyled': config.unstyled ? '' : undefined,
       },
       props,

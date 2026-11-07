@@ -72,7 +72,7 @@ export function useProgress(input: ProgressConfig = {}): ProgressComponent {
     );
     const label = labelled ? slot('label', config.label, 'span', { id: labelId, style: config.hideLabel ? VISUALLY_HIDDEN : undefined }) : null;
     // The value text is already the accessible `aria-valuetext`: shown, not read twice.
-    const shown = config.showValue && text !== undefined ? slot('value', text, 'span', { 'aria-hidden': true }) : null;
+    const shown = config.showValue !== false && text !== undefined ? slot('value', text, 'span', { 'aria-hidden': true }) : null;
     const fill = percent ?? 0;
     const track =
       state.shape === 'circle' ? (

@@ -22,7 +22,7 @@ export const progressMeta: ComponentMeta = {
     max: { type: 'number', default: 100, description: 'The end of the range.', group: 'data' },
     label: { type: 'node', description: 'What is progressing ("Uploading report.pdf"). Also the accessible name.', group: 'data' },
     hideLabel: { type: 'boolean', default: false, description: 'Keep the label for screen readers only.', group: 'appearance', control: true },
-    showValue: { type: 'boolean', default: false, description: 'Show the value text ("42%") next to the label, or inside a ring.', group: 'appearance', control: true },
+    showValue: { type: 'boolean', default: true, description: 'Show the value text ("42%") next to the label, or inside a ring.', group: 'appearance', control: true },
     formatValue: { type: 'function', description: 'The value text, shown and read: `(value, { min, max, percent }) => string`. Default: a whole percentage ("42%"), the same on server and client.', group: 'appearance' },
     kind: {
       type: 'enum',
@@ -75,7 +75,7 @@ export const progressMeta: ComponentMeta = {
   examples: [
     {
       title: 'Presets',
-      code: "import { defineProgress } from '@pinfold/react/progress';\n\nexport const Upload = defineProgress({ showValue: true });\nexport const Disk = defineProgress({ kind: 'meter', tone: 'warning', formatValue: (v, { max }) => `${v} of ${max} GB` });\n\n<Upload label=\"Uploading report.pdf\" value={progress} />\n<Disk label=\"Storage\" value={42} max={64} />",
+      code: "import { defineProgress } from '@pinfold/react/progress';\n\nexport const Upload = defineProgress();\nexport const Disk = defineProgress({ kind: 'meter', tone: 'warning', formatValue: (v, { max }) => `${v} of ${max} GB` });\n\n<Upload label=\"Uploading report.pdf\" value={progress} />\n<Disk label=\"Storage\" value={42} max={64} />",
     },
     { title: 'Indeterminate ring', code: "const Busy = defineProgress({ shape: 'circle', hideLabel: true });\n<Busy label=\"Loading results\" />" },
   ],

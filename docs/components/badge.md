@@ -39,7 +39,7 @@ the preset, `defaults.badge`, the provider (size, tone), the library default.
 | `dimensions` | `height, paddingX, gap, fontSize, dotSize` | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root dot icon label count anchor`) | | |
 
-Inactive (`inactiveBadgeOptions`): `max` and `showZero` without a `count`; `placement` and
+Inactive (`inactiveBadgeOptions`): `max` and `showZero` without a `count`; `showZero` while the count is not 0; `placement` and
 `anchorShape` without an `anchor`; `radius` and `variant` on a dot on its own.
 
 ## Accessibility
@@ -50,8 +50,9 @@ Inactive (`inactiveBadgeOptions`): `max` and `showZero` without a `count`; `plac
 - A badge with nothing to show (a count of zero and no label) is `hidden`: neither seen nor read.
 - Contrast: solid text uses the tone's on-colour; soft and outline text is the tone pulled toward
   the theme text colour (4.5:1, checked by the accessibility report in every pack, light and dark).
-- A pinned badge uses logical insets (flips in RTL) and ignores the pointer, so it never steals a
-  click from what it is pinned to.
+- A pinned badge is centred on the anchor's corner (on a circle, where the edge crosses the
+  diagonal), whatever its width; it uses logical insets (flips in RTL) and ignores the pointer, so
+  it never steals a click from what it is pinned to.
 
 ## Compared with shadcn/ui, HeroUI and MUI
 | shadcn/ui | HeroUI | MUI | Pinfold |

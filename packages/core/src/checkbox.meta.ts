@@ -35,6 +35,7 @@ export const checkboxMeta: ComponentMeta = {
     defaultValue: { type: 'string[]', description: 'Group: the checked values when uncontrolled.', group: 'data' },
     orientation: { type: 'enum', values: ['vertical', 'horizontal'], default: 'vertical', description: 'Group: rows or a wrapping line.', group: 'appearance', control: true },
     variant: { type: 'enum', values: ['plain', 'card'], default: 'plain', description: 'Group: bare rows, or each row a bordered card.', group: 'appearance', control: true },
+    animation: { type: 'enum', values: ['draw', 'pop', 'none'], default: 'draw', description: 'How the mark arrives: `draw` traces the tick, `pop` springs it in. Reduced motion and `disableAnimation` turn it off.', group: 'appearance', control: true },
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Box and text size. Precedence: this config, `defaults.checkbox`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 
-const SLOTS = ['root', 'label', 'control', 'input', 'startContent', 'endContent', 'clear', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'control', 'field', 'input', 'startContent', 'endContent', 'clear', 'handle', 'description', 'error'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -33,11 +33,15 @@ export const inputMeta: ComponentMeta = {
     multiline: { type: 'boolean', default: false, description: 'A `<textarea>`.', group: 'appearance', control: true },
     rows: { type: 'number', default: 3, description: 'Multiline: visible rows.', group: 'appearance' },
     autosize: { type: 'boolean', default: false, description: 'Multiline: grows with its content.', group: 'behaviour', control: true },
+    resize: { type: 'enum', values: ['vertical', 'none'], default: 'vertical', description: 'Multiline: a drag handle in the corner to change the height. Not with `autosize`.', group: 'appearance', control: true },
+    resizeIcon: { type: 'node', description: 'Multiline: the drag handle\'s icon, in place of the two lines.', group: 'appearance' },
     startContent: { type: 'node', description: 'Before the text: an icon or a unit. Decorative unless it is a control.', group: 'data' },
     endContent: { type: 'node', description: 'After the text.', group: 'data' },
     clearable: { type: 'boolean', default: false, description: 'A clear button while it has a value.', group: 'behaviour', control: true },
     clearLabel: { type: 'string', default: 'Clear', description: 'Accessible name and tooltip of the clear button.', group: 'behaviour' },
-    variant: { type: 'enum', values: ['outline', 'filled'], default: 'outline', description: 'A frame, or a tinted fill with a frame.', group: 'appearance', control: true },
+    clearIcon: { type: 'node', description: 'The clear button\'s icon, in place of the cross.', group: 'appearance' },
+    labelPlacement: { type: 'enum', values: ['outside', 'inside'], default: 'outside', description: '`outside`: above the field. `inside`: in the field, rising to its top edge on focus or once it has a value (a floating label).', group: 'appearance', control: true },
+    variant: { type: 'enum', values: ['outline', 'filled', 'underline'], default: 'outline', description: 'A frame, a tinted fill with a frame, or a line under the text that fills in on focus.', group: 'appearance', control: true },
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'The same heights as a button. Precedence: this config, `defaults.input`, the provider, then md.', group: 'appearance', control: true },
     dimensions: {
       type: 'object',
@@ -56,7 +60,9 @@ export const inputMeta: ComponentMeta = {
   keyboard: [{ keys: 'Tab', action: 'Native: into the field, then the clear button.' }],
   aria: FIELD_ARIA,
   dataAttributes: [
-    { name: 'data-variant', on: 'root', values: '"outline" | "filled"' },
+    { name: 'data-variant', on: 'root', values: '"outline" | "filled" | "underline"' },
+    { name: 'data-label-placement', on: 'root', values: '"outside" | "inside"' },
+    { name: 'data-filled', on: 'root', values: 'present while it has a value' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-invalid', on: 'root', values: 'present when invalid' },
     { name: 'data-disabled', on: 'root', values: 'present when disabled' },
@@ -67,6 +73,7 @@ export const inputMeta: ComponentMeta = {
       title: 'Presets',
       code: "import { defineInput } from '@pinfold/react/input';\n\nexport const Email = defineInput({ type: 'email', autoComplete: 'email', required: true });\nexport const Search = defineInput({ type: 'search', clearable: true, hideLabel: true, startContent: <SearchIcon /> });\n\n<Email label=\"Work email\" name=\"email\" description=\"We never share it.\" />\n<Search label=\"Search\" onChange={setQuery} />",
     },
+    { title: 'Label inside, a prefix and a unit', code: "const Amount = defineInput({ labelPlacement: 'inside', inputMode: 'decimal', startContent: '$', endContent: 'USD' });\n<Amount label=\"Amount\" name=\"amount\" />" },
     { title: 'Multiline', code: "const Notes = defineInput({ multiline: true, autosize: true, rows: 2 });\n<Notes label=\"Notes\" name=\"notes\" />" },
   ],
 };

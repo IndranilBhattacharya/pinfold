@@ -27,12 +27,14 @@ the library default.
 |---|---|---|
 | `placement` | `'top-start' \| 'top' \| 'top-end' \| 'bottom-start' \| 'bottom' \| 'bottom-end'` | `'bottom-end'` |
 | `duration` | `number`, ms | `5000` |
-| `max` | `number` showing at once; the rest wait | `5` |
+| `max` | `number` on screen at once; the rest wait | `5` |
+| `stack` | `boolean`: piled behind the newest; hover or focus fans them out | `true` |
+| `visible` | `number` shown at full size when fanned out; more scroll, with no scrollbar | `3` |
 | `label` | `string`, the region's name | `'Notifications'` |
 | `dismissLabel` | `string` | `'Dismiss'` |
 | `store` | from `createToastStore()` | its own |
 | `dimensions` | `width, gap, inset` | `22rem`, theme |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root item icon content title description action dismiss`) | | |
+| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root list item icon content title description action dismiss`) | | |
 
 ## A message (`show()`)
 | Key | Type | Default |
@@ -48,7 +50,13 @@ the library default.
 
 Controller: `show()`, `dismiss(id)`, `clear()`.
 
+Piled, the cards behind the newest move onto it, a little smaller, peeking out at the far edge, their
+text faded; hover or focus inside fans them out, and the list scrolls past `visible`. A toast that
+leaves fades toward the edge while its space closes, so the others glide into place.
+
 ## Accessibility
+- A leaving toast is `aria-hidden` and has no role for its exit animation.
+- Focus inside fans the pile out, so the keyboard reaches every toast's buttons.
 - The region is a named landmark and a polite live region, there from the first render so
   announcements are reliable; an error is `role="alert"`.
 - Timers stop while the pointer or focus is inside, and while the tab is hidden. A toast waiting in

@@ -4,9 +4,11 @@
 
 @layer pinfold.components {
   .pinfold-input {
+    --pinfold-inp-accent: var(--pinfold-color-accent);
     inline-size: var(--pinfold-input-width, 100%);
   }
   .pinfold-input__control {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--pinfold-control-gap);
@@ -17,24 +19,57 @@
     background-image: var(--pinfold-texture);
     border: var(--pinfold-border-width) solid var(--pinfold-fld-edge);
     border-radius: var(--pinfold-input-radius, calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1)));
-    box-shadow: var(--pinfold-control-shadow, none);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
     backdrop-filter: var(--pinfold-backdrop);
+    cursor: text;
   }
   .pinfold-input[data-variant='filled'] .pinfold-input__control {
     background-color: var(--pinfold-color-bg-subtle);
+    border-color: transparent;
+    box-shadow: inset 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-fld-edge) 45%, transparent);
   }
   .pinfold-input[data-animate] .pinfold-input__control {
-    transition: border-color var(--pinfold-duration-fast) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-fast) var(--pinfold-ease-out);
+    transition: border-color var(--pinfold-duration-md) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out), background-color var(--pinfold-duration-md) var(--pinfold-ease-out);
   }
   .pinfold-input:not([data-disabled]) .pinfold-input__control:hover { border-color: var(--pinfold-color-text-muted); }
+  .pinfold-input[data-variant='filled']:not([data-disabled]) .pinfold-input__control:hover { background-color: color-mix(in oklab, var(--pinfold-color-bg-subtle) 80%, var(--pinfold-fld-edge)); }
+
+  /* Focus: the frame takes the accent and the ring fades in around it. */
+  .pinfold-input .pinfold-input__control:focus-within {
+    border-color: var(--pinfold-inp-accent);
+    box-shadow: var(--pinfold-focus-ring);
+  }
   .pinfold-input[data-invalid] .pinfold-input__control,
   .pinfold-input[data-invalid] .pinfold-input__control:hover { border-color: var(--pinfold-fld-danger); }
+  .pinfold-input[data-invalid] { --pinfold-inp-accent: var(--pinfold-fld-danger); }
   .pinfold-input[data-readonly] .pinfold-input__control {
     background-color: var(--pinfold-color-bg-subtle);
     border-style: dashed;
   }
-  /* After the states above: the ring always shows. */
-  .pinfold-input .pinfold-input__control:focus-within { box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-input[data-disabled] .pinfold-input__control { cursor: not-allowed; }
+
+  /* underline: one line under the text; on focus a bar in the accent grows from the centre. */
+  .pinfold-input[data-variant='underline'] .pinfold-input__control {
+    padding-inline: 0.125rem;
+    background-color: transparent;
+    background-image: none;
+    border-width: 0 0 var(--pinfold-border-width);
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .pinfold-input[data-variant='underline'] .pinfold-input__control::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 calc(var(--pinfold-border-width) * -1);
+    block-size: 2px;
+    background: var(--pinfold-inp-accent);
+    transform: scaleX(0);
+  }
+  .pinfold-input[data-variant='underline'][data-animate] .pinfold-input__control::after { transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-out); }
+  .pinfold-input[data-variant='underline'] .pinfold-input__control:focus-within { box-shadow: none; }
+  .pinfold-input[data-variant='underline'] .pinfold-input__control:focus-within::after,
+  .pinfold-input[data-variant='underline'][data-invalid] .pinfold-input__control::after { transform: none; }
 
   .pinfold-input__input {
     flex: 1 1 auto;
@@ -56,26 +91,109 @@
     opacity: 1;
   }
   .pinfold-input__input::-webkit-search-cancel-button { appearance: none; }
-  .pinfold-input[data-multiline] .pinfold-input__control { align-items: flex-start; padding-block: var(--pinfold-space-2); }
-  textarea.pinfold-input__input { display: block; resize: vertical; }
 
   .pinfold-input__startContent,
   .pinfold-input__endContent {
     display: inline-flex;
     flex-shrink: 0;
     align-items: center;
+    gap: var(--pinfold-space-1);
     color: var(--pinfold-color-text-muted);
+    white-space: nowrap;
   }
   .pinfold-input__startContent > svg,
   .pinfold-input__endContent > svg {
     inline-size: var(--pinfold-control-icon);
     block-size: var(--pinfold-control-icon);
   }
+  .pinfold-input[data-animate] .pinfold-input__startContent > svg { transition: color var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-input .pinfold-input__control:focus-within .pinfold-input__startContent { color: var(--pinfold-inp-accent); }
   .pinfold-input__clear {
     display: inline-flex;
     flex-shrink: 0;
     margin-inline-end: calc(var(--pinfold-space-1) * -1);
   }
+  .pinfold-input[data-animate] .pinfold-input__clear { animation: pinfold-input-in var(--pinfold-duration-md) var(--pinfold-ease-spring); }
+  @keyframes pinfold-input-in {
+    from { opacity: 0; transform: scale(0.6); }
+  }
+
+  /* Multiline: the text fills the frame; the side pieces sit on the first line, and the clear button
+     and the drag handle share the end column (top and bottom corner). */
+  .pinfold-input[data-multiline] .pinfold-input__control {
+    align-items: flex-start;
+    padding-block: var(--pinfold-space-2);
+  }
+  .pinfold-input[data-multiline] .pinfold-input__startContent,
+  .pinfold-input[data-multiline] .pinfold-input__endContent { min-block-size: 1.5em; }
+  .pinfold-input[data-multiline] .pinfold-input__clear { margin-block: calc((1.5em - 2rem) / 2 + 0.0625rem) 0; }
+  textarea.pinfold-input__input {
+    display: block;
+    line-height: 1.5;
+    resize: none;
+  }
+  .pinfold-input__handle {
+    position: absolute;
+    inset-block-end: 0.125rem;
+    inset-inline-end: 0.125rem;
+    display: inline-grid;
+    place-items: center;
+    inline-size: 1rem;
+    block-size: 1rem;
+    color: var(--pinfold-color-text-muted);
+    border-radius: var(--pinfold-radius-sm);
+    cursor: ns-resize;
+    touch-action: none;
+    user-select: none;
+  }
+  .pinfold-input__handle > svg { inline-size: 0.75rem; block-size: 0.75rem; }
+  .pinfold-input__handle:hover { color: var(--pinfold-inp-accent); }
+
+  /* Label inside: it rests where the text goes and rises to the top edge on focus or once the field
+     has a value. The input's blank placeholder tells CSS when it is empty, autofill included. */
+  .pinfold-input[data-label-placement='inside'] .pinfold-input__control { min-block-size: calc(var(--pinfold-input-height, var(--pinfold-control-height)) + 0.875rem); }
+  .pinfold-input__field {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    align-self: stretch;
+    min-inline-size: 0;
+  }
+  .pinfold-input__field > .pinfold-input__input { padding-block: 1.25em 0.375em; }
+  .pinfold-input[data-multiline] .pinfold-input__field > .pinfold-input__input { padding-block: 1.1em 0; }
+  .pinfold-input__field > .pinfold-input__label {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    max-inline-size: 100%;
+    overflow: hidden;
+    color: var(--pinfold-color-text-muted);
+    font-weight: var(--pinfold-weight-normal);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    transform: translateY(-50%);
+    transform-origin: 0 0;
+    pointer-events: none;
+  }
+  .pinfold-input[data-multiline] .pinfold-input__field > .pinfold-input__label { inset-block-start: 1.1em; transform: none; }
+  .pinfold-input__input:focus + .pinfold-input__label,
+  .pinfold-input__input:not(:placeholder-shown) + .pinfold-input__label,
+  .pinfold-input__input:autofill + .pinfold-input__label,
+  .pinfold-input[data-multiline] .pinfold-input__input:focus + .pinfold-input__label,
+  .pinfold-input[data-multiline] .pinfold-input__input:not(:placeholder-shown) + .pinfold-input__label {
+    inset-block-start: 0.375rem;
+    font-size: 0.75em;
+    font-weight: var(--pinfold-weight-medium);
+    transform: none;
+  }
+  .pinfold-input__input:focus + .pinfold-input__label { color: var(--pinfold-inp-accent); }
+  .pinfold-input[data-multiline] .pinfold-input__input:focus + .pinfold-input__label,
+  .pinfold-input[data-multiline] .pinfold-input__input:not(:placeholder-shown) + .pinfold-input__label { inset-block-start: 0; }
+  .pinfold-input[data-animate] .pinfold-input__field > .pinfold-input__label {
+    transition: inset-block-start var(--pinfold-duration-md) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-out), font-size var(--pinfold-duration-md) var(--pinfold-ease-out), color var(--pinfold-duration-md) var(--pinfold-ease-out);
+  }
+  /* The placeholder shows once the label has moved out of its way. */
+  .pinfold-input__field > .pinfold-input__input:not(:focus)::placeholder { color: transparent; }
 
   @media (forced-colors: active) {
     .pinfold-input__control { border-color: CanvasText; }

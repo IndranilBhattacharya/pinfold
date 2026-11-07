@@ -10,6 +10,12 @@ import { Button } from '../button/Button';
 import { CLOSE_ICON } from '../icons';
 import type { InputApi, InputComponent, InputConfig, InputElement, InputRootProps, InputSlot, InputState } from './types';
 
+const GRIP = (
+  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" focusable="false">
+    <path d="M10.5 4.5l-6 6M10.5 8.5l-2 2" />
+  </svg>
+);
+
 /**
  * A text field with its label, help text and error wired up, as a hook that hands back a component.
  *
@@ -24,9 +30,12 @@ export function useInput(input: InputConfig): InputComponent {
   const config = ctx.defaults.input ? mergeConfig<InputConfig>(ctx.defaults.input, input) : input;
   const field = useField(config);
   const node = React.useRef<InputElement | null>(null);
+  const minHeight = React.useRef(0);
   const controlled = config.value !== undefined;
   const [uncontrolledFilled, setFilled] = React.useState(() => !!config.defaultValue);
   const hasValue = controlled ? config.value !== '' : uncontrolledFilled;
+  const inside = config.labelPlacement === 'inside' && !config.hideLabel;
+  const handle = !!config.multiline && !config.autosize && config.resize !== 'none';
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ inputMeta, validateConfig }) => {
@@ -37,7 +46,7 @@ export function useInput(input: InputConfig): InputComponent {
     warnOnce(!filled(config.label), 'Input: give it a `label` (`hideLabel` keeps it for screen readers only). A placeholder is not a name.');
   }
 
-  const state: InputState = { variant: config.variant ?? 'outline', size: config.size ?? ctx.size, invalid: field.invalid, disabled: !!config.disabled, hasValue };
+  const state: InputState = { variant: config.variant ?? 'outline', size: config.size ?? ctx.size, invalid: field.invalid, disabled: !!config.disabled, hasValue, labelPlacement: inside ? 'inside' : 'outside' };
 
   const fit = () => {
     const el = node.current;
@@ -79,12 +88,39 @@ export function useInput(input: InputConfig): InputComponent {
     el?.focus();
   };
 
+  // The corner handle: drag to set the height, never below the height `rows` gives. The pointer is
+  // captured, so the drag keeps going outside the field. A keyboard resizes nothing natively either;
+  // `autosize` is the way to fit long text without a pointer.
+  const startResize = (event: React.PointerEvent<HTMLElement>) => {
+    const el = node.current;
+    if (!el || event.button !== 0) return;
+    event.preventDefault();
+    if (!minHeight.current) minHeight.current = el.offsetHeight;
+    const target = event.currentTarget;
+    const from = event.clientY;
+    const start = el.offsetHeight;
+    const move = (e: PointerEvent) => {
+      el.style.height = `${Math.max(minHeight.current, start + e.clientY - from)}px`;
+    };
+    const stop = () => {
+      target.removeEventListener('pointermove', move);
+      target.removeEventListener('pointerup', stop);
+      target.removeEventListener('pointercancel', stop);
+    };
+    target.setPointerCapture?.(event.pointerId);
+    target.addEventListener('pointermove', move);
+    target.addEventListener('pointerup', stop);
+    target.addEventListener('pointercancel', stop);
+  };
+
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
         ref: field.root,
         'data-variant': state.variant,
         'data-size': state.size,
+        'data-label-placement': state.labelPlacement,
+        'data-filled': dataAttr(hasValue),
         'data-invalid': dataAttr(field.invalid),
         'data-disabled': dataAttr(config.disabled),
         'data-readonly': dataAttr(config.readOnly),
@@ -112,7 +148,8 @@ export function useInput(input: InputConfig): InputComponent {
       required: config.required || undefined,
       disabled: config.disabled || undefined,
       readOnly: config.readOnly || undefined,
-      placeholder: config.placeholder,
+      // Inside, a blank placeholder lets CSS see an empty field (`:placeholder-shown`), autofill included.
+      placeholder: config.placeholder ?? (inside ? ' ' : undefined),
       autoComplete: config.autoComplete,
       inputMode: config.inputMode,
       maxLength: config.maxLength,
@@ -125,16 +162,20 @@ export function useInput(input: InputConfig): InputComponent {
       ...(config.multiline ? { rows: config.rows ?? 3 } : { type: config.type ?? 'text', pattern: config.pattern }),
     };
     const canClear = config.clearable && hasValue && !config.disabled && !config.readOnly;
+    const label = slot('label', labelContent(config, config.unstyled), 'label', { htmlFor: field.controlId, ...hiddenStyle(config.hideLabel) }, 'pinfold-field__label');
+    const text = slot('input', null, config.multiline ? 'textarea' : 'input', control);
     const content = (
       <>
-        {slot('label', labelContent(config, config.unstyled), 'label', { htmlFor: field.controlId, ...hiddenStyle(config.hideLabel) }, 'pinfold-field__label')}
+        {inside ? null : label}
         {slot(
           'control',
           <>
             {filled(config.startContent) ? slot('startContent', config.startContent, 'span') : null}
-            {slot('input', null, config.multiline ? 'textarea' : 'input', control)}
-            {canClear ? slot('clear', <Button label={config.clearLabel ?? 'Clear'} icon={CLOSE_ICON} iconOnly variant="ghost" tone="neutral" size="sm" onClick={clear} />, 'span') : null}
+            {/* Inside, the label follows the input in the DOM so CSS can lift it on the input's state. */}
+            {inside ? slot('field', <>{text}{label}</>, 'span') : text}
+            {canClear ? slot('clear', <Button label={config.clearLabel ?? 'Clear'} icon={config.clearIcon ?? CLOSE_ICON} iconOnly variant="ghost" tone="neutral" size="sm" onClick={clear} />, 'span') : null}
             {filled(config.endContent) ? slot('endContent', config.endContent, 'span') : null}
+            {handle ? slot('handle', config.resizeIcon ?? GRIP, 'span', { 'aria-hidden': true, onPointerDown: startResize }) : null}
           </>,
           'div',
         )}

@@ -69,7 +69,7 @@
     inline-size: 1em;
     font-weight: var(--pinfold-weight-semibold);
   }
-  .pinfold-menu__item[data-type='radio'] .pinfold-menu__indicator { font-size: 0.6em; inline-size: 1.67em; }
+  .pinfold-menu__indicator > svg { inline-size: 1em; block-size: 1em; }
   .pinfold-menu__icon { display: inline-flex; flex-shrink: 0; }
   .pinfold-menu__icon > svg { inline-size: 1.15em; block-size: 1.15em; }
   .pinfold-menu__label { flex: 1 1 auto; min-inline-size: 0; overflow-wrap: anywhere; }

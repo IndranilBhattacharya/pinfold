@@ -4,7 +4,7 @@ import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 import type { ButtonConfig } from '../button/types';
 
-export type ToastSlot = 'root' | 'item' | 'icon' | 'content' | 'title' | 'description' | 'action' | 'dismiss';
+export type ToastSlot = 'root' | 'list' | 'item' | 'icon' | 'content' | 'title' | 'description' | 'action' | 'dismiss';
 export type ToastPlacement = 'top-start' | 'top' | 'top-end' | 'bottom-start' | 'bottom' | 'bottom-end';
 
 /** One message: what `show()` takes. */
@@ -29,6 +29,8 @@ export interface ToastMessage {
 export interface ToastState {
   placement: ToastPlacement;
   count: number;
+  /** The stack is open: on hover or focus, or with `stack: false`. */
+  expanded: boolean;
 }
 
 export interface ToastDimensions {
@@ -49,6 +51,16 @@ export interface ToastConfig extends SlotOverrides<ToastSlot, ToastState> {
   duration?: number;
   /** @default 5 */
   max?: number;
+  /**
+   * Pile the toasts behind the newest one; hover or focus fans them out.
+   * @default true
+   */
+  stack?: boolean;
+  /**
+   * How many show at full size when fanned out; the rest scroll, with no scrollbar.
+   * @default 3
+   */
+  visible?: number;
   /** @default 'Notifications' */
   label?: string;
   /** @default 'Dismiss' */

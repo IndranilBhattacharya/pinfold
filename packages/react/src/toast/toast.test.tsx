@@ -24,6 +24,9 @@ function setup(config = {}) {
   return ctrl;
 }
 
+/** What is on screen to read: a toast on its way out is hidden from screen readers already. */
+const shown = (region: Element) => Array.from(region.querySelectorAll('.pinfold-toast__item:not([data-leaving])')).map((el) => el.textContent).join('');
+
 describe('Toast', () => {
   it('has a named polite region from the first render, and shows a message', () => {
     const toasts = setup();
@@ -41,8 +44,8 @@ describe('Toast', () => {
     expect(screen.getByRole('alert').textContent).toContain('Failed');
     act(() => void vi.advanceTimersByTime(1000));
     const region = screen.getByRole('region');
-    expect(region.textContent).not.toContain('Saved');
-    expect(region.textContent).toContain('Failed');
+    expect(shown(region)).not.toContain('Saved');
+    expect(shown(region)).toContain('Failed');
   });
 
   it('pauses while the pointer is inside', () => {
@@ -54,7 +57,7 @@ describe('Toast', () => {
     expect(region.textContent).toContain('Saved');
     fireEvent.pointerLeave(region);
     act(() => void vi.advanceTimersByTime(1000));
-    expect(region.textContent).not.toContain('Saved');
+    expect(shown(region)).not.toContain('Saved');
   });
 
   it('the dismiss button and Escape remove it, calling onDismiss', () => {
@@ -65,7 +68,7 @@ describe('Toast', () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
     act(() => void toasts.show({ title: 'B', duration: 0 }));
     fireEvent.keyDown(screen.getByRole('button', { name: 'Dismiss' }), { key: 'Escape' });
-    expect(screen.getByRole('region').textContent).toBe('');
+    expect(shown(screen.getByRole('region'))).toBe('');
   });
 
   it('an action runs and closes it; the toast stays until then', () => {
@@ -75,7 +78,47 @@ describe('Toast', () => {
     act(() => void vi.advanceTimersByTime(5000));
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(retry).toHaveBeenCalled();
-    expect(screen.getByRole('region').textContent).toBe('');
+    expect(shown(screen.getByRole('region'))).toBe('');
+  });
+
+  it('a leaving toast stays hidden for its exit, then goes', () => {
+    const toasts = setup();
+    act(() => void toasts.show({ id: 'a', title: 'A', duration: 0 }));
+    act(() => toasts.dismiss('a'));
+    const region = screen.getByRole('region');
+    const leaving = region.querySelector('[data-leaving]')!;
+    expect(leaving.getAttribute('aria-hidden')).toBe('true');
+    expect(leaving.getAttribute('role')).toBeNull();
+    act(() => void vi.advanceTimersByTime(300));
+    expect(region.querySelector('.pinfold-toast__item')).toBeNull();
+  });
+
+  it('piles them newest first and fans them out on hover or focus', () => {
+    const toasts = setup();
+    act(() => {
+      toasts.show({ title: 'Old', duration: 0 });
+      toasts.show({ title: 'New', duration: 0 });
+    });
+    const region = screen.getByRole('region');
+    const items = region.querySelectorAll('.pinfold-toast__item');
+    expect(items[0].textContent).toContain('New');
+    expect(items[0].getAttribute('data-index')).toBe('0');
+    expect(items[1].hasAttribute('data-behind')).toBe(true);
+    expect(region.hasAttribute('data-stack')).toBe(true);
+    expect(region.hasAttribute('data-expanded')).toBe(false);
+    fireEvent.pointerEnter(region);
+    expect(region.hasAttribute('data-expanded')).toBe(true);
+    fireEvent.pointerLeave(region);
+    expect(region.hasAttribute('data-expanded')).toBe(false);
+    act(() => void screen.getAllByRole('button', { name: 'Dismiss' })[0].focus());
+    expect(region.hasAttribute('data-expanded')).toBe(true);
+  });
+
+  it('with stack off, they are always laid out', () => {
+    setup({ stack: false });
+    const region = screen.getByRole('region');
+    expect(region.hasAttribute('data-stack')).toBe(false);
+    expect(region.hasAttribute('data-expanded')).toBe(true);
   });
 
   it('updates in place by id', () => {
@@ -95,7 +138,7 @@ describe('Toast', () => {
     expect(region.getAttribute('data-placement')).toBe('top');
     expect(region.textContent).toContain('From anywhere');
     act(() => Toasts.clear());
-    expect(region.textContent).toBe('');
+    expect(shown(region)).toBe('');
   });
 
   it('renders an empty region on the server', () => {
@@ -114,7 +157,7 @@ describePinfoldConformance({
   name: 'toast',
   inherits: [],
   variants: false,
-  slots: ['root', 'item', 'icon', 'content', 'title', 'description', 'action', 'dismiss'],
+  slots: ['root', 'list', 'item', 'icon', 'content', 'title', 'description', 'action', 'dismiss'],
   dimension: { key: 'width', value: 300 },
   cssFile: 'packages/css/src/toast.css',
   meta: toastMeta,

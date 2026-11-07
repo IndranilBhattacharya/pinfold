@@ -4,9 +4,9 @@ import type { PinfoldComponent } from '../component';
 import type { FieldConfig } from '../field';
 import type { SlotOverrides } from '../types';
 
-export type InputSlot = 'root' | 'label' | 'control' | 'input' | 'startContent' | 'endContent' | 'clear' | 'description' | 'error';
+export type InputSlot = 'root' | 'label' | 'control' | 'field' | 'input' | 'startContent' | 'endContent' | 'clear' | 'handle' | 'description' | 'error';
 export type InputType = 'text' | 'email' | 'password' | 'search' | 'url' | 'tel';
-export type InputVariant = 'outline' | 'filled';
+export type InputVariant = 'outline' | 'filled' | 'underline';
 export type InputElement = HTMLInputElement | HTMLTextAreaElement;
 
 /** Passed to slot `render` overrides. */
@@ -16,6 +16,7 @@ export interface InputState {
   invalid: boolean;
   disabled: boolean;
   hasValue: boolean;
+  labelPlacement: 'outside' | 'inside';
 }
 
 export interface InputDimensions {
@@ -54,6 +55,13 @@ export interface InputConfig extends FieldConfig, SlotOverrides<InputSlot, Input
   rows?: number;
   /** @default false */
   autosize?: boolean;
+  /**
+   * Multiline: a drag handle in the corner to change the height. Not with `autosize`.
+   * @default 'vertical'
+   */
+  resize?: 'vertical' | 'none';
+  /** Multiline: the drag handle's icon, in place of the two lines. */
+  resizeIcon?: React.ReactNode;
   /** Before the text: an icon or a unit. */
   startContent?: React.ReactNode;
   /** After the text. */
@@ -62,6 +70,14 @@ export interface InputConfig extends FieldConfig, SlotOverrides<InputSlot, Input
   clearable?: boolean;
   /** @default 'Clear' */
   clearLabel?: string;
+  /** The clear button's icon, in place of the cross. */
+  clearIcon?: React.ReactNode;
+  /**
+   * `outside`: above the field. `inside`: in the field, rising to its top edge on focus or once it
+   * has a value (a floating label).
+   * @default 'outside'
+   */
+  labelPlacement?: 'outside' | 'inside';
   /** @default 'outline' */
   variant?: InputVariant;
   /** @default 'md' */
