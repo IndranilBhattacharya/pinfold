@@ -57,6 +57,36 @@ describe('Slider', () => {
     act(() => (screen.getByTestId('f') as HTMLFormElement).reset());
     expect(thumb.value).toBe('10');
   });
+
+  it('snapToMarks: a drag lands on the nearest mark, arrow keys move from mark to mark', () => {
+    const onChange = vi.fn();
+    const marks = [{ value: 0 }, { value: 10 }, { value: 50 }, { value: 100 }];
+    render(<Slider label="Plan" defaultValue={[12]} marks={marks} snapToMarks onChange={onChange} />);
+    const thumb = screen.getByRole('slider') as HTMLInputElement;
+    expect(thumb.value).toBe('10');
+    expect(thumb.getAttribute('step')).toBe('any');
+    fireEvent.change(thumb, { target: { value: '38' } });
+    expect(onChange).toHaveBeenLastCalledWith([50], expect.anything());
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' });
+    expect(onChange).toHaveBeenLastCalledWith([100], expect.anything());
+    fireEvent.keyDown(thumb, { key: 'Home' });
+    expect(thumb.value).toBe('0');
+    fireEvent.keyDown(thumb, { key: 'ArrowUp' });
+    expect(thumb.value).toBe('10');
+  });
+
+  it('showSteps draws a dot per step up to 40 steps; variant and icons either side', () => {
+    const { container, rerender } = render(<Slider label="Level" step={10} showSteps variant="bar" startContent={<i>low</i>} endContent={<i>high</i>} />);
+    const root = container.querySelector('.pinfold-slider') as HTMLElement;
+    expect(root.dataset.variant).toBe('bar');
+    expect(root.style.getPropertyValue('--pinfold-sld-n')).toBe('10');
+    expect(container.querySelector('.pinfold-slider__steps')).toBeTruthy();
+    expect(container.querySelector('.pinfold-slider__body > .pinfold-slider__startContent')!.textContent).toBe('low');
+    expect(container.querySelector('.pinfold-slider__endContent')!.getAttribute('aria-hidden')).toBe('true');
+    rerender(<Slider label="Level" showSteps />);
+    expect(container.querySelector('.pinfold-slider__steps')).toBeNull();
+    expect(container.querySelector('.pinfold-slider__body')).toBeNull();
+  });
 });
 
 describe('NumberField', () => {

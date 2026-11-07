@@ -7,19 +7,28 @@ export function sliderPercent(value: number, min: number, max: number): number {
 }
 
 /**
- * The slider's values, sorted, inside the range and on a step. A range keeps its thumbs at least
- * `minGap` apart, measured in values.
+ * The slider's values, sorted, inside the range and on a step, or on the nearest of `stops` (the
+ * marks) when given. A range keeps its thumbs at least `minGap` apart, measured in values.
  */
-export function sliderValues(values: readonly number[], min: number, max: number, step: number, minGap = 0): number[] {
+export function sliderValues(values: readonly number[], min: number, max: number, step: number, minGap = 0, stops?: readonly number[]): number[] {
+  const marks = stops?.length ? [...stops].sort((a, b) => a - b) : null;
   const snap = (v: number) => {
+    if (marks) return marks.reduce((best, m) => (Math.abs(m - v) < Math.abs(best - v) ? m : best), marks[0]);
     const n = Math.round((v - min) / step) * step + min;
     // Floating steps (0.1) drift: keep as many decimals as the step has.
     const decimals = (String(step).split('.')[1] ?? '').length;
     return Math.min(max, Math.max(min, Number(n.toFixed(decimals))));
   };
   const out = values.map(snap).sort((a, b) => a - b);
-  if (out.length === 2 && out[1] - out[0] < minGap) out[1] = Math.min(max, out[0] + minGap);
+  if (out.length === 2 && out[1] - out[0] < minGap) out[1] = marks ? marks.find((m) => m >= out[0] + minGap) ?? out[1] : Math.min(max, out[0] + minGap);
   return out;
+}
+
+/** The mark after (direction 1) or before (-1) a value: where an arrow key moves a thumb that snaps to marks. */
+export function sliderNextStop(value: number, direction: 1 | -1, stops: readonly number[]): number {
+  const marks = [...stops].sort((a, b) => a - b);
+  const next = direction > 0 ? marks.find((m) => m > value) : marks.reverse().find((m) => m < value);
+  return next ?? value;
 }
 
 /** A number field's next value from a step, clamped. An empty field starts from min, or 0. */
@@ -73,11 +82,31 @@ export function inactiveToggleOptions(config: { items?: unknown; selection?: str
   return out;
 }
 
-export function inactiveSliderOptions(config: { value?: readonly number[]; defaultValue?: readonly number[]; showValue?: string }): Record<string, string> {
+/** Step dots are drawn up to this many steps; more would run together. */
+export const SLIDER_MAX_STEP_DOTS = 40;
+
+export function inactiveSliderOptions(config: {
+  value?: readonly number[];
+  defaultValue?: readonly number[];
+  showValue?: string;
+  marks?: readonly unknown[];
+  snapToMarks?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+}): Record<string, string> {
   const out: Record<string, string> = {};
   const count = (config.value ?? config.defaultValue ?? [0]).length;
   if (count < 2) out.minGap = 'only used with two thumbs (a range).';
   if (config.showValue === 'never') out.formatValue = 'the value is never shown.';
+  const marked = !!config.marks?.length;
+  if (!marked) out.snapToMarks = 'there are no `marks` to snap to.';
+  if (marked && config.snapToMarks) {
+    out.step = 'the thumbs move from mark to mark.';
+    out.showSteps = out.step;
+  } else if (((config.max ?? 100) - (config.min ?? 0)) / (config.step && config.step > 0 ? config.step : 1) > SLIDER_MAX_STEP_DOTS) {
+    out.showSteps = `more than ${SLIDER_MAX_STEP_DOTS} steps would run together: set a larger \`step\`.`;
+  }
   return out;
 }
 

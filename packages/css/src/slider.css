@@ -1,15 +1,22 @@
 /* Pinfold — slider. Each thumb is a native range input stretched over the control with its own
-   track and thumb made transparent; the visible track, range, marks and thumbs are drawn behind it
-   from --pinfold-sld-a/b (0 to 1) and --pinfold-sld-at. A native thumb's centre sits at
+   track and thumb made transparent; the visible track, range, steps, marks and thumbs are drawn
+   behind it from --pinfold-sld-a/b (0 to 1) and --pinfold-sld-at. A native thumb's centre sits at
    p × (width − thumb) + thumb / 2, so everything drawn uses the same formula and lines up. A range
-   has two inputs; only their thumbs take the pointer. */
+   has two inputs; only their thumbs take the pointer. The fill runs from `a` plus a lead to `b`
+   plus a tail: the line variant fills thumb centre to thumb centre, the bar variant past each
+   thumb so the handle sits inside the fill. */
 
 @layer pinfold.components {
   .pinfold-slider {
     --pinfold-sld-t: var(--pinfold-slider-thumb-size, 1.25rem);
     --pinfold-sld-k: var(--pinfold-slider-thickness, 0.375rem);
+    --pinfold-sld-d: 0.25rem;
     --pinfold-sld-fill: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-sld-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    --pinfold-sld-track: color-mix(in oklab, var(--pinfold-color-text) 12%, transparent);
     --pinfold-sld-lead: 0px;
+    --pinfold-sld-tail: 0px;
+    --pinfold-sld-lift: 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-900) 18%, transparent), 0 2px 8px color-mix(in oklab, var(--pinfold-neutral-900) 14%, transparent);
     inline-size: 100%;
   }
   .pinfold-slider[data-size='sm'] {
@@ -22,6 +29,30 @@
   }
   .pinfold-slider[data-range] { --pinfold-sld-lead: calc(var(--pinfold-sld-t) / 2); }
 
+  /* bar: the track is as thick as the thumb, the fill reaches past it. */
+  .pinfold-slider[data-variant='bar'] {
+    --pinfold-sld-t: var(--pinfold-slider-thumb-size, 1.5rem);
+    --pinfold-sld-k: var(--pinfold-slider-thickness, var(--pinfold-sld-t));
+    --pinfold-sld-lead: 0px;
+    --pinfold-sld-tail: calc(var(--pinfold-sld-t) / 2);
+  }
+  .pinfold-slider[data-variant='bar'][data-size='sm'] { --pinfold-sld-t: var(--pinfold-slider-thumb-size, 1.125rem); }
+  .pinfold-slider[data-variant='bar'][data-size='lg'] { --pinfold-sld-t: var(--pinfold-slider-thumb-size, 2rem); }
+
+  /* minimal: a hairline and a small thumb that shows while it is used. */
+  .pinfold-slider[data-variant='minimal'] {
+    --pinfold-sld-t: var(--pinfold-slider-thumb-size, 0.875rem);
+    --pinfold-sld-k: var(--pinfold-slider-thickness, 0.25rem);
+  }
+  .pinfold-slider[data-variant='minimal'][data-size='sm'] {
+    --pinfold-sld-t: var(--pinfold-slider-thumb-size, 0.75rem);
+    --pinfold-sld-k: var(--pinfold-slider-thickness, 0.1875rem);
+  }
+  .pinfold-slider[data-variant='minimal'][data-size='lg'] {
+    --pinfold-sld-t: var(--pinfold-slider-thumb-size, 1rem);
+    --pinfold-sld-k: var(--pinfold-slider-thickness, 0.375rem);
+  }
+
   .pinfold-slider__header {
     display: flex;
     align-items: baseline;
@@ -29,9 +60,26 @@
     gap: var(--pinfold-space-3);
   }
   .pinfold-slider__header > .pinfold-slider__value {
-    color: var(--pinfold-color-text-muted);
+    color: var(--pinfold-color-text);
+    font-weight: var(--pinfold-weight-medium);
     font-variant-numeric: tabular-nums;
   }
+
+  .pinfold-slider__body {
+    display: flex;
+    align-items: center;
+    gap: var(--pinfold-space-3);
+  }
+  .pinfold-slider__body > .pinfold-slider__control { flex: 1 1 auto; min-inline-size: 0; }
+  .pinfold-slider__startContent,
+  .pinfold-slider__endContent {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    color: var(--pinfold-color-text-muted);
+  }
+  .pinfold-slider__startContent > svg,
+  .pinfold-slider__endContent > svg { inline-size: var(--pinfold-control-icon); block-size: var(--pinfold-control-icon); }
 
   /* At least 24px tall: the target size WCAG 2.5.8 asks of the inputs, whatever the thumb size. */
   .pinfold-slider__control {
@@ -47,17 +95,32 @@
     inset-block-start: calc(50% - var(--pinfold-sld-k) / 2);
     block-size: var(--pinfold-sld-k);
     overflow: hidden;
-    background: color-mix(in oklab, var(--pinfold-fld-edge) 40%, var(--pinfold-color-bg-subtle));
+    background-color: var(--pinfold-sld-track);
     border-radius: var(--pinfold-radius-full);
   }
   .pinfold-slider__range {
     position: absolute;
     inset-block: 0;
     inset-inline-start: calc(var(--pinfold-sld-a) * (100% - var(--pinfold-sld-t)) + var(--pinfold-sld-lead));
-    inline-size: calc((var(--pinfold-sld-b) - var(--pinfold-sld-a)) * (100% - var(--pinfold-sld-t)) + var(--pinfold-sld-t) / 2 - var(--pinfold-sld-lead));
+    inline-size: calc((var(--pinfold-sld-b) - var(--pinfold-sld-a)) * (100% - var(--pinfold-sld-t)) + var(--pinfold-sld-t) / 2 + var(--pinfold-sld-tail) - var(--pinfold-sld-lead));
     background-color: var(--pinfold-sld-fill);
-    background-image: linear-gradient(90deg, color-mix(in oklab, var(--pinfold-sld-fill) 75%, var(--pinfold-color-surface)), var(--pinfold-sld-fill));
     border-radius: inherit;
+  }
+  .pinfold-slider[data-variant='minimal'][data-animate] .pinfold-slider__track { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-slider[data-variant='minimal'] .pinfold-slider__control:hover .pinfold-slider__track,
+  .pinfold-slider[data-variant='minimal'] .pinfold-slider__control:focus-within .pinfold-slider__track { transform: scaleY(1.5); }
+
+  /* A dot on every step: one tile per step, a dot at each tile's start, the last one at the end. */
+  .pinfold-slider__steps {
+    position: absolute;
+    inset-block-start: calc(50% - var(--pinfold-sld-d) / 2);
+    inset-inline-start: calc(var(--pinfold-sld-t) / 2 - var(--pinfold-sld-d) / 2);
+    inline-size: calc(100% - var(--pinfold-sld-t) + var(--pinfold-sld-d));
+    block-size: var(--pinfold-sld-d);
+    background-image: radial-gradient(circle at calc(var(--pinfold-sld-d) / 2) 50%, color-mix(in oklab, var(--pinfold-color-text) 38%, transparent) calc(var(--pinfold-sld-d) / 2 - 0.5px), transparent calc(var(--pinfold-sld-d) / 2));
+    background-size: calc((100% - var(--pinfold-sld-d)) / var(--pinfold-sld-n, 1)) 100%;
+    background-repeat: repeat-x;
+    pointer-events: none;
   }
 
   .pinfold-slider__mark {
@@ -65,8 +128,8 @@
     inset-block-start: 50%;
     inset-inline-start: calc(var(--pinfold-sld-at) * (100% - var(--pinfold-sld-t)) + var(--pinfold-sld-t) / 2);
     translate: -50% 0;
-    padding-block-start: calc(var(--pinfold-sld-t) / 2 + 0.375rem);
-    font-size: 0.85em;
+    padding-block-start: calc(max(var(--pinfold-sld-t), var(--pinfold-sld-k)) / 2 + 0.5rem);
+    font-size: var(--pinfold-text-xs);
     line-height: 1;
     white-space: nowrap;
     color: var(--pinfold-color-text-muted);
@@ -75,15 +138,14 @@
   .pinfold-slider__mark::before {
     content: '';
     position: absolute;
-    inset-block-start: calc(var(--pinfold-sld-k) / -2 + 1px);
-    inset-inline-start: calc(50% - 2px);
-    inline-size: 4px;
-    block-size: calc(var(--pinfold-sld-k) - 2px);
-    background: var(--pinfold-color-text-muted);
+    inset-block-start: calc(var(--pinfold-sld-d) / -2);
+    inset-inline-start: calc(50% - var(--pinfold-sld-d) / 2);
+    inline-size: var(--pinfold-sld-d);
+    block-size: var(--pinfold-sld-d);
+    background: color-mix(in oklab, var(--pinfold-color-text) 45%, transparent);
     border-radius: var(--pinfold-radius-full);
-    opacity: 0.5;
   }
-  .pinfold-slider__mark[data-in]::before { background: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast)); opacity: 0.7; }
+  .pinfold-slider__mark[data-in]::before { background: color-mix(in oklab, var(--pinfold-sld-on) 85%, transparent); }
   [dir='rtl'] .pinfold-slider__mark { translate: 50% 0; }
 
   /* The native input: transparent, over everything, its thumb the size of the drawn one. */
@@ -110,52 +172,104 @@
   .pinfold-slider[data-range] .pinfold-slider__input::-moz-range-thumb { pointer-events: auto; }
   .pinfold-slider__input:disabled { cursor: not-allowed; }
 
-  /* The drawn thumb, after its input, so the input's state styles it. */
+  /* The drawn thumb, after its input, so the input's state styles it: a raised knob with a dot of
+     the tone that grows while dragged. */
   .pinfold-slider__thumb {
     position: absolute;
     inset-block-start: calc(50% - var(--pinfold-sld-t) / 2);
     inset-inline-start: calc(var(--pinfold-sld-at) * (100% - var(--pinfold-sld-t)));
+    display: grid;
+    place-items: center;
     box-sizing: border-box;
     inline-size: var(--pinfold-sld-t);
     block-size: var(--pinfold-sld-t);
     background: var(--pinfold-neutral-50);
-    border: 2px solid var(--pinfold-sld-fill);
     border-radius: var(--pinfold-control-round, var(--pinfold-radius-full));
-    box-shadow: 0 1px 3px color-mix(in oklab, var(--pinfold-neutral-900) 25%, transparent);
+    box-shadow:
+      0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-neutral-900) 10%, transparent),
+      var(--pinfold-sld-lift);
     pointer-events: none;
   }
-  .pinfold-slider[data-animate] .pinfold-slider__thumb { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-spring), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out); }
-  .pinfold-slider__input:hover:not(:disabled) + .pinfold-slider__thumb { box-shadow: 0 0 0 0.375rem color-mix(in oklab, var(--pinfold-sld-fill) 16%, transparent), 0 1px 3px color-mix(in oklab, var(--pinfold-neutral-900) 25%, transparent); }
-  .pinfold-slider__input:active:not(:disabled) + .pinfold-slider__thumb { transform: scale(1.12); }
+  .pinfold-slider__thumb::after {
+    content: '';
+    inline-size: 40%;
+    block-size: 40%;
+    background: var(--pinfold-sld-fill);
+    border-radius: inherit;
+  }
+  .pinfold-slider[data-animate] .pinfold-slider__thumb { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-spring), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out), opacity var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-slider[data-animate] .pinfold-slider__thumb::after { transition: inline-size var(--pinfold-duration-md) var(--pinfold-ease-spring), block-size var(--pinfold-duration-md) var(--pinfold-ease-spring); }
+  /* :where keeps it below the variants and the focus ring. */
+  .pinfold-slider__input:where(:hover:not(:disabled)) + .pinfold-slider__thumb {
+    box-shadow:
+      0 0 0 0.375rem color-mix(in oklab, var(--pinfold-sld-fill) 18%, transparent),
+      var(--pinfold-sld-lift);
+  }
+  .pinfold-slider__input:active:not(:disabled) + .pinfold-slider__thumb::after { inline-size: 55%; block-size: 55%; }
+
+  /* bar: no knob, a slim handle inside the fill. */
+  .pinfold-slider[data-variant='bar'] .pinfold-slider__thumb { background: transparent; box-shadow: none; }
+  .pinfold-slider[data-variant='bar'] .pinfold-slider__thumb::after {
+    inline-size: 0.25rem;
+    block-size: 45%;
+    background: var(--pinfold-sld-on);
+    opacity: 0.85;
+  }
+  .pinfold-slider[data-variant='bar'] .pinfold-slider__input:is(:hover, :active):not(:disabled) + .pinfold-slider__thumb::after { inline-size: 0.25rem; block-size: 62%; }
+
+  /* minimal: the thumb appears while the slider is used. */
+  .pinfold-slider[data-variant='minimal'] .pinfold-slider__thumb { opacity: 0; transform: scale(0.4); background: var(--pinfold-sld-fill); }
+  .pinfold-slider[data-variant='minimal'] .pinfold-slider__thumb::after { display: none; }
+  .pinfold-slider[data-variant='minimal'] .pinfold-slider__control:hover .pinfold-slider__thumb,
+  .pinfold-slider[data-variant='minimal'] .pinfold-slider__input:is(:focus-visible, :active) + .pinfold-slider__thumb { opacity: 1; transform: scale(1); }
+
   /* After hover: the ring always shows. */
   .pinfold-slider .pinfold-slider__input:focus-visible + .pinfold-slider__thumb { box-shadow: var(--pinfold-focus-ring); }
   .pinfold-slider[data-disabled] { opacity: 0.6; }
   .pinfold-slider[data-invalid] { --pinfold-sld-fill: var(--pinfold-fld-danger); }
 
-  /* The value in a bubble over the thumb, while it is hovered, focused or dragged. */
+  /* The value in a bubble over the thumb, while it is hovered, focused or dragged: the look of the
+     inverse tooltip, clear of the hover halo. The knob never scales, so neither does the bubble. */
   .pinfold-slider__thumb > .pinfold-slider__value {
     position: absolute;
-    inset-block-end: calc(100% + 0.5rem);
+    inset-block-end: calc(100% + 0.75rem);
     inset-inline-start: 50%;
-    padding: 0.25rem 0.5rem;
+    box-sizing: border-box;
+    min-inline-size: 2rem;
+    padding: var(--pinfold-space-1) var(--pinfold-space-2);
     font-size: var(--pinfold-text-xs);
-    font-weight: var(--pinfold-weight-semibold);
-    line-height: 1;
+    font-weight: var(--pinfold-weight-medium);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.4;
+    text-align: center;
     white-space: nowrap;
     color: var(--pinfold-color-bg);
     background: var(--pinfold-color-text);
     border-radius: var(--pinfold-radius-sm);
+    box-shadow: var(--pinfold-shadow-md);
     opacity: 0;
     translate: -50% 0.25rem;
-    scale: 0.9;
+    pointer-events: none;
+  }
+  .pinfold-slider__thumb > .pinfold-slider__value::after {
+    content: '';
+    position: absolute;
+    inset-block-end: -0.25rem;
+    inset-inline-start: calc(50% - 0.25rem);
+    z-index: -1;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: inherit;
+    rotate: 45deg;
   }
   [dir='rtl'] .pinfold-slider__thumb > .pinfold-slider__value { translate: 50% 0.25rem; }
-  .pinfold-slider[data-animate] .pinfold-slider__thumb > .pinfold-slider__value { transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out), translate var(--pinfold-duration-md) var(--pinfold-ease-spring), scale var(--pinfold-duration-md) var(--pinfold-ease-spring); }
-  .pinfold-slider__input:is(:hover, :focus-visible, :active) + .pinfold-slider__thumb > .pinfold-slider__value { opacity: 1; translate: -50% 0; scale: 1; }
+  .pinfold-slider[data-animate] .pinfold-slider__thumb > .pinfold-slider__value { transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out), translate var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-slider__input:is(:hover, :focus-visible, :active) + .pinfold-slider__thumb > .pinfold-slider__value { opacity: 1; translate: -50% 0; }
   [dir='rtl'] .pinfold-slider__input:is(:hover, :focus-visible, :active) + .pinfold-slider__thumb > .pinfold-slider__value { translate: 50% 0; }
 
   @media (forced-colors: active) {
     .pinfold-slider__range { background: Highlight; forced-color-adjust: none; }
-    .pinfold-slider__thumb { forced-color-adjust: none; background: Canvas; border-color: Highlight; }
+    .pinfold-slider__track { border: 1px solid CanvasText; }
+    .pinfold-slider__thumb { forced-color-adjust: none; background: Canvas; border: 2px solid Highlight; opacity: 1; transform: none; }
   }
 }

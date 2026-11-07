@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { inactiveNumberOptions, inactiveOtpOptions, inactiveSliderOptions, inactiveToggleOptions, otpBreaks, otpSanitize, sliderPercent, sliderValues, stepValue } from './controls.logic';
+import { inactiveNumberOptions, inactiveOtpOptions, inactiveSliderOptions, inactiveToggleOptions, otpBreaks, otpSanitize, sliderNextStop, sliderPercent, sliderValues, stepValue } from './controls.logic';
 
 describe('controls logic', () => {
   it('slider: percent, snapping, order and the gap', () => {
@@ -12,6 +12,12 @@ describe('controls logic', () => {
     expect(sliderValues([80, 20], 0, 100, 1)).toEqual([20, 80]);
     expect(sliderValues([50, 52], 0, 100, 1, 10)).toEqual([50, 60]);
     expect(sliderValues([-5, 500], 0, 100, 1)).toEqual([0, 100]);
+    // Snapping to marks: the nearest one, and the gap reaches the next mark that keeps it.
+    expect(sliderValues([38], 0, 100, 1, 0, [100, 0, 10, 50])).toEqual([50]);
+    expect(sliderValues([10, 12], 0, 100, 1, 20, [0, 10, 50, 100])).toEqual([10, 50]);
+    expect(sliderNextStop(10, 1, [0, 10, 50])).toBe(50);
+    expect(sliderNextStop(10, -1, [0, 10, 50])).toBe(0);
+    expect(sliderNextStop(50, 1, [0, 10, 50])).toBe(50);
   });
 
   it('number: steps, limits and an empty start', () => {
@@ -35,9 +41,11 @@ describe('controls logic', () => {
     expect(Object.keys(inactiveToggleOptions({}))).toEqual(['selection', 'value', 'defaultValue', 'allowEmpty', 'orientation', 'fullWidth', 'hideLabel']);
     expect(Object.keys(inactiveToggleOptions({ items: [] }))).toEqual(['pressed', 'defaultPressed', 'icon', 'iconOnly']);
     expect(Object.keys(inactiveToggleOptions({ items: [], selection: 'multiple' }))).toContain('allowEmpty');
-    expect(Object.keys(inactiveSliderOptions({ defaultValue: [5] }))).toEqual(['minGap']);
-    expect(inactiveSliderOptions({ defaultValue: [5, 9] })).toEqual({});
-    expect(Object.keys(inactiveSliderOptions({ value: [1, 2], showValue: 'never' }))).toEqual(['formatValue']);
+    expect(Object.keys(inactiveSliderOptions({ defaultValue: [5], step: 5 }))).toEqual(['minGap', 'snapToMarks']);
+    expect(inactiveSliderOptions({ defaultValue: [5, 9], marks: [{}], step: 10 })).toEqual({});
+    expect(Object.keys(inactiveSliderOptions({ value: [1, 2], showValue: 'never', marks: [{}], step: 5 }))).toEqual(['formatValue']);
+    expect(Object.keys(inactiveSliderOptions({ value: [1, 2], marks: [{}] }))).toEqual(['showSteps']);
+    expect(Object.keys(inactiveSliderOptions({ value: [1, 2], marks: [{}], snapToMarks: true }))).toEqual(['step', 'showSteps']);
     expect(Object.keys(inactiveNumberOptions({ steppers: 'none' }))).toEqual(['incrementLabel', 'decrementLabel']);
     expect(Object.keys(inactiveOtpOptions({}))).toEqual(['separator']);
     expect(inactiveOtpOptions({ groups: [3, 3] })).toEqual({});

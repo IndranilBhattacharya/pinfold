@@ -4,7 +4,7 @@ import type { PinfoldComponent } from '../component';
 import type { FieldConfig } from '../field';
 import type { SlotOverrides } from '../types';
 
-export type SliderSlot = 'root' | 'label' | 'value' | 'control' | 'track' | 'range' | 'input' | 'thumb' | 'marks' | 'mark' | 'description' | 'error';
+export type SliderSlot = 'root' | 'label' | 'value' | 'control' | 'track' | 'range' | 'steps' | 'input' | 'thumb' | 'marks' | 'mark' | 'startContent' | 'endContent' | 'description' | 'error';
 
 /** A tick on the track. */
 export interface SliderMark {
@@ -18,6 +18,7 @@ export interface SliderState {
   tone: PinfoldTone;
   values: number[];
   range: boolean;
+  variant: 'line' | 'bar' | 'minimal';
   invalid: boolean;
 }
 
@@ -49,6 +50,22 @@ export interface SliderConfig extends Omit<FieldConfig, 'required' | 'nativeErro
   minGap?: number;
   /** Ticks on the track. */
   marks?: readonly SliderMark[];
+  /**
+   * The thumbs stop only on `marks`; `step` is then unused.
+   * @default false
+   */
+  snapToMarks?: boolean;
+  /**
+   * A dot at every step, up to 40 steps.
+   * @default false
+   */
+  showSteps?: boolean;
+  /** @default 'line' */
+  variant?: 'line' | 'bar' | 'minimal';
+  /** Before the track (decorative). */
+  startContent?: React.ReactNode;
+  /** After the track (decorative). */
+  endContent?: React.ReactNode;
   /** @default 'label' */
   showValue?: 'label' | 'tooltip' | 'never';
   /** Shown, and read as `aria-valuetext`. */
