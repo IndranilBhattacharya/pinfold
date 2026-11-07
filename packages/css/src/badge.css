@@ -121,23 +121,33 @@
     display: inline-flex;
     vertical-align: middle;
   }
-  .pinfold-badge[data-placement] {
-    --pinfold-bdg-off: calc(var(--pinfold-bdg-h) / -2);
+  /* A zero-size box on the corner; the badge is centred on it, so a wide label-and-count badge and a
+     dot both sit on the corner itself. On a circle the corner is where the edge crosses the diagonal. */
+  .pinfold-badge__corner {
+    --pinfold-bdg-off: 0px;
     position: absolute;
     z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 0;
+    block-size: 0;
+    pointer-events: none;
+  }
+  .pinfold-badge__corner[data-anchor-shape='circle'] { --pinfold-bdg-off: 14.6%; }
+  .pinfold-badge__corner[data-placement='top-end'] { inset-block-start: var(--pinfold-bdg-off); inset-inline-end: var(--pinfold-bdg-off); }
+  .pinfold-badge__corner[data-placement='top-start'] { inset-block-start: var(--pinfold-bdg-off); inset-inline-start: var(--pinfold-bdg-off); }
+  .pinfold-badge__corner[data-placement='bottom-end'] { inset-block-end: var(--pinfold-bdg-off); inset-inline-end: var(--pinfold-bdg-off); }
+  .pinfold-badge__corner[data-placement='bottom-start'] { inset-block-end: var(--pinfold-bdg-off); inset-inline-start: var(--pinfold-bdg-off); }
+  .pinfold-badge[data-placement] {
+    flex-shrink: 0;
     /* The anchor may be small: the badge sizes to its content, not to it. */
     max-inline-size: none;
+    /* A ring in the page colour separates it from what it sits on. */
     outline: 2px solid var(--pinfold-color-bg);
-    pointer-events: none;
     backdrop-filter: none;
   }
-  .pinfold-badge[data-anchor-shape='circle'] { --pinfold-bdg-off: 0px; }
-  .pinfold-badge[data-placement][data-dot-only] { --pinfold-bdg-off: calc(var(--pinfold-bdg-dot) / -2); box-shadow: none; }
-  .pinfold-badge[data-anchor-shape='circle'][data-dot-only] { --pinfold-bdg-off: 6%; }
-  .pinfold-badge[data-placement='top-end'] { inset-block-start: var(--pinfold-bdg-off); inset-inline-end: var(--pinfold-bdg-off); }
-  .pinfold-badge[data-placement='top-start'] { inset-block-start: var(--pinfold-bdg-off); inset-inline-start: var(--pinfold-bdg-off); }
-  .pinfold-badge[data-placement='bottom-end'] { inset-block-end: var(--pinfold-bdg-off); inset-inline-end: var(--pinfold-bdg-off); }
-  .pinfold-badge[data-placement='bottom-start'] { inset-block-end: var(--pinfold-bdg-off); inset-inline-start: var(--pinfold-bdg-off); }
+  .pinfold-badge[data-placement][data-dot-only] { box-shadow: none; }
 
   @media (forced-colors: active) {
     .pinfold-badge { border-color: CanvasText; }

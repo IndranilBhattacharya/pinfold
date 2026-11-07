@@ -1,49 +1,139 @@
 /* Pinfold — switch. The row, the input and the shared box are in field.css (core.css): this is the
-   track and thumb. The thumb moves with logical alignment, so it flips in RTL; state is never colour
-   alone. */
+   track and thumb. The thumb moves by its inline-start margin, so it flips in RTL with no script;
+   `100%` there is the track's inner width. State is never colour alone: the thumb moves too. The off
+   track is the field edge colour, 3:1 against the surface (WCAG 1.4.11). */
 
 @layer pinfold.components {
   .pinfold-switch {
-    --pinfold-swt-w: var(--pinfold-switch-width, 2.25rem);
-    --pinfold-swt-h: var(--pinfold-switch-height, 1.25rem);
+    --pinfold-swt-w: var(--pinfold-switch-width, 2.5rem);
+    --pinfold-swt-h: var(--pinfold-switch-height, 1.5rem);
+    --pinfold-swt-pad: 0.1875rem;
+    --pinfold-swt-thumb: var(--pinfold-switch-thumb, var(--pinfold-neutral-50));
+    --pinfold-swt-ease: var(--pinfold-ease-spring);
   }
   .pinfold-switch[data-size='sm'] {
-    --pinfold-swt-w: var(--pinfold-switch-width, 1.75rem);
-    --pinfold-swt-h: var(--pinfold-switch-height, 1rem);
+    --pinfold-swt-w: var(--pinfold-switch-width, 2rem);
+    --pinfold-swt-h: var(--pinfold-switch-height, 1.25rem);
+    --pinfold-swt-pad: 0.125rem;
   }
   .pinfold-switch[data-size='lg'] {
-    --pinfold-swt-w: var(--pinfold-switch-width, 2.75rem);
-    --pinfold-swt-h: var(--pinfold-switch-height, 1.5rem);
+    --pinfold-swt-w: var(--pinfold-switch-width, 3rem);
+    --pinfold-swt-h: var(--pinfold-switch-height, 1.75rem);
   }
+  .pinfold-switch[data-animate='slide'] { --pinfold-swt-ease: var(--pinfold-ease-out); }
   .pinfold-switch[data-label-position='start'] .pinfold-switch__item {
     flex-direction: row-reverse;
     justify-content: space-between;
   }
-  .pinfold-switch__box {
+
+  /* Scoped to the root: the shared box rule in core.css has the same weight and may load later. */
+  .pinfold-switch .pinfold-switch__box {
+    /* The thumb: the track's inner height, wider while pressed. */
+    --pinfold-swt-t: calc(var(--pinfold-swt-h) - 2 * var(--pinfold-swt-pad) - 2 * var(--pinfold-border-width));
+    --pinfold-swt-tw: var(--pinfold-swt-t);
     display: inline-flex;
     align-items: center;
-    justify-content: flex-start;
     inline-size: var(--pinfold-swt-w);
     block-size: var(--pinfold-swt-h);
-    padding: 0.125rem;
+    padding: var(--pinfold-swt-pad);
+    background-color: var(--pinfold-fld-edge);
+    border-color: transparent;
     border-radius: var(--pinfold-control-round, var(--pinfold-radius-full));
   }
-  .pinfold-switch__input:checked + .pinfold-switch__box { justify-content: flex-end; }
   .pinfold-switch__thumb {
-    display: block;
+    display: inline-grid;
     flex-shrink: 0;
-    /* A square in the track's inner height. */
-    block-size: 100%;
-    aspect-ratio: 1;
-    background: var(--pinfold-fld-edge);
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: var(--pinfold-swt-tw);
+    block-size: var(--pinfold-swt-t);
+    margin-inline-start: 0;
+    color: var(--pinfold-color-text-muted);
+    background: var(--pinfold-swt-thumb);
     border-radius: inherit;
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-900) 30%, transparent), 0 2px 6px -1px color-mix(in oklab, var(--pinfold-neutral-900) 22%, transparent);
   }
   .pinfold-switch__input:checked + .pinfold-switch__box .pinfold-switch__thumb {
-    background: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    margin-inline-start: calc(100% - var(--pinfold-swt-tw));
+    color: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+  }
+  .pinfold-switch[data-animate='spring'] .pinfold-switch__input:active + .pinfold-switch__box {
+    --pinfold-swt-tw: calc(var(--pinfold-swt-t) * 1.3);
+  }
+  .pinfold-switch[data-animate] .pinfold-switch__box {
+    transition: background-color var(--pinfold-duration-md) var(--pinfold-ease-out), border-color var(--pinfold-duration-md) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out);
+  }
+  .pinfold-switch[data-animate] .pinfold-switch__thumb {
+    transition: margin-inline-start var(--pinfold-duration-slow) var(--pinfold-swt-ease), inline-size var(--pinfold-duration-md) var(--pinfold-swt-ease), background-color var(--pinfold-duration-md) var(--pinfold-ease-out), color var(--pinfold-duration-md) var(--pinfold-ease-out);
   }
 
+  /* icon: a check or a cross in the thumb, turning as they swap. */
+  .pinfold-switch__thumb > svg { inline-size: 72%; block-size: 72%; }
+  .pinfold-switch__on,
+  .pinfold-switch__off {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .pinfold-switch__on { opacity: 0; transform: rotate(-90deg) scale(0.4); }
+  .pinfold-switch__input:checked + .pinfold-switch__box .pinfold-switch__on { opacity: 1; transform: none; }
+  .pinfold-switch__input:checked + .pinfold-switch__box .pinfold-switch__off { opacity: 0; transform: rotate(90deg) scale(0.4); }
+  .pinfold-switch[data-animate] .pinfold-switch__on,
+  .pinfold-switch[data-animate] .pinfold-switch__off {
+    transition: opacity var(--pinfold-duration-md) var(--pinfold-ease-out), transform var(--pinfold-duration-slow) var(--pinfold-swt-ease);
+  }
+
+  /* slim: a thin rail under a thumb as tall as the switch. The box keeps the full height, so the row
+     lines up like the others; the rail is drawn behind the thumb. */
+  .pinfold-switch[data-variant='slim'] .pinfold-switch__box {
+    --pinfold-swt-t: var(--pinfold-swt-h);
+    position: relative;
+    padding: 0;
+    background-color: transparent;
+  }
+  .pinfold-switch[data-variant='slim'] .pinfold-switch__box::before {
+    content: '';
+    position: absolute;
+    inset: 22% 0;
+    background-color: color-mix(in oklab, var(--pinfold-fld-edge) 60%, var(--pinfold-color-surface));
+    border-radius: inherit;
+  }
+  .pinfold-switch[data-variant='slim'][data-animate] .pinfold-switch__box::before { transition: background-color var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-switch[data-variant='slim'] .pinfold-switch__thumb {
+    position: relative;
+    border: var(--pinfold-border-width) solid color-mix(in oklab, var(--pinfold-fld-edge) 70%, transparent);
+  }
+  .pinfold-switch[data-variant='slim'] .pinfold-switch__input:checked + .pinfold-switch__box { background-color: transparent; border-color: transparent; }
+  .pinfold-switch[data-variant='slim'] .pinfold-switch__input:checked + .pinfold-switch__box::before {
+    background-color: color-mix(in oklab, var(--pinfold-tone-solid, var(--pinfold-color-accent)) 45%, var(--pinfold-color-surface));
+  }
+  .pinfold-switch[data-variant='slim'] .pinfold-switch__input:checked + .pinfold-switch__box .pinfold-switch__thumb {
+    background: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    border-color: transparent;
+  }
+
+  /* outline: a hollow track; the thumb takes the colour and the track glows when on. */
+  .pinfold-switch[data-variant='outline'] .pinfold-switch__box {
+    --pinfold-swt-t: calc(var(--pinfold-swt-h) - 2 * var(--pinfold-swt-pad) - 4px);
+    background-color: transparent;
+    border: 2px solid var(--pinfold-fld-edge);
+  }
+  .pinfold-switch[data-variant='outline'] .pinfold-switch__thumb {
+    background: var(--pinfold-fld-edge);
+    box-shadow: none;
+  }
+  .pinfold-switch[data-variant='outline'] .pinfold-switch__input:checked + .pinfold-switch__box {
+    background-color: color-mix(in oklab, var(--pinfold-tone-solid, var(--pinfold-color-accent)) 12%, transparent);
+    border-color: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--pinfold-tone-solid, var(--pinfold-color-accent)) 18%, transparent);
+  }
+  .pinfold-switch[data-variant='outline'] .pinfold-switch__input:checked + .pinfold-switch__box .pinfold-switch__thumb {
+    background: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+  }
+  /* The focus ring outranks the glow. */
+  .pinfold-switch .pinfold-switch__input:focus-visible + .pinfold-switch__box { box-shadow: var(--pinfold-focus-ring); }
+
   @media (forced-colors: active) {
-    .pinfold-switch__thumb { forced-color-adjust: none; background: CanvasText; }
-    .pinfold-switch__input:checked + .pinfold-switch__box .pinfold-switch__thumb { background: Canvas; }
+    .pinfold-switch__thumb { forced-color-adjust: none; background: CanvasText; color: Canvas; }
+    .pinfold-switch__input:checked + .pinfold-switch__box .pinfold-switch__thumb { background: Canvas; color: CanvasText; }
   }
 }

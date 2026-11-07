@@ -24,6 +24,8 @@ applies when a form is submitted.
 | `formValue` | `string` | `'on'` |
 | `onChange` | `(checked, event) => void` | none |
 | `labelPosition` | `'end' \| 'start'` | `'end'` |
+| `variant` | `'solid'`: filled track, white thumb · `'slim'`: thin rail, larger thumb · `'icon'`: check or cross in the thumb · `'outline'`: hollow track, the thumb takes the colour and the track glows | `'solid'` |
+| `animation` | `'spring'`: the thumb stretches while pressed and lands with a little overshoot · `'slide'`: a plain glide · `'none'` | `'spring'` |
 | `size`, `tone` | as everywhere | provider, then `'md'`, `'primary'` |
 | `dimensions` | `width, height` | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root item input box thumb itemLabel description error`) | | |

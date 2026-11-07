@@ -41,6 +41,12 @@ export interface RadioConfig extends FieldConfig, SlotOverrides<RadioSlot, Radio
   orientation?: 'vertical' | 'horizontal';
   /** @default 'plain' */
   variant?: RadioVariant;
+  /**
+   * How the dot arrives: `spring` grows it with a little overshoot, `ripple` also sends a ring out.
+   * Reduced motion and the provider's `disableAnimation` turn it off.
+   * @default 'spring'
+   */
+  animation?: 'spring' | 'ripple' | 'none';
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

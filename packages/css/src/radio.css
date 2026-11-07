@@ -1,8 +1,10 @@
 /* Pinfold — radio group. The row, the input and the shared box are in field.css (core.css): this
-   is only the dot's size and shape. The mark is drawn with a pseudo-element in the "on" colour. */
+   is the dot's size and shape, and how it arrives. Transitions, not keyframes, so a page loads still;
+   the ripple plays only on the focused radio, which is the one a person just picked. */
 
 @layer pinfold.components {
   .pinfold-radio__box {
+    position: relative;
     inline-size: var(--pinfold-radio-size, 1.125rem);
     block-size: var(--pinfold-radio-size, 1.125rem);
     border-radius: var(--pinfold-control-round, 50%);
@@ -17,9 +19,29 @@
   }
   .pinfold-radio__box::after {
     content: '';
-    inline-size: 40%;
-    block-size: 40%;
-    background: currentColor;
+    /* Absolute in the square box: a true circle at any size (a grid item rounded unevenly). */
+    position: absolute;
+    inset: 29%;
+    background: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
     border-radius: inherit;
+    transform: scale(0);
+  }
+  .pinfold-radio__input:checked + .pinfold-radio__box::after { transform: none; }
+  .pinfold-radio[data-animate] .pinfold-radio__box::after { transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-spring); }
+
+  .pinfold-radio__box::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .pinfold-radio[data-animate='ripple'] .pinfold-radio__input:checked:focus + .pinfold-radio__box::before {
+    animation: pinfold-radio-ripple 520ms var(--pinfold-ease-out);
+  }
+  @keyframes pinfold-radio-ripple {
+    from { opacity: 0.55; box-shadow: 0 0 0 0 var(--pinfold-tone-solid, var(--pinfold-color-accent)); }
+    to { opacity: 0; box-shadow: 0 0 0 0.6em var(--pinfold-tone-solid, var(--pinfold-color-accent)); }
   }
 }

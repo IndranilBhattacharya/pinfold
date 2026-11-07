@@ -1,5 +1,5 @@
 /* Pinfold — checkbox. The row, the input and the shared box are in field.css (core.css): this is
-   only the box's size and shape, and which mark it shows. */
+   the box's size and shape, and how the mark arrives. Transitions only, so a checked box loads still. */
 
 @layer pinfold.components {
   .pinfold-checkbox__box {
@@ -18,4 +18,25 @@
   .pinfold-checkbox__dash { display: none; }
   .pinfold-checkbox__input:indeterminate + .pinfold-checkbox__box .pinfold-checkbox__check { display: none; }
   .pinfold-checkbox__input:indeterminate + .pinfold-checkbox__box .pinfold-checkbox__dash { display: inline; }
+
+  /* draw: the box fills, then the tick is traced (pathLength 1). */
+  .pinfold-checkbox__check,
+  .pinfold-checkbox__dash { stroke-dasharray: 1; }
+  .pinfold-checkbox[data-animate='draw'] .pinfold-checkbox__check,
+  .pinfold-checkbox[data-animate='draw'] .pinfold-checkbox__dash {
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset var(--pinfold-duration-fast) var(--pinfold-ease-in-out);
+  }
+  .pinfold-checkbox[data-animate='draw'] .pinfold-checkbox__input:checked + .pinfold-checkbox__box .pinfold-checkbox__check,
+  .pinfold-checkbox[data-animate='draw'] .pinfold-checkbox__input:indeterminate + .pinfold-checkbox__box .pinfold-checkbox__dash {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset var(--pinfold-duration-slow) var(--pinfold-ease-out) 60ms;
+  }
+  /* pop: the mark springs in from small. */
+  .pinfold-checkbox[data-animate='pop'] .pinfold-checkbox__box > svg {
+    transform: scale(0.3);
+    transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-spring);
+  }
+  .pinfold-checkbox[data-animate='pop'] .pinfold-checkbox__input:checked + .pinfold-checkbox__box > svg,
+  .pinfold-checkbox[data-animate='pop'] .pinfold-checkbox__input:indeterminate + .pinfold-checkbox__box > svg { transform: none; }
 }

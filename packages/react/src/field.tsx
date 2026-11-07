@@ -136,6 +136,7 @@ export function renderChoice({ slot, id, row, indicator, input, labelText, hideL
           ...input,
         })}
         {slot('box', indicator, 'span', { 'aria-hidden': true })}
+        <span className="pinfold-choice__frame" aria-hidden="true" />
       </span>
       <span className="pinfold-choice__text">
         {slot('itemLabel', labelText ?? row.label, 'span', { id: labelId, ...hiddenStyle(hideLabel) })}

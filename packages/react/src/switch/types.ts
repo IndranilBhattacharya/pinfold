@@ -4,10 +4,12 @@ import type { PinfoldComponent } from '../component';
 import type { FieldConfig } from '../field';
 import type { SlotOverrides } from '../types';
 
+export type SwitchVariant = 'solid' | 'slim' | 'icon' | 'outline';
 export type SwitchSlot = 'root' | 'item' | 'input' | 'box' | 'thumb' | 'itemLabel' | 'description' | 'error';
 
 /** Passed to slot `render` overrides. */
 export interface SwitchState {
+  variant: SwitchVariant;
   size: PinfoldSize;
   tone: PinfoldTone;
   invalid: boolean;
@@ -35,6 +37,18 @@ export interface SwitchConfig extends FieldConfig, SlotOverrides<SwitchSlot, Swi
   onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   /** @default 'end' */
   labelPosition?: 'end' | 'start';
+  /**
+   * `solid`: a filled track and a white thumb. `slim`: a thin rail under a larger thumb. `icon`: the
+   * thumb carries a check or a cross. `outline`: a hollow track; the thumb takes the colour.
+   * @default 'solid'
+   */
+  variant?: SwitchVariant;
+  /**
+   * `spring`: the thumb stretches while pressed and lands with a little overshoot. `slide`: a plain
+   * glide. Reduced motion and the provider's `disableAnimation` turn it off.
+   * @default 'spring'
+   */
+  animation?: 'spring' | 'slide' | 'none';
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

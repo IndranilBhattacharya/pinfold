@@ -4,6 +4,8 @@ export const TOAST_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'placement',
   'duration',
   'max',
+  'stack',
+  'visible',
   'label',
   'dismissLabel',
   'store',

@@ -32,6 +32,7 @@ export const radioMeta: ComponentMeta = {
     onChange: { type: 'function', description: '`(value, event) => void`.', group: 'behaviour' },
     orientation: { type: 'enum', values: ['vertical', 'horizontal'], default: 'vertical', description: 'Rows or a wrapping line.', group: 'appearance', control: true },
     variant: { type: 'enum', values: ['plain', 'card'], default: 'plain', description: 'Bare rows, or each row a bordered card.', group: 'appearance', control: true },
+    animation: { type: 'enum', values: ['spring', 'ripple', 'none'], default: 'spring', description: 'How the dot arrives: `spring` grows it with a little overshoot, `ripple` also sends a ring out. Reduced motion and `disableAnimation` turn it off.', group: 'appearance', control: true },
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Dot and text size. Precedence: this config, `defaults.radio`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

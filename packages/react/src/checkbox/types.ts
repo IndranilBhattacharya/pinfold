@@ -57,6 +57,12 @@ export interface CheckboxConfig extends FieldConfig, SlotOverrides<CheckboxSlot,
   orientation?: 'vertical' | 'horizontal';
   /** @default 'plain' */
   variant?: CheckboxVariant;
+  /**
+   * How the mark arrives: `draw` traces the tick, `pop` springs it in. Reduced motion and the
+   * provider's `disableAnimation` turn it off.
+   * @default 'draw'
+   */
+  animation?: 'draw' | 'pop' | 'none';
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

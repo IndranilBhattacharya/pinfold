@@ -10,8 +10,8 @@ import type { CheckboxApi, CheckboxComponent, CheckboxConfig, CheckboxRootProps,
 
 const CHECK = (
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" focusable="false">
-    <path className="pinfold-checkbox__check" d="M3.5 8.5l3 3 6-7" />
-    <path className="pinfold-checkbox__dash" d="M4 8h8" />
+    <path className="pinfold-checkbox__check" d="M3.5 8.5l3 3 6-7" pathLength={1} />
+    <path className="pinfold-checkbox__dash" d="M4 8h8" pathLength={1} />
   </svg>
 );
 
@@ -68,7 +68,7 @@ export function useCheckbox(input: CheckboxConfig): CheckboxComponent {
         'data-variant': config.variant ?? 'plain',
         'data-orientation': config.orientation ?? 'vertical',
         'data-group': dataAttr(group),
-        'data-animate': dataAttr(!ctx.disableAnimation),
+        'data-animate': ctx.disableAnimation || config.animation === 'none' ? undefined : config.animation ?? 'draw',
         'data-unstyled': dataAttr(config.unstyled),
       },
       props,

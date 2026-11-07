@@ -1,6 +1,6 @@
 import type { ComponentMeta, PropMeta } from './meta';
 
-const SLOTS = ['root', 'item', 'icon', 'content', 'title', 'description', 'action', 'dismiss'] as const;
+const SLOTS = ['root', 'list', 'item', 'icon', 'content', 'title', 'description', 'action', 'dismiss'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -26,7 +26,9 @@ export const toastMeta: ComponentMeta = {
       control: true,
     },
     duration: { type: 'number', default: 5000, description: 'Milliseconds before a toast leaves. Errors and toasts with an action stay unless they set their own `duration`; 0 stays.', group: 'behaviour' },
-    max: { type: 'number', default: 5, description: 'How many show at once; the rest wait their turn.', group: 'behaviour' },
+    max: { type: 'number', default: 5, description: 'How many are on screen at once; the rest wait their turn.', group: 'behaviour' },
+    stack: { type: 'boolean', default: true, description: 'Pile the toasts behind the newest one; hover or focus fans them out.', group: 'appearance', control: true },
+    visible: { type: 'number', default: 3, description: 'How many show at full size when fanned out; the rest scroll, with no scrollbar.', group: 'appearance' },
     label: { type: 'string', default: 'Notifications', description: 'Accessible name of the region.', group: 'behaviour' },
     dismissLabel: { type: 'string', default: 'Dismiss', description: 'Accessible name and tooltip of each dismiss button.', group: 'behaviour' },
     store: { type: 'object', description: 'A store from `createToastStore()` to show toasts from outside React. `defineToast` makes one for you.', group: 'behaviour' },
@@ -51,6 +53,8 @@ export const toastMeta: ComponentMeta = {
   ],
   dataAttributes: [
     { name: 'data-placement', on: 'root', values: 'the placement' },
+    { name: 'data-expanded', on: 'root', values: 'present while the stack is open' },
+    { name: 'data-index', on: 'item', values: '0 for the newest' },
     { name: 'data-tone', on: 'item', values: 'the toast tone' },
   ],
   cssVariables: ['--pinfold-toast-width', '--pinfold-toast-gap', '--pinfold-toast-inset'],
@@ -58,6 +62,10 @@ export const toastMeta: ComponentMeta = {
     {
       title: 'One region, shown from anywhere',
       code: "'use client';\nimport { defineToast } from '@pinfold/react/toast';\n\nexport const Toasts = defineToast({ placement: 'bottom-end' });\n\n// once, near the root of the app\n<Toasts />\n\n// anywhere, also outside React\nToasts.show({ title: 'Saved', tone: 'success' });\nToasts.show({ title: 'Upload failed', tone: 'danger', action: { label: 'Retry', onClick: retry } });",
+    },
+    {
+      title: 'A list instead of a pile',
+      code: "export const Toasts = defineToast({ stack: false, visible: 4 });",
     },
     {
       title: 'Update in place',

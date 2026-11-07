@@ -29,7 +29,10 @@
     justify-content: center;
   }
   .pinfold-dialog:not([data-modal]) { pointer-events: none; }
-  .pinfold-dialog::backdrop { background: var(--pinfold-color-overlay); }
+  .pinfold-dialog::backdrop {
+    background: var(--pinfold-color-overlay);
+    backdrop-filter: blur(3px);
+  }
   .pinfold-dialog[data-size='sm'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 24rem); }
   .pinfold-dialog[data-size='lg'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 44rem); }
   .pinfold-dialog[data-size='xl'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 60rem); }

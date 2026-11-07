@@ -60,12 +60,12 @@
     display: block;
     block-size: 100%;
     background-color: var(--pinfold-prg-fill);
-    background-image: var(--pinfold-texture);
+    background-image: var(--pinfold-texture), linear-gradient(90deg, color-mix(in oklab, var(--pinfold-prg-fill) 70%, var(--pinfold-color-surface)), var(--pinfold-prg-fill));
     border-radius: inherit;
     filter: var(--pinfold-control-glow, none);
   }
   .pinfold-progress[data-animate][data-shape='bar']:not([data-indeterminate]) .pinfold-progress__indicator {
-    transition: inline-size var(--pinfold-duration-md) var(--pinfold-ease-out);
+    transition: inline-size var(--pinfold-duration-slow) var(--pinfold-ease);
   }
   .pinfold-progress[data-shape='bar'][data-indeterminate] .pinfold-progress__indicator {
     inline-size: 40%;

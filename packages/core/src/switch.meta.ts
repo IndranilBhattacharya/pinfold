@@ -24,6 +24,8 @@ export const switchMeta: ComponentMeta = {
     formValue: { type: 'string', default: 'on', description: 'What the form submits when on.', group: 'data' },
     onChange: { type: 'function', description: '`(checked, event) => void`.', group: 'behaviour' },
     labelPosition: { type: 'enum', values: ['end', 'start'], default: 'end', description: 'The label after the switch, or before it (a settings row).', group: 'appearance', control: true },
+    variant: { type: 'enum', values: ['solid', 'slim', 'icon', 'outline'], default: 'solid', description: '`solid`: a filled track and a white thumb. `slim`: a thin rail under a larger thumb. `icon`: the thumb carries a check or a cross. `outline`: a hollow track; the thumb takes the colour.', group: 'appearance', control: true },
+    animation: { type: 'enum', values: ['spring', 'slide', 'none'], default: 'spring', description: '`spring`: the thumb stretches while pressed and lands with a little overshoot. `slide`: a plain glide. Reduced motion and `disableAnimation` turn it off.', group: 'appearance', control: true },
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Track and text size. Precedence: this config, `defaults.switch`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',
@@ -52,13 +54,14 @@ export const switchMeta: ComponentMeta = {
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-tone', on: 'root', values: 'the resolved tone' },
     { name: 'data-label-position', on: 'root', values: '"end" | "start"' },
+    { name: 'data-variant', on: 'root', values: '"solid" | "slim" | "icon" | "outline"' },
     { name: 'data-invalid', on: 'root', values: 'present when invalid' },
   ],
   cssVariables: ['--pinfold-switch-width', '--pinfold-switch-height'],
   examples: [
     {
-      title: 'Preset',
-      code: "import { defineSwitch } from '@pinfold/react/switch';\n\nexport const Setting = defineSwitch({ labelPosition: 'start' });\n\n<Setting label=\"Email alerts\" description=\"At most one a day\" defaultChecked onChange={save} />",
+      title: 'Presets',
+      code: "import { defineSwitch } from '@pinfold/react/switch';\n\nexport const Setting = defineSwitch({ labelPosition: 'start' });\n\n<Setting label=\"Email alerts\" description=\"At most one a day\" defaultChecked onChange={save} />\n\nexport const Wifi = defineSwitch({ variant: 'icon', tone: 'success' });\n<Wifi label=\"Wi-Fi\" />",
     },
   ],
 };

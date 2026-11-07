@@ -33,7 +33,7 @@ export function inactiveBadgeOptions(config: BadgeAppearanceInput): Record<strin
   if (config.count == null) {
     out.max = 'only used with a `count`.';
     out.showZero = 'only used with a `count`.';
-  }
+  } else if (config.count !== 0) out.showZero = 'only matters while the count is 0.';
   if (!present(config.anchor)) {
     out.placement = 'only used with an `anchor`: without one the badge sits in the text flow.';
     out.anchorShape = 'only used with an `anchor`.';

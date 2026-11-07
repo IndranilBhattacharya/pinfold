@@ -16,6 +16,8 @@ export const SWITCH_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'formValue',
   'onChange',
   'labelPosition',
+  'variant',
+  'animation',
   'size',
   'tone',
   'dimensions',

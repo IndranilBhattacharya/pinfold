@@ -10,9 +10,14 @@ import { CLOSE_ICON, ToneIcon } from '../icons';
 import { closingAction, raiseToTopLayer } from '../overlay';
 import type { ToastApi, ToastComponent, ToastConfig, ToastMessage, ToastRootProps, ToastSlot, ToastState } from './types';
 
+type Shown = ToastMessage & { id: string };
 const filled = (node: React.ReactNode) => node != null && node !== false && node !== '';
-const NONE: ReadonlyArray<ToastMessage & { id: string }> = [];
+const NONE: ReadonlyArray<Shown> = [];
 const server = () => NONE;
+/** How long a leaving toast takes; the same as its CSS transition. */
+const LEAVE_MS = 240;
+/** Cards that peek out behind the newest one; the rest hide behind it. */
+const PEEK = 3;
 
 /**
  * A toast region, as a hook that hands back a component and its controller.
@@ -31,7 +36,12 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
   if (!config.store && !own.current) own.current = createToastStore<ToastMessage>();
   const store = (config.store ?? own.current) as ToastStore<ToastMessage>;
   const region = React.useRef<HTMLDivElement | null>(null);
+  const list = React.useRef<HTMLDivElement | null>(null);
   const hovering = React.useRef(false);
+  const [open, setOpen] = React.useState(false);
+  const [, bump] = React.useReducer((n: number) => n + 1, 0);
+  const leaving = React.useRef(new Map<string, { toast: Shown; done: boolean }>());
+  const last = React.useRef<Shown[]>([]);
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ toastMeta, validateConfig }) => {
@@ -41,7 +51,34 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
 
   store.configure({ duration: config.duration, max: config.max });
   const toasts = React.useSyncExternalStore(store.subscribe, store.getVisible, server);
-  const state: ToastState = { placement: config.placement ?? 'bottom-end', count: toasts.length };
+  const stacked = config.stack !== false;
+  const visible = Math.max(1, config.visible ?? 3);
+  const state: ToastState = { placement: config.placement ?? 'bottom-end', count: toasts.length, expanded: !stacked || open };
+  const animate = !ctx.disableAnimation;
+
+  // Newest first. A toast that just left stays where it was for its exit transition.
+  const current = [...toasts].reverse();
+  const shown: Array<Shown & { leaving?: boolean }> = [...current];
+  if (animate) {
+    last.current.forEach((toast, i) => {
+      if (current.some((t) => t.id === toast.id)) return;
+      let entry = leaving.current.get(toast.id);
+      if (!entry) {
+        entry = { toast, done: false };
+        leaving.current.set(toast.id, entry);
+        const mark = entry;
+        setTimeout(() => {
+          mark.done = true;
+          bump();
+        }, LEAVE_MS);
+      }
+      if (!entry.done) shown.splice(Math.min(i, shown.length), 0, { ...toast, leaving: true });
+    });
+    leaving.current.forEach((entry, id) => {
+      if (entry.done) leaving.current.delete(id);
+    });
+  }
+  last.current = shown;
 
   // A hidden tab reads nothing: its timers wait.
   React.useEffect(() => {
@@ -60,13 +97,59 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
     previous.current = toasts.length;
   }, [toasts.length]);
 
+  // The pile is drawn from measured heights: each card behind the newest moves onto it, a little
+  // smaller and peeking out at the far edge, squeezed to the newest card's height (its content
+  // fades, as in a deck). Fanned out they sit in the list's own flow, so it can scroll.
+  useIsomorphicLayoutEffect(() => {
+    const box = list.current;
+    if (!box) return;
+    const items = Array.from(box.children) as HTMLElement[];
+    const gap = parseFloat(getComputedStyle(box).rowGap) || 0;
+    const staying = items.filter((el) => !el.hasAttribute('data-leaving'));
+    const front = staying[0]?.offsetHeight ?? 0;
+    const towardEdge = state.placement.startsWith('top') ? -1 : 1;
+    let offset = 0;
+    let room = 0;
+    let index = 0;
+    for (const el of items) {
+      const height = el.offsetHeight;
+      // The newest paints on top: it comes first in the DOM, so the order is set here.
+      el.style.zIndex = String(items.length - index);
+      if (el.hasAttribute('data-leaving')) {
+        if (!el.hasAttribute('data-closing')) {
+          el.style.blockSize = `${height}px`;
+          void el.offsetHeight;
+          // From its height to none: the transition needs both as lengths.
+          el.style.blockSize = '0px';
+          el.setAttribute('data-closing', '');
+        }
+        continue;
+      }
+      const scale = 1 - 0.05 * Math.min(index, PEEK);
+      const squeeze = height ? (scale * front) / height : 1;
+      const shift = offset - front * (1 - scale) - Math.min(index, PEEK - 1) * 10;
+      el.style.setProperty('--pinfold-tst-pile', index ? `translateY(${towardEdge * shift}px) scale(${scale}, ${squeeze})` : 'none');
+      if (index < visible) room += height + (index ? gap : 0);
+      offset += height + gap;
+      index++;
+    }
+    box.style.setProperty('--pinfold-tst-room', `${room}px`);
+  });
+
+  // Folding the pile up again starts from the newest.
+  React.useEffect(() => {
+    if (!state.expanded && list.current) list.current.scrollTop = 0;
+  }, [state.expanded]);
+
   const hold = () => {
     hovering.current = true;
     store.pause();
+    setOpen(true);
   };
   const release = () => {
     hovering.current = false;
     if (!document.hidden) store.resume();
+    setOpen(false);
   };
 
   const getRootProps = (props?: PropsBag): PropsBag =>
@@ -78,8 +161,10 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
         'aria-live': 'polite',
         'aria-relevant': 'additions',
         'data-placement': state.placement,
+        'data-stack': stacked ? '' : undefined,
+        'data-expanded': state.expanded ? '' : undefined,
         'data-unstyled': config.unstyled ? '' : undefined,
-        'data-animate': ctx.disableAnimation ? undefined : '',
+        'data-animate': animate ? '' : undefined,
         onPointerEnter: hold,
         onPointerLeave: release,
         onFocus: hold,
@@ -100,8 +185,10 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
       'root',
       getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-toast', config.className), style: vars || config.style ? { ...vars, ...config.style } : undefined }, rootProps)),
     );
-    const content = toasts.map((toast) => {
+    let index = 0;
+    const items = shown.map((toast) => {
       const tone = toast.tone ?? 'neutral';
+      const at = toast.leaving ? -1 : index++;
       const close = () => {
         store.dismiss(toast.id);
         // The focused button is gone with its toast, and no blur event says so.
@@ -127,14 +214,21 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
         {
           key: toast.id,
           // An error interrupts; everything else waits its turn in the polite region.
-          role: tone === 'danger' ? 'alert' : undefined,
+          role: tone === 'danger' && !toast.leaving ? 'alert' : undefined,
           'data-tone': tone,
+          'data-index': at < 0 ? undefined : at,
+          'data-behind': at > 0 ? '' : undefined,
+          // Deeper in the pile than the peeking cards: hidden until the pile fans out.
+          'data-buried': at >= PEEK ? '' : undefined,
+          'data-leaving': toast.leaving ? '' : undefined,
+          'aria-hidden': toast.leaving ? true : undefined,
           onKeyDown: (event: React.KeyboardEvent) => {
             if (event.key === 'Escape') close();
           },
         },
       );
     });
+    const content = slot('list', items, 'div', { ref: list });
     return renderSlot(config, 'root', root, state, content, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;
   };
 

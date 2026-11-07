@@ -11,6 +11,48 @@ import { defineInput } from './define';
 import type { InputComponent } from './types';
 
 describe('Input', () => {
+  it('label inside: it follows the input, which gets a blank placeholder so CSS sees it empty', () => {
+    const { container } = render(<Input label="Email" labelPlacement="inside" />);
+    const box = screen.getByRole('textbox', { name: 'Email' }) as HTMLInputElement;
+    expect(box.placeholder).toBe(' ');
+    expect(box.nextElementSibling!.tagName).toBe('LABEL');
+    expect(box.parentElement!.classList.contains('pinfold-input__field')).toBe(true);
+    expect(container.firstElementChild!.getAttribute('data-label-placement')).toBe('inside');
+    render(<Input label="Name" labelPlacement="inside" placeholder="Ada" />);
+    expect((screen.getByRole('textbox', { name: 'Name' }) as HTMLInputElement).placeholder).toBe('Ada');
+  });
+
+  it('a hidden label stays outside, whatever the placement', () => {
+    const { container } = render(<Input label="Search" labelPlacement="inside" hideLabel />);
+    expect(container.firstElementChild!.getAttribute('data-label-placement')).toBe('outside');
+    expect(container.querySelector('.pinfold-input__field')).toBeNull();
+  });
+
+  it('multiline has a drag handle (own icon optional) that sets the height, never below the rows', () => {
+    const icon = <svg data-testid="grip" />;
+    const { container, rerender } = render(<Input label="Notes" multiline resizeIcon={icon} />);
+    const handle = container.querySelector('.pinfold-input__handle') as HTMLElement;
+    expect(handle.getAttribute('aria-hidden')).toBe('true');
+    expect(screen.getByTestId('grip')).toBeTruthy();
+    const area = screen.getByRole('textbox', { name: 'Notes' }) as HTMLTextAreaElement;
+    Object.defineProperty(area, 'offsetHeight', { configurable: true, value: 80 });
+    fireEvent.pointerDown(handle, { button: 0, clientY: 100, pointerId: 1 });
+    fireEvent.pointerMove(handle, { clientY: 160, pointerId: 1 });
+    expect(area.style.height).toBe('140px');
+    fireEvent.pointerMove(handle, { clientY: 0, pointerId: 1 });
+    expect(area.style.height).toBe('80px');
+    fireEvent.pointerUp(handle, { pointerId: 1 });
+    rerender(<Input label="Notes" multiline autosize />);
+    expect(container.querySelector('.pinfold-input__handle')).toBeNull();
+    rerender(<Input label="Notes" multiline resize="none" />);
+    expect(container.querySelector('.pinfold-input__handle')).toBeNull();
+  });
+
+  it('the clear button takes its own icon', () => {
+    render(<Input label="Q" clearable defaultValue="x" clearIcon={<svg data-testid="mine" />} />);
+    expect(screen.getByTestId('mine').closest('button')!.getAttribute('aria-label')).toBe('Clear');
+  });
+
   it('names the control and links its help text and error', () => {
     render(<Input label="Email" description="We never share it" error="Not valid" />);
     const box = screen.getByRole('textbox', { name: 'Email' }) as HTMLInputElement;
