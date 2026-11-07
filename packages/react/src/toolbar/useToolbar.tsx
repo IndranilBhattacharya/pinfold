@@ -57,7 +57,7 @@ export function useToolbar(input: ToolbarConfig): ToolbarComponent {
         'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
         'data-attached': dataAttr(state.attached),
         'data-orientation': orientation,
-        'data-variant': config.variant ?? 'outline',
+        'data-variant': config.variant ?? 'soft',
         'data-size': state.size,
         'data-tone': config.tone ?? 'neutral',
         'data-unstyled': dataAttr(config.unstyled),
@@ -81,7 +81,7 @@ export function useToolbar(input: ToolbarConfig): ToolbarComponent {
         onFocus: () => setActive(i),
       });
       // The toolbar's look first; each item's own config wins.
-      const look = { variant: config.variant ?? 'outline', size: state.size, tone: config.tone ?? 'neutral', disabled: config.disabled || undefined };
+      const look = { variant: config.variant ?? 'soft', size: state.size, tone: config.tone ?? 'neutral', disabled: config.disabled || undefined };
       return (
         <React.Fragment key={i}>
           {renderSlot(config, 'item', own, state, null, (p) => (

@@ -1,6 +1,8 @@
 /* Pinfold — number field. The same frame as an input (heights from the control tokens), with the
-   native spinners hidden and our − and + buttons in their place: split around the number, or
-   side by side after it. Each button is the field's full height: a 24px+ target (WCAG 2.5.8). Label, help text and error are shared: see field.css in core.css. */
+   native spinners hidden and our − and + buttons in their place: round tinted buttons inset in the
+   frame, split around the number or side by side after it. Each is the field's height less the
+   inset: 24px at the smallest size, the target WCAG 2.5.8 asks. Label, help text and error are
+   shared: see field.css in core.css. */
 
 @layer pinfold.components {
   .pinfold-number {
@@ -8,10 +10,14 @@
     max-inline-size: 100%;
   }
   .pinfold-number__control {
+    --pinfold-num-h: var(--pinfold-number-height, var(--pinfold-control-height));
+    --pinfold-num-inset: 0.25rem;
     display: flex;
-    align-items: stretch;
+    align-items: center;
+    gap: 0.125rem;
     box-sizing: border-box;
-    block-size: var(--pinfold-number-height, var(--pinfold-control-height));
+    block-size: var(--pinfold-num-h);
+    padding-inline: var(--pinfold-num-inset);
     overflow: hidden;
     background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
     background-image: var(--pinfold-texture);
@@ -40,6 +46,7 @@
     padding-inline: calc(var(--pinfold-control-pad-x) * 0.6);
     color: inherit;
     font: inherit;
+    font-weight: var(--pinfold-weight-medium);
     font-variant-numeric: tabular-nums;
     background: transparent;
     border: 0;
@@ -66,36 +73,42 @@
 
   .pinfold-number__decrement,
   .pinfold-number__increment {
+    --pinfold-num-b: calc(var(--pinfold-num-h) - var(--pinfold-num-inset) * 2 - var(--pinfold-border-width) * 2);
     display: inline-grid;
     flex-shrink: 0;
     place-items: center;
-    inline-size: var(--pinfold-number-height, var(--pinfold-control-height));
+    inline-size: var(--pinfold-num-b);
+    block-size: var(--pinfold-num-b);
     margin: 0;
     padding: 0;
-    color: var(--pinfold-color-text-muted);
-    background: transparent;
+    color: var(--pinfold-color-text);
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent);
     border: 0;
+    border-radius: max(calc(calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1)) - var(--pinfold-num-inset)), 0.25rem);
     cursor: pointer;
     touch-action: manipulation;
     user-select: none;
   }
   .pinfold-number__decrement > svg,
-  .pinfold-number__increment > svg { inline-size: var(--pinfold-control-icon); block-size: var(--pinfold-control-icon); }
+  .pinfold-number__increment > svg { inline-size: calc(var(--pinfold-control-icon) * 0.9); block-size: calc(var(--pinfold-control-icon) * 0.9); }
   .pinfold-number__decrement:hover:not(:disabled),
-  .pinfold-number__increment:hover:not(:disabled) { color: var(--pinfold-color-text); background-color: var(--pinfold-color-bg-subtle); }
+  .pinfold-number__increment:hover:not(:disabled) { background-color: color-mix(in oklab, var(--pinfold-color-text) 13%, transparent); }
+  .pinfold-number__decrement:active:not(:disabled),
+  .pinfold-number__increment:active:not(:disabled) { background-color: color-mix(in oklab, var(--pinfold-color-accent) 22%, transparent); color: var(--pinfold-color-accent); }
   .pinfold-number__decrement:disabled,
-  .pinfold-number__increment:disabled { cursor: not-allowed; opacity: 0.4; }
+  .pinfold-number__increment:disabled { cursor: not-allowed; color: var(--pinfold-color-text-muted); background-color: transparent; }
   .pinfold-number[data-animate] .pinfold-number__decrement,
-  .pinfold-number[data-animate] .pinfold-number__increment { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
-  .pinfold-number[data-animate] .pinfold-number__decrement:active:not(:disabled) > svg,
-  .pinfold-number[data-animate] .pinfold-number__increment:active:not(:disabled) > svg { transform: scale(0.82); }
-  .pinfold-number[data-animate] .pinfold-number__decrement > svg,
-  .pinfold-number[data-animate] .pinfold-number__increment > svg { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
-  .pinfold-number[data-steppers='split'] .pinfold-number__decrement { border-inline-end: var(--pinfold-border-width) solid var(--pinfold-color-border); }
-  .pinfold-number__increment,
-  .pinfold-number[data-steppers='end'] .pinfold-number__decrement { border-inline-start: var(--pinfold-border-width) solid var(--pinfold-color-border); }
-  .pinfold-number[data-steppers='end'] .pinfold-number__decrement,
-  .pinfold-number[data-steppers='end'] .pinfold-number__increment { inline-size: calc(var(--pinfold-number-height, var(--pinfold-control-height)) * 0.85); }
+  .pinfold-number[data-animate] .pinfold-number__increment { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
+  .pinfold-number[data-animate] .pinfold-number__decrement:active:not(:disabled),
+  .pinfold-number[data-animate] .pinfold-number__increment:active:not(:disabled) { transform: scale(0.9); }
+  /* end: the pair sits tight after the number. */
+  .pinfold-number[data-steppers='end'] .pinfold-number__decrement { margin-inline-start: auto; }
+  .pinfold-number[data-steppers='end'] .pinfold-number__input { padding-inline-start: calc(var(--pinfold-control-pad-x) - var(--pinfold-num-inset)); }
+  .pinfold-number[data-steppers='none'] .pinfold-number__input { padding-inline: calc(var(--pinfold-control-pad-x) - var(--pinfold-num-inset)); }
+  .pinfold-number[data-variant='filled'] .pinfold-number__decrement,
+  .pinfold-number[data-variant='filled'] .pinfold-number__increment { background-color: var(--pinfold-control-surface, var(--pinfold-color-raised)); box-shadow: 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-color-text) 8%, transparent), 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-900) 10%, transparent); }
+  .pinfold-number[data-variant='filled'] .pinfold-number__decrement:disabled,
+  .pinfold-number[data-variant='filled'] .pinfold-number__increment:disabled { box-shadow: none; background-color: transparent; }
 
   @media (forced-colors: active) {
     .pinfold-number__control { border-color: CanvasText; }

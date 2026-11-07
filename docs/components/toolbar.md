@@ -25,7 +25,7 @@ Precedence: each item's own settings, the use site, the preset, `defaults.toolba
 | `items` | `ButtonConfig[]` | required |
 | `attached` | joined buttons with shared edges | `true` |
 | `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` |
-| `variant` | `'outline' \| 'soft' \| 'solid' \| 'ghost'` | `'outline'` |
+| `variant` | `'outline' \| 'soft' \| 'solid' \| 'ghost'` | `'soft'` |
 | `size`, `tone`, `disabled` | for every button | `'md'` (provider), `'neutral'`, `false` |
 | `dimensions` | `gap` (not attached) | `space-1` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root item`) | | |

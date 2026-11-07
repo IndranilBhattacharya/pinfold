@@ -23,8 +23,9 @@
     flex-wrap: nowrap;
     gap: 0;
     border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
-    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
   }
+  /* Framed and solid groups lift as one; soft and ghost groups lie flat. */
+  .pinfold-toolbar[data-attached]:is([data-variant='outline'], [data-variant='solid']) { box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs)); }
   .pinfold-toolbar[data-attached] > .pinfold-toolbar__item {
     border-radius: 0;
     box-shadow: none;
@@ -32,8 +33,8 @@
   .pinfold-toolbar[data-attached][data-orientation='horizontal'] > .pinfold-toolbar__item + .pinfold-toolbar__item { margin-inline-start: calc(var(--pinfold-border-width) * -1); }
   .pinfold-toolbar[data-attached][data-orientation='vertical'] > .pinfold-toolbar__item + .pinfold-toolbar__item { margin-block-start: calc(var(--pinfold-border-width) * -1); }
   /* Solid and soft buttons have no edge to share: a hairline in their own colour divides them. */
-  .pinfold-toolbar[data-attached][data-orientation='horizontal'] > .pinfold-toolbar__item:is([data-variant='solid'], [data-variant='soft']) + .pinfold-toolbar__item { margin-inline-start: 0; box-shadow: inset 1px 0 0 color-mix(in oklab, currentColor 22%, transparent); }
-  .pinfold-toolbar[data-attached][data-orientation='vertical'] > .pinfold-toolbar__item:is([data-variant='solid'], [data-variant='soft']) + .pinfold-toolbar__item { margin-block-start: 0; box-shadow: inset 0 1px 0 color-mix(in oklab, currentColor 22%, transparent); }
+  .pinfold-toolbar[data-attached][data-orientation='horizontal'] > .pinfold-toolbar__item:is([data-variant='solid'], [data-variant='soft']) + .pinfold-toolbar__item { margin-inline-start: 0; box-shadow: inset 1px 0 0 color-mix(in oklab, currentColor 14%, transparent); }
+  .pinfold-toolbar[data-attached][data-orientation='vertical'] > .pinfold-toolbar__item:is([data-variant='solid'], [data-variant='soft']) + .pinfold-toolbar__item { margin-block-start: 0; box-shadow: inset 0 1px 0 color-mix(in oklab, currentColor 14%, transparent); }
   .pinfold-toolbar[data-attached][data-orientation='horizontal'] > .pinfold-toolbar__item:first-child { border-start-start-radius: var(--pinfold-btn-radius); border-end-start-radius: var(--pinfold-btn-radius); }
   .pinfold-toolbar[data-attached][data-orientation='horizontal'] > .pinfold-toolbar__item:last-child { border-start-end-radius: var(--pinfold-btn-radius); border-end-end-radius: var(--pinfold-btn-radius); }
   .pinfold-toolbar[data-attached][data-orientation='vertical'] > .pinfold-toolbar__item:first-child { border-start-start-radius: var(--pinfold-btn-radius); border-start-end-radius: var(--pinfold-btn-radius); }

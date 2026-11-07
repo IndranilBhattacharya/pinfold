@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 
-const SLOTS = ['root', 'label', 'value', 'control', 'track', 'range', 'input', 'thumb', 'marks', 'mark', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'value', 'control', 'track', 'range', 'steps', 'input', 'thumb', 'marks', 'mark', 'startContent', 'endContent', 'description', 'error'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -36,6 +36,18 @@ export const sliderMeta: ComponentMeta = {
     step: { type: 'number', default: 1, description: 'Values snap to it.', group: 'data' },
     minGap: { type: 'number', default: 0, description: 'A range: the least distance between the thumbs, in values.', group: 'behaviour' },
     marks: { type: 'array', description: 'Ticks on the track: `{ value, label? }` each.', group: 'data', items: { value: { type: 'number', required: true, description: 'Where.', group: 'data' }, label: { type: 'node', description: 'Text under the tick.', group: 'data' } } },
+    snapToMarks: { type: 'boolean', default: false, description: 'The thumbs stop only on `marks`: a drag lands on the nearest one, arrow keys move from mark to mark. `step` is then unused.', group: 'behaviour', control: true },
+    showSteps: { type: 'boolean', default: false, description: 'A dot on the track at every step. Drawn up to 40 steps.', group: 'appearance', control: true },
+    variant: {
+      type: 'enum',
+      values: ['line', 'bar', 'minimal'],
+      default: 'line',
+      description: '`line`: a slim track and a round thumb. `bar`: a thick track that fills, with a handle inside the fill. `minimal`: a hairline track whose thumb appears on hover, focus and drag (media scrubbers).',
+      group: 'appearance',
+      control: true,
+    },
+    startContent: { type: 'node', description: 'Before the track: an icon such as a quiet speaker. Decorative.', group: 'appearance' },
+    endContent: { type: 'node', description: 'After the track: an icon such as a loud speaker. Decorative.', group: 'appearance' },
     showValue: { type: 'enum', values: ['label', 'tooltip', 'never'], default: 'label', description: '`label`: beside the label. `tooltip`: in a bubble over the thumb while it is hovered, focused or dragged. `never`.', group: 'appearance', control: true },
     formatValue: { type: 'function', description: '`(value) => string`: shown, and read as `aria-valuetext`. Default the number.', group: 'data' },
     thumbLabels: { type: 'array', description: 'A range: the names of the two thumbs, after the label.', group: 'data' },
@@ -73,6 +85,7 @@ export const sliderMeta: ComponentMeta = {
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-tone', on: 'root', values: 'the resolved tone' },
     { name: 'data-range', on: 'root', values: 'present with two thumbs' },
+    { name: 'data-variant', on: 'root', values: '"line" | "bar" | "minimal"' },
   ],
   cssVariables: ['--pinfold-slider-thickness', '--pinfold-slider-thumb-size'],
   examples: [

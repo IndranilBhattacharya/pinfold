@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveSliderOptions, mergeProps, sliderPercent, sliderValues, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveSliderOptions, mergeProps, SLIDER_MAX_STEP_DOTS, sliderNextStop, sliderPercent, sliderValues, warnOnce, type PropsBag } from '@pinfold/core';
 import { useControllableState } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -26,10 +26,12 @@ export function useSlider(input: SliderConfig): SliderComponent {
   const max = config.max ?? 100;
   const step = config.step && config.step > 0 ? config.step : 1;
   const gap = config.minGap ?? 0;
+  // Snapping to marks: the marks are the only stops.
+  const stops = config.snapToMarks && config.marks?.length ? config.marks.map((m) => m.value) : undefined;
   const initial = React.useRef<number[] | null>(null);
-  if (!initial.current) initial.current = sliderValues(config.defaultValue ?? [min], min, max, step, gap);
+  if (!initial.current) initial.current = sliderValues(config.defaultValue ?? [min], min, max, step, gap, stops);
   const [raw, setRaw] = useControllableState<readonly number[]>({ value: config.value, defaultValue: initial.current });
-  const values = sliderValues(raw.length ? raw.slice(0, 2) : [min], min, max, step, gap);
+  const values = sliderValues(raw.length ? raw.slice(0, 2) : [min], min, max, step, gap, stops);
   const range = values.length === 2;
   const latest = React.useRef(values);
   latest.current = values;
@@ -52,7 +54,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
     return () => form.removeEventListener('reset', onReset);
   }, []);
 
-  const state: SliderState = { size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, values, range, invalid: field.invalid };
+  const state: SliderState = { size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, values, range, variant: config.variant ?? 'line', invalid: field.invalid };
   const format = (v: number) => (config.formatValue ? config.formatValue(v) : String(v));
   const fraction = (v: number) => sliderPercent(v, min, max) / 100;
 
@@ -62,11 +64,33 @@ export function useSlider(input: SliderConfig): SliderComponent {
     if (range) v = index === 0 ? Math.min(v, values[1] - gap) : Math.max(v, values[0] + gap);
     const next = values.slice();
     next[index] = v;
-    const clean = sliderValues(next, min, max, step, 0);
+    const clean = sliderValues(next, min, max, step, 0, stops);
     setRaw(clean);
     config.onChange?.(clean, event);
   };
   const end = () => config.onChangeEnd?.(latest.current);
+  // Snapping to marks, the input takes any value (marks need not sit on a step), so the arrow keys
+  // are ours: they set the next mark the native way, and the input event above does the rest.
+  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!stops) return;
+    const input = event.currentTarget;
+    const rtl = getComputedStyle(input).direction === 'rtl';
+    const current = Number(input.value);
+    const key = event.key;
+    let next: number | undefined;
+    if (key === 'ArrowUp' || key === 'PageUp' || key === (rtl ? 'ArrowLeft' : 'ArrowRight')) next = sliderNextStop(current, 1, stops);
+    else if (key === 'ArrowDown' || key === 'PageDown' || key === (rtl ? 'ArrowRight' : 'ArrowLeft')) next = sliderNextStop(current, -1, stops);
+    else if (key === 'Home') next = Math.min(...stops);
+    else if (key === 'End') next = Math.max(...stops);
+    if (next === undefined) return;
+    event.preventDefault();
+    if (next === current) return;
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, String(next));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  const variant = config.variant ?? 'line';
+  const steps = (max - min) / step;
+  const stepDots = config.showSteps && !stops && steps > 0 && steps <= SLIDER_MAX_STEP_DOTS ? steps : 0;
 
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
@@ -77,6 +101,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
         'data-size': state.size,
         'data-tone': state.tone,
         'data-range': dataAttr(range),
+        'data-variant': variant,
         'data-show-value': config.showValue ?? 'label',
         'data-mark-labels': dataAttr(config.marks?.some((m) => filled(m.label))),
         'data-invalid': dataAttr(field.invalid),
@@ -95,6 +120,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
       ...(dimensionVars('slider', config.dimensions) as Record<string, string> | undefined),
       '--pinfold-sld-a': String(range ? fraction(values[0]) : 0),
       '--pinfold-sld-b': String(fraction(values[range ? 1 : 0])),
+      ...(stepDots ? { '--pinfold-sld-n': String(stepDots) } : null),
     };
     const root = slotProps(
       config,
@@ -104,6 +130,18 @@ export function useSlider(input: SliderConfig): SliderComponent {
     const showValue = config.showValue ?? 'label';
     const text = values.map(format).join(' – ');
     const names = config.thumbLabels ?? ['Minimum', 'Maximum'];
+    // Icons either side of the track sit in a row with it; without them there is no extra element.
+    const ends = filled(config.startContent) || filled(config.endContent);
+    const withEnds = (control: React.ReactNode) =>
+      ends ? (
+        <div className={config.unstyled ? undefined : 'pinfold-slider__body'}>
+          {filled(config.startContent) ? slot('startContent', config.startContent, 'span', { 'aria-hidden': true }) : null}
+          {control}
+          {filled(config.endContent) ? slot('endContent', config.endContent, 'span', { 'aria-hidden': true }) : null}
+        </div>
+      ) : (
+        control
+      );
     const content = (
       <>
         {filled(config.label) || showValue === 'label' ? (
@@ -112,10 +150,12 @@ export function useSlider(input: SliderConfig): SliderComponent {
             {showValue === 'label' ? slot('value', text, 'span', { 'aria-hidden': true }) : null}
           </div>
         ) : null}
-        {slot(
+        {withEnds(
+          slot(
           'control',
           <>
             {slot('track', slot('range', null, 'span'), 'span', { 'aria-hidden': true })}
+            {stepDots ? slot('steps', null, 'span', { 'aria-hidden': true }) : null}
             {config.marks?.length
               ? slot(
                   'marks',
@@ -140,7 +180,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
                   name: config.name,
                   min,
                   max,
-                  step,
+                  step: stops ? 'any' : step,
                   value: v,
                   disabled: config.disabled || undefined,
                   'aria-labelledby': range ? `${field.base}-label ${field.base}-thumb-${i}` : `${field.base}-label`,
@@ -151,6 +191,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
                   onChange: onInput(i),
                   onPointerUp: end,
                   onKeyUp: end,
+                  onKeyDown: stops ? onKeyDown : undefined,
                 })}
                 {slot('thumb', showValue === 'tooltip' ? slot('value', format(v), 'span', { 'aria-hidden': true }) : null, 'span', { 'aria-hidden': true, style: { '--pinfold-sld-at': String(fraction(v)) } })}
                 {range ? (
@@ -162,6 +203,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
             ))}
           </>,
           'div',
+          ),
         )}
         {filled(config.description) ? slot('description', config.description, 'div', { id: field.descriptionId }) : null}
         {filled(field.message) ? slot('error', field.message, 'div', { id: field.errorId }) : null}
@@ -172,7 +214,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
 
   const api: SliderApi = {
     values,
-    setValues: (next) => setRaw(sliderValues(next, min, max, step, gap)),
+    setValues: (next) => setRaw(sliderValues(next, min, max, step, gap, stops)),
     focus: () => field.root.current?.querySelector<HTMLInputElement>('input[type="range"]')?.focus(),
     getRootProps,
     render,

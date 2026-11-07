@@ -82,7 +82,7 @@ const BUDGETS = [
   ['packages/css/dist/badge.css', 2],
   ['packages/css/dist/otp.css', 2],
   ['packages/css/dist/number.css', 2],
-  ['packages/css/dist/slider.css', 2],
+  ['packages/css/dist/slider.css', 2.5], // three variants (line, bar, minimal), step dots, marks, value bubble
   ['packages/css/dist/toolbar.css', 2],
   ['packages/css/dist/toggle.css', 2],
   ['packages/css/dist/switch.css', 2],

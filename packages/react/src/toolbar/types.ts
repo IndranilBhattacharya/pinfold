@@ -31,7 +31,7 @@ export interface ToolbarConfig extends SlotOverrides<ToolbarSlot, ToolbarState> 
   attached?: boolean;
   /** @default 'horizontal' */
   orientation?: 'horizontal' | 'vertical';
-  /** @default 'outline' */
+  /** @default 'soft' */
   variant?: ToolbarVariant;
   /** @default 'md' */
   size?: PinfoldSize;
