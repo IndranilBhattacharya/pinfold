@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'a11y-report');
 const require = createRequire(import.meta.url);
-const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
+const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
@@ -58,6 +58,11 @@ const app = await build({
       import { Checkbox } from '@pinfold/react/checkbox';
       import { Radio } from '@pinfold/react/radio';
       import { Switch } from '@pinfold/react/switch';
+      import { Toggle } from '@pinfold/react/toggle';
+      import { Toolbar } from '@pinfold/react/toolbar';
+      import { Slider } from '@pinfold/react/slider';
+      import { NumberField } from '@pinfold/react/number';
+      import { Otp } from '@pinfold/react/otp';
       // Overlays sit in the page flow here, not the top layer, so axe can measure their contrast.
       delete HTMLElement.prototype.showPopover;
       const toastStores = {};
@@ -114,6 +119,12 @@ const app = await build({
           e(Checkbox, { label: 'Some ' + pack, indeterminate: true }), e(Checkbox, { label: 'Topics ' + pack, variant: 'card', orientation: 'horizontal', description: 'Pick any.', error: 'Pick one.', items: [{ value: 'a', label: 'News', description: 'Weekly' }, { value: 'b', label: 'Tips', disabled: true }] }),
           e(Radio, { label: 'Plan ' + pack, defaultValue: 'a', name: 'plan-' + pack, description: 'Pick one.', items: [{ value: 'a', label: 'Free', description: 'Trying it out' }, { value: 'b', label: 'Pro' }, { value: 'c', label: 'Off', disabled: true }] }), e(Radio, { label: 'Cards ' + pack, variant: 'card', orientation: 'horizontal', error: 'Pick one.', required: true, items: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }] }),
           e(Switch, { label: 'Off switch ' + pack, labelPosition: 'start', description: 'Daily.' }),
+          ...['segmented', 'outline', 'ghost'].map((variant) => e(Toggle, { key: 't' + variant, variant, label: 'View ' + variant + ' ' + pack, hideLabel: false, defaultValue: ['b'], items: [{ value: 'a', label: 'List' }, { value: 'b', label: 'Board' }, { value: 'c', label: 'Off', disabled: true }] })),
+          e(Toggle, { label: 'Style ' + pack, selection: 'multiple', variant: 'ghost', defaultValue: ['a'], items: [{ value: 'a', label: 'Bold' }, { value: 'b', label: 'Italic' }] }), e(Toggle, { label: 'Pin ' + pack, variant: 'outline', defaultPressed: true }),
+          ...['outline', 'soft', 'ghost'].map((variant) => e(Toolbar, { key: 'b' + variant, variant, label: 'Pages ' + variant + ' ' + pack, items: [{ label: 'Previous' }, { label: 'Today', disabled: true }, { label: 'Next' }] })),
+          e(Slider, { label: 'Volume ' + pack, defaultValue: [40], marks: [{ value: 0, label: '0' }, { value: 100, label: '100' }] }), e(Slider, { label: 'Price ' + pack, defaultValue: [20, 80], showValue: 'tooltip', description: 'Drag either end.' }),
+          e(NumberField, { label: 'Quantity ' + pack, defaultValue: 1, min: 1, max: 9, description: 'Up to 9.' }), e(NumberField, { label: 'Price ' + pack, steppers: 'end', variant: 'filled', startContent: '$', error: 'Too low.' }),
+          ...['outline', 'filled', 'underline'].map((variant) => e(Otp, { key: 'o' + variant, variant, label: 'Code ' + variant + ' ' + pack, defaultValue: '12', groups: [3, 3] })),
         );
       }
       const items = [
@@ -174,6 +185,11 @@ const app = await build({
     '@pinfold/react/checkbox': './packages/react/dist/checkbox/index.js',
     '@pinfold/react/radio': './packages/react/dist/radio/index.js',
     '@pinfold/react/switch': './packages/react/dist/switch/index.js',
+    '@pinfold/react/toggle': './packages/react/dist/toggle/index.js',
+    '@pinfold/react/toolbar': './packages/react/dist/toolbar/index.js',
+    '@pinfold/react/slider': './packages/react/dist/slider/index.js',
+    '@pinfold/react/number': './packages/react/dist/number/index.js',
+    '@pinfold/react/otp': './packages/react/dist/otp/index.js',
   },
   logLevel: 'silent',
 });
@@ -229,6 +245,15 @@ for (const scheme of ['light', 'dark']) {
   await page.close();
 }
 
+// The fixture really holds every component (an axe run over a page missing one proves nothing).
+{
+  const page = await open();
+  const names = ['accordion', 'button', 'spinner', 'separator', 'kbd', 'skeleton', 'badge', 'alert', 'avatar', 'card', 'progress', 'tooltip', 'popover', 'dialog', 'menu', 'toast', 'input', 'checkbox', 'radio', 'switch', 'toggle', 'toolbar', 'slider', 'number', 'otp'];
+  const missing = await page.evaluate((list) => list.filter((n) => !document.querySelector(`.pinfold-${n}`)), names);
+  check('Every component is on the page that axe checks', missing.length === 0, missing.join(', '));
+  await page.close();
+}
+
 // Button: a disabled button stays in the tab order and swallows activation.
 {
   const page = await open();
@@ -238,7 +263,8 @@ for (const scheme of ['light', 'dark']) {
   // Keyboard focus (Tab), so :focus-visible applies; a variant shadow must never replace the ring.
   await page.focus('#button-disabled');
   await page.keyboard.press('Tab');
-  await page.waitForTimeout(400); // let the box-shadow transition finish
+  // Wait for the condition, not a fixed time: on a long page the transition can take longer.
+  await page.waitForFunction(() => /0px 0px 0px [1-9]/.test(getComputedStyle(document.activeElement).boxShadow), null, { timeout: 3000 }).catch(() => {});
   const ring = await page.evaluate(() => ({ id: document.activeElement?.id, shadow: getComputedStyle(document.activeElement).boxShadow }));
   check('Button: a focused solid button shows the focus ring', ring.id === 'button-solid' && /0px 0px 0px [1-9]/.test(ring.shadow), ring.shadow);
   await page.close();
@@ -323,7 +349,7 @@ await browser.close();
 const failed = results.checks.filter((c) => !c.pass);
 const violations = Object.values(results.axe).flatMap((r) => r.violations);
 const md = [
-  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch',
+  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code',
   '',
   `Generated ${new Date().toISOString()} by \`scripts/a11y-report.mjs\` on the built packages, in Chromium.`,
   `Pattern: ${accordionMeta.pattern}`,
@@ -349,7 +375,7 @@ const md = [
   '',
   ...accordionMeta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
   '',
-  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
+  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
   '## Snapshots',
   '',
   ...results.snapshots.map((s) => `- ![${s}](${s})`),

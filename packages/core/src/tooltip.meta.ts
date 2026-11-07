@@ -16,6 +16,7 @@ export const tooltipMeta: ComponentMeta = {
   description: 'A short hint on hover or keyboard focus. Stays while the pointer is over it, closes on Escape, flips and shifts to stay on screen.',
   pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/',
   importPath: '@pinfold/react/tooltip',
+  requires: ['button'],
   slots: SLOTS,
   props: {
     content: { type: 'node', required: true, description: 'The hint. Text only in spirit: nothing inside it can be clicked (use a popover for that).', group: 'data' },

@@ -15,6 +15,7 @@ export const cardMeta: ComponentMeta = {
   description: 'A surface with an optional image, a real heading, a description, any content and action buttons; the whole card can be one link.',
   pattern: 'https://inclusive-components.design/cards/',
   importPath: '@pinfold/react/card',
+  requires: ['button'],
   slots: SLOTS,
   props: {
     title: { type: 'node', description: 'The heading. With `href` it is also the link text.', group: 'data' },

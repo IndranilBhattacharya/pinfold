@@ -15,6 +15,7 @@ export const alertMeta: ComponentMeta = {
   description: 'A message box with a tone icon, a title, a description, action buttons and an optional dismiss button, from one config.',
   pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/alert/',
   importPath: '@pinfold/react/alert',
+  requires: ['button'],
   slots: SLOTS,
   props: {
     title: { type: 'node', description: 'The headline, e.g. "Payment failed".', group: 'data' },

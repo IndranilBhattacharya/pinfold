@@ -32,6 +32,7 @@ export const menuMeta: ComponentMeta = {
   description: 'A dropdown or context menu from a list: actions, links, checkbox and radio rows, separators and groups, with full keyboard support and typeahead.',
   pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/',
   importPath: '@pinfold/react/menu',
+  requires: ['button'],
   slots: SLOTS,
   props: {
     items: { type: 'array', required: true, description: 'The rows.', group: 'data', items: item },

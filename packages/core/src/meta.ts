@@ -19,6 +19,11 @@ import { alertMeta } from './alert.meta';
 import { avatarMeta } from './avatar.meta';
 import { cardMeta } from './card.meta';
 import { progressMeta } from './progress.meta';
+import { otpMeta } from './otp.meta';
+import { numberMeta } from './number.meta';
+import { sliderMeta } from './slider.meta';
+import { toolbarMeta } from './toolbar.meta';
+import { toggleMeta } from './toggle.meta';
 import { switchMeta } from './switch.meta';
 import { radioMeta } from './radio.meta';
 import { checkboxMeta } from './checkbox.meta';
@@ -89,6 +94,10 @@ export interface ComponentMeta {
   cssVariables: readonly string[];
   /** Short usage examples: `[title, code]`. */
   examples: ReadonlyArray<{ title: string; code: string }>;
+  /** The name in code (`useNumberField`, `defineNumberField`) when it is not the first word of `displayName`. */
+  pascal?: string;
+  /** Other components it renders inside itself (buttons in an alert): their stylesheets are needed too. */
+  requires?: readonly string[];
 }
 
 /** One dev-time problem with a config object. */
@@ -322,5 +331,5 @@ export function metaToMarkdown(meta: ComponentMeta): string {
 }
 
 /** Every component's meta. Tooling iterates this. */
-export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta];
-export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta };
+export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta];
+export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta };

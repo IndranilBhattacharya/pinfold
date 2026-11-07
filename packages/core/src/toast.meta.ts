@@ -15,6 +15,7 @@ export const toastMeta: ComponentMeta = {
   description: 'Short messages that appear in a corner and leave by themselves: queued, paused while read, and announced to screen readers. Errors and toasts with an action stay until dismissed.',
   pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/alert/',
   importPath: '@pinfold/react/toast',
+  requires: ['button'],
   slots: SLOTS,
   props: {
     placement: {

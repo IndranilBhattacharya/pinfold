@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -31,7 +31,12 @@
     "input",
     "checkbox",
     "radio",
-    "switch"
+    "switch",
+    "toggle",
+    "toolbar",
+    "slider",
+    "number",
+    "otp"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -267,6 +272,56 @@
         "default": "./dist/switch/index.cjs"
       }
     },
+    "./toggle": {
+      "import": {
+        "types": "./dist/toggle/index.d.ts",
+        "default": "./dist/toggle/index.js"
+      },
+      "require": {
+        "types": "./dist/toggle/index.d.cts",
+        "default": "./dist/toggle/index.cjs"
+      }
+    },
+    "./toolbar": {
+      "import": {
+        "types": "./dist/toolbar/index.d.ts",
+        "default": "./dist/toolbar/index.js"
+      },
+      "require": {
+        "types": "./dist/toolbar/index.d.cts",
+        "default": "./dist/toolbar/index.cjs"
+      }
+    },
+    "./slider": {
+      "import": {
+        "types": "./dist/slider/index.d.ts",
+        "default": "./dist/slider/index.js"
+      },
+      "require": {
+        "types": "./dist/slider/index.d.cts",
+        "default": "./dist/slider/index.cjs"
+      }
+    },
+    "./number": {
+      "import": {
+        "types": "./dist/number/index.d.ts",
+        "default": "./dist/number/index.js"
+      },
+      "require": {
+        "types": "./dist/number/index.d.cts",
+        "default": "./dist/number/index.cjs"
+      }
+    },
+    "./otp": {
+      "import": {
+        "types": "./dist/otp/index.d.ts",
+        "default": "./dist/otp/index.js"
+      },
+      "require": {
+        "types": "./dist/otp/index.d.cts",
+        "default": "./dist/otp/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -333,6 +388,21 @@
       ],
       "switch": [
         "./dist/switch/index.d.cts"
+      ],
+      "toggle": [
+        "./dist/toggle/index.d.cts"
+      ],
+      "toolbar": [
+        "./dist/toolbar/index.d.cts"
+      ],
+      "slider": [
+        "./dist/slider/index.d.cts"
+      ],
+      "number": [
+        "./dist/number/index.d.cts"
+      ],
+      "otp": [
+        "./dist/otp/index.d.cts"
       ]
     }
   },
@@ -358,6 +428,11 @@
     "checkbox",
     "radio",
     "switch",
+    "toggle",
+    "toolbar",
+    "slider",
+    "number",
+    "otp",
     "registry",
     "schema",
     "llms.txt",
@@ -367,7 +442,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.10.1"
+    "@pinfold/core": "0.11.0"
   },
   "peerDependencies": {
     "react": ">=18"

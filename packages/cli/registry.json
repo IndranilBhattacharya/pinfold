@@ -257,13 +257,78 @@
       "variants": [],
       "hook": "useSwitch",
       "snippet": "<Switch label=\"Alerts\" />"
+    },
+    {
+      "name": "toggle",
+      "import": "@pinfold/react/toggle",
+      "styles": "@pinfold/css/toggle.css",
+      "status": "experimental",
+      "description": "A button that stays pressed, or a group: a segmented control or formatting buttons.",
+      "variants": [
+        "segmented",
+        "outline",
+        "ghost"
+      ],
+      "hook": "useToggle",
+      "snippet": "<Toggle label=\"View\" items={[{ value: \"list\", label: \"List\" }, { value: \"board\", label: \"Board\" }]} />"
+    },
+    {
+      "name": "toolbar",
+      "import": "@pinfold/react/toolbar",
+      "styles": "@pinfold/css/toolbar.css",
+      "status": "experimental",
+      "description": "A row of buttons: a joined button group or a spaced toolbar, one tab stop, arrow keys.",
+      "variants": [
+        "outline",
+        "soft",
+        "solid",
+        "ghost"
+      ],
+      "hook": "useToolbar",
+      "snippet": "<Toolbar label=\"Pages\" items={[{ label: \"Previous\" }, { label: \"Next\" }]} />"
+    },
+    {
+      "name": "slider",
+      "import": "@pinfold/react/slider",
+      "styles": "@pinfold/css/slider.css",
+      "status": "experimental",
+      "description": "Pick a number or a range along a track: native range inputs, marks, a live value.",
+      "variants": [],
+      "hook": "useSlider",
+      "snippet": "<Slider label=\"Volume\" defaultValue={[60]} />"
+    },
+    {
+      "name": "number",
+      "import": "@pinfold/react/number",
+      "styles": "@pinfold/css/number.css",
+      "status": "experimental",
+      "description": "A number with - and + buttons: native number input, steps, limits, press and hold.",
+      "variants": [
+        "outline",
+        "filled"
+      ],
+      "hook": "useNumberField",
+      "snippet": "<NumberField label=\"Quantity\" defaultValue={1} min={1} />"
+    },
+    {
+      "name": "otp",
+      "import": "@pinfold/react/otp",
+      "styles": "@pinfold/css/otp.css",
+      "status": "experimental",
+      "description": "A one-time code in boxes, over one native input: typing, paste and SMS autofill.",
+      "variants": [
+        "outline",
+        "filled",
+        "underline"
+      ],
+      "hook": "useOtp",
+      "snippet": "<Otp label=\"Verification code\" />"
     }
   ],
   "planned": [
     "field",
     "radio-group",
     "toggle-group",
-    "slider",
     "number-field",
     "input-otp",
     "tabs",

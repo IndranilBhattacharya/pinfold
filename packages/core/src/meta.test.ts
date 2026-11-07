@@ -1,9 +1,16 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { accordionMeta } from './accordion.meta';
+import * as metas from './meta';
 import { toJsonSchema, validateConfig } from './meta';
 
 describe('meta', () => {
+  it('lists every component meta in componentMetas (registry, schema, llms.txt and MCP read it)', () => {
+    const exported = Object.entries(metas).filter(([k, v]) => k.endsWith('Meta') && typeof v === 'object' && v && 'props' in v).map(([, v]) => v);
+    expect(exported.length).toBeGreaterThan(20);
+    for (const m of exported) expect(metas.componentMetas).toContain(m);
+  });
+
   it('accepts a valid config with extra data on rows', () => {
     expect(validateConfig(accordionMeta, { items: [{ title: 'A', category: 'x' }], variant: 'ghost', dimensions: { paddingX: 12 } })).toEqual([]);
   });

@@ -15,7 +15,7 @@ Created by **Indranil Bhattacharya**
 
 > **Status: pre-release.** The accordion is complete (server and client APIs,
 > global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report);
-> button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio and switch are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
+> button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field and one-time code are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
 
 ---
 
@@ -152,6 +152,7 @@ The config never changes shape as you go deeper.
 | [alert.md](docs/components/alert.md) · [avatar.md](docs/components/avatar.md) · [card.md](docs/components/card.md) · [progress.md](docs/components/progress.md) | Alert, Avatar, Card and Progress specs |
 | [tooltip.md](docs/components/tooltip.md) · [popover.md](docs/components/popover.md) · [dialog.md](docs/components/dialog.md) · [menu.md](docs/components/menu.md) · [toast.md](docs/components/toast.md) | Tooltip, Popover, Dialog, Menu and Toast specs |
 | [input.md](docs/components/input.md) · [checkbox.md](docs/components/checkbox.md) · [radio.md](docs/components/radio.md) · [switch.md](docs/components/switch.md) | Input, Checkbox, Radio and Switch specs |
+| [toggle.md](docs/components/toggle.md) · [toolbar.md](docs/components/toolbar.md) · [slider.md](docs/components/slider.md) · [number.md](docs/components/number.md) · [otp.md](docs/components/otp.md) | Toggle (and segmented control), Toolbar (and button group), Slider, Number field and One-time code specs |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
 | [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
 | [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | Accessibility evidence: the automated report and the screen-reader matrix |

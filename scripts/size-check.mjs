@@ -44,7 +44,7 @@ function withChunks(file, seen = new Set()) {
  * overrides and state-function config fields.
  */
 const BUDGETS = [
-  ['packages/core/dist/index.js', 8], // every component's rules live here; apps tree-shake to what they use (see the app row)
+  ['packages/core/dist/index.js', 10], // every component's rules live here; apps tree-shake to what they use (see the app row)
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
   ['packages/react/dist/accordion/index.js', 9], // 2026-11-03: presets, tag prop split, no :has(); the app row is what ships
@@ -54,6 +54,11 @@ const BUDGETS = [
   ['packages/react/dist/kbd/index.js', 4],
   ['packages/react/dist/skeleton/index.js', 4],
   ['packages/react/dist/badge/index.js', 5],
+  ['packages/react/dist/otp/index.js', 6],
+  ['packages/react/dist/number/index.js', 7],
+  ['packages/react/dist/slider/index.js', 7],
+  ['packages/react/dist/toolbar/index.js', 6],
+  ['packages/react/dist/toggle/index.js', 6],
   ['packages/react/dist/switch/index.js', 6],
   ['packages/react/dist/radio/index.js', 6],
   ['packages/react/dist/checkbox/index.js', 6],
@@ -75,6 +80,11 @@ const BUDGETS = [
   ['packages/css/dist/kbd.css', 1],
   ['packages/css/dist/skeleton.css', 1],
   ['packages/css/dist/badge.css', 2],
+  ['packages/css/dist/otp.css', 2],
+  ['packages/css/dist/number.css', 2],
+  ['packages/css/dist/slider.css', 2],
+  ['packages/css/dist/toolbar.css', 2],
+  ['packages/css/dist/toggle.css', 2],
   ['packages/css/dist/switch.css', 2],
   ['packages/css/dist/radio.css', 2],
   ['packages/css/dist/checkbox.css', 2],

@@ -16,6 +16,7 @@ export const inputMeta: ComponentMeta = {
   description: 'A text field with its label, help text and error wired up: single line or multiline, with icons, a clear button and native validation.',
   pattern: 'https://html.spec.whatwg.org/multipage/input.html',
   importPath: '@pinfold/react/input',
+  requires: ['button'],
   slots: SLOTS,
   props: {
     ...fieldProps,
