@@ -132,6 +132,21 @@ describe('Menu', () => {
     expect(screen.getByRole('menu').style.top).toBe('50px');
   });
 
+  it('a context menu stays at its point inside the area when the page scrolls, and moves on a second right-click', async () => {
+    render(<Menu mode="context" label="Canvas" trigger={<div data-testid="area" />} items={items} />);
+    const area = screen.getByTestId('area');
+    let top = 100;
+    area.getBoundingClientRect = () => ({ x: 20, y: top, left: 20, top, width: 200, height: 80, right: 220, bottom: top + 80, toJSON: () => ({}) }) as DOMRect;
+    fireEvent.contextMenu(area, { clientX: 60, clientY: 130 });
+    await vi.waitFor(() => expect(screen.getByRole('menu').style.top).toBe('130px'));
+    top = 40;
+    fireEvent.scroll(window);
+    await vi.waitFor(() => expect(screen.getByRole('menu').style.top).toBe('70px'));
+    fireEvent.contextMenu(area, { clientX: 30, clientY: 50 });
+    await vi.waitFor(() => expect(screen.getByRole('menu').style.top).toBe('50px'));
+    expect(screen.getAllByRole('menu')).toHaveLength(1);
+  });
+
   it('renders no menu on the server', () => {
     const Actions = defineMenu({ placement: 'bottom-end' });
     const html = renderToString(<Actions defaultOpen trigger={{ label: 'Actions' }} items={items} />);

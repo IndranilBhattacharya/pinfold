@@ -95,7 +95,8 @@ Only `label` is required.
 - An open menu trigger (`aria-expanded="true"`) looks hovered. Pressing nudges the button 1px down.
 - Under `pointer: coarse` the hit area grows to 44px without changing the look.
 - **Style packs** reach buttons through the control tokens: glass gives a light rim, a glow and
-  a blurred pane under soft and outline buttons; material a soft elevation; noise the grain on
+  a blurred pane under soft and outline buttons; material a soft elevation; noise a frosted pane
+  with fine grain under soft and outline buttons and the grain on
   filled buttons; brutalist a 2px rule in the text colour, a hard offset shadow that the button
   presses into, and small corners. Solid fills stay opaque in every pack, so their text contrast
   is the palette's (checked by the a11y report in every pack).

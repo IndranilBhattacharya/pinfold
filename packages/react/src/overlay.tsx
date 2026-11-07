@@ -38,10 +38,12 @@ interface FloatingOptions {
   floating: React.RefObject<HTMLElement | null>;
   placement?: OverlayPlacement;
   offset?: number;
+  /** Changes when the anchor moves to a new place without closing (a second right-click). */
+  key?: unknown;
 }
 
 /** While open: top layer, then keep the element next to its anchor through scrolling and resizing. */
-export function useFloating({ open, anchor, floating, placement, offset }: FloatingOptions): void {
+export function useFloating({ open, anchor, floating, placement, offset, key }: FloatingOptions): void {
   useIsomorphicLayoutEffect(() => {
     const el = floating.current;
     if (!open || !el) return;
@@ -54,11 +56,16 @@ export function useFloating({ open, anchor, floating, placement, offset }: Float
       const target = anchor();
       if (!target) return;
       const rect = target instanceof Element ? target.getBoundingClientRect() : target;
+      const vw = document.documentElement.clientWidth;
+      const vh = document.documentElement.clientHeight;
+      // Its anchor scrolled out of view: hide rather than pin it to the edge, detached from its source.
+      const out = vw > 0 && vh > 0 && (rect.y + rect.height < 0 || rect.y > vh || rect.x + rect.width < 0 || rect.x > vw);
+      el.style.visibility = out ? 'hidden' : '';
       const box = el.getBoundingClientRect();
       const position = computePosition({
         anchor: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
         floating: { width: box.width, height: box.height },
-        viewport: { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight },
+        viewport: { width: vw, height: vh },
         placement,
         offset,
         rtl: getComputedStyle(el).direction === 'rtl',
@@ -79,13 +86,17 @@ export function useFloating({ open, anchor, floating, placement, offset }: Float
     window.addEventListener('resize', schedule);
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(schedule);
     observer?.observe(el);
+    // The anchor resizing (text reflow, a panel opening) moves the floating element too.
+    const target = anchor();
+    if (target instanceof Element) observer?.observe(target);
     return () => {
+      el.style.visibility = '';
       cancelAnimationFrame(frame);
       window.removeEventListener('scroll', schedule, true);
       window.removeEventListener('resize', schedule);
       observer?.disconnect();
     };
-  }, [open, placement, offset]);
+  }, [open, placement, offset, key]);
 }
 
 /** While active: on the dismiss stack, so Escape and outside presses reach the topmost overlay first. */

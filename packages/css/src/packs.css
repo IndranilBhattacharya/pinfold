@@ -86,14 +86,22 @@
   }
 
   /* ------------------------------------------------------------------ noise */
-  /* Film grain: black and white specks together, so it shows on a white card, a dark one and a
-     saturated button alike (one flat grey disappears on all three). It sits on every surface
-     through the texture token. A small inline SVG, no request. */
+  /* Frosted grain: a translucent pane that blurs what is behind it, with a fine raster grain on
+     its face, as on matte frosted glass or a print. The grain is sparse and light: light and dark
+     specks whose opacity follows the noise, so it reads as a material, not as a picture behind the
+     content, on white, dark and saturated fills alike. A small inline SVG, no request. Surfaces are
+     72% opaque: body text keeps AA over any backdrop (packs.test.ts). */
   [data-pinfold-style='noise'] {
-    --pinfold-texture: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.35' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='3 0 0 0 -1 3 0 0 0 -1 3 0 0 0 -1 0 0 0 0 0.09'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    --pinfold-color-bg-subtle: color-mix(in oklab, var(--pinfold-color-accent) 6%, var(--pinfold-color-surface));
-    /* A printed rule: a line too thin to show grain still reads as ink. */
-    --pinfold-color-border: color-mix(in oklab, var(--pinfold-color-text) 20%, transparent);
+    --pinfold-texture: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 0 0 0 0.36 -0.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    --pinfold-color-surface: color-mix(in oklab, var(--pinfold-color-bg) 72%, transparent);
+    --pinfold-color-bg-subtle: color-mix(in oklab, var(--pinfold-color-bg) 76%, transparent);
+    --pinfold-color-border: color-mix(in oklab, var(--pinfold-color-text) 12%, transparent);
+    --pinfold-backdrop: blur(20px) saturate(1.4);
+    --pinfold-noise-rim: inset 0 1px 0 color-mix(in oklab, oklch(1 0 0) 16%, transparent);
+    --pinfold-shadow-sm: var(--pinfold-noise-rim), 0 4px 14px -6px color-mix(in oklab, var(--pinfold-shadow-color) 20%, transparent);
+    --pinfold-shadow-md: var(--pinfold-noise-rim), 0 10px 26px -10px color-mix(in oklab, var(--pinfold-shadow-color) 26%, transparent);
+    --pinfold-shadow-lg: var(--pinfold-noise-rim), 0 18px 40px -14px color-mix(in oklab, var(--pinfold-shadow-color) 32%, transparent);
+    --pinfold-control-edge: color-mix(in oklab, var(--pinfold-color-text) 12%, transparent);
     --pinfold-control-shadow: var(--pinfold-shadow-sm);
     --pinfold-control-surface: var(--pinfold-color-surface);
   }
@@ -120,7 +128,8 @@
 
   /* ------------------------------------------------------- user preferences */
   @media (prefers-reduced-transparency: reduce) {
-    [data-pinfold-style='glass'] {
+    [data-pinfold-style='glass'],
+    [data-pinfold-style='noise'] {
       --pinfold-color-surface: color-mix(in oklab, var(--pinfold-color-accent) 6%, var(--pinfold-color-bg));
       --pinfold-color-bg-subtle: color-mix(in oklab, var(--pinfold-color-accent) 10%, var(--pinfold-color-bg));
       --pinfold-backdrop: none;
