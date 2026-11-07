@@ -23,7 +23,7 @@ export const popoverMeta: ComponentMeta = {
     content: { type: 'node', description: 'Anything: text, a form, a list.', group: 'data' },
     actions: { type: 'array', description: 'Buttons at the bottom, each a button config. Small; the first solid, the rest ghost. Each closes the popover unless its `onClick` returns `false`.', group: 'data' },
     trigger: { type: 'object', description: 'What opens it: a button config, or any element that passes props to its root. Unset: spread `getTriggerProps()` on your own element.', group: 'data' },
-    openOn: { type: 'enum', values: ['click', 'hover'], default: 'click', description: '`click` moves focus into the panel. `hover` is a hover card: it opens on hover or keyboard focus and leaves focus alone.', group: 'behaviour', control: true },
+    openOn: { type: 'enum', values: ['click', 'hover'], default: 'click', description: '`click` moves focus into the panel. `hover` is a hover card: it opens on hover or keyboard focus and leaves focus alone.', group: 'behaviour', control: true, silent: true },
     placement: { type: 'enum', values: PLACEMENTS, default: 'bottom', description: 'Preferred side and alignment. `start` and `end` swap in RTL. It flips when there is no room.', group: 'appearance', control: true },
     arrow: { type: 'boolean', default: false, description: 'Point at the trigger.', group: 'appearance', control: true },
     offset: { type: 'number', default: 8, description: 'Gap from the trigger, in px.', group: 'appearance' },

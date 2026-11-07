@@ -19,7 +19,16 @@ export const skeletonMeta: ComponentMeta = {
   props: {
     variant: { type: 'enum', values: ['text', 'rect', 'circle'], default: 'text', description: 'Lines of text, a block (an image, a card), or a circle (an avatar).', group: 'appearance', control: true },
     lines: { type: 'number', default: 1, description: 'Text lines; the last of several is shorter, like real text.', group: 'appearance' },
-    animation: { type: 'enum', values: ['pulse', 'wave', 'none'], default: 'pulse', description: 'Off under reduced motion and with `disableAnimation`.', group: 'appearance', control: true },
+    items: { type: 'array', description: 'A layout from one config: each item is a shape (`variant`, `lines`, `size`, `dimensions`), or a nested group (`items`, `direction`).', group: 'data' },
+    direction: { type: 'enum', values: ['column', 'row'], default: 'column', description: 'How `items` flow. In a row, circles keep their size and the rest share the width.', group: 'appearance', control: true },
+    animation: {
+      type: 'enum',
+      values: ['shimmer', 'wave', 'pulse', 'stagger', 'none'],
+      default: 'shimmer',
+      description: '`shimmer`: one band of light across every shape together. `wave`: a sweep inside each shape. `pulse`: a slow breath. `stagger`: the breath passed from shape to shape. Off under reduced motion and with `disableAnimation`.',
+      group: 'appearance',
+      control: true,
+    },
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Text line height and circle size. Precedence: this config, `defaults.skeleton`, the provider, then md.', group: 'appearance', control: true },
     loading: { type: 'boolean', default: true, description: 'While true the placeholder shows; set it false and `content` replaces it.', group: 'behaviour', control: true },
     content: { type: 'node', description: 'The real content, shown when `loading` is false.', group: 'data' },

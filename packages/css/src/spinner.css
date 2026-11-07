@@ -32,7 +32,7 @@
 
   /* ring: a rotating arc on a faint track */
   .pinfold-spinner[data-variant='ring'] {
-    border: var(--pinfold-spn-thick) solid color-mix(in oklch, currentColor 22%, transparent);
+    border: var(--pinfold-spn-thick) solid color-mix(in oklab, currentColor 22%, transparent);
     border-block-start-color: currentColor;
     border-radius: var(--pinfold-spn-round);
     animation: pinfold-spinner-spin var(--pinfold-spn-speed) linear infinite;
@@ -82,7 +82,7 @@
 
   /* orbit: a dot circling a faint track */
   .pinfold-spinner[data-variant='orbit'] {
-    border: var(--pinfold-spn-thick) solid color-mix(in oklch, currentColor 18%, transparent);
+    border: var(--pinfold-spn-thick) solid color-mix(in oklab, currentColor 18%, transparent);
     border-radius: var(--pinfold-spn-round);
   }
   .pinfold-spinner[data-variant='orbit'] .pinfold-spinner__part {

@@ -24,6 +24,7 @@ Precedence: use-site props, the preset, `defaults.avatar`, the provider (size), 
 | `initials` | `string` | from `name` |
 | `status` | `'online' \| 'away' \| 'busy' \| 'offline'` | none |
 | `items` | `AvatarPerson[]` (the five fields above), a group | none |
+| `tooltip` | `boolean`: name and status on hover and focus | on in a group, off on its own |
 | `max` | `number`, group faces before "+N" (never "+1") | `4` |
 | `label` | `string`, the group's name | none |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` (provider) |
@@ -32,13 +33,14 @@ Precedence: use-site props, the preset, `defaults.avatar`, the provider (size), 
 | `dimensions` | `size, fontSize, overlap` | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root image fallback status item overflow`) | | |
 
-Inactive (`inactiveAvatarOptions`): `max`, `label` without `items`; the person fields with `items`.
+Inactive (`inactiveAvatarOptions`): `max`, `label` without `items`; the person fields with `items`; `tone` when a picture covers it.
 
 ## Accessibility
 - Each face is `role="img"` named once ("Ada Lovelace, online"); the picture (`alt=""`), initials and
   dot inside are hidden, so it reads the same whether or not the image loaded.
 - No name: decorative (`aria-hidden`), with a development warning.
-- A group is `role="group"` named by `label`; "+N" reads "N more" and lists the hidden names in its tooltip.
+- A group is `role="group"` named by `label`; "+N" reads "N more" and its tooltip lists the hidden names.
+- With `tooltip` each face takes keyboard focus, so the tooltip works without a pointer.
 - An image that failed before hydration is detected on mount: no broken-image icon.
 
 ## Compared with shadcn/ui, HeroUI and MUI

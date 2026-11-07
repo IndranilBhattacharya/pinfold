@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, expect, it } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { describePinfoldConformance } from '@pinfold/testing';
 import { avatarMeta } from '@pinfold/core/meta';
@@ -50,7 +50,19 @@ describe('Avatar', () => {
     expect(group.querySelectorAll('.pinfold-avatar__item')).toHaveLength(4);
     const more = screen.getByRole('img', { name: '4 more' });
     expect(more.textContent).toBe('+4');
-    expect(more.getAttribute('title')).toBe('Katherine Johnson, Edsger Dijkstra, Barbara Liskov, Donald Knuth');
+    act(() => more.focus());
+    expect(screen.getByRole('tooltip').textContent).toBe('Katherine Johnson, Edsger Dijkstra, Barbara Liskov, Donald Knuth');
+  });
+
+  it('tooltips are on in a group and opt-in on its own, and work from the keyboard', () => {
+    const { rerender } = render(<Avatar name="Ada Lovelace" status="online" />);
+    const face = screen.getByRole('img', { name: 'Ada Lovelace, online' });
+    expect(face.hasAttribute('tabindex')).toBe(false);
+    rerender(<Avatar name="Ada Lovelace" status="online" tooltip />);
+    const focusable = screen.getByRole('img', { name: 'Ada Lovelace, online' });
+    expect(focusable.getAttribute('tabindex')).toBe('0');
+    act(() => focusable.focus());
+    expect(screen.getByRole('tooltip').textContent).toBe('Ada Lovelace, online');
   });
 
   it('a preset renders on the server', () => {

@@ -9,29 +9,29 @@ import { defineConfig } from '../config';
 import { defineBadge } from './define';
 import { useBadge } from './useBadge';
 
-const Unread = defineBadge({ tone: 'danger', label: 'unread messages' });
-const Online = defineBadge({ dot: true, placement: 'bottom-end', label: 'Online' });
+const Unread = defineBadge({ tone: 'danger', srLabel: 'unread messages' });
+const Online = defineBadge({ dot: true, anchorShape: 'circle', placement: 'bottom-end', srLabel: 'Online' });
 
 function Valid() {
   const Beta = useBadge({ label: 'Beta', variant: 'soft', tone: 'info', radius: 'md', dimensions: { height: 20 } });
   return (
     <>
       <Beta />
-      <Unread count={5} max={9} className="x" />
-      <Online aria-describedby="status" />
+      <Unread label="Inbox" count={5} max={9} className="x" />
+      <Online anchor={<i />} aria-describedby="status" />
     </>
   );
 }
 
-defineConfig({ defaults: { badge: { variant: 'soft', size: 'sm' } } });
+defineConfig({ defaults: { badge: { variant: 'soft', size: 'sm', anchorShape: 'circle' } } });
 
 function Invalid() {
   // @ts-expect-error count is a number
   useBadge({ count: '3' });
   // @ts-expect-error not a badge variant
   useBadge({ variant: 'ghost' });
-  // @ts-expect-error not a placement
-  useBadge({ placement: 'top' });
+  // @ts-expect-error the corners are logical; there is no inline placement
+  useBadge({ placement: 'inline' });
   // @ts-expect-error instance data does not belong in app-wide defaults
   defineConfig({ defaults: { badge: { count: 3 } } });
   return null;

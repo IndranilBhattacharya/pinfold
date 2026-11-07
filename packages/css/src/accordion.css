@@ -296,8 +296,8 @@
     letter-spacing: var(--pinfold-tracking-wide);
     /* Small text on a tint of its own colour: pulled halfway toward the text colour, so it
        clears 4.5:1 in light and dark mode for every tone (checked by the a11y report). */
-    color: color-mix(in oklch, var(--pinfold-acc-accent) 55%, var(--pinfold-color-text));
-    background: color-mix(in oklch, var(--pinfold-acc-accent) 12%, transparent);
+    color: color-mix(in oklab, var(--pinfold-acc-accent) 55%, var(--pinfold-color-text));
+    background: color-mix(in oklab, var(--pinfold-acc-accent) 12%, transparent);
     border-radius: var(--pinfold-radius-full);
   }
 
@@ -450,7 +450,7 @@
     }
   }
 
-  @supports not (color: color-mix(in oklch, red, blue)) {
+  @supports not (color: color-mix(in oklab, red, blue)) {
     .pinfold-accordion__badge {
       background: var(--pinfold-color-bg-subtle);
     }

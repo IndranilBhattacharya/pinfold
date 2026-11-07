@@ -28,7 +28,7 @@ export interface PinfoldComponentDefaults {
   separator?: Omit<SeparatorConfig, 'label'>;
   kbd?: Omit<KbdConfig, 'keys'>;
   skeleton?: Omit<SkeletonConfig, 'content' | 'loading'>;
-  badge?: Omit<BadgeConfig, 'label' | 'count'>;
+  badge?: Omit<BadgeConfig, 'label' | 'count' | 'anchor'>;
   switch?: Omit<SwitchConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'checked' | 'defaultChecked' | 'formValue' | 'onChange'>;
   radio?: Omit<RadioConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'items' | 'value' | 'defaultValue' | 'onChange'>;
   checkbox?: Omit<CheckboxConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'checked' | 'defaultChecked' | 'indeterminate' | 'formValue' | 'onChange' | 'items' | 'value' | 'defaultValue'>;

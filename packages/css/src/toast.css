@@ -35,7 +35,7 @@
   }
 
   .pinfold-toast__item {
-    --pinfold-tst-text: color-mix(in oklch, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text));
+    --pinfold-tst-text: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text));
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;

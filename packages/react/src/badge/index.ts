@@ -4,4 +4,4 @@
 export { Badge, useBadge } from './client';
 export { Badge as default } from './client';
 export { defineBadge, type DefinedBadge, type BadgePresetProps } from './define';
-export type { BadgeApi, BadgeComponent, BadgeConfig, BadgeRootProps, BadgeTagProps, BadgeSlot, BadgeState, BadgeKind, BadgeVariant, BadgeRadius, BadgePlacement, BadgeDimensions } from './types';
+export type { BadgeApi, BadgeComponent, BadgeConfig, BadgeRootProps, BadgeTagProps, BadgeSlot, BadgeState, BadgeVariant, BadgeRadius, BadgePlacement, BadgeDimensions } from './types';

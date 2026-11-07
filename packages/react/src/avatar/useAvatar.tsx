@@ -5,6 +5,7 @@ import { useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
+import { Tooltip } from '../tooltip/Tooltip';
 import type { AvatarApi, AvatarComponent, AvatarConfig, AvatarPerson, AvatarRootProps, AvatarSlot, AvatarState } from './types';
 
 type Load = 'loading' | 'loaded' | 'error';
@@ -15,10 +16,12 @@ interface FaceProps {
   state: AvatarState;
   slot: 'root' | 'item';
   props: PropsBag;
+  /** Props a surrounding tooltip passes down. */
+  [handler: string]: unknown;
 }
 
 /** One avatar: the picture over its initials, named once for assistive tech. */
-function Face({ person, config, state, slot, props }: FaceProps): React.ReactElement {
+function Face({ person, config, state, slot, props, ...fromTooltip }: FaceProps): React.ReactElement {
   const [load, setLoad] = React.useState<Load>('loading');
   const img = React.useRef<HTMLImageElement | null>(null);
   // An image that settled before hydration fires no event: read its state once mounted.
@@ -42,6 +45,7 @@ function Face({ person, config, state, slot, props }: FaceProps): React.ReactEle
       'aria-hidden': spoken ? undefined : true,
       'data-tone': tone,
       'data-loaded': load === 'loaded' && person.src ? '' : undefined,
+      ...fromTooltip,
     },
     props,
   );
@@ -99,6 +103,7 @@ export function useAvatar(input: AvatarConfig = {}): AvatarComponent {
         'data-size': state.size,
         'data-shape': state.shape,
         'data-group': group ? '' : undefined,
+        'data-animate': ctx.disableAnimation ? undefined : '',
         'data-unstyled': config.unstyled ? '' : undefined,
       },
       props,
@@ -113,27 +118,26 @@ export function useAvatar(input: AvatarConfig = {}): AvatarComponent {
       getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-avatar', config.className), style: vars || config.style ? { ...vars, ...config.style } : undefined }, rootProps)),
     );
     // Keyed by the picture: a new src remounts the face, resetting its load state.
-    if (!group) return <Face key={config.src ?? ''} person={config} config={config} state={state} slot="root" props={root} />;
+    const tip = config.tooltip ?? group;
+    // A tooltip must work from the keyboard too, so the face takes focus.
+    const face = (element: React.ReactElement, person: AvatarPerson, key?: React.Key) => {
+      const name = person.alt ?? person.name;
+      return tip && name ? <Tooltip key={key} content={person.status ? `${name}, ${person.status}` : name} delay={150} trigger={React.cloneElement(element, { tabIndex: 0 } as object)} /> : element;
+    };
+    if (!group) return face(<Face key={config.src ?? ''} person={config} config={config} state={state} slot="root" props={root} />, config) as React.ReactElement;
 
     const items = config.items as readonly AvatarPerson[];
     const { shown, rest } = avatarOverflow(items.length, config.max);
     const hidden = items.slice(shown).map((p) => p.alt ?? p.name).filter(Boolean).join(', ');
+    const more = (props: PropsBag) => <span {...props}>{`+${rest}`}</span>;
+    const moreProps = slotProps(config, 'overflow', { className: cls('pinfold-avatar__item pinfold-avatar__overflow'), role: 'img', 'aria-label': `${rest} more`, 'data-tone': 'neutral', tabIndex: tip && hidden ? 0 : undefined });
     const content = (
       <>
         {items.slice(0, shown).map((person, i) => (
           // Keyed by position and picture: a new src remounts the face, resetting its load state.
-          <Face key={`${i}:${person.src ?? ''}`} person={person} config={config} state={state} slot="item" props={{ className: cls('pinfold-avatar__item') }} />
+          <React.Fragment key={`${i}:${person.src ?? ''}`}>{face(<Face person={person} config={config} state={state} slot="item" props={{ className: cls('pinfold-avatar__item') }} />, person)}</React.Fragment>
         ))}
-        {rest > 0
-          ? renderSlot(
-              config,
-              'overflow',
-              slotProps(config, 'overflow', { className: cls('pinfold-avatar__item pinfold-avatar__overflow'), role: 'img', 'aria-label': `${rest} more`, title: hidden || undefined, 'data-tone': 'neutral' }),
-              state,
-              `+${rest}`,
-              (p, c) => <span {...p}>{c}</span>,
-            )
-          : null}
+        {rest > 0 ? (tip && hidden ? <Tooltip content={hidden} delay={150} trigger={more(moreProps)} /> : more(moreProps)) : null}
       </>
     );
     return renderSlot(config, 'root', root, state, content, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;

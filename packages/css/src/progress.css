@@ -5,7 +5,7 @@
 @layer pinfold.components {
   .pinfold-progress {
     --pinfold-prg-fill: var(--pinfold-tone-solid, var(--pinfold-color-accent));
-    --pinfold-prg-track: color-mix(in oklch, var(--pinfold-prg-fill) 18%, var(--pinfold-control-surface, var(--pinfold-color-bg-subtle)));
+    --pinfold-prg-track: color-mix(in oklab, var(--pinfold-prg-fill) 18%, var(--pinfold-control-surface, var(--pinfold-color-bg-subtle)));
     --pinfold-prg-thick: var(--pinfold-progress-thickness, 0.5rem);
     --pinfold-prg-size: var(--pinfold-progress-size, 3rem);
     /* Ring stroke in viewBox units (36 across): thicker on small rings so they stay legible. */

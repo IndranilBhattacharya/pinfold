@@ -71,12 +71,11 @@ describe('style packs', () => {
     it(`keeps body text at AA on glass over any backdrop (${name})`, () => {
       // Every translucent glass surface (opacity read from the CSS) over white, black and the brand colour.
       const glass = css.slice(css.indexOf("[data-pinfold-style='glass']"), css.indexOf('material'));
-      const alphas = [...glass.matchAll(/var\(--pinfold-color-bg\)\) (\d+)%/g)].map((x) => Number(x[1]) / 100);
+      const alphas = [...glass.matchAll(/var\(--pinfold-color-bg\) (\d+)%/g)].map((x) => Number(x[1]) / 100);
       expect(alphas.length).toBeGreaterThan(0);
       for (const alpha of alphas) {
         for (const backdrop of ['#ffffff', '#000000', n['--pinfold-primary-500']]) {
-          // The pane is tinted with the brand colour (up to 10%) before it turns translucent.
-          const surface = blend(blend(n['--pinfold-primary-500'], 0.1, m.bg), alpha, backdrop);
+          const surface = blend(m.bg, alpha, backdrop);
           expect(contrastRatio(m.text, surface), `${alpha} glass over ${backdrop}`).toBeGreaterThanOrEqual(4.5);
         }
       }

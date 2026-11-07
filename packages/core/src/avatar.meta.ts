@@ -31,6 +31,13 @@ export const avatarMeta: ComponentMeta = {
       group: 'data',
       items: person,
     },
+    tooltip: {
+      type: 'boolean',
+      description: 'A tooltip with the name and status on hover and keyboard focus, which also makes the avatar focusable. In a group, "+N" lists the hidden names.',
+      group: 'behaviour',
+      auto: 'on in a group, off on its own',
+      control: true,
+    },
     max: { type: 'number', default: 4, description: 'Group: how many avatars show before "+N".', group: 'behaviour' },
     label: { type: 'string', description: 'Group: accessible name of the group, e.g. "Project members".', group: 'data' },
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Size preset. Precedence: this config, `defaults.avatar`, the provider, then md.', group: 'appearance', control: true },
@@ -61,7 +68,8 @@ export const avatarMeta: ComponentMeta = {
   aria: [
     'Each avatar is `role="img"` named by `alt` or `name` (plus the status: "Ada Lovelace, online"); the picture, initials and dot inside are hidden from assistive tech, so it is read once whether or not the image loaded.',
     'Without a name it is decorative (`aria-hidden`), and warns in development.',
-    'A group is `role="group"` named by `label`; "+N" is read as "N more" and lists the hidden names in its tooltip.',
+    'A group is `role="group"` named by `label`; "+N" is read as "N more" and its tooltip lists the hidden names.',
+    'With `tooltip` each face takes keyboard focus, so the tooltip works without a pointer.',
     'The presence dot is never the only signal: the status is part of the name.',
   ],
   dataAttributes: [

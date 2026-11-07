@@ -41,7 +41,7 @@ export interface AlertConfig extends SlotOverrides<AlertSlot, AlertState> {
    * @default 'off'
    */
   live?: AlertLive;
-  /** Buttons, each a button config. Small, in the alert tone; the first solid, the rest ghost. */
+  /** Buttons, each a button config. Small; the first tinted in the alert tone, the rest quiet. */
   actions?: readonly ButtonConfig[];
   /** @default false */
   dismissible?: boolean;

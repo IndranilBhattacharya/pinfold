@@ -31,6 +31,7 @@ export const progressMeta: ComponentMeta = {
       description: '`progress` (`role="progressbar"`) for a task; `meter` (`role="meter"`) for a measurement such as disk usage or a password score.',
       group: 'behaviour',
       control: true,
+      silent: true,
     },
     shape: { type: 'enum', values: ['bar', 'circle'], default: 'bar', description: 'A horizontal bar or a ring.', group: 'appearance', control: true },
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Bar thickness or ring size. Precedence: this config, `defaults.progress`, the provider, then md.', group: 'appearance', control: true },

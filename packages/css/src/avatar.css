@@ -1,16 +1,16 @@
-/* Pinfold — avatar. The picture sits over its initials, so the initials show while it loads or
-   if it fails. Initials colour from the shared tone tokens (--pinfold-tone-*) on each face's
-   `data-tone`; style packs reach it through the round-corner and edge tokens. */
+/* Pinfold — avatar. The picture sits over its initials, so the initials show while it loads or if
+   it fails. A face is a soft two-stop wash in its tone with a fine inner ring; a group overlaps and
+   lifts the face under the pointer. Style packs reach it through the round, shadow and texture tokens. */
 
 @layer pinfold.components {
   .pinfold-avatar {
-    --pinfold-avt-size: var(--pinfold-avatar-size, 2.25rem);
-    --pinfold-avt-font: var(--pinfold-avatar-font-size, calc(var(--pinfold-avt-size) * 0.4));
+    --pinfold-avt-size: var(--pinfold-avatar-size, 2.5rem);
+    --pinfold-avt-font: var(--pinfold-avatar-font-size, calc(var(--pinfold-avt-size) * 0.38));
     --pinfold-avt-radius: var(--pinfold-control-round, 50%);
   }
-  .pinfold-avatar[data-size='sm'] { --pinfold-avt-size: var(--pinfold-avatar-size, 1.75rem); }
-  .pinfold-avatar[data-size='lg'] { --pinfold-avt-size: var(--pinfold-avatar-size, 3rem); }
-  .pinfold-avatar[data-shape='square'] { --pinfold-avt-radius: calc(var(--pinfold-avt-size) * 0.22 * var(--pinfold-radius-scale, 1)); }
+  .pinfold-avatar[data-size='sm'] { --pinfold-avt-size: var(--pinfold-avatar-size, 2rem); }
+  .pinfold-avatar[data-size='lg'] { --pinfold-avt-size: var(--pinfold-avatar-size, 3.5rem); }
+  .pinfold-avatar[data-shape='square'] { --pinfold-avt-radius: calc(var(--pinfold-avt-size) * 0.26 * var(--pinfold-radius-scale, 1)); }
 
   /* A face: the root of a single avatar, or each item of a group. */
   .pinfold-avatar:not([data-group]),
@@ -27,17 +27,17 @@
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-avt-font);
     font-weight: var(--pinfold-weight-semibold);
+    letter-spacing: 0.01em;
     line-height: 1;
-    color: color-mix(in oklch, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text));
-    background-color: color-mix(in oklch, var(--pinfold-avt-solid) 18%, var(--pinfold-color-surface));
+    color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 78%, var(--pinfold-color-text));
+    background-color: var(--pinfold-color-surface);
+    background-image: var(--pinfold-texture), linear-gradient(145deg, color-mix(in oklab, var(--pinfold-avt-solid) 14%, transparent), color-mix(in oklab, var(--pinfold-avt-solid) 32%, transparent));
     border-radius: var(--pinfold-avt-radius);
+    box-shadow: var(--pinfold-control-shadow, inset 0 0 0 1px color-mix(in oklab, var(--pinfold-avt-solid) 22%, transparent));
     user-select: none;
   }
   .pinfold-avatar__fallback,
-  .pinfold-avatar__image {
-    grid-area: 1 / 1;
-  }
-  .pinfold-avatar__fallback { letter-spacing: 0.02em; }
+  .pinfold-avatar__image { grid-area: 1 / 1; }
   .pinfold-avatar__image {
     inline-size: 100%;
     block-size: 100%;
@@ -46,36 +46,42 @@
   }
   /* Hidden, not removed, until it loads: no broken-image icon, and the initials stay visible. */
   .pinfold-avatar:not([data-group]):not([data-loaded]) > .pinfold-avatar__image,
-  .pinfold-avatar__item:not([data-loaded]) > .pinfold-avatar__image {
-    opacity: 0;
-  }
+  .pinfold-avatar__item:not([data-loaded]) > .pinfold-avatar__image { opacity: 0; }
 
   .pinfold-avatar__status {
     position: absolute;
-    inset-block-end: 0;
-    inset-inline-end: 0;
-    inline-size: max(0.5rem, calc(var(--pinfold-avt-size) * 0.28));
-    block-size: max(0.5rem, calc(var(--pinfold-avt-size) * 0.28));
+    inset-block-end: 2%;
+    inset-inline-end: 2%;
     box-sizing: border-box;
+    inline-size: max(0.5625rem, calc(var(--pinfold-avt-size) * 0.27));
+    block-size: max(0.5625rem, calc(var(--pinfold-avt-size) * 0.27));
     border-radius: 50%;
-    box-shadow: 0 0 0 2px var(--pinfold-color-bg);
+    outline: 2px solid var(--pinfold-color-bg);
   }
   .pinfold-avatar__status[data-status='online'] { background: var(--pinfold-color-success); }
   .pinfold-avatar__status[data-status='away'] { background: var(--pinfold-color-warning); }
   .pinfold-avatar__status[data-status='busy'] { background: var(--pinfold-color-danger); }
-  .pinfold-avatar__status[data-status='offline'] { background: var(--pinfold-color-bg); box-shadow: inset 0 0 0 2px var(--pinfold-color-text-muted), 0 0 0 2px var(--pinfold-color-bg); }
+  .pinfold-avatar__status[data-status='offline'] { background: var(--pinfold-color-bg); box-shadow: inset 0 0 0 2px var(--pinfold-color-text-muted); }
 
   /* A group: faces overlap, each ringed in the page colour so the edges stay readable. */
   .pinfold-avatar[data-group] {
     display: inline-flex;
     align-items: center;
     max-inline-size: 100%;
-    padding-inline-start: var(--pinfold-avatar-overlap, calc(var(--pinfold-avt-size) * 0.25));
+    padding-inline-start: var(--pinfold-avatar-overlap, calc(var(--pinfold-avt-size) * 0.18));
   }
   .pinfold-avatar__item {
-    margin-inline-start: calc(-1 * var(--pinfold-avatar-overlap, calc(var(--pinfold-avt-size) * 0.25)));
-    box-shadow: 0 0 0 2px var(--pinfold-color-bg);
+    margin-inline-start: calc(-1 * var(--pinfold-avatar-overlap, calc(var(--pinfold-avt-size) * 0.18)));
+    outline: 2px solid var(--pinfold-color-bg);
   }
+  .pinfold-avatar[data-animate] .pinfold-avatar__item { transition: transform var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-avatar__item:hover,
+  .pinfold-avatar__item:focus-visible {
+    z-index: 1;
+    transform: translateY(-0.125rem);
+  }
+  /* Above the next face in the stack, or the dot disappears under it. */
+  .pinfold-avatar__item > .pinfold-avatar__status { z-index: 1; }
   .pinfold-avatar__overflow { font-size: calc(var(--pinfold-avt-font) * 0.9); }
 
   @media (forced-colors: active) {

@@ -83,13 +83,13 @@
 
     /* Interaction surfaces carry a trace of the brand, so hover reads as
        "this control is alive" rather than "this control turned grey". */
-    --pinfold-color-surface-hover: color-mix(in oklch, var(--pinfold-color-accent) 6%, var(--pinfold-color-surface));
-    --pinfold-color-surface-active: color-mix(in oklch, var(--pinfold-color-accent) 11%, var(--pinfold-color-surface));
-    --pinfold-color-surface-selected: color-mix(in oklch, var(--pinfold-color-accent) 14%, var(--pinfold-color-surface));
+    --pinfold-color-surface-hover: color-mix(in oklab, var(--pinfold-color-accent) 6%, var(--pinfold-color-surface));
+    --pinfold-color-surface-active: color-mix(in oklab, var(--pinfold-color-accent) 11%, var(--pinfold-color-surface));
+    --pinfold-color-surface-selected: color-mix(in oklab, var(--pinfold-color-accent) 14%, var(--pinfold-color-surface));
 
     --pinfold-color-border: var(--pinfold-neutral-200);
     --pinfold-color-border-strong: var(--pinfold-neutral-300);
-    --pinfold-color-border-accent: color-mix(in oklch, var(--pinfold-color-accent) 45%, var(--pinfold-color-border));
+    --pinfold-color-border-accent: color-mix(in oklab, var(--pinfold-color-accent) 45%, var(--pinfold-color-border));
 
     --pinfold-color-text: var(--pinfold-neutral-900);
     --pinfold-color-text-muted: var(--pinfold-neutral-600);
@@ -98,41 +98,41 @@
 
     --pinfold-color-accent: var(--pinfold-primary-600);
     --pinfold-color-accent-hover: var(--pinfold-primary-700);
-    --pinfold-color-accent-subtle: color-mix(in oklch, var(--pinfold-color-accent) 10%, transparent);
+    --pinfold-color-accent-subtle: color-mix(in oklab, var(--pinfold-color-accent) 10%, transparent);
     --pinfold-color-accent-contrast: oklch(1 0 0);
     /* Status colours for text and fills: flip with the scheme, like the accent. */
-    --pinfold-color-success: var(--pinfold-success-700);
-    --pinfold-color-warning: var(--pinfold-warning-700);
-    --pinfold-color-danger: var(--pinfold-danger-700);
-    --pinfold-color-info: var(--pinfold-info-700);
+    --pinfold-color-success: oklch(0.52 0.135 155);
+    --pinfold-color-warning: oklch(0.53 0.125 62);
+    --pinfold-color-danger: oklch(0.53 0.19 25);
+    --pinfold-color-info: oklch(0.52 0.15 245);
     --pinfold-color-status-contrast: oklch(1 0 0);
 
     --pinfold-color-ring: var(--pinfold-primary-500);
-    --pinfold-color-overlay: color-mix(in oklch, var(--pinfold-neutral-950) 45%, transparent);
-    --pinfold-color-selection: color-mix(in oklch, var(--pinfold-color-accent) 22%, transparent);
+    --pinfold-color-overlay: color-mix(in oklab, var(--pinfold-neutral-950) 45%, transparent);
+    --pinfold-color-selection: color-mix(in oklab, var(--pinfold-color-accent) 22%, transparent);
 
     /* --------------------------------------------------------------- depth */
     /* Shadows are tinted with the neutral ramp, never neutral black — untinted
        black over a tinted surface reads as dirt. Two layers: a tight contact
        shadow plus a wide ambient one. */
     --pinfold-shadow-color: var(--pinfold-neutral-900);
-    --pinfold-shadow-xs: 0 1px 1px color-mix(in oklch, var(--pinfold-shadow-color) 5%, transparent);
+    --pinfold-shadow-xs: 0 1px 1px color-mix(in oklab, var(--pinfold-shadow-color) 5%, transparent);
     --pinfold-shadow-sm:
-      0 1px 2px color-mix(in oklch, var(--pinfold-shadow-color) 6%, transparent),
-      0 1px 3px -1px color-mix(in oklch, var(--pinfold-shadow-color) 6%, transparent);
+      0 1px 2px color-mix(in oklab, var(--pinfold-shadow-color) 6%, transparent),
+      0 1px 3px -1px color-mix(in oklab, var(--pinfold-shadow-color) 6%, transparent);
     --pinfold-shadow-md:
-      0 2px 4px -1px color-mix(in oklch, var(--pinfold-shadow-color) 7%, transparent),
-      0 8px 20px -6px color-mix(in oklch, var(--pinfold-shadow-color) 10%, transparent);
+      0 2px 4px -1px color-mix(in oklab, var(--pinfold-shadow-color) 7%, transparent),
+      0 8px 20px -6px color-mix(in oklab, var(--pinfold-shadow-color) 10%, transparent);
     --pinfold-shadow-lg:
-      0 4px 8px -2px color-mix(in oklch, var(--pinfold-shadow-color) 8%, transparent),
-      0 16px 40px -12px color-mix(in oklch, var(--pinfold-shadow-color) 14%, transparent);
+      0 4px 8px -2px color-mix(in oklab, var(--pinfold-shadow-color) 8%, transparent),
+      0 16px 40px -12px color-mix(in oklab, var(--pinfold-shadow-color) 14%, transparent);
     --pinfold-shadow-xl:
-      0 8px 16px -4px color-mix(in oklch, var(--pinfold-shadow-color) 10%, transparent),
-      0 32px 72px -20px color-mix(in oklch, var(--pinfold-shadow-color) 18%, transparent);
+      0 8px 16px -4px color-mix(in oklab, var(--pinfold-shadow-color) 10%, transparent),
+      0 32px 72px -20px color-mix(in oklab, var(--pinfold-shadow-color) 18%, transparent);
 
     /* Hairline highlight along the top edge of a raised surface. The detail that
        separates "a box" from "a surface". */
-    --pinfold-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 60%, transparent);
+    --pinfold-highlight: inset 0 1px 0 color-mix(in oklab, oklch(1 0 0) 60%, transparent);
 
     /* Hooks for style packs (packs.css). Defaults are neutral: no blur, no texture. */
     --pinfold-border-width: 1px;
@@ -223,27 +223,27 @@
       --pinfold-color-accent-hover: var(--pinfold-primary-300);
       --pinfold-color-accent-contrast: var(--pinfold-neutral-950);
       /* Status colours for text and fills: flip with the scheme, like the accent. */
-      --pinfold-color-success: var(--pinfold-success-300);
-      --pinfold-color-warning: var(--pinfold-warning-300);
-      --pinfold-color-danger: var(--pinfold-danger-300);
-      --pinfold-color-info: var(--pinfold-info-300);
+      --pinfold-color-success: oklch(0.79 0.13 155);
+      --pinfold-color-warning: oklch(0.83 0.12 80);
+      --pinfold-color-danger: oklch(0.76 0.14 22);
+      --pinfold-color-info: oklch(0.78 0.11 240);
       --pinfold-color-status-contrast: var(--pinfold-neutral-950);
       --pinfold-color-ring: var(--pinfold-primary-400);
       --pinfold-shadow-color: oklch(0 0 0);
-      --pinfold-shadow-xs: 0 1px 1px color-mix(in oklch, var(--pinfold-shadow-color) 30%, transparent);
+      --pinfold-shadow-xs: 0 1px 1px color-mix(in oklab, var(--pinfold-shadow-color) 30%, transparent);
       --pinfold-shadow-sm:
-        0 1px 2px color-mix(in oklch, var(--pinfold-shadow-color) 40%, transparent),
-        0 1px 3px -1px color-mix(in oklch, var(--pinfold-shadow-color) 40%, transparent);
+        0 1px 2px color-mix(in oklab, var(--pinfold-shadow-color) 40%, transparent),
+        0 1px 3px -1px color-mix(in oklab, var(--pinfold-shadow-color) 40%, transparent);
       --pinfold-shadow-md:
-        0 2px 4px -1px color-mix(in oklch, var(--pinfold-shadow-color) 45%, transparent),
-        0 8px 20px -6px color-mix(in oklch, var(--pinfold-shadow-color) 50%, transparent);
+        0 2px 4px -1px color-mix(in oklab, var(--pinfold-shadow-color) 45%, transparent),
+        0 8px 20px -6px color-mix(in oklab, var(--pinfold-shadow-color) 50%, transparent);
       --pinfold-shadow-lg:
-        0 4px 8px -2px color-mix(in oklch, var(--pinfold-shadow-color) 50%, transparent),
-        0 16px 40px -12px color-mix(in oklch, var(--pinfold-shadow-color) 55%, transparent);
+        0 4px 8px -2px color-mix(in oklab, var(--pinfold-shadow-color) 50%, transparent),
+        0 16px 40px -12px color-mix(in oklab, var(--pinfold-shadow-color) 55%, transparent);
       --pinfold-shadow-xl:
-        0 8px 16px -4px color-mix(in oklch, var(--pinfold-shadow-color) 55%, transparent),
-        0 32px 72px -20px color-mix(in oklch, var(--pinfold-shadow-color) 60%, transparent);
-      --pinfold-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 8%, transparent);
+        0 8px 16px -4px color-mix(in oklab, var(--pinfold-shadow-color) 55%, transparent),
+        0 32px 72px -20px color-mix(in oklab, var(--pinfold-shadow-color) 60%, transparent);
+      --pinfold-highlight: inset 0 1px 0 color-mix(in oklab, oklch(1 0 0) 8%, transparent);
     }
   }
 
@@ -264,35 +264,35 @@
     --pinfold-color-accent-hover: var(--pinfold-primary-300);
     --pinfold-color-accent-contrast: var(--pinfold-neutral-950);
     /* Status colours for text and fills: flip with the scheme, like the accent. */
-    --pinfold-color-success: var(--pinfold-success-300);
-    --pinfold-color-warning: var(--pinfold-warning-300);
-    --pinfold-color-danger: var(--pinfold-danger-300);
-    --pinfold-color-info: var(--pinfold-info-300);
+    --pinfold-color-success: oklch(0.79 0.13 155);
+    --pinfold-color-warning: oklch(0.83 0.12 80);
+    --pinfold-color-danger: oklch(0.76 0.14 22);
+    --pinfold-color-info: oklch(0.78 0.11 240);
     --pinfold-color-status-contrast: var(--pinfold-neutral-950);
     --pinfold-color-ring: var(--pinfold-primary-400);
     --pinfold-shadow-color: oklch(0 0 0);
-    --pinfold-shadow-xs: 0 1px 1px color-mix(in oklch, var(--pinfold-shadow-color) 30%, transparent);
+    --pinfold-shadow-xs: 0 1px 1px color-mix(in oklab, var(--pinfold-shadow-color) 30%, transparent);
     --pinfold-shadow-sm:
-      0 1px 2px color-mix(in oklch, var(--pinfold-shadow-color) 40%, transparent),
-      0 1px 3px -1px color-mix(in oklch, var(--pinfold-shadow-color) 40%, transparent);
+      0 1px 2px color-mix(in oklab, var(--pinfold-shadow-color) 40%, transparent),
+      0 1px 3px -1px color-mix(in oklab, var(--pinfold-shadow-color) 40%, transparent);
     --pinfold-shadow-md:
-      0 2px 4px -1px color-mix(in oklch, var(--pinfold-shadow-color) 45%, transparent),
-      0 8px 20px -6px color-mix(in oklch, var(--pinfold-shadow-color) 50%, transparent);
+      0 2px 4px -1px color-mix(in oklab, var(--pinfold-shadow-color) 45%, transparent),
+      0 8px 20px -6px color-mix(in oklab, var(--pinfold-shadow-color) 50%, transparent);
     --pinfold-shadow-lg:
-      0 4px 8px -2px color-mix(in oklch, var(--pinfold-shadow-color) 50%, transparent),
-      0 16px 40px -12px color-mix(in oklch, var(--pinfold-shadow-color) 55%, transparent);
+      0 4px 8px -2px color-mix(in oklab, var(--pinfold-shadow-color) 50%, transparent),
+      0 16px 40px -12px color-mix(in oklab, var(--pinfold-shadow-color) 55%, transparent);
     --pinfold-shadow-xl:
-      0 8px 16px -4px color-mix(in oklch, var(--pinfold-shadow-color) 55%, transparent),
-      0 32px 72px -20px color-mix(in oklch, var(--pinfold-shadow-color) 60%, transparent);
-    --pinfold-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 8%, transparent);
+      0 8px 16px -4px color-mix(in oklab, var(--pinfold-shadow-color) 55%, transparent),
+      0 32px 72px -20px color-mix(in oklab, var(--pinfold-shadow-color) 60%, transparent);
+    --pinfold-highlight: inset 0 1px 0 color-mix(in oklab, oklch(1 0 0) 8%, transparent);
     /* Derived tokens, recomputed here so nested sections get their own. */
-    --pinfold-color-surface-hover: color-mix(in oklch, var(--pinfold-color-accent) 6%, var(--pinfold-color-surface));
-    --pinfold-color-surface-active: color-mix(in oklch, var(--pinfold-color-accent) 11%, var(--pinfold-color-surface));
-    --pinfold-color-surface-selected: color-mix(in oklch, var(--pinfold-color-accent) 14%, var(--pinfold-color-surface));
-    --pinfold-color-border-accent: color-mix(in oklch, var(--pinfold-color-accent) 45%, var(--pinfold-color-border));
-    --pinfold-color-accent-subtle: color-mix(in oklch, var(--pinfold-color-accent) 10%, transparent);
-    --pinfold-color-selection: color-mix(in oklch, var(--pinfold-color-accent) 22%, transparent);
-    --pinfold-color-overlay: color-mix(in oklch, var(--pinfold-neutral-950) 45%, transparent);
+    --pinfold-color-surface-hover: color-mix(in oklab, var(--pinfold-color-accent) 6%, var(--pinfold-color-surface));
+    --pinfold-color-surface-active: color-mix(in oklab, var(--pinfold-color-accent) 11%, var(--pinfold-color-surface));
+    --pinfold-color-surface-selected: color-mix(in oklab, var(--pinfold-color-accent) 14%, var(--pinfold-color-surface));
+    --pinfold-color-border-accent: color-mix(in oklab, var(--pinfold-color-accent) 45%, var(--pinfold-color-border));
+    --pinfold-color-accent-subtle: color-mix(in oklab, var(--pinfold-color-accent) 10%, transparent);
+    --pinfold-color-selection: color-mix(in oklab, var(--pinfold-color-accent) 22%, transparent);
+    --pinfold-color-overlay: color-mix(in oklab, var(--pinfold-neutral-950) 45%, transparent);
     --pinfold-focus-ring: 0 0 0 var(--pinfold-focus-offset) var(--pinfold-color-bg),
       0 0 0 calc(var(--pinfold-focus-offset) + var(--pinfold-focus-width)) var(--pinfold-color-ring);
   }
@@ -317,31 +317,31 @@
     --pinfold-color-accent-hover: var(--pinfold-primary-700);
     --pinfold-color-accent-contrast: oklch(1 0 0);
     /* Status colours for text and fills: flip with the scheme, like the accent. */
-    --pinfold-color-success: var(--pinfold-success-700);
-    --pinfold-color-warning: var(--pinfold-warning-700);
-    --pinfold-color-danger: var(--pinfold-danger-700);
-    --pinfold-color-info: var(--pinfold-info-700);
+    --pinfold-color-success: oklch(0.52 0.135 155);
+    --pinfold-color-warning: oklch(0.53 0.125 62);
+    --pinfold-color-danger: oklch(0.53 0.19 25);
+    --pinfold-color-info: oklch(0.52 0.15 245);
     --pinfold-color-status-contrast: oklch(1 0 0);
     --pinfold-color-ring: var(--pinfold-primary-500);
     --pinfold-shadow-color: var(--pinfold-neutral-900);
-    --pinfold-shadow-xs: 0 1px 1px color-mix(in oklch, var(--pinfold-shadow-color) 5%, transparent);
-    --pinfold-shadow-sm: 0 1px 2px color-mix(in oklch, var(--pinfold-shadow-color) 6%, transparent),
-      0 1px 3px -1px color-mix(in oklch, var(--pinfold-shadow-color) 6%, transparent);
-    --pinfold-shadow-md: 0 2px 4px -1px color-mix(in oklch, var(--pinfold-shadow-color) 7%, transparent),
-      0 8px 20px -6px color-mix(in oklch, var(--pinfold-shadow-color) 10%, transparent);
-    --pinfold-shadow-lg: 0 4px 8px -2px color-mix(in oklch, var(--pinfold-shadow-color) 8%, transparent),
-      0 16px 40px -12px color-mix(in oklch, var(--pinfold-shadow-color) 14%, transparent);
-    --pinfold-shadow-xl: 0 8px 16px -4px color-mix(in oklch, var(--pinfold-shadow-color) 10%, transparent),
-      0 32px 72px -20px color-mix(in oklch, var(--pinfold-shadow-color) 18%, transparent);
-    --pinfold-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 60%, transparent);
+    --pinfold-shadow-xs: 0 1px 1px color-mix(in oklab, var(--pinfold-shadow-color) 5%, transparent);
+    --pinfold-shadow-sm: 0 1px 2px color-mix(in oklab, var(--pinfold-shadow-color) 6%, transparent),
+      0 1px 3px -1px color-mix(in oklab, var(--pinfold-shadow-color) 6%, transparent);
+    --pinfold-shadow-md: 0 2px 4px -1px color-mix(in oklab, var(--pinfold-shadow-color) 7%, transparent),
+      0 8px 20px -6px color-mix(in oklab, var(--pinfold-shadow-color) 10%, transparent);
+    --pinfold-shadow-lg: 0 4px 8px -2px color-mix(in oklab, var(--pinfold-shadow-color) 8%, transparent),
+      0 16px 40px -12px color-mix(in oklab, var(--pinfold-shadow-color) 14%, transparent);
+    --pinfold-shadow-xl: 0 8px 16px -4px color-mix(in oklab, var(--pinfold-shadow-color) 10%, transparent),
+      0 32px 72px -20px color-mix(in oklab, var(--pinfold-shadow-color) 18%, transparent);
+    --pinfold-highlight: inset 0 1px 0 color-mix(in oklab, oklch(1 0 0) 60%, transparent);
     /* Derived tokens, recomputed here so nested sections get their own. */
-    --pinfold-color-surface-hover: color-mix(in oklch, var(--pinfold-color-accent) 6%, var(--pinfold-color-surface));
-    --pinfold-color-surface-active: color-mix(in oklch, var(--pinfold-color-accent) 11%, var(--pinfold-color-surface));
-    --pinfold-color-surface-selected: color-mix(in oklch, var(--pinfold-color-accent) 14%, var(--pinfold-color-surface));
-    --pinfold-color-border-accent: color-mix(in oklch, var(--pinfold-color-accent) 45%, var(--pinfold-color-border));
-    --pinfold-color-accent-subtle: color-mix(in oklch, var(--pinfold-color-accent) 10%, transparent);
-    --pinfold-color-selection: color-mix(in oklch, var(--pinfold-color-accent) 22%, transparent);
-    --pinfold-color-overlay: color-mix(in oklch, var(--pinfold-neutral-950) 45%, transparent);
+    --pinfold-color-surface-hover: color-mix(in oklab, var(--pinfold-color-accent) 6%, var(--pinfold-color-surface));
+    --pinfold-color-surface-active: color-mix(in oklab, var(--pinfold-color-accent) 11%, var(--pinfold-color-surface));
+    --pinfold-color-surface-selected: color-mix(in oklab, var(--pinfold-color-accent) 14%, var(--pinfold-color-surface));
+    --pinfold-color-border-accent: color-mix(in oklab, var(--pinfold-color-accent) 45%, var(--pinfold-color-border));
+    --pinfold-color-accent-subtle: color-mix(in oklab, var(--pinfold-color-accent) 10%, transparent);
+    --pinfold-color-selection: color-mix(in oklab, var(--pinfold-color-accent) 22%, transparent);
+    --pinfold-color-overlay: color-mix(in oklab, var(--pinfold-neutral-950) 45%, transparent);
     --pinfold-focus-ring: 0 0 0 var(--pinfold-focus-offset) var(--pinfold-color-bg),
       0 0 0 calc(var(--pinfold-focus-offset) + var(--pinfold-focus-width)) var(--pinfold-color-ring);
   }
@@ -438,7 +438,7 @@
   }
 
   /* Browsers without color-mix get flat approximations rather than nothing. */
-  @supports not (color: color-mix(in oklch, red, blue)) {
+  @supports not (color: color-mix(in oklab, red, blue)) {
     :root {
       --pinfold-color-surface-hover: var(--pinfold-neutral-100);
       --pinfold-color-surface-active: var(--pinfold-neutral-200);

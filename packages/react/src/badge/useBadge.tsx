@@ -1,89 +1,87 @@
 import * as React from 'react';
-import { badgeCount, cn, dimensionVars, inactiveBadgeOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { badgeCount, badgeDotOnly, cn, dimensionVars, inactiveBadgeOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { VISUALLY_HIDDEN } from '../a11y';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
-import type { BadgeApi, BadgeComponent, BadgeConfig, BadgeKind, BadgeRootProps, BadgeState } from './types';
+import type { BadgeApi, BadgeComponent, BadgeConfig, BadgeRootProps, BadgeSlot, BadgeState } from './types';
 
 const filled = (node: React.ReactNode) => node != null && node !== false && node !== '';
 
 /**
- * A status label, a count or a dot, as a hook that hands back a component.
+ * A status label, a count, a dot, or a mix of them, as a hook that hands back a component.
  *
- *   const Unread = useBadge({ count: 3, tone: 'danger', label: 'unread messages' });
- *   return <Unread />;          // shows "3", reads "3 unread messages"
+ *   const Inbox = useBadge({ label: 'Inbox', count: 3, srLabel: 'unread messages' });
+ *   return <Inbox />;          // Inbox 3, read "Inbox 3 unread messages"
  *
  * Precedence: this config, then `defaults.badge`, then the provider (size, tone), then the library default.
  */
 export function useBadge(input: BadgeConfig = {}): BadgeComponent {
   const ctx = usePinfold();
   const config = ctx.defaults.badge ? mergeConfig<BadgeConfig>(ctx.defaults.badge, input) : input;
-  const kind: BadgeKind = config.dot ? 'dot' : typeof config.count === 'number' ? 'count' : 'label';
   const hasLabel = filled(config.label);
+  const dotOnly = badgeDotOnly(config);
+  const anchored = filled(config.anchor);
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ badgeMeta, validateConfig }) => {
       for (const problem of validateConfig(badgeMeta, input)) warnOnce(true, problem.message);
     });
     // Static mistakes only: a count arrives at runtime, so `max` without one never warns.
-    if (kind === 'dot') {
-      const inactive = inactiveBadgeOptions({ dot: true, count: 0 });
-      for (const key of ['icon', 'radius']) warnOnce((input as Record<string, unknown>)[key] !== undefined, `Badge: \`${key}\` has no visible effect here. ${inactive[key]}`);
-    }
-    warnOnce(kind === 'dot' && !hasLabel, 'Badge: a dot without a `label` says nothing to screen readers. Give it one, e.g. `label: "Online"`.');
-    warnOnce(kind === 'label' && !hasLabel && !filled(config.icon), 'Badge: nothing to show. Give it a `label`, a `count` or `dot: true`.');
+    const inactive = inactiveBadgeOptions({ ...config, count: config.count ?? 0 });
+    for (const key in inactive) warnOnce((input as Record<string, unknown>)[key] !== undefined, `Badge: \`${key}\` has no visible effect here. ${inactive[key]}`);
+    warnOnce(dotOnly && !config.srLabel, 'Badge: a dot on its own says nothing to screen readers. Give it an `srLabel`, e.g. "Online".');
+    warnOnce(!config.dot && !hasLabel && !filled(config.icon) && typeof config.count !== 'number', 'Badge: nothing to show. Give it a `label`, a `count` or `dot: true`.');
   }
 
-  const text = kind === 'count' ? badgeCount(config.count as number, config.max, config.showZero) : null;
+  const text = typeof config.count === 'number' ? badgeCount(config.count, config.max, config.showZero) : null;
   const state: BadgeState = {
-    kind,
-    variant: config.variant ?? 'solid',
+    variant: config.variant ?? 'soft',
     size: config.size ?? ctx.size,
     tone: config.tone ?? ctx.tone,
-    visible: kind !== 'count' || text != null,
+    dotOnly,
+    visible: !!config.dot || hasLabel || filled(config.icon) || text != null,
   };
 
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
-        // A hidden count is neither seen nor read.
+        // Nothing to show is neither seen nor read.
         hidden: state.visible ? undefined : true,
-        'data-kind': kind,
         'data-variant': state.variant,
         'data-size': state.size,
         'data-tone': state.tone,
-        'data-radius': kind === 'dot' ? undefined : config.radius ?? 'full',
-        'data-placement': config.placement ?? 'inline',
+        'data-radius': dotOnly ? undefined : config.radius ?? 'full',
+        'data-dot-only': dotOnly ? '' : undefined,
+        'data-count-only': text != null && !hasLabel && !filled(config.icon) && !config.dot ? '' : undefined,
+        'data-placement': anchored ? config.placement ?? 'top-end' : undefined,
+        'data-anchor-shape': anchored ? config.anchorShape ?? 'rect' : undefined,
         'data-unstyled': config.unstyled ? '' : undefined,
       },
       props,
     );
 
   const render = (rootProps?: BadgeRootProps): React.ReactElement => {
-    const cls = (name: string) => (config.unstyled ? undefined : name);
+    const slot = (name: BadgeSlot, content: React.ReactNode, base: PropsBag = {}) =>
+      renderSlot(config, name, slotProps(config, name, { className: config.unstyled ? undefined : `pinfold-badge__${name}`, ...base }), state, content, (p, c) => <span {...p}>{c}</span>);
     const vars = dimensionVars('badge', config.dimensions);
     const root = slotProps(
       config,
       'root',
       getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-badge', config.className), style: vars || config.style ? { ...vars, ...config.style } : undefined }, rootProps)),
     );
-    // With a count or a dot, the label is what the number or the dot means: read, not shown.
-    const spoken = hasLabel && kind !== 'label' ? <span style={VISUALLY_HIDDEN}>{kind === 'count' ? ' ' : null}{config.label}</span> : null;
-    const content =
-      kind === 'dot' ? (
-        spoken
-      ) : (
-        <>
-          {filled(config.icon)
-            ? renderSlot(config, 'icon', slotProps(config, 'icon', { className: cls('pinfold-badge__icon'), 'aria-hidden': true }), state, config.icon, (p, c) => <span {...p}>{c}</span>)
-            : null}
-          {renderSlot(config, 'label', slotProps(config, 'label', { className: cls('pinfold-badge__label') }), state, kind === 'count' ? text : config.label, (p, c) => <span {...p}>{c}</span>)}
-          {spoken}
-        </>
-      );
-    return renderSlot(config, 'root', root, state, content, (p, c) => <span {...p}>{c}</span>) as React.ReactElement;
+    const content = (
+      <>
+        {config.dot && !dotOnly ? slot('dot', null, { 'aria-hidden': true }) : null}
+        {filled(config.icon) ? slot('icon', config.icon, { 'aria-hidden': true }) : null}
+        {hasLabel ? slot('label', config.label) : null}
+        {text != null ? slot('count', text) : null}
+        {config.srLabel ? <span style={VISUALLY_HIDDEN}>{` ${config.srLabel}`}</span> : null}
+      </>
+    );
+    const badge = renderSlot(config, 'root', root, state, content, (p, c) => <span {...p}>{c}</span>) as React.ReactElement;
+    return anchored ? (slot('anchor', <>{config.anchor}{badge}</>) as React.ReactElement) : badge;
   };
 
   const api: BadgeApi = { getRootProps, render };

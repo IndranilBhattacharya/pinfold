@@ -91,6 +91,7 @@ export const accordionMeta: ComponentMeta = {
       description: '`single` closes the other rows when one opens.',
       group: 'behaviour',
       control: true,
+      silent: true,
     },
     collapsible: {
       type: 'boolean',

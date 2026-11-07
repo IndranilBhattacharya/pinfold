@@ -5,7 +5,18 @@ import type { SlotOverrides } from '../types';
 
 export type SkeletonSlot = 'root' | 'line';
 export type SkeletonVariant = 'text' | 'rect' | 'circle';
-export type SkeletonAnimation = 'pulse' | 'wave' | 'none';
+export type SkeletonAnimation = 'shimmer' | 'wave' | 'pulse' | 'stagger' | 'none';
+export type SkeletonDirection = 'column' | 'row';
+
+/** One piece of a layout: a shape, or a nested group of them. */
+export interface SkeletonShape {
+  variant?: SkeletonVariant;
+  lines?: number;
+  size?: PinfoldSize;
+  dimensions?: SkeletonDimensions;
+  items?: readonly SkeletonShape[];
+  direction?: SkeletonDirection;
+}
 
 /** Passed to slot `render` overrides. */
 export interface SkeletonState {
@@ -30,7 +41,11 @@ export interface SkeletonConfig extends SlotOverrides<SkeletonSlot, SkeletonStat
   variant?: SkeletonVariant;
   /** @default 1 */
   lines?: number;
-  /** @default 'pulse' */
+  /** A layout from one config: `[{ variant: 'circle' }, { lines: 2 }]`. */
+  items?: readonly SkeletonShape[];
+  /** @default 'column' */
+  direction?: SkeletonDirection;
+  /** @default 'shimmer' */
   animation?: SkeletonAnimation;
   /** @default 'md' */
   size?: PinfoldSize;

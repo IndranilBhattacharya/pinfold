@@ -10,6 +10,12 @@ export const Paragraph = defineSkeleton({ lines: 3 });
 export const Avatar = defineSkeleton({ variant: 'circle', size: 'lg' });
 export const Cover = defineSkeleton({ variant: 'rect', dimensions: { height: 160 } });
 
+// A layout is one config, not several components. Items nest.
+export const Profile = defineSkeleton({
+  direction: 'row',
+  items: [{ variant: 'circle' }, { lines: 2 }],
+});
+
 // The placeholder swaps to the content when it arrives: no conditional in your JSX.
 <Paragraph loading={!user} content={<p>{user?.bio}</p>} />
 ```
@@ -21,7 +27,9 @@ props, the preset, `defaults.skeleton`, the provider (size), the library default
 |---|---|---|
 | `variant` | `'text' \| 'rect' \| 'circle'` | `'text'` |
 | `lines` | `number`; the last of several is shorter, like real text | `1` |
-| `animation` | `'pulse' \| 'wave' \| 'none'` | `'pulse'` |
+| `items` | shapes (`variant, lines, size, dimensions`) or nested groups (`items, direction`) | none |
+| `direction` | `'column' \| 'row'`, how `items` flow; in a row, circles keep their size | `'column'` |
+| `animation` | `'shimmer'`: one band of light across every shape together. `'wave'`: a sweep inside each shape. `'pulse'`: a slow breath. `'stagger'`: the breath passed from shape to shape. `'none'` | `'shimmer'` |
 | `size` | `'sm' \| 'md' \| 'lg'`: text line height, circle size | `'md'` |
 | `loading` | `boolean`; false shows `content` | `true` |
 | `content` | node, shown when not loading | none |
@@ -29,7 +37,7 @@ props, the preset, `defaults.skeleton`, the provider (size), the library default
 | `dimensions` | `width, height, radius, gap` | from the size; full width |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root line`) | | |
 
-Inactive: `lines` unless `variant: 'text'`; `animation` and `lines` once loaded.
+Inactive: `lines` unless `variant: 'text'`; `animation` and `lines` once loaded; `variant` and `lines` with `items`; `direction` without them.
 
 ## Accessibility and motion
 - The root is `aria-busy="true"` while loading; placeholder shapes are `aria-hidden`.

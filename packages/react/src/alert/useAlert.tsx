@@ -65,8 +65,8 @@ export function useAlert(input: AlertConfig = {}): AlertComponent {
     );
     const icon = config.icon === undefined ? <ToneIcon tone={state.tone} /> : config.icon;
     const actions = config.actions ?? [];
-    // Defaults for the buttons: small, in the alert tone, the first solid. Each action's own config wins.
-    const button = (action: ButtonConfig, i: number) => <Button key={i} size="sm" tone={state.tone} variant={i === 0 ? 'solid' : 'ghost'} {...action} />;
+    // Defaults for the buttons: small, the first tinted in the alert tone, the rest quiet. Each action's own config wins.
+    const button = (action: ButtonConfig, i: number) => <Button key={i} size="sm" tone={i === 0 ? state.tone : 'neutral'} variant={i === 0 ? 'soft' : 'ghost'} {...action} />;
     const content = dismissed ? null : (
       <>
         {filled(icon) ? slot('icon', icon, { 'aria-hidden': true }, 'span') : null}
@@ -79,7 +79,7 @@ export function useAlert(input: AlertConfig = {}): AlertComponent {
           </>,
         )}
         {config.dismissible
-          ? slot('dismiss', <Button label={config.dismissLabel ?? 'Dismiss'} icon={CLOSE_ICON} iconOnly variant="ghost" size="sm" tone={state.tone} onClick={dismiss} />, {}, 'span')
+          ? slot('dismiss', <Button label={config.dismissLabel ?? 'Dismiss'} icon={CLOSE_ICON} iconOnly variant="ghost" size="sm" tone="neutral" onClick={dismiss} />, {}, 'span')
           : null}
       </>
     );

@@ -14,7 +14,7 @@
     --pinfold-btn-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
     /* Text on a tint or on the page, pulled toward the theme text colour (darker on light,
        lighter on dark) so it clears 4.5:1 on its own tint for every tone (a11y report). */
-    --pinfold-btn-text: color-mix(in oklch, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text));
+    --pinfold-btn-text: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text));
     --pinfold-btn-h: var(--pinfold-button-height, var(--pinfold-control-height));
     --pinfold-btn-pad-x: var(--pinfold-button-padding-x, var(--pinfold-control-pad-x));
     --pinfold-btn-gap: var(--pinfold-button-gap, var(--pinfold-control-gap));
@@ -85,14 +85,14 @@
     box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
   }
   .pinfold-button[data-variant='soft'] {
-    background-color: color-mix(in oklch, var(--pinfold-btn-solid) 14%, var(--pinfold-control-surface, transparent));
+    background-color: color-mix(in oklab, var(--pinfold-btn-solid) 14%, var(--pinfold-control-surface, transparent));
     background-image: var(--pinfold-texture);
     border-color: var(--pinfold-control-edge, transparent);
     backdrop-filter: var(--pinfold-backdrop);
   }
   .pinfold-button[data-variant='outline'] {
     background-color: var(--pinfold-control-surface, transparent);
-    border-color: var(--pinfold-control-edge, color-mix(in oklch, var(--pinfold-btn-text) 35%, var(--pinfold-color-border)));
+    border-color: var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-btn-text) 35%, var(--pinfold-color-border)));
     backdrop-filter: var(--pinfold-backdrop);
   }
   .pinfold-button[data-variant='link'] {
@@ -100,20 +100,20 @@
     padding-inline: 0;
     border-radius: var(--pinfold-radius-xs);
     text-decoration: underline;
-    text-decoration-color: color-mix(in oklch, currentColor 40%, transparent);
+    text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
     text-underline-offset: 0.2em;
   }
 
   /* Hover and pressed: solid moves toward the text colour (darker on light, lighter on
      dark); the others gain a tint. An open menu trigger (`aria-expanded`) looks hovered. */
   .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true'])[data-variant='solid'] {
-    background-color: color-mix(in oklch, var(--pinfold-btn-solid) 86%, var(--pinfold-color-text));
+    background-color: color-mix(in oklab, var(--pinfold-btn-solid) 86%, var(--pinfold-color-text));
   }
   .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true']):is([data-variant='soft']) {
-    background-color: color-mix(in oklch, var(--pinfold-btn-solid) 22%, var(--pinfold-control-surface, transparent));
+    background-color: color-mix(in oklab, var(--pinfold-btn-solid) 22%, var(--pinfold-control-surface, transparent));
   }
   .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true']):is([data-variant='outline'], [data-variant='ghost']) {
-    background-color: color-mix(in oklch, var(--pinfold-btn-solid) 10%, var(--pinfold-control-surface, transparent));
+    background-color: color-mix(in oklab, var(--pinfold-btn-solid) 10%, var(--pinfold-control-surface, transparent));
   }
   .pinfold-button:not([aria-disabled='true']):hover[data-variant='link'] {
     text-decoration-color: currentColor;
@@ -148,6 +148,8 @@
   .pinfold-button__label {
     display: inline-block;
     min-inline-size: 0;
+    /* Room for descenders: the label clips, and line-height 1 would cut "g" and "y". */
+    line-height: 1.25;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -171,7 +173,7 @@
     box-sizing: border-box;
     inline-size: var(--pinfold-btn-icon);
     block-size: var(--pinfold-btn-icon);
-    border: max(2px, calc(var(--pinfold-btn-icon) / 9)) solid color-mix(in oklch, currentColor 25%, transparent);
+    border: max(2px, calc(var(--pinfold-btn-icon) / 9)) solid color-mix(in oklab, currentColor 25%, transparent);
     border-block-start-color: currentColor;
     border-radius: var(--pinfold-radius-full);
     animation: pinfold-button-spin 0.7s linear infinite;
