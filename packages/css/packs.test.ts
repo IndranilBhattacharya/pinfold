@@ -63,6 +63,15 @@ describe('style packs', () => {
     expect(css).toMatch(/\[data-pinfold-style='brutalist'\][^}]*var\(--pinfold-color-accent\)/);
   });
 
+  it('noise: a fainter grain in light mode than in dark', () => {
+    const alpha = (sel: string) => {
+      const block = css.slice(css.indexOf(sel));
+      const m = block.match(/0 0 0 ([0-9.]+) -[0-9.]+'/);
+      return Number(m![1]);
+    };
+    expect(alpha("[data-pinfold-theme='light'] { --pinfold-noise-grain")).toBeLessThan(alpha("[data-pinfold-theme='dark'] { --pinfold-noise-grain"));
+  });
+
   it('never re-colours text, so text contrast is the palette contrast', () => {
     expect(css).not.toMatch(/--pinfold-color-text[\w-]*:/);
   });

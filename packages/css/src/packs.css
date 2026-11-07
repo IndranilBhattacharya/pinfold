@@ -91,8 +91,19 @@
      specks whose opacity follows the noise, so it reads as a material, not as a picture behind the
      content, on white, dark and saturated fills alike. A small inline SVG, no request. Surfaces are
      72% opaque: body text keeps AA over any backdrop (packs.test.ts). */
-  [data-pinfold-style='noise'] {
-    --pinfold-texture: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 0 0 0 0.36 -0.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  /* The grain, by theme, resolved the way the theme tokens are: light surfaces show it more, so light
+     mode gets a fainter one. Set again under a nested theme so a switch inside a pack follows. */
+  :root,
+  [data-pinfold-theme='light'] { --pinfold-noise-grain: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 0 0 0 0.2 -0.07'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-pinfold-theme='light']) { --pinfold-noise-grain: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 0 0 0 0.36 -0.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"); }
+  }
+  [data-pinfold-theme='dark'] { --pinfold-noise-grain: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 0 0 0 0.36 -0.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"); }
+  [data-pinfold-theme='light'] { --pinfold-noise-grain: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 1.8 0 0 0 -0.4 0 0 0 0.2 -0.07'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"); }
+
+  [data-pinfold-style='noise'],
+  [data-pinfold-style='noise'] [data-pinfold-theme] {
+    --pinfold-texture: var(--pinfold-noise-grain);
     --pinfold-color-surface: color-mix(in oklab, var(--pinfold-color-bg) 72%, transparent);
     --pinfold-color-bg-subtle: color-mix(in oklab, var(--pinfold-color-bg) 76%, transparent);
     --pinfold-color-border: color-mix(in oklab, var(--pinfold-color-text) 12%, transparent);
