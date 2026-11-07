@@ -52,6 +52,7 @@
     border-color: var(--pinfold-kbd-edge);
     box-shadow: inset 0 calc(-1 * var(--pinfold-border-width)) 0 var(--pinfold-kbd-edge);
     color: var(--pinfold-color-text);
+    background-image: var(--pinfold-texture);
     backdrop-filter: var(--pinfold-backdrop);
   }
   .pinfold-kbd[data-variant='solid'] .pinfold-kbd__key {

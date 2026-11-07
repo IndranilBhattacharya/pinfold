@@ -14,6 +14,7 @@
     min-block-size: var(--pinfold-input-height, var(--pinfold-control-height));
     padding-inline: var(--pinfold-input-padding-x, calc(var(--pinfold-control-pad-x) * 0.75));
     background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-image: var(--pinfold-texture);
     border: var(--pinfold-border-width) solid var(--pinfold-fld-edge);
     border-radius: var(--pinfold-input-radius, calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1)));
     box-shadow: var(--pinfold-control-shadow, none);

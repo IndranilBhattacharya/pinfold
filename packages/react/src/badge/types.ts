@@ -3,19 +3,19 @@ import type { Length, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
-export type BadgeSlot = 'root' | 'icon' | 'label';
-export type BadgeVariant = 'solid' | 'soft' | 'outline';
+export type BadgeSlot = 'root' | 'dot' | 'icon' | 'label' | 'count' | 'anchor';
+export type BadgeVariant = 'soft' | 'solid' | 'outline';
 export type BadgeRadius = 'none' | 'sm' | 'md' | 'full';
-export type BadgePlacement = 'inline' | 'top-end' | 'top-start' | 'bottom-end' | 'bottom-start';
-export type BadgeKind = 'label' | 'count' | 'dot';
+export type BadgePlacement = 'top-end' | 'top-start' | 'bottom-end' | 'bottom-start';
 
 /** Passed to slot `render` overrides. */
 export interface BadgeState {
-  kind: BadgeKind;
   variant: BadgeVariant;
   size: PinfoldSize;
   tone: PinfoldTone;
-  /** False when a zero count hides the badge. */
+  /** A dot with nothing beside it. */
+  dotOnly: boolean;
+  /** False when there is nothing to show (a count of zero and no label). */
   visible: boolean;
 }
 
@@ -28,23 +28,32 @@ export interface BadgeDimensions {
 }
 
 /**
- *   const Unread = defineBadge({ tone: 'danger', label: 'unread messages' });
- *   <Unread count={3} />      // shows "3", reads "3 unread messages"
+ *   const Unread = defineBadge({ tone: 'danger', variant: 'solid', srLabel: 'unread messages' });
+ *   <Unread label="Inbox" count={3} />                  // Inbox 3
+ *   <Unread count={3} anchor={<Avatar name="Ada" />} /> // pinned to the avatar
  */
 export interface BadgeConfig extends SlotOverrides<BadgeSlot, BadgeState> {
-  /** The text. With `count` or `dot` it is read, not shown. */
+  /** The text. Always shown. */
   label?: React.ReactNode;
-  /** A number instead of the label. Zero hides the badge unless `showZero`. */
+  /** A number, shown after the label. Zero does not show unless `showZero`. */
   count?: number;
   /** @default 99 */
   max?: number;
   /** @default false */
   showZero?: boolean;
-  /** @default false */
+  /** A status dot: before the label, or on its own. @default false */
   dot?: boolean;
-  /** Decorative icon before the text. */
+  /** Decorative icon before the label. */
   icon?: React.ReactNode;
-  /** @default 'solid' */
+  /** Read by screen readers, never shown: what a bare number or dot means. */
+  srLabel?: string;
+  /** Pin the badge to this: an avatar, an icon button, anything. */
+  anchor?: React.ReactNode;
+  /** @default 'top-end' */
+  placement?: BadgePlacement;
+  /** @default 'rect' */
+  anchorShape?: 'rect' | 'circle';
+  /** @default 'soft' */
   variant?: BadgeVariant;
   /** @default 'md' */
   size?: PinfoldSize;
@@ -52,11 +61,6 @@ export interface BadgeConfig extends SlotOverrides<BadgeSlot, BadgeState> {
   tone?: PinfoldTone;
   /** @default 'full' */
   radius?: BadgeRadius;
-  /**
-   * In the text flow, or on a corner of the nearest positioned parent.
-   * @default 'inline'
-   */
-  placement?: BadgePlacement;
   dimensions?: BadgeDimensions;
   /** @default false */
   unstyled?: boolean;

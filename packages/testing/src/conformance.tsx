@@ -280,6 +280,11 @@ export function describePinfoldConformance(options: ConformanceOptions): void {
         expect(tooNew.filter((feature) => css.includes(feature))).toEqual([]);
       });
 
+      // An oklch mix interpolates hue: white is hue 0, so a blue tint swings through pink.
+      it('mixes colours in oklab, which has no hue to swing through', () => {
+        expect(stripComments(readFileSync(cssPath, 'utf8'))).not.toContain('color-mix(in oklch');
+      });
+
       it('namespaces every class it defines', () => {
         // `@layer pinfold.components` is a layer path, not a class selector.
         const css = stripComments(readFileSync(cssPath, 'utf8')).replace(/@layer[^;{]*/g, '');

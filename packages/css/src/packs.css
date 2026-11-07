@@ -34,37 +34,51 @@
 @layer pinfold.packs {
 
   /* ------------------------------------------------------------------ glass */
-  /* Liquid glass: a translucent pane tinted with the brand colour, blurred and saturated
-     over whatever is behind it, with a light rim and a specular top edge. */
+  /* Liquid glass: a thin pane that bends light rather than a frosted one. The content behind stays
+     vivid (high saturation, little blur), a bright rim catches the light along the top and glows
+     faintly along the bottom, and a sheen lies across the face. The rim is part of every shadow
+     token and the sheen is the texture token, so every surface in the library gets them.
+     True edge refraction needs an SVG displacement filter, which only Chromium applies to a
+     backdrop: this is the part that renders the same in every browser. */
   [data-pinfold-style='glass'] {
-    --pinfold-color-surface: color-mix(in oklch, color-mix(in oklch, var(--pinfold-color-accent) 6%, var(--pinfold-color-bg)) 66%, transparent);
-    --pinfold-color-bg-subtle: color-mix(in oklch, color-mix(in oklch, var(--pinfold-color-accent) 10%, var(--pinfold-color-bg)) 62%, transparent);
-    --pinfold-color-border: color-mix(in oklch, var(--pinfold-color-text) 12%, transparent);
-    --pinfold-backdrop: blur(20px) saturate(1.8);
-    --pinfold-highlight: inset 0 1px 0 color-mix(in oklch, oklch(1 0 0) 35%, transparent),
-      inset 0 0 0 1px color-mix(in oklch, oklch(1 0 0) 6%, transparent);
-    --pinfold-shadow-sm: 0 8px 24px -12px color-mix(in oklch, var(--pinfold-color-accent) 30%, transparent);
-    --pinfold-shadow-md: 0 16px 40px -16px color-mix(in oklch, var(--pinfold-color-accent) 38%, transparent);
-    --pinfold-radius-scale: 1.5;
-    --pinfold-control-edge: color-mix(in oklch, oklch(1 0 0) 24%, transparent);
-    --pinfold-control-shadow: var(--pinfold-highlight), 0 8px 24px -10px color-mix(in oklch, var(--pinfold-color-accent) 55%, transparent);
+    --pinfold-glass-rim:
+      inset 0 1px 0 color-mix(in oklab, oklch(1 0 0) 62%, transparent),
+      inset 1px 0 0 color-mix(in oklab, oklch(1 0 0) 16%, transparent),
+      inset -1px 0 0 color-mix(in oklab, oklch(1 0 0) 10%, transparent),
+      inset 0 -1px 0 color-mix(in oklab, oklch(1 0 0) 22%, transparent),
+      inset 0 10px 14px -12px color-mix(in oklab, oklch(1 0 0) 34%, transparent),
+      inset 0 -10px 14px -12px color-mix(in oklab, oklch(1 0 0) 18%, transparent);
+    --pinfold-color-surface: color-mix(in oklab, var(--pinfold-color-bg) 60%, transparent);
+    --pinfold-color-bg-subtle: color-mix(in oklab, var(--pinfold-color-bg) 66%, transparent);
+    --pinfold-color-border: color-mix(in oklab, var(--pinfold-color-text) 10%, transparent);
+    --pinfold-backdrop: blur(14px) saturate(1.9) brightness(1.04);
+    --pinfold-texture: linear-gradient(165deg, color-mix(in oklab, oklch(1 0 0) 15%, transparent) 0%, transparent 36%, transparent 72%, color-mix(in oklab, oklch(1 0 0) 6%, transparent) 100%);
+    --pinfold-highlight: inset 0 0 0 0 transparent;
+    --pinfold-shadow-xs: var(--pinfold-glass-rim), 0 2px 6px -2px color-mix(in oklab, var(--pinfold-shadow-color) 18%, transparent);
+    --pinfold-shadow-sm: var(--pinfold-glass-rim), 0 6px 16px -8px color-mix(in oklab, var(--pinfold-shadow-color) 24%, transparent);
+    --pinfold-shadow-md: var(--pinfold-glass-rim), 0 12px 28px -12px color-mix(in oklab, var(--pinfold-shadow-color) 30%, transparent);
+    --pinfold-shadow-lg: var(--pinfold-glass-rim), 0 20px 44px -16px color-mix(in oklab, var(--pinfold-shadow-color) 36%, transparent);
+    --pinfold-shadow-xl: var(--pinfold-glass-rim), 0 32px 72px -20px color-mix(in oklab, var(--pinfold-shadow-color) 42%, transparent);
+    --pinfold-radius-scale: 1.75;
+    --pinfold-control-edge: color-mix(in oklab, oklch(1 0 0) 18%, transparent);
+    --pinfold-control-shadow: var(--pinfold-shadow-sm);
     --pinfold-control-surface: var(--pinfold-color-surface);
-    --pinfold-control-glow: drop-shadow(0 0 6px color-mix(in oklch, currentColor 55%, transparent));
+    --pinfold-control-glow: drop-shadow(0 0 6px color-mix(in oklab, currentColor 55%, transparent));
   }
 
   /* --------------------------------------------------------------- material */
   /* Material 3: tonal surfaces (the surface takes a trace of the brand colour), faint
      outlines, soft elevation and generous rounding. */
   [data-pinfold-style='material'] {
-    --pinfold-color-surface: color-mix(in oklch, var(--pinfold-color-accent) 5%, var(--pinfold-color-bg));
-    --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-accent) 10%, var(--pinfold-color-bg));
-    --pinfold-color-border: color-mix(in oklch, var(--pinfold-color-text) 8%, transparent);
+    --pinfold-color-surface: color-mix(in oklab, var(--pinfold-color-accent) 5%, var(--pinfold-color-bg));
+    --pinfold-color-bg-subtle: color-mix(in oklab, var(--pinfold-color-accent) 10%, var(--pinfold-color-bg));
+    --pinfold-color-border: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent);
     --pinfold-shadow-sm:
-      0 1px 2px color-mix(in oklch, var(--pinfold-shadow-color) 18%, transparent),
-      0 1px 3px 1px color-mix(in oklch, var(--pinfold-shadow-color) 8%, transparent);
+      0 1px 2px color-mix(in oklab, var(--pinfold-shadow-color) 18%, transparent),
+      0 1px 3px 1px color-mix(in oklab, var(--pinfold-shadow-color) 8%, transparent);
     --pinfold-shadow-md:
-      0 1px 2px color-mix(in oklch, var(--pinfold-shadow-color) 18%, transparent),
-      0 2px 6px 2px color-mix(in oklch, var(--pinfold-shadow-color) 9%, transparent);
+      0 1px 2px color-mix(in oklab, var(--pinfold-shadow-color) 18%, transparent),
+      0 2px 6px 2px color-mix(in oklab, var(--pinfold-shadow-color) 9%, transparent);
     --pinfold-highlight: 0 0 0 0 transparent;
     --pinfold-radius-scale: 1.4;
     --pinfold-control-shadow: var(--pinfold-shadow-sm);
@@ -72,12 +86,16 @@
   }
 
   /* ------------------------------------------------------------------ noise */
-  /* Print-like grain over the palette's own surfaces. The texture is a small inline SVG,
-     no request. */
+  /* Film grain: black and white specks together, so it shows on a white card, a dark one and a
+     saturated button alike (one flat grey disappears on all three). It sits on every surface
+     through the texture token. A small inline SVG, no request. */
   [data-pinfold-style='noise'] {
-    --pinfold-texture: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-accent) 6%, var(--pinfold-color-surface));
+    --pinfold-texture: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.35' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='3 0 0 0 -1 3 0 0 0 -1 3 0 0 0 -1 0 0 0 0 0.09'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --pinfold-color-bg-subtle: color-mix(in oklab, var(--pinfold-color-accent) 6%, var(--pinfold-color-surface));
+    /* A printed rule: a line too thin to show grain still reads as ink. */
+    --pinfold-color-border: color-mix(in oklab, var(--pinfold-color-text) 20%, transparent);
     --pinfold-control-shadow: var(--pinfold-shadow-sm);
+    --pinfold-control-surface: var(--pinfold-color-surface);
   }
 
   /* -------------------------------------------------------------- brutalist */
@@ -88,7 +106,7 @@
     --pinfold-border-width: 2px;
     --pinfold-color-border: var(--pinfold-color-text);
     --pinfold-color-border-accent: var(--pinfold-color-text);
-    --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-accent) 14%, var(--pinfold-color-surface));
+    --pinfold-color-bg-subtle: color-mix(in oklab, var(--pinfold-color-accent) 14%, var(--pinfold-color-surface));
     --pinfold-shadow-sm: 3px 3px 0 var(--pinfold-color-accent);
     --pinfold-shadow-md: 5px 5px 0 var(--pinfold-color-accent);
     --pinfold-highlight: 0 0 0 0 transparent;
@@ -103,9 +121,10 @@
   /* ------------------------------------------------------- user preferences */
   @media (prefers-reduced-transparency: reduce) {
     [data-pinfold-style='glass'] {
-      --pinfold-color-surface: color-mix(in oklch, var(--pinfold-color-accent) 6%, var(--pinfold-color-bg));
-      --pinfold-color-bg-subtle: color-mix(in oklch, var(--pinfold-color-accent) 10%, var(--pinfold-color-bg));
+      --pinfold-color-surface: color-mix(in oklab, var(--pinfold-color-accent) 6%, var(--pinfold-color-bg));
+      --pinfold-color-bg-subtle: color-mix(in oklab, var(--pinfold-color-accent) 10%, var(--pinfold-color-bg));
       --pinfold-backdrop: none;
+      --pinfold-texture: none;
       --pinfold-control-surface: var(--pinfold-color-surface);
     }
   }

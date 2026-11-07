@@ -6,8 +6,8 @@
 
 @layer pinfold.components {
   .pinfold-field {
-    --pinfold-fld-edge: var(--pinfold-field-edge, color-mix(in oklch, var(--pinfold-color-text-muted) 78%, var(--pinfold-color-surface)));
-    --pinfold-fld-danger: color-mix(in oklch, var(--pinfold-color-danger) 82%, var(--pinfold-color-text));
+    --pinfold-fld-edge: var(--pinfold-field-edge, color-mix(in oklab, var(--pinfold-color-text-muted) 78%, var(--pinfold-color-surface)));
+    --pinfold-fld-danger: color-mix(in oklab, var(--pinfold-color-danger) 82%, var(--pinfold-color-text));
 
     display: flex;
     flex-direction: column;
@@ -81,6 +81,7 @@
     box-sizing: border-box;
     color: transparent;
     background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-image: var(--pinfold-texture);
     border: var(--pinfold-border-width) solid var(--pinfold-fld-edge);
     pointer-events: none;
   }
@@ -114,6 +115,8 @@
     background-image: var(--pinfold-texture);
     border: var(--pinfold-border-width) solid var(--pinfold-color-border-strong);
     border-radius: var(--pinfold-radius-md);
+    box-shadow: var(--pinfold-control-shadow, none);
+    backdrop-filter: var(--pinfold-backdrop);
   }
   .pinfold-field[data-variant='card'][data-orientation='horizontal'] .pinfold-choice__item { flex: 1 1 10rem; }
 

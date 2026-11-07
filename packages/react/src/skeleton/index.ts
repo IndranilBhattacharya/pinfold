@@ -4,4 +4,4 @@
 export { Skeleton, useSkeleton } from './client';
 export { Skeleton as default } from './client';
 export { defineSkeleton, type DefinedSkeleton, type SkeletonPresetProps } from './define';
-export type { SkeletonApi, SkeletonComponent, SkeletonConfig, SkeletonRootProps, SkeletonTagProps, SkeletonSlot, SkeletonState, SkeletonVariant, SkeletonAnimation, SkeletonDimensions } from './types';
+export type { SkeletonApi, SkeletonComponent, SkeletonConfig, SkeletonShape, SkeletonDirection, SkeletonRootProps, SkeletonTagProps, SkeletonSlot, SkeletonState, SkeletonVariant, SkeletonAnimation, SkeletonDimensions } from './types';

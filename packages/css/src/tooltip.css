@@ -23,6 +23,7 @@
     background: var(--pinfold-ttp-bg);
     border: var(--pinfold-border-width) solid var(--pinfold-ttp-edge);
     border-radius: var(--pinfold-radius-sm);
+    background-image: var(--pinfold-texture);
     box-shadow: var(--pinfold-shadow-md);
   }
   .pinfold-tooltip[data-variant='surface'] {

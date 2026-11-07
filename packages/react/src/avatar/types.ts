@@ -44,6 +44,8 @@ export interface AvatarDimensions {
 export interface AvatarConfig extends AvatarPerson, SlotOverrides<AvatarSlot, AvatarState> {
   /** A group: one entry per person, stacked, with "+N" past `max`. */
   items?: readonly AvatarPerson[];
+  /** A tooltip with the name and status. On in a group, off on its own. */
+  tooltip?: boolean;
   /** @default 4 */
   max?: number;
   /** Group: accessible name of the group. */

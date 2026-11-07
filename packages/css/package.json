@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/css",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Pinfold styles: tokens, reset and per-component CSS in cascade layers, plus the Tailwind v3 preset and v4 theme. Framework-free.",
   "author": "Indranil Bhattacharya",
   "keywords": [

@@ -61,6 +61,8 @@ export interface PropMeta {
   group: PropGroup;
   /** Shown as a playground control (shape and behaviour only, never raw sizes). */
   control?: boolean;
+  /** A control with no visual effect: it changes behaviour, so a playground groups it apart and says so. */
+  silent?: boolean;
   /** `deprecated` props still work; `alias` names the replacement. */
   status?: 'stable' | 'deprecated';
   alias?: string;

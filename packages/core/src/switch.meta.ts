@@ -20,7 +20,7 @@ export const switchMeta: ComponentMeta = {
   props: {
     ...fieldProps,
     checked: { type: 'boolean', description: 'Controlled state.', group: 'data' },
-    defaultChecked: { type: 'boolean', default: false, description: 'Initial state when uncontrolled. A form reset returns to it.', group: 'data', control: true },
+    defaultChecked: { type: 'boolean', default: false, description: 'Initial state when uncontrolled. A form reset returns to it.', group: 'data' },
     formValue: { type: 'string', default: 'on', description: 'What the form submits when on.', group: 'data' },
     onChange: { type: 'function', description: '`(checked, event) => void`.', group: 'behaviour' },
     labelPosition: { type: 'enum', values: ['end', 'start'], default: 'end', description: 'The label after the switch, or before it (a settings row).', group: 'appearance', control: true },

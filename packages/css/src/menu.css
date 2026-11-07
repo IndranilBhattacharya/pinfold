@@ -50,13 +50,13 @@
     cursor: pointer;
     user-select: none;
   }
-  .pinfold-menu__item[data-tone] { --pinfold-mnu-tone: color-mix(in oklch, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text)); }
+  .pinfold-menu__item[data-tone] { --pinfold-mnu-tone: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text)); }
   /* Selector weight over the reset's focus ring: the row's fill is the indicator. */
   .pinfold-menu .pinfold-menu__item:focus-visible,
   .pinfold-menu .pinfold-menu__item:focus {
     outline: 2px solid transparent;
     box-shadow: none;
-    background: color-mix(in oklch, var(--pinfold-mnu-tone) 12%, transparent);
+    background: color-mix(in oklab, var(--pinfold-mnu-tone) 12%, transparent);
   }
   .pinfold-menu__item[data-disabled] {
     opacity: 0.55;

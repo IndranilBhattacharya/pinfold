@@ -31,6 +31,7 @@
   .pinfold-card[data-variant='outline'] {
     background-color: var(--pinfold-color-surface);
     border-color: var(--pinfold-color-border);
+    box-shadow: var(--pinfold-control-shadow, none);
     backdrop-filter: var(--pinfold-backdrop);
   }
   .pinfold-card[data-variant='elevated'] {

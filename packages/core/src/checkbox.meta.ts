@@ -26,7 +26,7 @@ export const checkboxMeta: ComponentMeta = {
   props: {
     ...fieldProps,
     checked: { type: 'boolean', description: 'Controlled state.', group: 'data' },
-    defaultChecked: { type: 'boolean', default: false, description: 'Initial state when uncontrolled. A form reset returns to it.', group: 'data', control: true },
+    defaultChecked: { type: 'boolean', default: false, description: 'Initial state when uncontrolled. A form reset returns to it.', group: 'data' },
     indeterminate: { type: 'boolean', default: false, description: 'Shown and read as partly checked, e.g. a "select all" with some selected.', group: 'data', control: true },
     formValue: { type: 'string', default: 'on', description: 'What the form submits when checked.', group: 'data' },
     onChange: { type: 'function', description: 'One checkbox: `(checked, event) => void`. A group: `(values, event) => void`.', group: 'behaviour' },

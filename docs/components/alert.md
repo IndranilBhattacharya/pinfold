@@ -28,7 +28,7 @@ its meaning.
 | `tone` | `'info' \| 'success' \| 'warning' \| 'danger' \| 'neutral' \| 'primary'` | `'info'` |
 | `variant` | `'soft' \| 'outline' \| 'accent'` | `'soft'` |
 | `live` | `'off' \| 'polite' \| 'assertive'` | `'off'` |
-| `actions` | `ButtonConfig[]`: small, alert tone, first solid, rest ghost (each config wins) | none |
+| `actions` | `ButtonConfig[]`: small, the first tinted in the alert tone, the rest quiet (each config wins) | none |
 | `dismissible`, `dismissLabel`, `onDismiss` | dismiss button | `false`, `'Dismiss'` |
 | `dimensions` | `padding, gap, iconSize, radius` | theme |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root icon content title description actions dismiss`) | | |

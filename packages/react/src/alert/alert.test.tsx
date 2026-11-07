@@ -29,12 +29,12 @@ describe('Alert', () => {
     expect(root(container).querySelector('.pinfold-alert__icon')).toBeNull();
   });
 
-  it('renders actions as buttons in its tone; an action config wins', () => {
+  it('renders actions: the first tinted in its tone, the rest quiet; an action config wins', () => {
     const retry = vi.fn();
     const { container } = render(<Alert title="x" tone="danger" actions={[{ label: 'Retry', onClick: retry }, { label: 'Details', variant: 'outline' }]} />);
     const [first, second] = Array.from(root(container).querySelectorAll('.pinfold-button'));
     expect(first.getAttribute('data-tone')).toBe('danger');
-    expect(first.getAttribute('data-variant')).toBe('solid');
+    expect(first.getAttribute('data-variant')).toBe('soft');
     expect(first.getAttribute('data-size')).toBe('sm');
     expect(second.getAttribute('data-variant')).toBe('outline');
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));

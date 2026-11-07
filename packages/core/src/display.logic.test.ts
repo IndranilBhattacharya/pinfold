@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { formatKeys, inactiveKbdOptions, kbdOs } from './kbd.logic';
 import { inactiveSeparatorOptions } from './separator.logic';
 import { inactiveSkeletonOptions, skeletonLineWidths } from './skeleton.logic';
-import { badgeCount, inactiveBadgeOptions } from './badge.logic';
+import { badgeCount, badgeDotOnly, inactiveBadgeOptions } from './badge.logic';
 import { avatarInitials, avatarOverflow, avatarTone, inactiveAvatarOptions } from './avatar.logic';
 import { inactiveProgressOptions, progressPercent, progressValueText } from './progress.logic';
 
@@ -41,8 +41,9 @@ describe('separator and skeleton logic', () => {
   });
 
   it('skeleton: lines only for text, nothing animates once loaded; the last line is shorter', () => {
-    expect(Object.keys(inactiveSkeletonOptions({ variant: 'circle' }))).toEqual(['lines']);
-    expect(Object.keys(inactiveSkeletonOptions({ loading: false })).sort()).toEqual(['animation', 'lines']);
+    expect(Object.keys(inactiveSkeletonOptions({ variant: 'circle' }))).toEqual(['direction', 'lines']);
+    expect(Object.keys(inactiveSkeletonOptions({ items: [] }))).toEqual(['variant', 'lines']);
+    expect(Object.keys(inactiveSkeletonOptions({ loading: false })).sort()).toEqual(['animation', 'direction', 'lines']);
     expect(skeletonLineWidths(3)).toEqual(['100%', '100%', '62%']);
     expect(skeletonLineWidths(1)).toEqual(['100%']);
   });
@@ -60,10 +61,18 @@ describe('badge logic', () => {
     expect(badgeCount(2.7)).toBe('2');
   });
 
-  it('lists what a dot or a missing count ignores', () => {
-    expect(Object.keys(inactiveBadgeOptions({}))).toEqual(['max', 'showZero']);
-    expect(inactiveBadgeOptions({ count: 3 })).toEqual({});
-    expect(Object.keys(inactiveBadgeOptions({ dot: true, count: 3 }))).toEqual(['max', 'showZero', 'icon', 'radius']);
+  it('lists what a missing count, a missing anchor or a lone dot ignores', () => {
+    expect(Object.keys(inactiveBadgeOptions({}))).toEqual(['max', 'showZero', 'placement', 'anchorShape']);
+    expect(inactiveBadgeOptions({ count: 3, anchor: 'x' })).toEqual({});
+    expect(Object.keys(inactiveBadgeOptions({ dot: true, anchor: 'x' }))).toEqual(['max', 'showZero', 'radius', 'variant']);
+    expect(Object.keys(inactiveBadgeOptions({ dot: true, label: 'Online', anchor: 'x' }))).toEqual(['max', 'showZero']);
+  });
+
+  it('a dot is alone only with nothing beside it', () => {
+    expect(badgeDotOnly({ dot: true })).toBe(true);
+    expect(badgeDotOnly({ dot: true, label: 'x' })).toBe(false);
+    expect(badgeDotOnly({ dot: true, count: 2 })).toBe(false);
+    expect(badgeDotOnly({})).toBe(false);
   });
 });
 
@@ -86,6 +95,7 @@ describe('avatar logic', () => {
   it('lists per-person options as inactive in a group', () => {
     expect(Object.keys(inactiveAvatarOptions({}))).toEqual(['max', 'label']);
     expect(Object.keys(inactiveAvatarOptions({ items: [] }))).toContain('src');
+    expect(Object.keys(inactiveAvatarOptions({ src: '/a.png' }))).toContain('tone');
   });
 });
 

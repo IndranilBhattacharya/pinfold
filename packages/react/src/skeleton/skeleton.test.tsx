@@ -49,6 +49,22 @@ describe('Skeleton', () => {
     expect(container.querySelector('.pinfold-skeleton')!.hasAttribute('data-animate')).toBe(false);
   });
 
+  it('builds a layout from one config: shapes and nested groups', () => {
+    const { container } = render(<Skeleton direction="row" items={[{ variant: 'circle', size: 'lg' }, { items: [{ lines: 2 }, { variant: 'rect', dimensions: { height: 40 } }] }]} />);
+    const root = container.querySelector('.pinfold-skeleton')!;
+    expect(root.getAttribute('data-direction')).toBe('row');
+    expect(root.hasAttribute('data-variant')).toBe(false);
+    const shapes = root.querySelectorAll('.pinfold-skeleton__shape');
+    expect(shapes[0].getAttribute('data-variant')).toBe('circle');
+    expect(shapes[0].getAttribute('data-size')).toBe('lg');
+    expect(shapes[1].getAttribute('data-direction')).toBe('column');
+    expect((shapes[3] as HTMLElement).style.getPropertyValue('--pinfold-skeleton-height')).toBe('40px');
+    expect(root.querySelectorAll('.pinfold-skeleton__line')).toHaveLength(4);
+    // Counted across the layout, for `stagger`.
+    const last = root.querySelectorAll('.pinfold-skeleton__line')[3] as HTMLElement;
+    expect(last.style.getPropertyValue('--pinfold-skel-i')).toBe('3');
+  });
+
   it('a preset renders on the server', () => {
     const Avatar = defineSkeleton({ variant: 'circle', size: 'lg' });
     const html = renderToString(<Avatar />);
