@@ -78,6 +78,9 @@
     --pinfold-color-bg: var(--pinfold-neutral-50);
     --pinfold-color-bg-subtle: var(--pinfold-neutral-100);
     --pinfold-color-surface: oklch(1 0 0);
+    /* A surface that sits on another and must read as lifted (a segmented pill): the surface in
+       light themes, a step lighter in dark ones, where shadows barely show. */
+    --pinfold-color-raised: oklch(1 0 0);
     --pinfold-color-surface-raised: oklch(1 0 0);
     --pinfold-color-surface-sunken: var(--pinfold-neutral-100);
 
@@ -209,6 +212,7 @@
       --pinfold-color-bg: var(--pinfold-neutral-950);
       --pinfold-color-bg-subtle: oklch(0.178 0.019 274);
       --pinfold-color-surface: oklch(0.196 0.020 274);
+      --pinfold-color-raised: oklch(0.262 0.022 274);
       --pinfold-color-surface-raised: oklch(0.232 0.021 274);
       --pinfold-color-surface-sunken: oklch(0.165 0.018 274);
       --pinfold-color-border: oklch(0.286 0.023 274);
@@ -252,6 +256,7 @@
     --pinfold-color-bg: var(--pinfold-neutral-950);
     --pinfold-color-bg-subtle: oklch(0.178 0.019 274);
     --pinfold-color-surface: oklch(0.196 0.020 274);
+    --pinfold-color-raised: oklch(0.262 0.022 274);
     --pinfold-color-surface-raised: oklch(0.232 0.021 274);
     --pinfold-color-surface-sunken: oklch(0.165 0.018 274);
     --pinfold-color-border: oklch(0.286 0.023 274);
@@ -305,6 +310,7 @@
     --pinfold-color-bg: var(--pinfold-neutral-50);
     --pinfold-color-bg-subtle: var(--pinfold-neutral-100);
     --pinfold-color-surface: oklch(1 0 0);
+    --pinfold-color-raised: oklch(1 0 0);
     --pinfold-color-surface-raised: oklch(1 0 0);
     --pinfold-color-surface-sunken: var(--pinfold-neutral-100);
     --pinfold-color-border: var(--pinfold-neutral-200);

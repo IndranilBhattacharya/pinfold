@@ -1,0 +1,105 @@
+/* Pinfold — one-time code. One transparent native input lies over the boxes and takes every
+   keystroke, paste and autofill; the boxes are drawn from its value. The active box shows a
+   blinking caret, a filled box pops in. Label, help text and error are shared: see field.css. */
+
+@layer pinfold.components {
+  .pinfold-otp {
+    --pinfold-otp-s: var(--pinfold-otp-slot-size, calc(var(--pinfold-control-height) * 1.1));
+    --pinfold-otp-g: var(--pinfold-otp-gap, var(--pinfold-space-2));
+    --pinfold-otp-accent: var(--pinfold-color-accent);
+  }
+  .pinfold-otp[data-invalid] { --pinfold-otp-accent: var(--pinfold-fld-danger); }
+  .pinfold-otp__control {
+    position: relative;
+    display: inline-flex;
+    max-inline-size: 100%;
+  }
+  .pinfold-otp__slots {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pinfold-otp-g);
+  }
+  .pinfold-otp__slot {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: var(--pinfold-otp-s);
+    block-size: calc(var(--pinfold-otp-s) * 1.15);
+    font-size: calc(var(--pinfold-control-text) * 1.35);
+    font-weight: var(--pinfold-weight-semibold);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-fld-edge);
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+  }
+  .pinfold-otp[data-variant='filled'] .pinfold-otp__slot {
+    background-color: var(--pinfold-color-bg-subtle);
+    border-color: transparent;
+    box-shadow: inset 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-fld-edge) 45%, transparent);
+  }
+  .pinfold-otp[data-variant='underline'] .pinfold-otp__slot {
+    background: transparent;
+    border-width: 0 0 2px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .pinfold-otp__slot[data-active] {
+    border-color: var(--pinfold-otp-accent);
+    box-shadow: var(--pinfold-focus-ring);
+  }
+  .pinfold-otp[data-variant='underline'] .pinfold-otp__slot[data-active] { box-shadow: none; }
+  .pinfold-otp[data-invalid] .pinfold-otp__slot { border-color: var(--pinfold-fld-danger); }
+  .pinfold-otp[data-complete]:not([data-invalid]) .pinfold-otp__slot { border-color: color-mix(in oklab, var(--pinfold-otp-accent) 60%, var(--pinfold-fld-edge)); }
+  .pinfold-otp[data-animate] .pinfold-otp__slot { transition: border-color var(--pinfold-duration-md) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-otp[data-animate] .pinfold-otp__slot[data-new] { animation: pinfold-otp-pop var(--pinfold-duration-md) var(--pinfold-ease-spring); }
+  .pinfold-otp[data-disabled] .pinfold-otp__slot { opacity: 0.5; }
+
+  .pinfold-otp__caret {
+    inline-size: 2px;
+    block-size: 45%;
+    background: var(--pinfold-otp-accent);
+    border-radius: 1px;
+  }
+  .pinfold-otp[data-animate] .pinfold-otp__caret { animation: pinfold-otp-blink 1s steps(1) infinite; }
+  .pinfold-otp__separator {
+    color: var(--pinfold-color-text-muted);
+    padding-inline: 0.125rem;
+  }
+
+  /* The real input: over all the boxes, invisible, still focusable and tappable. */
+  .pinfold-otp__input {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    color: transparent;
+    letter-spacing: -1em;
+    caret-color: transparent;
+    background: transparent;
+    border: 0;
+    outline: none;
+    opacity: 0;
+    cursor: text;
+  }
+  .pinfold-otp__input:disabled { cursor: not-allowed; }
+
+  @keyframes pinfold-otp-pop {
+    from { transform: scale(0.88); }
+  }
+  @keyframes pinfold-otp-blink {
+    50% { opacity: 0; }
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-otp__slot { border-color: CanvasText; }
+    .pinfold-otp__slot[data-active] { outline: 2px solid Highlight; }
+  }
+}

@@ -28,6 +28,7 @@ export * from './progress.logic';
 export * from './overlay.logic';
 export * from './toast.logic';
 export * from './forms.logic';
+export * from './controls.logic';
 export { __DEV__, warnOnce, resetWarnings } from './dev';
 export type {
   PinfoldSize,
@@ -44,4 +45,4 @@ export type {
 } from './types';
 
 /** Package version. Set with `npm run version:set -- x.y.z` (versions.test.ts keeps every copy in sync). */
-export const version = '0.10.1';
+export const version = '0.11.0';

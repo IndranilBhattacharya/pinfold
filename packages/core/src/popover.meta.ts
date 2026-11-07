@@ -16,6 +16,7 @@ export const popoverMeta: ComponentMeta = {
   description: 'A floating panel anchored to a trigger, opened by a click or, as a hover card, by hovering. Can hold anything, including controls.',
   pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/',
   importPath: '@pinfold/react/popover',
+  requires: ['button'],
   slots: SLOTS,
   props: {
     title: { type: 'node', description: 'The heading, and the accessible name of the panel.', group: 'data' },

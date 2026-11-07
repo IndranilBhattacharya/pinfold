@@ -45,6 +45,9 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
+    // The suite runs every file in parallel; on a busy machine jsdom start-up and dynamic imports
+    // take seconds. Waits are on conditions, so a longer ceiling never slows a passing run.
+    testTimeout: 15000,
     include: ['packages/**/*.test.{ts,tsx}'],
   },
 });

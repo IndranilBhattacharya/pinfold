@@ -1,0 +1,104 @@
+/* Pinfold — number field. The same frame as an input (heights from the control tokens), with the
+   native spinners hidden and our − and + buttons in their place: split around the number, or
+   side by side after it. Each button is the field's full height: a 24px+ target (WCAG 2.5.8). Label, help text and error are shared: see field.css in core.css. */
+
+@layer pinfold.components {
+  .pinfold-number {
+    inline-size: var(--pinfold-number-width, 10rem);
+    max-inline-size: 100%;
+  }
+  .pinfold-number__control {
+    display: flex;
+    align-items: stretch;
+    box-sizing: border-box;
+    block-size: var(--pinfold-number-height, var(--pinfold-control-height));
+    overflow: hidden;
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-fld-edge);
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-number[data-variant='filled'] .pinfold-number__control {
+    background-color: var(--pinfold-color-bg-subtle);
+    border-color: transparent;
+    box-shadow: inset 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-fld-edge) 45%, transparent);
+  }
+  .pinfold-number[data-animate] .pinfold-number__control { transition: border-color var(--pinfold-duration-md) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-number:not([data-disabled]) .pinfold-number__control:hover { border-color: var(--pinfold-color-text-muted); }
+  .pinfold-number .pinfold-number__control:focus-within { border-color: var(--pinfold-color-accent); box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-number[data-invalid] .pinfold-number__control { border-color: var(--pinfold-fld-danger); }
+  .pinfold-number[data-readonly] .pinfold-number__control { background-color: var(--pinfold-color-bg-subtle); border-style: dashed; }
+
+  .pinfold-number__input {
+    flex: 1 1 auto;
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: 2ch;
+    margin: 0;
+    padding-inline: calc(var(--pinfold-control-pad-x) * 0.6);
+    color: inherit;
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    background: transparent;
+    border: 0;
+    outline: none;
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+  .pinfold-number[data-steppers='split'] .pinfold-number__input { text-align: center; }
+  .pinfold-number .pinfold-number__input:focus-visible { box-shadow: none; outline: none; }
+  .pinfold-number__input::-webkit-inner-spin-button,
+  .pinfold-number__input::-webkit-outer-spin-button { margin: 0; -webkit-appearance: none; }
+  .pinfold-number__input::placeholder { color: var(--pinfold-color-text-muted); opacity: 1; }
+
+  .pinfold-number__startContent,
+  .pinfold-number__endContent {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    padding-inline: calc(var(--pinfold-control-pad-x) * 0.5);
+    color: var(--pinfold-color-text-muted);
+    white-space: nowrap;
+  }
+  .pinfold-number__startContent + .pinfold-number__input { padding-inline-start: 0; }
+
+  .pinfold-number__decrement,
+  .pinfold-number__increment {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    inline-size: var(--pinfold-number-height, var(--pinfold-control-height));
+    margin: 0;
+    padding: 0;
+    color: var(--pinfold-color-text-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+  }
+  .pinfold-number__decrement > svg,
+  .pinfold-number__increment > svg { inline-size: var(--pinfold-control-icon); block-size: var(--pinfold-control-icon); }
+  .pinfold-number__decrement:hover:not(:disabled),
+  .pinfold-number__increment:hover:not(:disabled) { color: var(--pinfold-color-text); background-color: var(--pinfold-color-bg-subtle); }
+  .pinfold-number__decrement:disabled,
+  .pinfold-number__increment:disabled { cursor: not-allowed; opacity: 0.4; }
+  .pinfold-number[data-animate] .pinfold-number__decrement,
+  .pinfold-number[data-animate] .pinfold-number__increment { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-number[data-animate] .pinfold-number__decrement:active:not(:disabled) > svg,
+  .pinfold-number[data-animate] .pinfold-number__increment:active:not(:disabled) > svg { transform: scale(0.82); }
+  .pinfold-number[data-animate] .pinfold-number__decrement > svg,
+  .pinfold-number[data-animate] .pinfold-number__increment > svg { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
+  .pinfold-number[data-steppers='split'] .pinfold-number__decrement { border-inline-end: var(--pinfold-border-width) solid var(--pinfold-color-border); }
+  .pinfold-number__increment,
+  .pinfold-number[data-steppers='end'] .pinfold-number__decrement { border-inline-start: var(--pinfold-border-width) solid var(--pinfold-color-border); }
+  .pinfold-number[data-steppers='end'] .pinfold-number__decrement,
+  .pinfold-number[data-steppers='end'] .pinfold-number__increment { inline-size: calc(var(--pinfold-number-height, var(--pinfold-control-height)) * 0.85); }
+
+  @media (forced-colors: active) {
+    .pinfold-number__control { border-color: CanvasText; }
+    .pinfold-number .pinfold-number__control:focus-within { outline: 2px solid Highlight; outline-offset: 1px; }
+  }
+}

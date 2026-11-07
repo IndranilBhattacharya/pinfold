@@ -1,0 +1,43 @@
+/* Pinfold — toolbar and button group. The buttons are Pinfold buttons (button.css); this joins
+   them: attached buttons share their edges and only the outer corners are rounded, and a focused or
+   hovered button rises over its neighbours so its whole edge and ring show. */
+
+@layer pinfold.components {
+  .pinfold-toolbar {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pinfold-toolbar-gap, var(--pinfold-space-1));
+    max-inline-size: 100%;
+    vertical-align: middle;
+  }
+  .pinfold-toolbar[data-orientation='vertical'] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .pinfold-toolbar__item { position: relative; }
+  .pinfold-toolbar__item:hover,
+  .pinfold-toolbar__item:focus-visible { z-index: 1; }
+
+  .pinfold-toolbar[data-attached] {
+    flex-wrap: nowrap;
+    gap: 0;
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+  }
+  .pinfold-toolbar[data-attached] > .pinfold-toolbar__item {
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .pinfold-toolbar[data-attached][data-orientation='horizontal'] > .pinfold-toolbar__item + .pinfold-toolbar__item { margin-inline-start: calc(var(--pinfold-border-width) * -1); }
+  .pinfold-toolbar[data-attached][data-orientation='vertical'] > .pinfold-toolbar__item + .pinfold-toolbar__item { margin-block-start: calc(var(--pinfold-border-width) * -1); }
+  /* Solid and soft buttons have no edge to share: a hairline in their own colour divides them. */
+  .pinfold-toolbar[data-attached][data-orientation='horizontal'] > .pinfold-toolbar__item:is([data-variant='solid'], [data-variant='soft']) + .pinfold-toolbar__item { margin-inline-start: 0; box-shadow: inset 1px 0 0 color-mix(in oklab, currentColor 22%, transparent); }
+  .pinfold-toolbar[data-attached][data-orientation='vertical'] > .pinfold-toolbar__item:is([data-variant='solid'], [data-variant='soft']) + .pinfold-toolbar__item { margin-block-start: 0; box-shadow: inset 0 1px 0 color-mix(in oklab, currentColor 22%, transparent); }
+  .pinfold-toolbar[data-attached][data-orientation='horizontal'] > .pinfold-toolbar__item:first-child { border-start-start-radius: var(--pinfold-btn-radius); border-end-start-radius: var(--pinfold-btn-radius); }
+  .pinfold-toolbar[data-attached][data-orientation='horizontal'] > .pinfold-toolbar__item:last-child { border-start-end-radius: var(--pinfold-btn-radius); border-end-end-radius: var(--pinfold-btn-radius); }
+  .pinfold-toolbar[data-attached][data-orientation='vertical'] > .pinfold-toolbar__item:first-child { border-start-start-radius: var(--pinfold-btn-radius); border-start-end-radius: var(--pinfold-btn-radius); }
+  .pinfold-toolbar[data-attached][data-orientation='vertical'] > .pinfold-toolbar__item:last-child { border-end-start-radius: var(--pinfold-btn-radius); border-end-end-radius: var(--pinfold-btn-radius); }
+  /* After the joins: the focus ring always shows in full. */
+  .pinfold-toolbar[data-attached] > .pinfold-toolbar__item:focus-visible { box-shadow: var(--pinfold-focus-ring); }
+}

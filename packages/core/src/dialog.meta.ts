@@ -15,6 +15,7 @@ export const dialogMeta: ComponentMeta = {
   description: 'A native modal dialog from one config: centred, or a sheet from any edge; an alert dialog with one option. Focus trap, Escape and focus return come from the browser.',
   pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/',
   importPath: '@pinfold/react/dialog',
+  requires: ['button'],
   slots: SLOTS,
   props: {
     title: { type: 'node', description: 'The heading, and the accessible name. A real `<h2>`.', group: 'data' },

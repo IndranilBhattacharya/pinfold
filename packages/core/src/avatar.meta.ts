@@ -22,6 +22,7 @@ export const avatarMeta: ComponentMeta = {
   description: 'A picture of a person with initials while it loads or when it fails, an optional presence dot, or a stacked group with "+N".',
   pattern: 'https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/',
   importPath: '@pinfold/react/avatar',
+  requires: ['tooltip'],
   slots: SLOTS,
   props: {
     ...person,
