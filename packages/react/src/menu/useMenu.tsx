@@ -39,7 +39,11 @@ export function useMenu(input: MenuConfig): MenuComponent {
   const triggerId = `${id}-trigger`;
   const mounted = useMounted();
   const anchor = React.useRef<Element | null>(null);
-  const point = React.useRef<OverlayRect | null>(null);
+  // A context menu's point, kept as an offset inside the area that was clicked, so it moves with that
+  // area when the page scrolls. One object, reused for every frame of tracking.
+  const point = React.useRef<{ dx: number; dy: number } | null>(null);
+  const spot = React.useRef<OverlayRect>({ x: 0, y: 0, width: 0, height: 0 });
+  const [placed, setPlaced] = React.useState(0);
   const menu = React.useRef<HTMLDivElement | null>(null);
   const focusOnOpen = React.useRef<'first' | 'last'>('first');
   const query = React.useRef({ text: '', at: 0 });
@@ -63,7 +67,15 @@ export function useMenu(input: MenuConfig): MenuComponent {
     setOpen(true);
   };
 
-  useFloating({ open: showing, anchor: () => (mode === 'context' ? point.current ?? anchor.current : anchor.current), floating: menu, placement: mode === 'context' ? 'bottom-start' : config.placement ?? 'bottom-start', offset: mode === 'context' ? 0 : config.offset ?? 4 });
+  const contextAnchor = (): Element | OverlayRect | null => {
+    const area = anchor.current;
+    if (!area || !point.current) return area;
+    const rect = area.getBoundingClientRect();
+    spot.current.x = rect.x + point.current.dx;
+    spot.current.y = rect.y + point.current.dy;
+    return spot.current;
+  };
+  useFloating({ open: showing, key: placed, anchor: () => (mode === 'context' ? contextAnchor() : anchor.current), floating: menu, placement: mode === 'context' ? 'bottom-start' : config.placement ?? 'bottom-start', offset: mode === 'context' ? 0 : config.offset ?? 4 });
   useOverlayLayer(showing, (node) => !!menu.current?.contains(node) || (mode === 'dropdown' && !!anchor.current?.contains(node)), close, close);
 
   // Opening moves focus to a row and closing brings it back. A menu open from the first render
@@ -113,14 +125,14 @@ export function useMenu(input: MenuConfig): MenuComponent {
             onContextMenu: (event: React.MouseEvent<Element>) => {
               event.preventDefault();
               // The keyboard's Menu key reports no pointer position: open at the area's corner instead.
-              point.current = event.clientX || event.clientY ? { x: event.clientX, y: event.clientY, width: 0, height: 0 } : null;
-              anchor.current = event.currentTarget;
-              // Already open: close first, so the position effect runs again at the new point.
+              const area = event.currentTarget;
+              const rect = area.getBoundingClientRect();
+              point.current = event.clientX || event.clientY ? { dx: event.clientX - rect.x, dy: event.clientY - rect.y } : null;
+              anchor.current = area;
+              // Already open: move it to the new point, with no close and reopen.
+              setPlaced((n) => n + 1);
               if (!showing) openWith('first');
-              else {
-                close();
-                requestAnimationFrame(() => openWith('first'));
-              }
+              else (menu.current?.querySelector('[role^="menuitem"]:not([aria-disabled="true"])') as HTMLElement | null)?.focus();
             },
           }
         : {

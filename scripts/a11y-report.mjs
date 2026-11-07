@@ -195,6 +195,11 @@ async function open(options = {}) {
   await page.setContent(html, { waitUntil: 'load' });
   await page.waitForSelector('[data-pinfold="accordion"]');
   await page.waitForTimeout(400); // transitions settle; hidden="until-found" applied
+  // Floating elements hide while their anchor is off-screen: show the whole fixture at once, so
+  // every open tooltip, popover and menu is checked.
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  await page.setViewportSize({ width: 900, height: Math.max(900, height) });
+  await page.waitForTimeout(200);
   return page;
 }
 

@@ -68,9 +68,9 @@ describe('style packs', () => {
   });
 
   for (const [name, m] of Object.entries(mode)) {
-    it(`keeps body text at AA on glass over any backdrop (${name})`, () => {
-      // Every translucent glass surface (opacity read from the CSS) over white, black and the brand colour.
-      const glass = css.slice(css.indexOf("[data-pinfold-style='glass']"), css.indexOf('material'));
+    it(`keeps body text at AA on glass and frosted grain over any backdrop (${name})`, () => {
+      // Every translucent surface (opacity read from the CSS) over white, black and the brand colour.
+      const glass = css.slice(css.indexOf("[data-pinfold-style='glass']"), css.indexOf('material')) + css.slice(css.indexOf("[data-pinfold-style='noise'] {"), css.indexOf('brutalist'));
       const alphas = [...glass.matchAll(/var\(--pinfold-color-bg\) (\d+)%/g)].map((x) => Number(x[1]) / 100);
       expect(alphas.length).toBeGreaterThan(0);
       for (const alpha of alphas) {
