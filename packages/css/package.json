@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/css",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "Pinfold styles: tokens, reset and per-component CSS in cascade layers, plus the Tailwind v3 preset and v4 theme. Framework-free.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -36,6 +36,9 @@
     "./kbd.css": "./dist/kbd.css",
     "./skeleton.css": "./dist/skeleton.css",
     "./badge.css": "./dist/badge.css",
+    "./empty.css": "./dist/empty.css",
+    "./timeline.css": "./dist/timeline.css",
+    "./rating.css": "./dist/rating.css",
     "./table.css": "./dist/table.css",
     "./datepicker.css": "./dist/datepicker.css",
     "./calendar.css": "./dist/calendar.css",

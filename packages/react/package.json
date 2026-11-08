@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -47,7 +47,10 @@
     "command",
     "calendar",
     "datepicker",
-    "table"
+    "table",
+    "rating",
+    "timeline",
+    "empty"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -443,6 +446,36 @@
         "default": "./dist/table/index.cjs"
       }
     },
+    "./rating": {
+      "import": {
+        "types": "./dist/rating/index.d.ts",
+        "default": "./dist/rating/index.js"
+      },
+      "require": {
+        "types": "./dist/rating/index.d.cts",
+        "default": "./dist/rating/index.cjs"
+      }
+    },
+    "./timeline": {
+      "import": {
+        "types": "./dist/timeline/index.d.ts",
+        "default": "./dist/timeline/index.js"
+      },
+      "require": {
+        "types": "./dist/timeline/index.d.cts",
+        "default": "./dist/timeline/index.cjs"
+      }
+    },
+    "./empty": {
+      "import": {
+        "types": "./dist/empty/index.d.ts",
+        "default": "./dist/empty/index.js"
+      },
+      "require": {
+        "types": "./dist/empty/index.d.cts",
+        "default": "./dist/empty/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -557,6 +590,15 @@
       ],
       "table": [
         "./dist/table/index.d.cts"
+      ],
+      "rating": [
+        "./dist/rating/index.d.cts"
+      ],
+      "timeline": [
+        "./dist/timeline/index.d.cts"
+      ],
+      "empty": [
+        "./dist/empty/index.d.cts"
       ]
     }
   },
@@ -598,6 +640,9 @@
     "calendar",
     "datepicker",
     "table",
+    "rating",
+    "timeline",
+    "empty",
     "registry",
     "schema",
     "llms.txt",
@@ -607,7 +652,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.18.0"
+    "@pinfold/core": "0.19.0"
   },
   "peerDependencies": {
     "react": ">=18"

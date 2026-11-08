@@ -1,0 +1,41 @@
+/* Pinfold — rating. Symbols in a row: faint when empty, solid in the tone when filled (a half is
+   clipped), a small lift under the pointer. The radios sit hidden over the row. */
+
+@layer pinfold.components {
+  .pinfold-rating {
+    --pinfold-rtg-size: 1.5rem;
+    --pinfold-rtg-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.625rem;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-text-sm);
+    color: var(--pinfold-color-text);
+  }
+  /* Gold: the warning ramp's middle step, brighter than the warning text colour, 3:1 on light and dark. */
+  .pinfold-rating[data-tone='warning'] { --pinfold-rtg-solid: var(--pinfold-warning-500, var(--pinfold-tone-solid)); }
+  .pinfold-rating[data-size='sm'] { --pinfold-rtg-size: 1.125rem; }
+  .pinfold-rating[data-size='lg'] { --pinfold-rtg-size: 2rem; }
+  .pinfold-rating__label { flex-basis: 100%; font-weight: var(--pinfold-weight-medium); }
+  .pinfold-rating__symbols { position: relative; display: inline-flex; gap: 0.125rem; border-radius: var(--pinfold-radius-sm); }
+  .pinfold-rating:not([data-readonly]):not([data-disabled]) .pinfold-rating__symbols { cursor: pointer; }
+  .pinfold-rating__symbols:focus-within { box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-rating__symbol { position: relative; display: inline-grid; inline-size: var(--pinfold-rtg-size); block-size: var(--pinfold-rtg-size); }
+  .pinfold-rating__empty,
+  .pinfold-rating__full { grid-area: 1 / 1; display: inline-grid; }
+  .pinfold-rating__empty { color: color-mix(in oklab, var(--pinfold-color-text) 18%, transparent); }
+  .pinfold-rating__full { color: var(--pinfold-rtg-solid); filter: drop-shadow(0 1px 2px color-mix(in oklab, var(--pinfold-rtg-solid) 40%, transparent)); }
+  [dir='rtl'] .pinfold-rating__symbol { transform: scaleX(-1); }
+  .pinfold-rating__symbol svg { inline-size: 100%; block-size: 100%; }
+  .pinfold-rating[data-animate]:not([data-readonly]) .pinfold-rating__symbol { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
+  .pinfold-rating[data-animate]:not([data-readonly]):not([data-disabled]) .pinfold-rating__symbol:hover { transform: scale(1.15); }
+  [dir='rtl'] .pinfold-rating[data-animate]:not([data-readonly]):not([data-disabled]) .pinfold-rating__symbol:hover { transform: scaleX(-1.15) scaleY(1.15); }
+  .pinfold-rating[data-disabled] .pinfold-rating__symbols { opacity: 0.5; cursor: not-allowed; }
+  .pinfold-rating__value { font-weight: var(--pinfold-weight-semibold); font-variant-numeric: tabular-nums; }
+
+  @media (forced-colors: active) {
+    .pinfold-rating__full { forced-color-adjust: none; color: Highlight; }
+    .pinfold-rating__empty { forced-color-adjust: none; color: GrayText; }
+  }
+}
