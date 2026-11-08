@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'a11y-report');
 const require = createRequire(import.meta.url);
-const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta, tableMeta, ratingMeta, timelineMeta, emptyMeta, carouselMeta, resizableMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
+const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta, tableMeta, ratingMeta, timelineMeta, emptyMeta, carouselMeta, resizableMeta, sidebarMeta, navmenuMeta, colorpickerMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
@@ -79,6 +79,9 @@ const app = await build({
       import { Empty } from '@pinfold/react/empty';
       import { Carousel } from '@pinfold/react/carousel';
       import { Resizable } from '@pinfold/react/resizable';
+      import { Sidebar } from '@pinfold/react/sidebar';
+      import { NavMenu } from '@pinfold/react/navmenu';
+      import { ColorPicker } from '@pinfold/react/colorpicker';
       // Overlays sit in the page flow here, not the top layer, so axe can measure their contrast.
       delete HTMLElement.prototype.showPopover;
       const toastStores = {};
@@ -177,6 +180,9 @@ const app = await build({
           e(Carousel, { key: 'crs', label: 'Offers ' + pack, slidesPerView: 2, autoplay: 4000, slides: ['One', 'Two', { label: 'Three', content: 'Three' }, 'Four'].map((s) => typeof s === 'string' ? e('div', { style: { padding: 24 } }, s) : s) }),
           e(Resizable, { key: 'rsz', label: 'Editor ' + pack, handle: 'grip', panels: [{ id: 'a', label: 'Files', defaultSize: 30, content: 'Files' }, { id: 'b', label: 'Code', content: 'Code' }] }),
           e(Resizable, { key: 'rszv', label: 'Stack ' + pack, orientation: 'vertical', panels: [{ id: 'a', content: 'Top' }, { id: 'b', content: 'Bottom' }] }),
+          e(Sidebar, { key: 'sb', label: 'Main ' + pack, value: '/p/a', collapsible: true, header: 'Acme', items: [{ label: 'Inbox', href: '#', badge: 4 }, { label: 'Projects', items: [{ label: 'Alpha', href: '/p/a' }, 'Beta'] }, { label: 'Settings', href: '#s', group: 'Account' }] }), e(Sidebar, { key: 'sbr', label: 'Rail ' + pack, variant: 'solid', defaultCollapsed: true, collapsible: true, value: 'Home', items: ['Home', { label: 'Inbox', badge: 2 }] }),
+          e(ColorPicker, { key: 'cp', label: 'Brand ' + pack, alpha: true, defaultValue: '#3366cc', swatches: ['#4f46e5', '#16a34a', '#dc2626'], name: 'brand' }),
+          e('div', { key: 'nmw', style: { minHeight: 280 } }, e(NavMenu, { label: 'Site ' + pack, value: '/a', open: 'Products', items: [{ label: 'Products', content: 'Featured', items: [{ label: 'Analytics', href: '/a', description: 'Know your traffic' }, 'Changelog'] }, { label: 'Pricing', href: '#p' }] })), e(NavMenu, { key: 'nmu', label: 'Docs ' + pack, variant: 'pills', value: '/d', items: [{ label: 'Docs', href: '/d' }, 'Blog'] }),
         );
       }
       const items = [
@@ -258,6 +264,9 @@ const app = await build({
     '@pinfold/react/empty': './packages/react/dist/empty/index.js',
     '@pinfold/react/carousel': './packages/react/dist/carousel/index.js',
     '@pinfold/react/resizable': './packages/react/dist/resizable/index.js',
+    '@pinfold/react/sidebar': './packages/react/dist/sidebar/index.js',
+    '@pinfold/react/navmenu': './packages/react/dist/navmenu/index.js',
+    '@pinfold/react/colorpicker': './packages/react/dist/colorpicker/index.js',
   },
   logLevel: 'silent',
 });
@@ -316,7 +325,7 @@ for (const scheme of ['light', 'dark']) {
 // The fixture really holds every component (an axe run over a page missing one proves nothing).
 {
   const page = await open();
-  const names = ['accordion', 'button', 'spinner', 'separator', 'kbd', 'skeleton', 'badge', 'alert', 'avatar', 'card', 'progress', 'tooltip', 'popover', 'dialog', 'menu', 'toast', 'input', 'checkbox', 'radio', 'switch', 'toggle', 'toolbar', 'slider', 'number', 'otp', 'tabs', 'breadcrumb', 'pagination', 'stepper', 'select', 'tags', 'command', 'calendar', 'datepicker', 'table', 'rating', 'timeline', 'empty', 'carousel', 'resizable'];
+  const names = ['accordion', 'button', 'spinner', 'separator', 'kbd', 'skeleton', 'badge', 'alert', 'avatar', 'card', 'progress', 'tooltip', 'popover', 'dialog', 'menu', 'toast', 'input', 'checkbox', 'radio', 'switch', 'toggle', 'toolbar', 'slider', 'number', 'otp', 'tabs', 'breadcrumb', 'pagination', 'stepper', 'select', 'tags', 'command', 'calendar', 'datepicker', 'table', 'rating', 'timeline', 'empty', 'carousel', 'resizable', 'sidebar', 'navmenu', 'colorpicker'];
   const missing = await page.evaluate((list) => list.filter((n) => !document.querySelector(`.pinfold-${n}`)), names);
   check('Every component is on the page that axe checks', missing.length === 0, missing.join(', '));
   await page.close();
@@ -417,7 +426,7 @@ await browser.close();
 const failed = results.checks.filter((c) => !c.pass);
 const violations = Object.values(results.axe).flatMap((r) => r.violations);
 const md = [
-  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper, select, combobox, tag group, command, calendar, date picker, table, rating, timeline, empty, carousel, resizable',
+  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper, select, combobox, tag group, command, calendar, date picker, table, rating, timeline, empty, carousel, resizable, sidebar, navigation menu, color picker',
   '',
   `Generated ${new Date().toISOString()} by \`scripts/a11y-report.mjs\` on the built packages, in Chromium.`,
   `Pattern: ${accordionMeta.pattern}`,
@@ -443,7 +452,7 @@ const md = [
   '',
   ...accordionMeta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
   '',
-  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta, tableMeta, ratingMeta, timelineMeta, emptyMeta, carouselMeta, resizableMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
+  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta, tableMeta, ratingMeta, timelineMeta, emptyMeta, carouselMeta, resizableMeta, sidebarMeta, navmenuMeta, colorpickerMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
   '## Snapshots',
   '',
   ...results.snapshots.map((s) => `- ![${s}](${s})`),

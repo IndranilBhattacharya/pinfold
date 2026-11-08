@@ -148,3 +148,42 @@ export function inactiveStepperOptions(config: { variant?: string; orientation?:
   }
   return out;
 }
+
+/** A sidebar entry as the logic sees it: a string is an entry whose key and text are that string. */
+export interface SidebarNode {
+  id?: string;
+  label: string;
+  href?: string;
+  items?: ReadonlyArray<SidebarNode | string>;
+}
+
+/** An entry's key: its id, else its href, else its text. `value` matches it. */
+export const sidebarKey = (item: SidebarNode | string): string => (typeof item === 'string' ? item : (item.id ?? item.href ?? item.label));
+
+/** Keys of the sections that hold `value`, outermost first; empty when it is at the top level or absent. */
+export function sidebarTrail(items: ReadonlyArray<SidebarNode | string>, value: string | undefined): string[] {
+  if (value === undefined) return [];
+  for (const item of items) {
+    if (typeof item === 'string' || !item.items) continue;
+    if (item.items.some((child) => sidebarKey(child) === value)) return [sidebarKey(item)];
+    const deeper = sidebarTrail(item.items, value);
+    if (deeper.length) return [sidebarKey(item), ...deeper];
+  }
+  return [];
+}
+
+export function inactiveSidebarOptions(config: { collapsible?: boolean }): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!config.collapsible) out.labels = 'they name the collapse button, which shows with `collapsible`.';
+  return out;
+}
+
+export function inactiveNavMenuOptions(config: { items?: ReadonlyArray<unknown> }): Record<string, string> {
+  const out: Record<string, string> = {};
+  const panels = Array.isArray(config.items) && config.items.some((item) => typeof item === 'object' && item !== null && ('items' in item || 'content' in item));
+  if (!panels) {
+    const why = 'no entry has a panel (`items` or `content`).';
+    Object.assign(out, { openOn: why, open: why, defaultOpen: why });
+  }
+  return out;
+}

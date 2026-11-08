@@ -542,6 +542,44 @@
       ],
       "hook": "useResizable",
       "snippet": "<Workspace label=\"Editor\" panels={panels} />"
+    },
+    {
+      "name": "sidebar",
+      "import": "@pinfold/react/sidebar",
+      "styles": "@pinfold/css/sidebar.css",
+      "status": "experimental",
+      "description": "App navigation down the side: links, sections that open, group headings, header and footer; folds into a rail of icons.",
+      "variants": [
+        "soft",
+        "plain",
+        "solid"
+      ],
+      "hook": "useSidebar",
+      "snippet": "<AppNav label=\"Main\" value={pathname} items={items} />"
+    },
+    {
+      "name": "navmenu",
+      "import": "@pinfold/react/navmenu",
+      "styles": "@pinfold/css/navmenu.css",
+      "status": "experimental",
+      "description": "A site header navigation: links, and buttons that open panels of links with icons and descriptions, on hover or press.",
+      "variants": [
+        "ghost",
+        "underline",
+        "pills"
+      ],
+      "hook": "useNavMenu",
+      "snippet": "<SiteNav label=\"Main\" value={pathname} items={items} />"
+    },
+    {
+      "name": "colorpicker",
+      "import": "@pinfold/react/colorpicker",
+      "styles": "@pinfold/css/colorpicker.css",
+      "status": "experimental",
+      "description": "Pick a colour: saturation and brightness area, hue and opacity sliders, a text field for hex, rgb, hsl or oklch, swatches and the eyedropper.",
+      "variants": [],
+      "hook": "useColorPicker",
+      "snippet": "<BrandColor label=\"Brand colour\" value={color} onChange={setColor} />"
     }
   ],
   "planned": [

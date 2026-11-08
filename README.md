@@ -15,7 +15,7 @@ Created by **Indranil Bhattacharya**
 
 > **Status: pre-release.** The accordion is complete (server and client APIs,
 > global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report);
-> button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper, select, combobox, tag group, command, calendar, date picker, table, rating, timeline, empty, carousel and resizable are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
+> button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper, select, combobox, tag group, command, calendar, date picker, table, rating, timeline, empty, carousel, resizable, sidebar, navigation menu and color picker are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
 
 ---
 
@@ -164,6 +164,9 @@ The config never changes shape as you go deeper.
 | [table.md](docs/components/table.md) | Table spec |
 | [rating.md](docs/components/rating.md) · [timeline.md](docs/components/timeline.md) · [empty.md](docs/components/empty.md) | Rating, Timeline and Empty specs |
 | [carousel.md](docs/components/carousel.md) · [resizable.md](docs/components/resizable.md) | Carousel and Resizable specs |
+| [sidebar.md](docs/components/sidebar.md) | Sidebar spec |
+| [navmenu.md](docs/components/navmenu.md) | Navigation menu spec |
+| [colorpicker.md](docs/components/colorpicker.md) | Color picker spec |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
 | [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
 | [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | Accessibility evidence: the automated report and the screen-reader matrix |
