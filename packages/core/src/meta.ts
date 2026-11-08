@@ -19,6 +19,9 @@ import { alertMeta } from './alert.meta';
 import { avatarMeta } from './avatar.meta';
 import { cardMeta } from './card.meta';
 import { progressMeta } from './progress.meta';
+import { colorpickerMeta } from './colorpicker.meta';
+import { navmenuMeta } from './navmenu.meta';
+import { sidebarMeta } from './sidebar.meta';
 import { resizableMeta } from './resizable.meta';
 import { carouselMeta } from './carousel.meta';
 import { emptyMeta } from './empty.meta';
@@ -74,7 +77,7 @@ export interface PropMeta {
   orNode?: boolean;
   /** Also accepts a length, e.g. `radius`: a preset name or `20` / `'1.25rem'`. */
   orLength?: boolean;
-  /** An `array` whose rows may also be strings (`items={['Board', 'List']}`); a `string[]` that also takes one string or `null`. */
+  /** An `array` whose rows may also be strings (`items={['Board', 'List']}`); a `string[]` that also takes one string or `null`; a `string` that also takes `null` (none open). */
   orString?: boolean;
   default?: unknown;
   /** What an unset option resolves to when it has no fixed default (e.g. `theme radius`). */
@@ -186,7 +189,8 @@ function checkType(prop: PropMeta, v: unknown): string | null {
   const list = (prop.values ?? []).map((x) => JSON.stringify(x)).join(' | ');
   switch (prop.type) {
     case 'string':
-      return typeof v === 'string' ? null : `must be a string, got ${describe(v)}.`;
+      if (prop.orString && v === null) return null;
+      return typeof v === 'string' ? null : `must be a string${prop.orString ? ' or null' : ''}, got ${describe(v)}.`;
     case 'number':
       return typeof v === 'number' ? null : `must be a number, got ${describe(v)}.`;
     case 'boolean':
@@ -272,6 +276,7 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
     if (p.status === 'deprecated') base.deprecated = true;
     switch (p.type) {
       case 'string':
+        return { ...base, type: p.orString ? ['string', 'null'] : 'string' };
       case 'number':
       case 'boolean':
         return { ...base, type: p.type };
@@ -357,5 +362,5 @@ export function metaToMarkdown(meta: ComponentMeta): string {
 }
 
 /** Every component's meta. Tooling iterates this. */
-export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta, tableMeta, ratingMeta, timelineMeta, emptyMeta, carouselMeta, resizableMeta];
-export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta, tableMeta, ratingMeta, timelineMeta, emptyMeta, carouselMeta, resizableMeta };
+export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta, tableMeta, ratingMeta, timelineMeta, emptyMeta, carouselMeta, resizableMeta, sidebarMeta, navmenuMeta, colorpickerMeta];
+export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta, tableMeta, ratingMeta, timelineMeta, emptyMeta, carouselMeta, resizableMeta, sidebarMeta, navmenuMeta, colorpickerMeta };

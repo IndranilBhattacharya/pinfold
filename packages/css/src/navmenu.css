@@ -1,0 +1,166 @@
+/* Pinfold — navigation menu. A row of entries; a panel button opens a raised card under it (on the
+   control tokens, so packs reach it) holding an optional featured node and a grid of links with
+   icon tiles and descriptions. A pseudo-element bridges the gap so hover survives the crossing.
+   The script shifts an open panel back into the viewport (--pinfold-nm-ix).
+   ghost: a tint under the pointer. underline: a bar under the current entry. pills: it is filled. */
+
+@layer pinfold.components {
+  .pinfold-navmenu {
+    --pinfold-nm-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-nm-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    --pinfold-nm-text: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 86%, var(--pinfold-color-text));
+    --pinfold-nm-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    --pinfold-nm-edge: var(--pinfold-control-edge, var(--pinfold-color-border));
+    position: relative;
+    min-inline-size: 0;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-control-text);
+    color: var(--pinfold-color-text);
+  }
+  .pinfold-navmenu__list { display: flex; flex-wrap: wrap; align-items: center; gap: 0.125rem; margin: 0; padding: 0; list-style: none; }
+  .pinfold-navmenu__item { position: relative; }
+
+  .pinfold-navmenu__link, .pinfold-navmenu__trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    block-size: var(--pinfold-control-height);
+    padding: 0 0.875rem;
+    font: inherit;
+    font-weight: 500;
+    color: var(--pinfold-color-text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-nm-radius);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pinfold-navmenu__link:hover, .pinfold-navmenu__trigger:hover, .pinfold-navmenu__trigger[data-open] { color: var(--pinfold-color-text); background: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
+  :is(.pinfold-navmenu__link, .pinfold-navmenu__trigger)[aria-disabled='true'] { opacity: 0.5; cursor: not-allowed; }
+  :is(.pinfold-navmenu__link[data-current], .pinfold-navmenu__trigger[data-holds-current]) { color: var(--pinfold-color-text); }
+  .pinfold-navmenu__link > .pinfold-navmenu__icon, .pinfold-navmenu__trigger > .pinfold-navmenu__icon { display: inline-grid; inline-size: 1rem; block-size: 1rem; }
+  :is(.pinfold-navmenu__link, .pinfold-navmenu__trigger) > .pinfold-navmenu__icon > svg { inline-size: 100%; block-size: 100%; }
+  .pinfold-navmenu__chevron { display: inline-grid; inline-size: 0.875rem; block-size: 0.875rem; margin-inline-end: -0.25rem; opacity: 0.7; }
+  .pinfold-navmenu__chevron > svg { inline-size: 100%; block-size: 100%; }
+  .pinfold-navmenu__trigger[data-open] .pinfold-navmenu__chevron { transform: rotate(180deg); }
+
+  /* underline: a bar under the current entry (or the button that holds it). */
+  .pinfold-navmenu[data-variant='underline'] :is(.pinfold-navmenu__link, .pinfold-navmenu__trigger)::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0.875rem;
+    inset-block-end: 0.125rem;
+    block-size: 2px;
+    background: var(--pinfold-nm-solid);
+    border-radius: var(--pinfold-radius-full);
+    transform: scaleX(0);
+  }
+  .pinfold-navmenu[data-variant='underline'] :is(.pinfold-navmenu__link[data-current], .pinfold-navmenu__trigger[data-holds-current])::after { transform: none; }
+  .pinfold-navmenu[data-variant='underline'] :is(.pinfold-navmenu__link, .pinfold-navmenu__trigger):hover { background: transparent; }
+
+  /* pills: the current entry filled. */
+  .pinfold-navmenu[data-variant='pills'] :is(.pinfold-navmenu__link, .pinfold-navmenu__trigger) { border-radius: var(--pinfold-radius-full); }
+  .pinfold-navmenu[data-variant='pills'] :is(.pinfold-navmenu__link[data-current], .pinfold-navmenu__trigger[data-holds-current]) {
+    color: var(--pinfold-nm-on);
+    background: var(--pinfold-nm-solid);
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--pinfold-nm-solid) 35%, transparent);
+  }
+
+  :is(.pinfold-navmenu__link, .pinfold-navmenu__trigger, .pinfold-navmenu__panelLink):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+
+  .pinfold-navmenu__panel {
+    position: absolute;
+    z-index: 50;
+    inset-block-start: calc(100% + 0.5rem);
+    inset-inline-start: 0;
+    display: flex;
+    gap: 0.5rem;
+    box-sizing: border-box;
+    /* Absolute in a narrow entry: size to the links, not to the entry. */
+    inline-size: max-content;
+    max-inline-size: calc(100vw - 1rem);
+    padding: 0.5rem;
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-raised));
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-nm-edge);
+    border-radius: calc(var(--pinfold-nm-radius) + 0.5rem);
+    box-shadow: var(--pinfold-shadow-lg);
+    backdrop-filter: var(--pinfold-backdrop);
+    transform-origin: top;
+    translate: var(--pinfold-nm-ix, 0px) 0;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-0.25rem) scale(0.98);
+  }
+  .pinfold-navmenu__panel[data-open] { visibility: visible; opacity: 1; transform: none; }
+  /* Hover crosses the gap above the panel without leaving the entry. */
+  .pinfold-navmenu__panel::before { content: ''; position: absolute; inset-inline: 0; inset-block-end: 100%; block-size: 0.625rem; }
+  .pinfold-navmenu[data-animate] .pinfold-navmenu__panel {
+    transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-out), visibility 0s linear var(--pinfold-duration-md);
+  }
+  .pinfold-navmenu[data-animate] .pinfold-navmenu__panel[data-open] { transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-out), visibility 0s; }
+  .pinfold-navmenu[data-animate] .pinfold-navmenu__chevron { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-navmenu[data-animate] :is(.pinfold-navmenu__link, .pinfold-navmenu__trigger)::after { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-out); }
+
+  .pinfold-navmenu__content { flex: 0 0 auto; inline-size: 11rem; max-inline-size: 100%; min-inline-size: 0; }
+  .pinfold-navmenu__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--pinfold-nm-cols, 1), var(--pinfold-navmenu-column-width, 14rem));
+    gap: 0.125rem;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pinfold-navmenu__panelLink {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    box-sizing: border-box;
+    inline-size: 100%;
+    padding: 0.625rem 0.75rem;
+    font: inherit;
+    color: var(--pinfold-color-text);
+    text-align: start;
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-nm-radius);
+    cursor: pointer;
+  }
+  .pinfold-navmenu__panelLink:hover { background: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
+  .pinfold-navmenu__panelLink[aria-disabled='true'] { opacity: 0.5; cursor: not-allowed; }
+  .pinfold-navmenu__panelLink[data-current] { background: color-mix(in oklab, var(--pinfold-nm-solid) 10%, transparent); }
+  .pinfold-navmenu__panelLink[data-current] .pinfold-navmenu__label { color: var(--pinfold-nm-text); }
+  .pinfold-navmenu__panelLink > .pinfold-navmenu__icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    color: var(--pinfold-nm-text);
+    background: color-mix(in oklab, var(--pinfold-nm-solid) 10%, var(--pinfold-control-surface, var(--pinfold-color-surface)));
+    border: var(--pinfold-border-width) solid color-mix(in oklab, var(--pinfold-nm-solid) 18%, var(--pinfold-nm-edge));
+    border-radius: var(--pinfold-nm-radius);
+  }
+  .pinfold-navmenu__panelLink > .pinfold-navmenu__icon > svg { inline-size: 1.125rem; block-size: 1.125rem; }
+  .pinfold-navmenu__text { display: flex; flex-direction: column; gap: 0.125rem; min-inline-size: 0; padding-block: 0.0625rem; }
+  .pinfold-navmenu__label { font-weight: 550; line-height: 1.3; }
+  .pinfold-navmenu__description { font-size: 0.8125rem; line-height: 1.4; color: var(--pinfold-color-text-muted); }
+
+  .pinfold-navmenu[data-size='sm'] :is(.pinfold-navmenu__link, .pinfold-navmenu__trigger) { padding-inline: 0.625rem; }
+  .pinfold-navmenu[data-size='lg'] :is(.pinfold-navmenu__link, .pinfold-navmenu__trigger) { padding-inline: 1.125rem; }
+
+  @media (max-width: 40rem) {
+    .pinfold-navmenu__panel { flex-direction: column; }
+    .pinfold-navmenu__grid { grid-template-columns: minmax(0, 1fr); }
+    .pinfold-navmenu__content { inline-size: auto; }
+  }
+  @media (forced-colors: active) {
+    .pinfold-navmenu__panel { border-color: CanvasText; }
+    :is(.pinfold-navmenu__link[data-current], .pinfold-navmenu__trigger[data-holds-current], .pinfold-navmenu__panelLink[data-current]) { forced-color-adjust: none; color: HighlightText; background: Highlight; }
+  }
+}

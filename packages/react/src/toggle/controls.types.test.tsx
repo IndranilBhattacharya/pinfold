@@ -16,12 +16,15 @@ import { defineNumberField } from '../number/define';
 import { useNumberField } from '../number/useNumberField';
 import { defineOtp } from '../otp/define';
 import { useOtp } from '../otp/useOtp';
+import { defineColorPicker } from '../colorpicker/define';
+import { useColorPicker } from '../colorpicker/useColorPicker';
 
 const View = defineToggle({ fullWidth: true });
 const Pager = defineToolbar({ attached: true });
 const Price = defineSlider({ min: 0, max: 500, formatValue: (v) => `$${v}` });
 const Quantity = defineNumberField({ min: 1, steppers: 'end' });
 const Code = defineOtp({ groups: [3, 3] });
+const Brand = defineColorPicker({ format: 'oklch', alpha: true });
 const rows = [{ value: 'a', label: 'A' }];
 
 function Valid() {
@@ -32,6 +35,7 @@ function Valid() {
   const Volume = useSlider({ label: 'Volume', defaultValue: [40], onChangeEnd: (values: number[]) => void values });
   const N = useNumberField({ label: 'N', onChange: (value: number | null) => void value });
   const C = useOtp({ label: 'C', length: 4, onComplete: (code: string) => void code });
+  const Paint = useColorPicker({ label: 'Paint', onChange: (value: string, color) => void [value, color.hex, color.alpha.toFixed(2)] });
   return (
     <>
       <Pin />
@@ -45,6 +49,8 @@ function Valid() {
       <Price label="Price" defaultValue={[50, 300]} />
       <Quantity label="Qty" defaultValue={1} />
       <Code label="Code" />
+      <Paint />
+      <Brand label="Brand" swatches={['#4f46e5']} name="brand" />
     </>
   );
 }
@@ -68,10 +74,14 @@ function Invalid() {
   useNumberField({ label: 'x', steppers: 'side' });
   // @ts-expect-error otp type is numeric or alphanumeric
   useOtp({ label: 'x', type: 'hex' });
+  // @ts-expect-error a colour picker needs a label
+  useColorPicker({ format: 'hex' });
+  // @ts-expect-error no such format
+  useColorPicker({ label: 'x', format: 'cmyk' });
   return null;
 }
 
-defineConfig({ defaults: { toggle: { variant: 'outline' }, toolbar: { attached: false }, slider: { showValue: 'tooltip' }, number: { steppers: 'none' }, otp: { variant: 'underline' } } });
+defineConfig({ defaults: { toggle: { variant: 'outline' }, toolbar: { attached: false }, slider: { showValue: 'tooltip' }, number: { steppers: 'none' }, otp: { variant: 'underline' }, colorpicker: { format: 'hsl' } } });
 // @ts-expect-error a default cannot carry per-use data
 defineConfig({ defaults: { toggle: { items: rows } } });
 

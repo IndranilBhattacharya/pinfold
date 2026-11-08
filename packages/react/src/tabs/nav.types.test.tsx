@@ -6,6 +6,9 @@ import { Breadcrumb } from '../breadcrumb/Breadcrumb';
 import { Pagination } from '../pagination/Pagination';
 import { usePagination } from '../pagination/usePagination';
 import { Stepper } from '../stepper/Stepper';
+import { Sidebar } from '../sidebar/Sidebar';
+import { defineSidebar } from '../sidebar/define';
+import { NavMenu } from '../navmenu/NavMenu';
 
 const items = [
   { id: 'profile', label: 'Profile' },
@@ -50,6 +53,22 @@ export function Checks(): React.ReactElement {
       <Stepper items={[{ label: 'Cart' }]} variant="line" />
       {/* @ts-expect-error: onNext returns a boolean or nothing */}
       <Stepper items={['Cart']} onNext={() => 'yes'} />
+      <Sidebar label="Main" items={['Home', { label: 'Projects', items: ['A', { label: 'B', href: '/b' }] }]} value="/b" onChange={(key, item) => [key satisfies string, item.label]} />
+      {(() => {
+        const AppNav = defineSidebar({ collapsible: true, variant: 'plain' });
+        return <AppNav label="Main" items={['Home']} defaultCollapsed />;
+      })()}
+      {/* @ts-expect-error: label is required */}
+      <Sidebar items={['Home']} />
+      {/* @ts-expect-error: no such variant */}
+      <Sidebar label="Main" items={['Home']} variant="pills" />
+      {/* @ts-expect-error: an entry needs a label */}
+      <Sidebar label="Main" items={[{ href: '/x' }]} />
+      <NavMenu label="Main" items={[{ label: 'Products', columns: 2, items: ['A', { label: 'B', href: '/b', description: 'x' }] }, 'Docs']} open={null} openOn="click" onOpenChange={(key) => key satisfies string | null} />
+      {/* @ts-expect-error: three columns at most */}
+      <NavMenu label="Main" items={[{ label: 'P', columns: 4, items: ['A'] }]} />
+      {/* @ts-expect-error: no such trigger */}
+      <NavMenu label="Main" items={['Docs']} openOn="focus" />
     </>
   );
 }

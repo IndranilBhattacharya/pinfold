@@ -1,0 +1,24 @@
+/** Every config key of the colour picker. Tag and preset props with these names are config; the rest go to the
+ * root element. `config-keys.test.ts` keeps this equal to the meta. */
+export const COLORPICKER_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
+  'label',
+  'value',
+  'defaultValue',
+  'onChange',
+  'format',
+  'alpha',
+  'swatches',
+  'showInput',
+  'eyeDropper',
+  'name',
+  'disabled',
+  'labels',
+  'size',
+  'unstyled',
+  'className',
+  'style',
+  'classNames',
+  'styles',
+  'slotProps',
+  'render',
+]);

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { breadcrumbPath, breadcrumbVisible, inactiveBreadcrumbOptions, inactivePaginationOptions, inactiveStepperOptions, inactiveTabsOptions, pageAt, pageCount, pageWindow, paginationRange, stepStatus } from './nav.logic';
+import { breadcrumbPath, breadcrumbVisible, inactiveBreadcrumbOptions, inactivePaginationOptions, inactiveStepperOptions, inactiveTabsOptions, pageAt, pageCount, pageWindow, paginationRange, stepStatus, sidebarKey, sidebarTrail, inactiveSidebarOptions, inactiveNavMenuOptions } from './nav.logic';
 import { validateConfig } from './meta';
 import { tabsMeta } from './tabs.meta';
 import { stepperMeta } from './stepper.meta';
@@ -69,5 +69,42 @@ describe('navigation logic', () => {
     expect(Object.keys(inactivePaginationOptions({ hasNext: true, pageSizes: [10] }))).toEqual(['showControls', 'siblings', 'boundaries', 'showEdges', 'compact']);
     expect(Object.keys(inactiveStepperOptions({ variant: 'bar', onChange: () => {}, items: [{ content: 1 }] }))).toEqual(['orientation', 'labelPlacement']);
     expect(Object.keys(inactiveStepperOptions({ orientation: 'vertical', items: ['a'] }))).toEqual(['labelPlacement', 'linear', 'showActions', 'doneContent']);
+  });
+});
+
+describe('sidebar', () => {
+  const items = ['Home', { label: 'Projects', items: [{ label: 'Pinfold', href: '/p/pinfold' }, { id: 'team', label: 'Team', items: ['Members', 'Roles'] }] }];
+  it('keys are id, then href, then text', () => {
+    expect(sidebarKey('Home')).toBe('Home');
+    expect(sidebarKey({ label: 'Pinfold', href: '/p/pinfold' })).toBe('/p/pinfold');
+    expect(sidebarKey({ id: 'team', label: 'Team', href: '/t' })).toBe('team');
+  });
+  it('the trail lists the sections that hold the current entry, outermost first', () => {
+    expect(sidebarTrail(items, '/p/pinfold')).toEqual(['Projects']);
+    expect(sidebarTrail(items, 'Roles')).toEqual(['Projects', 'team']);
+    expect(sidebarTrail(items, 'Home')).toEqual([]);
+    expect(sidebarTrail(items, 'nowhere')).toEqual([]);
+    expect(sidebarTrail(items, undefined)).toEqual([]);
+  });
+  it('labels only matter with the collapse button', () => {
+    expect(inactiveSidebarOptions({})).toHaveProperty('labels');
+    expect(inactiveSidebarOptions({ collapsible: true })).toEqual({});
+  });
+});
+
+describe('navigation menu', () => {
+  it('panel options only matter when an entry has a panel', () => {
+    expect(inactiveNavMenuOptions({ items: ['Docs', { label: 'Pricing', href: '/p' }] })).toHaveProperty('openOn');
+    expect(inactiveNavMenuOptions({ items: [{ label: 'Products', items: ['A'] }] })).toEqual({});
+    expect(inactiveNavMenuOptions({ items: [{ label: 'About', content: 'x' }] })).toEqual({});
+  });
+});
+
+describe('navigation menu meta', () => {
+  it('open takes a key or null; anything else is reported', async () => {
+    const { navmenuMeta } = await import('./navmenu.meta');
+    expect(validateConfig(navmenuMeta, { label: 'N', items: ['A'], open: null })).toEqual([]);
+    expect(validateConfig(navmenuMeta, { label: 'N', items: ['A'], open: 'A' })).toEqual([]);
+    expect(validateConfig(navmenuMeta, { label: 'N', items: ['A'], open: 3 })).toHaveLength(1);
   });
 });

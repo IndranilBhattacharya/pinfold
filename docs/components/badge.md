@@ -63,4 +63,4 @@ Inactive (`inactiveBadgeOptions`): `max` and `showZero` without a `count`; `show
 | | | | `srLabel` for counts and dots |
 
 ## Deliberately excluded
-- Clickable or removable badges: that is an interactive tag (**Planned**: Tag group).
+- Clickable or removable badges: that is an interactive tag (the Tag group).

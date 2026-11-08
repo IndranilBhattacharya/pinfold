@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -52,7 +52,10 @@
     "timeline",
     "empty",
     "carousel",
-    "resizable"
+    "resizable",
+    "sidebar",
+    "navmenu",
+    "colorpicker"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -498,6 +501,36 @@
         "default": "./dist/resizable/index.cjs"
       }
     },
+    "./sidebar": {
+      "import": {
+        "types": "./dist/sidebar/index.d.ts",
+        "default": "./dist/sidebar/index.js"
+      },
+      "require": {
+        "types": "./dist/sidebar/index.d.cts",
+        "default": "./dist/sidebar/index.cjs"
+      }
+    },
+    "./navmenu": {
+      "import": {
+        "types": "./dist/navmenu/index.d.ts",
+        "default": "./dist/navmenu/index.js"
+      },
+      "require": {
+        "types": "./dist/navmenu/index.d.cts",
+        "default": "./dist/navmenu/index.cjs"
+      }
+    },
+    "./colorpicker": {
+      "import": {
+        "types": "./dist/colorpicker/index.d.ts",
+        "default": "./dist/colorpicker/index.js"
+      },
+      "require": {
+        "types": "./dist/colorpicker/index.d.cts",
+        "default": "./dist/colorpicker/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -627,6 +660,15 @@
       ],
       "resizable": [
         "./dist/resizable/index.d.cts"
+      ],
+      "sidebar": [
+        "./dist/sidebar/index.d.cts"
+      ],
+      "navmenu": [
+        "./dist/navmenu/index.d.cts"
+      ],
+      "colorpicker": [
+        "./dist/colorpicker/index.d.cts"
       ]
     }
   },
@@ -673,6 +715,9 @@
     "empty",
     "carousel",
     "resizable",
+    "sidebar",
+    "navmenu",
+    "colorpicker",
     "registry",
     "schema",
     "llms.txt",
@@ -682,7 +727,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.20.0"
+    "@pinfold/core": "0.21.0"
   },
   "peerDependencies": {
     "react": ">=18"

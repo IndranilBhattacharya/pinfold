@@ -4,7 +4,7 @@
  * must equal the meta, or a new option would silently land on the DOM element instead of the hook.
  */
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, resizableMeta, carouselMeta, emptyMeta, timelineMeta, ratingMeta, tableMeta, datepickerMeta, calendarMeta, commandMeta, tagsMeta, comboboxMeta, selectMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta } from '@pinfold/core/meta';
+import { accordionMeta, colorpickerMeta, navmenuMeta, sidebarMeta, resizableMeta, carouselMeta, emptyMeta, timelineMeta, ratingMeta, tableMeta, datepickerMeta, calendarMeta, commandMeta, tagsMeta, comboboxMeta, selectMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta } from '@pinfold/core/meta';
 import { ACCORDION_KEYS } from './accordion/keys';
 import { BUTTON_KEYS } from './button/keys';
 import { SPINNER_KEYS } from './spinner/keys';
@@ -12,6 +12,9 @@ import { SEPARATOR_KEYS } from './separator/keys';
 import { KBD_KEYS } from './kbd/keys';
 import { SKELETON_KEYS } from './skeleton/keys';
 import { BADGE_KEYS } from './badge/keys';
+import { COLORPICKER_KEYS } from './colorpicker/keys';
+import { NAVMENU_KEYS } from './navmenu/keys';
+import { SIDEBAR_KEYS } from './sidebar/keys';
 import { RESIZABLE_KEYS } from './resizable/keys';
 import { CAROUSEL_KEYS } from './carousel/keys';
 import { EMPTY_KEYS } from './empty/keys';
@@ -56,6 +59,9 @@ describe('config key lists match the meta', () => {
     [kbdMeta, KBD_KEYS],
     [skeletonMeta, SKELETON_KEYS],
     [badgeMeta, BADGE_KEYS],
+    [colorpickerMeta, COLORPICKER_KEYS],
+    [navmenuMeta, NAVMENU_KEYS],
+    [sidebarMeta, SIDEBAR_KEYS],
     [resizableMeta, RESIZABLE_KEYS],
     [carouselMeta, CAROUSEL_KEYS],
     [emptyMeta, EMPTY_KEYS],

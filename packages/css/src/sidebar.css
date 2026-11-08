@@ -1,0 +1,208 @@
+/* Pinfold — sidebar. A column on the control tokens (so packs reach it): header, a scrolling body of
+   grouped lists, footer, collapse button. Entries are rows with an icon, text, a badge and a chevron
+   for sections; sections open by animating their row track (0fr to 1fr). The current entry:
+   soft = a tint of the tone, plain = a bar at its edge, solid = the tone's fill.
+   As a rail (data-collapsed) the text is visually hidden, badges become dots, sections stay shut. */
+
+@layer pinfold.components {
+  .pinfold-sidebar {
+    --pinfold-sb-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-sb-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    --pinfold-sb-text: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 86%, var(--pinfold-color-text));
+    --pinfold-sb-row: calc(var(--pinfold-control-height) - 0.25rem);
+    --pinfold-sb-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    box-sizing: border-box;
+    inline-size: var(--pinfold-sidebar-width, 16rem);
+    max-inline-size: 100%;
+    block-size: 100%;
+    min-block-size: 0;
+    padding: 0.5rem;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-control-text);
+    color: var(--pinfold-color-text);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-image: var(--pinfold-texture);
+    border-inline-end: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-sidebar[data-collapsed] { inline-size: calc(var(--pinfold-sb-row) + 1rem + var(--pinfold-border-width)); }
+  .pinfold-sidebar[data-animate] { transition: inline-size var(--pinfold-duration-slow) var(--pinfold-ease-out); }
+
+  .pinfold-sidebar__header, .pinfold-sidebar__footer { flex-shrink: 0; min-inline-size: 0; padding: 0.25rem; }
+  .pinfold-sidebar__footer { border-block-start: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border)); padding-block-start: 0.5rem; }
+  .pinfold-sidebar__body { display: flex; flex: 1 1 auto; flex-direction: column; gap: 0.75rem; min-block-size: 0; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; }
+  .pinfold-sidebar__groupLabel {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--pinfold-color-text-muted);
+    white-space: nowrap;
+  }
+  .pinfold-sidebar__list { display: flex; flex-direction: column; gap: 1px; margin: 0; padding: 0; list-style: none; }
+  .pinfold-sidebar__item { min-inline-size: 0; }
+
+  .pinfold-sidebar__link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: var(--pinfold-sb-row);
+    padding: 0.25rem 0.625rem;
+    font: inherit;
+    color: var(--pinfold-color-text-muted);
+    text-align: start;
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-sb-radius);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pinfold-sidebar__link:hover { color: var(--pinfold-color-text); background: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
+  .pinfold-sidebar__link:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--pinfold-color-ring, var(--pinfold-color-accent)); }
+  .pinfold-sidebar__link[aria-disabled='true'] { opacity: 0.5; cursor: not-allowed; }
+  .pinfold-sidebar__link[aria-disabled='true']:hover { background: transparent; color: var(--pinfold-color-text-muted); }
+  .pinfold-sidebar__link[data-holds-current] { color: var(--pinfold-color-text); }
+  .pinfold-sidebar[data-animate] .pinfold-sidebar__link { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+
+  .pinfold-sidebar__text { flex: 1 1 auto; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pinfold-sidebar__icon { display: inline-grid; flex-shrink: 0; place-items: center; inline-size: 1.125rem; block-size: 1.125rem; }
+  .pinfold-sidebar__icon > svg { inline-size: 100%; block-size: 100%; }
+  .pinfold-sidebar__initial {
+    display: grid;
+    place-items: center;
+    inline-size: 100%;
+    block-size: 100%;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
+    background: color-mix(in oklab, currentColor 14%, transparent);
+    border-radius: 0.3rem;
+  }
+  .pinfold-sidebar__badge {
+    flex-shrink: 0;
+    min-inline-size: 1.25rem;
+    padding: 0.0625rem 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    color: var(--pinfold-color-text);
+    background: color-mix(in oklab, var(--pinfold-color-text) 9%, transparent);
+    border-radius: var(--pinfold-radius-full);
+  }
+  .pinfold-sidebar__chevron { display: inline-grid; flex-shrink: 0; inline-size: 1rem; block-size: 1rem; }
+  .pinfold-sidebar__chevron > svg { inline-size: 100%; block-size: 100%; }
+  .pinfold-sidebar__link[aria-expanded='false'] .pinfold-sidebar__chevron { transform: rotate(-90deg); }
+  [dir='rtl'] .pinfold-sidebar__link[aria-expanded='false'] .pinfold-sidebar__chevron { transform: rotate(90deg); }
+  .pinfold-sidebar[data-animate] .pinfold-sidebar__chevron { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-out); }
+
+  /* Sections: the row track animates; a closed one is hidden from the keyboard (visibility). */
+  .pinfold-sidebar__sublist { display: grid; grid-template-rows: 0fr; visibility: hidden; }
+  .pinfold-sidebar__sublist[data-open] { grid-template-rows: 1fr; visibility: visible; }
+  /* Nested entries hang from a guide line under the section's icon. */
+  .pinfold-sidebar__sublist > .pinfold-sidebar__list {
+    min-block-size: 0;
+    overflow: hidden;
+    margin-inline-start: calc(0.625rem + 0.5625rem);
+    padding-block-start: 1px;
+    padding-inline-start: 0.5rem;
+    border-inline-start: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+  }
+  .pinfold-sidebar[data-animate] .pinfold-sidebar__sublist { transition: grid-template-rows var(--pinfold-duration-slow) var(--pinfold-ease-out), visibility 0s linear var(--pinfold-duration-slow); }
+  .pinfold-sidebar[data-animate] .pinfold-sidebar__sublist[data-open] { transition: grid-template-rows var(--pinfold-duration-slow) var(--pinfold-ease-out), visibility 0s; }
+
+  /* The current entry. */
+  .pinfold-sidebar__link[data-current] { font-weight: 550; }
+  .pinfold-sidebar[data-variant='soft'] .pinfold-sidebar__link[data-current] { color: var(--pinfold-sb-text); background: color-mix(in oklab, var(--pinfold-sb-solid) 13%, transparent); }
+  .pinfold-sidebar[data-variant='plain'] .pinfold-sidebar__link[data-current] { color: var(--pinfold-color-text); }
+  .pinfold-sidebar[data-variant='plain'] .pinfold-sidebar__link[data-current]::before {
+    content: '';
+    position: absolute;
+    inset-block: 0.375rem;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--pinfold-sb-solid);
+    border-radius: var(--pinfold-radius-full);
+  }
+  /* Inside a section the bar sits on the guide line. */
+  .pinfold-sidebar[data-variant='plain'] .pinfold-sidebar__sublist .pinfold-sidebar__link[data-current]::before { inset-inline-start: calc(-0.5rem - 2px); }
+  .pinfold-sidebar[data-variant='plain'] .pinfold-sidebar__link[data-current] .pinfold-sidebar__icon { color: var(--pinfold-sb-text); }
+  .pinfold-sidebar[data-variant='solid'] .pinfold-sidebar__link[data-current] {
+    color: var(--pinfold-sb-on);
+    background: var(--pinfold-sb-solid);
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--pinfold-sb-solid) 35%, transparent), inset 0 1px 0 color-mix(in oklab, var(--pinfold-sb-on) 18%, transparent);
+  }
+  .pinfold-sidebar[data-variant='solid'] .pinfold-sidebar__link[data-current] .pinfold-sidebar__badge { color: inherit; background: color-mix(in oklab, currentColor 20%, transparent); }
+  .pinfold-sidebar[data-variant='solid'] .pinfold-sidebar__link[data-current]:focus-visible { box-shadow: inset 0 0 0 2px var(--pinfold-color-ring, var(--pinfold-color-accent)), inset 0 0 0 4px var(--pinfold-color-bg); }
+
+  .pinfold-sidebar__toggle {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.625rem;
+    min-block-size: var(--pinfold-sb-row);
+    padding: 0.25rem 0.625rem;
+    font: inherit;
+    font-size: 0.875em;
+    color: var(--pinfold-color-text-muted);
+    text-align: start;
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-sb-radius);
+    cursor: pointer;
+  }
+  .pinfold-sidebar__toggle > svg { flex-shrink: 0; inline-size: 1.125rem; block-size: 1.125rem; }
+  .pinfold-sidebar__toggle:hover { color: var(--pinfold-color-text); background: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
+  .pinfold-sidebar__toggle:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--pinfold-color-ring, var(--pinfold-color-accent)); }
+  .pinfold-sidebar[data-collapsed] .pinfold-sidebar__toggle > svg, [dir='rtl'] .pinfold-sidebar__toggle > svg { transform: scaleX(-1); }
+  [dir='rtl'] .pinfold-sidebar[data-collapsed] .pinfold-sidebar__toggle > svg { transform: none; }
+
+  /* The rail: text kept for screen readers, badges become dots, sections shut. */
+  .pinfold-sidebar[data-collapsed] :is(.pinfold-sidebar__text, .pinfold-sidebar__groupLabel) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .pinfold-sidebar[data-collapsed] :is(.pinfold-sidebar__link, .pinfold-sidebar__toggle) { justify-content: center; inline-size: var(--pinfold-sb-row); padding: 0; }
+  .pinfold-sidebar[data-collapsed] .pinfold-sidebar__chevron { display: none; }
+  .pinfold-sidebar[data-collapsed][data-variant='soft'] .pinfold-sidebar__link[data-holds-current] { color: var(--pinfold-sb-text); background: color-mix(in oklab, var(--pinfold-sb-solid) 13%, transparent); }
+  .pinfold-sidebar[data-collapsed][data-variant='plain'] .pinfold-sidebar__link[data-holds-current] { color: var(--pinfold-sb-text); box-shadow: inset 3px 0 0 var(--pinfold-sb-solid); }
+  [dir='rtl'] .pinfold-sidebar[data-collapsed][data-variant='plain'] .pinfold-sidebar__link[data-holds-current] { box-shadow: inset -3px 0 0 var(--pinfold-sb-solid); }
+  .pinfold-sidebar[data-collapsed][data-variant='solid'] .pinfold-sidebar__link[data-holds-current] { color: var(--pinfold-sb-on); background: var(--pinfold-sb-solid); }
+  .pinfold-sidebar[data-collapsed] .pinfold-sidebar__badge {
+    position: absolute;
+    inset-block-start: 0.3rem;
+    inset-inline-end: 0.3rem;
+    inline-size: 0.5rem;
+    min-inline-size: 0;
+    block-size: 0.5rem;
+    padding: 0;
+    font-size: 0;
+    background: var(--pinfold-sb-solid);
+    box-shadow: 0 0 0 2px var(--pinfold-control-surface, var(--pinfold-color-surface));
+  }
+  .pinfold-sidebar[data-collapsed] .pinfold-sidebar__group + .pinfold-sidebar__group { padding-block-start: 0.5rem; border-block-start: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border)); }
+  .pinfold-sidebar[data-collapsed] .pinfold-sidebar__body { gap: 0.5rem; }
+  .pinfold-sidebar[data-collapsed] .pinfold-sidebar__header, .pinfold-sidebar[data-collapsed] .pinfold-sidebar__footer { overflow: hidden; }
+
+  .pinfold-sidebar[data-size='sm'] { --pinfold-sb-row: calc(var(--pinfold-control-height) - 0.125rem); }
+  .pinfold-sidebar[data-size='lg'] { --pinfold-sb-row: calc(var(--pinfold-control-height) - 0.375rem); }
+
+  @media (forced-colors: active) {
+    .pinfold-sidebar__link[data-current] { forced-color-adjust: none; color: HighlightText; background: Highlight; }
+    .pinfold-sidebar__link:focus-visible, .pinfold-sidebar__toggle:focus-visible { outline: 2px solid Highlight; }
+  }
+}
