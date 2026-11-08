@@ -1,4 +1,5 @@
 import type { PinfoldDir, PinfoldLazy, PinfoldRadius, PinfoldSize, PinfoldStylePack, PinfoldTheme, PinfoldTone } from '@pinfold/core';
+import type { PinfoldNavigate } from './link';
 import type { AccordionOptions } from './accordion/types';
 import type { ButtonConfig } from './button/types';
 import type { SpinnerConfig } from './spinner/types';
@@ -83,6 +84,12 @@ export interface PinfoldConfig {
   lazy?: PinfoldLazy;
   /** Disable every component transition, e.g. in tests or on low-power devices. */
   disableAnimation?: boolean;
+  /**
+   * Your router's push, e.g. `navigate={router.push}`: every Pinfold link (breadcrumbs, pages,
+   * link tabs, buttons, cards and menu rows with `href`) then changes page without a reload.
+   * A click with a modifier key, or to another tab, stays the browser's.
+   */
+  navigate?: PinfoldNavigate;
   defaults?: PinfoldComponentDefaults;
 }
 

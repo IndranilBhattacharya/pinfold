@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { buttonRel, cn, dimensionVars, inactiveCardOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
 import { usePinfold } from '../provider';
+import { followLink } from '../link';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
@@ -61,7 +62,7 @@ export function useCard(input: CardConfig = {}): CardComponent {
     // The title is the link; its ::after stretches the hit area over the card (CSS), so the card is
     // read as its title, not as every word inside it.
     const title = linked ? (
-      <a className={cls('pinfold-card__link')} href={config.href} target={config.target} rel={buttonRel(config.target, config.rel)}>
+      <a className={cls('pinfold-card__link')} href={config.href} target={config.target} rel={buttonRel(config.target, config.rel)} onClick={(event) => followLink(event, config.href, ctx.navigate, config.target)}>
         {config.title}
       </a>
     ) : (

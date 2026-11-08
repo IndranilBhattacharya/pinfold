@@ -46,4 +46,4 @@ export type {
 } from './types';
 
 /** Package version. Set with `npm run version:set -- x.y.z` (versions.test.ts keeps every copy in sync). */
-export const version = '0.13.0';
+export const version = '0.14.0';

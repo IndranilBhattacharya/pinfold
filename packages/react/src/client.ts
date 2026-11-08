@@ -14,3 +14,4 @@ export { slotProps, renderSlot } from './slots';
 export { createLazyComponent, type LazyOptions } from './lazy';
 export { usePinfoldComponent, type PinfoldComponent } from './component';
 export type { SlotOverrides, SlotRenderer, Slottable } from './types';
+export type { PinfoldNavigate } from './link';

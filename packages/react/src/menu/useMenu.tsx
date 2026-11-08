@@ -2,6 +2,7 @@ import * as React from 'react';
 import { buttonRel, cn, dataAttr, dimensionVars, inactiveMenuOptions, mergeProps, nextIndexFromKey, typeaheadIndex, warnOnce, type OverlayRect, type PropsBag } from '@pinfold/core';
 import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
+import { followLink } from '../link';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
@@ -191,6 +192,7 @@ export function useMenu(input: MenuConfig): MenuComponent {
         return;
       }
       item.onSelect?.(event);
+      if (link) followLink(event, (item as MenuActionItem).href, ctx.navigate, (item as MenuActionItem).target);
       if (item.closeOnSelect ?? !check) close();
     };
     const base: PropsBag = {

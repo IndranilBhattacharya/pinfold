@@ -1,6 +1,6 @@
 import type { ComponentMeta, PropMeta } from './meta';
 
-const SLOTS = ['root', 'list', 'item', 'gap', 'previous', 'next', 'first', 'last'] as const;
+const SLOTS = ['root', 'info', 'list', 'cursor', 'item', 'gap', 'previous', 'next', 'first', 'last', 'status', 'size', 'jump'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -11,29 +11,40 @@ const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
 export const paginationMeta: ComponentMeta = {
   name: 'pagination',
   displayName: 'Pagination',
-  description: 'Move between pages of results: numbered pages around the current one, gaps for the rest, previous and next. Buttons, or real links for crawlable pages.',
+  description:
+    'Move between pages of results, client or server side: numbered pages with a sliding current-page cursor, a page-size select, go to page, a "21–40 of 532" summary, a loading state, and a compact or cursor-paged form.',
   pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/navigation.html',
   importPath: '@pinfold/react/pagination',
   slots: SLOTS,
   props: {
-    count: { type: 'number', required: true, description: 'How many pages there are.', group: 'data' },
+    count: { type: 'number', description: 'How many pages there are. Or give `total` (items) and the page size.', group: 'data' },
+    total: { type: 'number', description: 'How many items there are (from the server). With the page size it gives the page count and the summary.', group: 'data' },
+    hasNext: { type: 'boolean', description: 'The total is unknown (a cursor-paged API): whether a next page exists. Only previous and next show.', group: 'data' },
     page: { type: 'number', description: 'The current page (from 1), controlled.', group: 'data' },
     defaultPage: { type: 'number', default: 1, description: 'The current page when uncontrolled.', group: 'data' },
-    onChange: { type: 'function', description: '`(page, event) => void`.', group: 'behaviour' },
-    getHref: { type: 'function', description: '`(page) => string`: every page is a real link (crawlable, opens in a new tab). Without it, pages are buttons.', group: 'data' },
+    pageSize: { type: 'number', description: 'Items per page, controlled.', group: 'data' },
+    defaultPageSize: { type: 'number', default: 10, description: 'Items per page when uncontrolled (the first of `pageSizes` when given).', group: 'data' },
+    pageSizes: { type: 'array', description: 'Page sizes to pick from, e.g. `[10, 25, 50]`: a "Rows per page" select. A change keeps the first item on screen.', group: 'data' },
+    onChange: { type: 'function', description: '`(page, { pageSize, offset, reason, event }) => void`: a page or the page size changed. `offset` is what a server query skips.', group: 'events' },
+    getHref: { type: 'function', description: '`(page) => string`: every page is a real link (crawlable, opens in a new tab), routed by the provider\'s `navigate`. Without it, pages are buttons.', group: 'data' },
     label: { type: 'string', default: 'Pagination', description: 'The accessible name of the navigation landmark.', group: 'data' },
     siblings: { type: 'number', default: 1, description: 'Pages shown either side of the current one.', group: 'behaviour' },
     boundaries: { type: 'number', default: 1, description: 'Pages always shown at each end.', group: 'behaviour' },
     showControls: { type: 'boolean', default: true, description: 'Previous and next buttons.', group: 'appearance', control: true },
     showEdges: { type: 'boolean', default: false, description: 'First and last buttons too.', group: 'appearance', control: true },
+    showInfo: { type: 'boolean', default: false, description: 'A summary before the pages: "21–40 of 532" with a `total`, else "Page 3 of 20". Announced politely when it changes.', group: 'appearance', control: true },
+    showJump: { type: 'boolean', default: false, description: 'A "Go to page" field: type a number, Enter.', group: 'appearance', control: true },
+    compact: { type: 'boolean', default: false, description: 'Previous, "3 / 20", next: for narrow screens.', group: 'appearance', control: true },
+    loading: { type: 'boolean', default: false, description: 'A page is being fetched: the cursor pulses, the controls wait and the landmark is `aria-busy`.', group: 'behaviour', control: true },
     variant: {
       type: 'enum',
-      values: ['ghost', 'soft', 'outline'],
-      default: 'ghost',
-      description: 'The other pages: quiet, tinted or framed. The current page is always filled with the tone.',
+      values: ['soft', 'ghost', 'outline', 'panel'],
+      default: 'soft',
+      description: 'The other pages: tinted chips, quiet, framed, or quiet on one raised bar. The current page is always the tone\'s solid cursor.',
       group: 'appearance',
       control: true,
     },
+    radius: { type: 'enum', values: ['sm', 'md', 'full'], default: 'md', description: 'Corner shape of the pages: tight, the theme radius, or round.', group: 'appearance', control: true },
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.pagination`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',
@@ -46,7 +57,7 @@ export const paginationMeta: ComponentMeta = {
     disabled: { type: 'boolean', default: false, description: 'Every control.', group: 'behaviour', control: true },
     labels: {
       type: 'object',
-      description: 'Names read by screen readers, for translation.',
+      description: 'Text read and shown, for translation.',
       group: 'data',
       keys: {
         previous: { type: 'string', description: 'Default "Previous page".', group: 'data' },
@@ -54,6 +65,9 @@ export const paginationMeta: ComponentMeta = {
         first: { type: 'string', description: 'Default "First page".', group: 'data' },
         last: { type: 'string', description: 'Default "Last page".', group: 'data' },
         page: { type: 'function', description: '`(page) => string`. Default "Page 3".', group: 'data' },
+        info: { type: 'function', description: '`({ from, to, total, page, count }) => node`. Default "21–40 of 532", or "Page 3 of 20".', group: 'data' },
+        pageSize: { type: 'string', description: 'Default "Rows per page".', group: 'data' },
+        jump: { type: 'string', description: 'Default "Go to page".', group: 'data' },
       },
     },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
@@ -65,18 +79,22 @@ export const paginationMeta: ComponentMeta = {
     render: perSlot('Replace a slot element: `({ props, state, children }) => node`.', 'function'),
   },
   keyboard: [
-    { keys: 'Tab', action: 'Each page and control in turn.' },
+    { keys: 'Tab', action: 'Each page and control in turn, then the page-size select and the go-to field.' },
     { keys: 'Enter / Space', action: 'Go to that page.' },
+    { keys: 'Enter (go to page)', action: 'Go to the typed page (clamped to the range).' },
   ],
   aria: [
-    '`<nav>` named by `label`, around a list: a landmark, and the number of items is read.',
-    'The current page has `aria-current="page"`. Each page reads "Page 3"; gaps are hidden from screen readers.',
+    '`<nav>` named by `label`, around a list: a landmark, and the number of items is read. `aria-busy` while `loading`.',
+    'The current page has `aria-current="page"`. Each page reads "Page 3"; gaps and the cursor are hidden from screen readers.',
     'Previous and next at the ends are disabled with `aria-disabled`: they stay focusable, so the row does not shift focus away.',
+    'The summary is a polite live region; the page-size select and go-to field are native controls with visible labels.',
   ],
   dataAttributes: [
-    { name: 'data-variant', on: 'root', values: '"ghost" | "soft" | "outline"' },
+    { name: 'data-variant', on: 'root', values: '"soft" | "ghost" | "outline" | "panel"' },
+    { name: 'data-radius', on: 'root', values: '"sm" | "md" | "full"' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-tone', on: 'root', values: 'the resolved tone' },
+    { name: 'data-loading', on: 'root', values: 'present while `loading`' },
     { name: 'data-current', on: 'item', values: 'present on the current page' },
   ],
   cssVariables: [],
@@ -84,6 +102,14 @@ export const paginationMeta: ComponentMeta = {
     {
       title: 'Results pages',
       code: "import { definePagination } from '@pinfold/react/pagination';\n\nexport const Pages = definePagination();\n\n<Pages count={24} page={page} onChange={setPage} />\n<Pages count={24} defaultPage={3} getHref={(p) => `/blog?page=${p}`} />",
+    },
+    {
+      title: 'Server side',
+      code: "export const Pages = definePagination({ pageSizes: [10, 25, 50], showInfo: true, showJump: true });\n\nconst [query, setQuery] = useState({ page: 1, pageSize: 10 });\nconst { data, isFetching } = useInvoices(query); // offset = (page - 1) * pageSize\n\n<Pages total={data.total} {...query} loading={isFetching}\n  onChange={(page, { pageSize }) => setQuery({ page, pageSize })} />",
+    },
+    {
+      title: 'An array you hold',
+      code: "const Pages = usePagination({ total: rows.length, pageSizes: [10, 25] });\n\nreturn <>{Pages.slice(rows).map(renderRow)}<Pages /></>;",
     },
   ],
 };

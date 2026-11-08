@@ -62,6 +62,8 @@ export interface PropMeta {
   orNode?: boolean;
   /** Also accepts a length, e.g. `radius`: a preset name or `20` / `'1.25rem'`. */
   orLength?: boolean;
+  /** An `array` whose rows may also be strings, a shorthand row: `items={['Board', 'List']}`. */
+  orString?: boolean;
   default?: unknown;
   /** What an unset option resolves to when it has no fixed default (e.g. `theme radius`). */
   auto?: string;
@@ -161,7 +163,7 @@ function checkShape(
     if (prop.type === 'array' && prop.items && Array.isArray(v)) {
       v.forEach((entry, i) => {
         if (isObject(entry)) checkShape(name, prop.items!, entry, `${path}[${i}].`, problems, false);
-        else problems.push({ path: `${path}[${i}]`, message: `${name}: \`${path}[${i}]\` must be an object.` });
+        else if (!(prop.orString && typeof entry === 'string')) problems.push({ path: `${path}[${i}]`, message: `${name}: \`${path}[${i}]\` must be ${prop.orString ? 'an object or a string' : 'an object'}.` });
       });
     }
     if (prop.type === 'object' && prop.keys && isObject(v)) checkShape(name, prop.keys, v, `${path}.`, problems);
@@ -265,6 +267,7 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
         return p.orNode ? { ...base, anyOf: [{ enum: p.values }, {}] } : { ...base, enum: p.values };
       case 'array':
         // Rows may carry extra data, so they stay open.
+        if (p.items && p.orString) return { ...base, type: 'array', items: { anyOf: [{ ...shape(p.items), additionalProperties: true }, { type: 'string' }] } };
         return { ...base, type: 'array', items: p.items ? { ...shape(p.items), additionalProperties: true } : {} };
       case 'object':
         return p.keys ? { ...base, ...shape(p.keys) } : { ...base, type: 'object' };

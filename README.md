@@ -108,6 +108,10 @@ export default defineConfig({
 
 // app root
 <PinfoldProvider config={config}>{children}</PinfoldProvider>
+
+// with your router: every Pinfold link (breadcrumbs, pages, link tabs, buttons, cards, menu rows)
+// changes page without a reload
+<PinfoldProvider config={config} navigate={router.push}>{children}</PinfoldProvider>
 ```
 Precedence, highest first: component config, `defaults.<component>`, the global theme, the library defaults.
 

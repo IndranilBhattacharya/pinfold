@@ -2,6 +2,7 @@ import * as React from 'react';
 import { buttonRel, cn, dataAttr, dimensionVars, mergeProps, resolveNode, type PropsBag } from '@pinfold/core';
 import { useEvent } from '../hooks';
 import { usePinfold } from '../provider';
+import { followLink } from '../link';
 import { usePinfoldComponent } from '../component';
 import { renderSlot, slotProps } from '../slots';
 import type { ButtonApi, ButtonComponent, ButtonConfig, ButtonRadius, ButtonRootProps, ButtonSlot, ButtonState } from './types';
@@ -68,6 +69,7 @@ export function useButton(input: ButtonConfig): ButtonComponent {
       return;
     }
     const result = config.onClick?.(event);
+    if (config.href !== undefined) followLink(event, config.href, ctx.navigate, config.target);
     if (isThenable(result) && config.loading === undefined) {
       setBusy(true);
       const done = () => {

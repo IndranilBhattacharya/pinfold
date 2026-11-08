@@ -1,15 +1,19 @@
 /* Pinfold — tabs. One indicator slides to the selected tab: the script writes its box
    (--pinfold-tab-ix/iy/iw/ih) on the list and marks it data-placed; until then (first paint, no
-   script) the selected tab draws the indicator itself. underline: a 2px bar under a hairline.
-   segmented: a raised pill in a tray (the tone's solid fill, neutral = a raised surface). pills:
-   the tone's solid fill, no tray. */
+   script) the selected tab draws the indicator itself.
+   segmented: a raised pill in a tray. underline: a bar under a hairline. pills: the tone's solid
+   fill. soft: a tint of the tone. enclosed: folder tabs over a card that holds the panel.
+   Tray, pill and card read the control tokens, so style packs reach them. */
 
 @layer pinfold.components {
   .pinfold-tabs {
     --pinfold-tab-h: var(--pinfold-tabs-height, var(--pinfold-control-height));
     --pinfold-tab-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
     --pinfold-tab-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    --pinfold-tab-text: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 86%, var(--pinfold-color-text));
     --pinfold-tab-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    --pinfold-tab-surface: var(--pinfold-control-surface, var(--pinfold-color-raised));
+    --pinfold-tab-edge: var(--pinfold-control-edge, var(--pinfold-color-border));
     display: flex;
     flex-direction: column;
     gap: var(--pinfold-tabs-gap, var(--pinfold-space-4));
@@ -18,18 +22,42 @@
     font-size: var(--pinfold-control-text);
     color: var(--pinfold-color-text);
   }
-  .pinfold-tabs[data-orientation='vertical'] { flex-direction: row; align-items: flex-start; }
+  .pinfold-tabs[data-placement='bottom'] { flex-direction: column-reverse; }
+  .pinfold-tabs[data-placement='start'] { flex-direction: row; align-items: flex-start; }
+  .pinfold-tabs[data-placement='end'] { flex-direction: row-reverse; align-items: flex-start; }
+
+  .pinfold-tabs__header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+  .pinfold-tabs:not([data-variant='underline']):not([data-variant='enclosed']):not([data-full-width]) .pinfold-tabs__header { align-self: flex-start; }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__header { flex-direction: column; align-items: stretch; flex-shrink: 0; }
 
   .pinfold-tabs__list {
+    --pinfold-tab-fs: 0px;
+    --pinfold-tab-fe: 0px;
     position: relative;
     display: flex;
+    flex: 0 1 auto;
     gap: 0.25rem;
-    max-inline-size: 100%;
-    overflow-x: auto;
+    min-inline-size: 0;
+    overflow: auto hidden;
     scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent);
+    mask-image: linear-gradient(to right, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent);
   }
-  .pinfold-tabs:not([data-variant='underline']):not([data-full-width]) .pinfold-tabs__list { align-self: flex-start; }
-  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__list { flex-direction: column; flex-shrink: 0; overflow: visible; }
+  .pinfold-tabs[data-full-width] .pinfold-tabs__list { flex-grow: 1; }
+  .pinfold-tabs__list::-webkit-scrollbar { display: none; }
+  /* Where there is more to scroll to, that edge fades. */
+  [data-overflow-start] > .pinfold-tabs__list { --pinfold-tab-fs: 2rem; }
+  [data-overflow-end] > .pinfold-tabs__list { --pinfold-tab-fe: 2rem; }
+  [dir='rtl'] .pinfold-tabs__list { -webkit-mask-image: linear-gradient(to left, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); mask-image: linear-gradient(to left, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__list { flex-direction: column; overflow: hidden auto; -webkit-mask-image: linear-gradient(transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); mask-image: linear-gradient(transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); }
 
   .pinfold-tabs__tab {
     position: relative;
@@ -42,12 +70,13 @@
     box-sizing: border-box;
     block-size: var(--pinfold-tab-h);
     margin: 0;
-    padding-inline: calc(var(--pinfold-control-pad-x) * 0.8);
+    padding-inline: calc(var(--pinfold-control-pad-x) * 0.85);
     font: inherit;
     font-weight: var(--pinfold-weight-medium);
     line-height: 1.25;
     white-space: nowrap;
     color: var(--pinfold-color-text-muted);
+    text-decoration: none;
     background: transparent;
     border: 0;
     border-radius: var(--pinfold-tab-radius);
@@ -56,15 +85,38 @@
     -webkit-tap-highlight-color: transparent;
   }
   .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__tab { justify-content: flex-start; }
-  .pinfold-tabs[data-full-width] .pinfold-tabs__tab { flex: 1 1 0; }
-  .pinfold-tabs__tab:hover:not([aria-disabled='true']),
-  .pinfold-tabs__tab[data-selected] { color: var(--pinfold-color-text); }
+  .pinfold-tabs[data-full-width] .pinfold-tabs__tab { flex: 1 0 auto; }
+  .pinfold-tabs__tab:hover:not([aria-disabled='true']) { color: var(--pinfold-color-text); }
+  .pinfold-tabs__tab[data-selected] { color: var(--pinfold-tab-text); }
+  .pinfold-tabs[data-tone='neutral'] .pinfold-tabs__tab[data-selected] { color: var(--pinfold-color-text); }
   .pinfold-tabs__tab[aria-disabled='true'] { cursor: not-allowed; opacity: 0.45; }
-  .pinfold-tabs__tab:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); z-index: 2; }
+  /* Inset: the scrolling list would clip a ring outside the tab. */
+  .pinfold-tabs__tab:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--pinfold-color-ring, var(--pinfold-color-accent)), inset 0 0 0 4px var(--pinfold-color-bg); z-index: 2; }
   .pinfold-tabs__icon { display: inline-flex; flex-shrink: 0; }
   .pinfold-tabs__icon > svg { inline-size: var(--pinfold-control-icon); block-size: var(--pinfold-control-icon); }
   .pinfold-tabs__endContent { display: inline-flex; margin-inline-start: 0.125rem; }
-  .pinfold-tabs[data-animate] .pinfold-tabs__tab { transition: color var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-tabs__close,
+  .pinfold-tabs__add {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-radius-full);
+    cursor: pointer;
+  }
+  .pinfold-tabs__close { inline-size: 1.25em; block-size: 1.25em; margin-inline: 0.125rem -0.375rem; opacity: 0.55; }
+  .pinfold-tabs__close > svg { inline-size: 0.8em; block-size: 0.8em; }
+  .pinfold-tabs__close:hover { opacity: 1; background-color: color-mix(in oklab, currentColor 14%, transparent); }
+  .pinfold-tabs__add { inline-size: calc(var(--pinfold-tab-h) - 0.25rem); block-size: calc(var(--pinfold-tab-h) - 0.25rem); color: var(--pinfold-color-text-muted); border-radius: var(--pinfold-tab-radius); }
+  .pinfold-tabs__add > svg { inline-size: var(--pinfold-control-icon); block-size: var(--pinfold-control-icon); }
+  .pinfold-tabs__add:hover { color: var(--pinfold-color-text); background-color: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent); }
+  .pinfold-tabs__add:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-tabs[data-animate] :is(.pinfold-tabs__tab, .pinfold-tabs__close, .pinfold-tabs__add) { transition: color var(--pinfold-duration-md) var(--pinfold-ease-out), background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), opacity var(--pinfold-duration-fast) var(--pinfold-ease-out); }
 
   /* The indicator: the selected tab's box, or the bar along its edge. */
   .pinfold-tabs__indicator {
@@ -72,6 +124,7 @@
     inset-block-start: 0;
     left: 0;
     display: none;
+    box-sizing: border-box;
     inline-size: var(--pinfold-tab-iw, 0);
     block-size: var(--pinfold-tab-ih, 0);
     background: var(--pinfold-tab-solid);
@@ -84,46 +137,90 @@
     transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-spring), inline-size var(--pinfold-duration-slow) var(--pinfold-ease-spring), block-size var(--pinfold-duration-slow) var(--pinfold-ease-spring);
   }
 
-  /* underline */
-  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__list { box-shadow: inset 0 calc(var(--pinfold-border-width) * -1) 0 var(--pinfold-color-border); }
-  .pinfold-tabs[data-variant='underline'][data-orientation='vertical'] .pinfold-tabs__list { box-shadow: inset calc(var(--pinfold-border-width) * -1) 0 0 var(--pinfold-color-border); }
-  [dir='rtl'] .pinfold-tabs[data-variant='underline'][data-orientation='vertical'] .pinfold-tabs__list { box-shadow: inset var(--pinfold-border-width) 0 0 var(--pinfold-color-border); }
-  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__indicator {
-    block-size: 2px;
-    border-radius: 2px 2px 0 0;
-    transform: translate(var(--pinfold-tab-ix, 0), calc(var(--pinfold-tab-iy, 0px) + var(--pinfold-tab-ih, 0px) - 2px));
-  }
-  .pinfold-tabs[data-variant='underline'][data-orientation='vertical'] .pinfold-tabs__indicator {
-    inline-size: 2px;
-    block-size: var(--pinfold-tab-ih, 0);
-    border-radius: 2px 0 0 2px;
-    transform: translate(calc(var(--pinfold-tab-ix, 0px) + var(--pinfold-tab-iw, 0px) - 2px), var(--pinfold-tab-iy, 0));
-  }
-  [dir='rtl'] .pinfold-tabs[data-variant='underline'][data-orientation='vertical'] .pinfold-tabs__indicator { border-radius: 0 2px 2px 0; transform: translate(var(--pinfold-tab-ix, 0), var(--pinfold-tab-iy, 0)); }
-  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__tab:hover:not([aria-disabled='true']):not([data-selected]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 5%, transparent); }
-  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { box-shadow: inset 0 -2px 0 var(--pinfold-tab-solid); }
-
-  /* segmented */
-  .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__list {
-    gap: 0.125rem;
+  /* segmented: a tray with a raised pill. */
+  .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__header {
     padding: 0.25rem;
-    background-color: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent);
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 7%, var(--pinfold-control-surface, transparent));
     background-image: var(--pinfold-texture);
     border-radius: calc(var(--pinfold-tab-radius) + 0.25rem);
     box-shadow: inset 0 0 0 var(--pinfold-border-width) var(--pinfold-control-edge, transparent);
     backdrop-filter: var(--pinfold-backdrop);
   }
+  .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__list { gap: 0.125rem; }
   .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__tab { block-size: calc(var(--pinfold-tab-h) - 0.5rem); }
-  .pinfold-tabs[data-variant='segmented'][data-tone='neutral'] {
-    --pinfold-tab-solid: var(--pinfold-control-surface, var(--pinfold-color-raised));
-    --pinfold-tab-on: var(--pinfold-color-text);
+  .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__indicator {
+    background: var(--pinfold-tab-surface);
+    box-shadow: var(--pinfold-control-shadow, 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-color-text) 7%, transparent), 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-900) 12%, transparent), 0 2px 8px -2px color-mix(in oklab, var(--pinfold-neutral-900) 14%, transparent));
   }
-  .pinfold-tabs:is([data-variant='segmented'], [data-variant='pills']) .pinfold-tabs__indicator {
-    box-shadow: var(--pinfold-control-shadow, 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-color-text) 6%, transparent), 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-900) 14%, transparent), 0 3px 10px -2px color-mix(in oklab, var(--pinfold-tab-solid) 40%, transparent));
+  .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { background: var(--pinfold-tab-surface); }
+
+  /* underline */
+  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__header { box-shadow: inset 0 calc(var(--pinfold-border-width) * -1) 0 var(--pinfold-tab-edge); }
+  .pinfold-tabs[data-variant='underline'][data-placement='bottom'] .pinfold-tabs__header { box-shadow: inset 0 var(--pinfold-border-width) 0 var(--pinfold-tab-edge); }
+  .pinfold-tabs[data-variant='underline'][data-orientation='vertical'] .pinfold-tabs__header { box-shadow: inset calc(var(--pinfold-border-width) * -1) 0 0 var(--pinfold-tab-edge); }
+  .pinfold-tabs[data-variant='underline'][data-placement='end'] .pinfold-tabs__header,
+  [dir='rtl'] .pinfold-tabs[data-variant='underline'][data-placement='start'] .pinfold-tabs__header { box-shadow: inset var(--pinfold-border-width) 0 0 var(--pinfold-tab-edge); }
+  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__tab[data-selected] { color: var(--pinfold-color-text); }
+  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__tab:hover:not([aria-disabled='true']):not([data-selected]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 5%, transparent); }
+  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__indicator {
+    block-size: 2px;
+    border-radius: 2px;
+    box-shadow: 0 0 8px color-mix(in oklab, var(--pinfold-tab-solid) 45%, transparent);
+    transform: translate(var(--pinfold-tab-ix, 0), calc(var(--pinfold-tab-iy, 0px) + var(--pinfold-tab-ih, 0px) - 2px));
   }
-  .pinfold-tabs:is([data-variant='segmented'], [data-variant='pills']) .pinfold-tabs__tab[data-selected] { color: var(--pinfold-tab-on); }
-  .pinfold-tabs:is([data-variant='segmented'], [data-variant='pills']) .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { background: var(--pinfold-tab-solid); }
-  .pinfold-tabs[data-variant='pills'] .pinfold-tabs__tab:hover:not([aria-disabled='true']):not([data-selected]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
+  .pinfold-tabs[data-variant='underline'][data-placement='bottom'] .pinfold-tabs__indicator { transform: translate(var(--pinfold-tab-ix, 0), var(--pinfold-tab-iy, 0)); }
+  .pinfold-tabs[data-variant='underline'][data-orientation='vertical'] .pinfold-tabs__indicator {
+    inline-size: 2px;
+    block-size: var(--pinfold-tab-ih, 0);
+    transform: translate(calc(var(--pinfold-tab-ix, 0px) + var(--pinfold-tab-iw, 0px) - 2px), var(--pinfold-tab-iy, 0));
+  }
+  .pinfold-tabs[data-variant='underline'][data-placement='end'] .pinfold-tabs__indicator,
+  [dir='rtl'] .pinfold-tabs[data-variant='underline'][data-placement='start'] .pinfold-tabs__indicator { transform: translate(var(--pinfold-tab-ix, 0), var(--pinfold-tab-iy, 0)); }
+  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { box-shadow: inset 0 -2px 0 var(--pinfold-tab-solid); }
+
+  /* pills and soft: the tone fills the selected tab, solid or tinted. */
+  .pinfold-tabs[data-variant='pills'] .pinfold-tabs__indicator { box-shadow: 0 1px 2px color-mix(in oklab, var(--pinfold-tab-solid) 30%, transparent), 0 4px 12px -2px color-mix(in oklab, var(--pinfold-tab-solid) 45%, transparent); }
+  .pinfold-tabs[data-variant='pills'] .pinfold-tabs__tab[data-selected] { color: var(--pinfold-tab-on); }
+  .pinfold-tabs[data-variant='pills'] .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { background: var(--pinfold-tab-solid); }
+  .pinfold-tabs[data-variant='soft'] .pinfold-tabs__indicator { background: color-mix(in oklab, var(--pinfold-tab-solid) 14%, var(--pinfold-control-surface, transparent)); }
+  .pinfold-tabs[data-variant='soft'] .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { background: color-mix(in oklab, var(--pinfold-tab-solid) 14%, transparent); }
+  .pinfold-tabs:is([data-variant='pills'], [data-variant='soft']) .pinfold-tabs__tab:hover:not([aria-disabled='true']):not([data-selected]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
+
+  /* enclosed: folder tabs on a card. The selected tab takes the card's surface and covers its edge. */
+  .pinfold-tabs[data-variant='enclosed'] { gap: 0; }
+  .pinfold-tabs[data-variant='enclosed'] .pinfold-tabs__list { gap: 0.125rem; padding-inline: 0.5rem; }
+  .pinfold-tabs[data-variant='enclosed'][data-orientation='vertical'] .pinfold-tabs__list { padding: 0.5rem 0; }
+  .pinfold-tabs[data-variant='enclosed'] .pinfold-tabs__tab:hover:not([aria-disabled='true']):not([data-selected]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 5%, transparent); }
+  .pinfold-tabs[data-variant='enclosed'] .pinfold-tabs__tab[data-selected] { color: var(--pinfold-color-text); }
+  .pinfold-tabs[data-variant='enclosed'] .pinfold-tabs__indicator {
+    background: var(--pinfold-color-surface) var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-tab-edge);
+    border-block-end-color: transparent;
+    backdrop-filter: var(--pinfold-backdrop);
+    border-radius: var(--pinfold-tab-radius) var(--pinfold-tab-radius) 0 0;
+    box-shadow: inset 0 2px 0 var(--pinfold-tab-solid);
+  }
+  .pinfold-tabs[data-variant='enclosed'][data-placement='bottom'] .pinfold-tabs__indicator { border-block-end-color: var(--pinfold-tab-edge); border-block-start-color: transparent; border-radius: 0 0 var(--pinfold-tab-radius) var(--pinfold-tab-radius); box-shadow: inset 0 -2px 0 var(--pinfold-tab-solid); }
+  .pinfold-tabs[data-variant='enclosed'][data-orientation='vertical'] .pinfold-tabs__indicator { border-block-end-color: var(--pinfold-tab-edge); border-right-color: transparent; border-radius: var(--pinfold-tab-radius) 0 0 var(--pinfold-tab-radius); box-shadow: inset 2px 0 0 var(--pinfold-tab-solid); }
+  .pinfold-tabs[data-variant='enclosed'][data-placement='end'] .pinfold-tabs__indicator,
+  [dir='rtl'] .pinfold-tabs[data-variant='enclosed'][data-placement='start'] .pinfold-tabs__indicator { border-right-color: var(--pinfold-tab-edge); border-left-color: transparent; border-radius: 0 var(--pinfold-tab-radius) var(--pinfold-tab-radius) 0; box-shadow: inset -2px 0 0 var(--pinfold-tab-solid); }
+  [dir='rtl'] .pinfold-tabs[data-variant='enclosed'][data-placement='end'] .pinfold-tabs__indicator { border-left-color: var(--pinfold-tab-edge); border-right-color: transparent; border-radius: var(--pinfold-tab-radius) 0 0 var(--pinfold-tab-radius); box-shadow: inset 2px 0 0 var(--pinfold-tab-solid); }
+  .pinfold-tabs[data-variant='enclosed'] .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { background: var(--pinfold-color-surface); box-shadow: inset 0 2px 0 var(--pinfold-tab-solid); }
+  .pinfold-tabs[data-variant='enclosed'] .pinfold-tabs__panel {
+    position: relative;
+    align-self: stretch;
+    margin-block-start: calc(var(--pinfold-border-width) * -1);
+    padding: var(--pinfold-space-4) var(--pinfold-space-5, 1.25rem);
+    background-color: var(--pinfold-color-surface);
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-tab-edge);
+    border-radius: calc(var(--pinfold-tab-radius) + 0.25rem);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-sm));
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-tabs[data-variant='enclosed'][data-placement='bottom'] .pinfold-tabs__panel { margin-block: 0 calc(var(--pinfold-border-width) * -1); }
+  .pinfold-tabs[data-variant='enclosed'][data-placement='start'] .pinfold-tabs__panel { margin-block-start: 0; margin-inline-start: calc(var(--pinfold-border-width) * -1); }
+  .pinfold-tabs[data-variant='enclosed'][data-placement='end'] .pinfold-tabs__panel { margin-block-start: 0; margin-inline-end: calc(var(--pinfold-border-width) * -1); }
 
   .pinfold-tabs__panel {
     flex: 1 1 auto;
@@ -131,10 +228,19 @@
     border-radius: var(--pinfold-radius-sm);
   }
   .pinfold-tabs__panel:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  /* After a change (never on load), the new panel slides in from the side the selection moved to. */
+  .pinfold-tabs[data-animate][data-direction] > .pinfold-tabs__panel:not([hidden]) { animation: pinfold-tabs-in var(--pinfold-duration-slow) var(--pinfold-ease-out); }
+  .pinfold-tabs[data-direction='back'] { --pinfold-tab-from: -0.75rem; }
+  [dir='rtl'] .pinfold-tabs[data-orientation='horizontal'] { --pinfold-tab-from: -0.75rem; }
+  [dir='rtl'] .pinfold-tabs[data-orientation='horizontal'][data-direction='back'] { --pinfold-tab-from: 0.75rem; }
+  .pinfold-tabs[data-orientation='vertical'] { --pinfold-tab-axis: 0 var(--pinfold-tab-from, 0.75rem); }
+  @keyframes pinfold-tabs-in {
+    from { opacity: 0; translate: var(--pinfold-tab-axis, var(--pinfold-tab-from, 0.75rem) 0); }
+  }
 
   @media (forced-colors: active) {
     .pinfold-tabs__indicator { forced-color-adjust: none; background: Highlight; }
     .pinfold-tabs__tab[data-selected] { forced-color-adjust: none; color: HighlightText; }
-    .pinfold-tabs[data-variant='underline'] .pinfold-tabs__tab[data-selected] { color: CanvasText; text-decoration: underline; }
+    .pinfold-tabs:is([data-variant='underline'], [data-variant='enclosed']) .pinfold-tabs__tab[data-selected] { color: CanvasText; text-decoration: underline; }
   }
 }
