@@ -12,7 +12,7 @@
 import { resolve } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, datepickerMeta, calendarMeta, commandMeta, tagsMeta, comboboxMeta, selectMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
+import { accordionMeta, tableMeta, datepickerMeta, calendarMeta, commandMeta, tagsMeta, comboboxMeta, selectMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
 
 interface Entry {
   meta: ComponentMeta;
@@ -37,6 +37,7 @@ const COMPONENTS: Entry[] = [
   { meta: kbdMeta, file: 'kbd/types.ts', configs: ['KbdConfig'], nested: { dimensions: 'KbdDimensions' } },
   { meta: skeletonMeta, file: 'skeleton/types.ts', configs: ['SkeletonConfig'], nested: { dimensions: 'SkeletonDimensions' } },
   { meta: badgeMeta, file: 'badge/types.ts', configs: ['BadgeConfig'], nested: { dimensions: 'BadgeDimensions' } },
+  { meta: tableMeta, file: 'table/types.ts', configs: ['TableConfig'], nested: { dimensions: 'TableDimensions' } },
   { meta: datepickerMeta, file: 'datepicker/types.ts', configs: ['DatePickerConfig'], nested: { dimensions: 'DatePickerDimensions' } },
   { meta: calendarMeta, file: 'calendar/types.ts', configs: ['CalendarConfig'], nested: { labels: 'CalendarLabels' } },
   { meta: commandMeta, file: 'command/types.ts', configs: ['CommandConfig'], nested: { dimensions: 'CommandDimensions' } },

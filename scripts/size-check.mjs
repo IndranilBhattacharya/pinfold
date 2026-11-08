@@ -54,6 +54,7 @@ const BUDGETS = [
   ['packages/react/dist/kbd/index.js', 4],
   ['packages/react/dist/skeleton/index.js', 4.5], // shares the provider, which now carries the app's router
   ['packages/react/dist/badge/index.js', 5],
+  ['packages/react/dist/table/index.js', 12],
   ['packages/react/dist/datepicker/index.js', 16],
   ['packages/react/dist/calendar/index.js', 8],
   ['packages/react/dist/command/index.js', 10],
@@ -90,6 +91,7 @@ const BUDGETS = [
   ['packages/css/dist/kbd.css', 1],
   ['packages/css/dist/skeleton.css', 1],
   ['packages/css/dist/badge.css', 2],
+  ['packages/css/dist/table.css', 2],
   ['packages/css/dist/datepicker.css', 2],
   ['packages/css/dist/calendar.css', 2],
   ['packages/css/dist/command.css', 2],

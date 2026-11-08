@@ -461,6 +461,20 @@
       ],
       "hook": "useDatePicker",
       "snippet": "<DateField label=\"Due date\" value={due} onChange={setDue} />"
+    },
+    {
+      "name": "table",
+      "import": "@pinfold/react/table",
+      "styles": "@pinfold/css/table.css",
+      "status": "experimental",
+      "description": "A data table from your rows: sorting, choosing rows, pages, loading and empty states.",
+      "variants": [
+        "card",
+        "plain",
+        "outline"
+      ],
+      "hook": "useTable",
+      "snippet": "<Grid label=\"Invoices\" rows={invoices} pageSize={10} />"
     }
   ],
   "planned": [
@@ -470,7 +484,6 @@
     "number-field",
     "input-otp",
     "tag-group",
-    "table",
     "date-picker"
   ]
 }
