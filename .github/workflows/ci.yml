@@ -8,6 +8,11 @@ on:
 permissions:
   contents: read
 
+# The type-declaration build runs one worker over every entry point; the default heap is not
+# enough for all of them on the smaller runners.
+env:
+  NODE_OPTIONS: --max-old-space-size=6144
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
