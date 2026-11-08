@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'a11y-report');
 const require = createRequire(import.meta.url);
-const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
+const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
@@ -63,6 +63,10 @@ const app = await build({
       import { Slider } from '@pinfold/react/slider';
       import { NumberField } from '@pinfold/react/number';
       import { Otp } from '@pinfold/react/otp';
+      import { Tabs } from '@pinfold/react/tabs';
+      import { Breadcrumb } from '@pinfold/react/breadcrumb';
+      import { Pagination } from '@pinfold/react/pagination';
+      import { Stepper } from '@pinfold/react/stepper';
       // Overlays sit in the page flow here, not the top layer, so axe can measure their contrast.
       delete HTMLElement.prototype.showPopover;
       const toastStores = {};
@@ -121,10 +125,15 @@ const app = await build({
           e(Switch, { label: 'Off switch ' + pack, labelPosition: 'start', description: 'Daily.' }),
           ...['segmented', 'outline', 'ghost'].map((variant) => e(Toggle, { key: 't' + variant, variant, label: 'View ' + variant + ' ' + pack, hideLabel: false, defaultValue: ['b'], items: [{ value: 'a', label: 'List' }, { value: 'b', label: 'Board' }, { value: 'c', label: 'Off', disabled: true }] })),
           e(Toggle, { label: 'Style ' + pack, selection: 'multiple', variant: 'ghost', defaultValue: ['a'], items: [{ value: 'a', label: 'Bold' }, { value: 'b', label: 'Italic' }] }), e(Toggle, { label: 'Pin ' + pack, variant: 'outline', defaultPressed: true }),
-          ...['outline', 'soft', 'ghost'].map((variant) => e(Toolbar, { key: 'b' + variant, variant, label: 'Pages ' + variant + ' ' + pack, items: [{ label: 'Previous' }, { label: 'Today', disabled: true }, { label: 'Next' }] })),
+          ...['ghost', 'outline', 'soft'].map((variant) => e(Toolbar, { key: 'b' + variant, variant, label: 'Pages ' + variant + ' ' + pack, items: [{ label: 'Previous' }, { label: 'Today', disabled: true }, { label: 'Next' }] })),
+          e(Toolbar, { label: 'Format ' + pack, selection: 'multiple', defaultValue: ['b'], items: [{ label: 'Bold', value: 'b' }, { label: 'Italic', value: 'i' }] }),
           e(Slider, { label: 'Volume ' + pack, defaultValue: [40], marks: [{ value: 0, label: '0' }, { value: 100, label: '100' }] }), e(Slider, { label: 'Price ' + pack, defaultValue: [20, 80], showValue: 'tooltip', description: 'Drag either end.' }),
           e(NumberField, { label: 'Quantity ' + pack, defaultValue: 1, min: 1, max: 9, description: 'Up to 9.' }), e(NumberField, { label: 'Price ' + pack, steppers: 'end', variant: 'filled', startContent: '$', error: 'Too low.' }),
           ...['outline', 'filled', 'underline'].map((variant) => e(Otp, { key: 'o' + variant, variant, label: 'Code ' + variant + ' ' + pack, defaultValue: '12', groups: [3, 3] })),
+          ...['underline', 'segmented', 'pills'].map((variant) => e(Tabs, { key: 'tb' + variant, variant, label: 'Settings ' + variant + ' ' + pack, defaultValue: 'b', items: [{ id: 'a', label: 'Profile', content: 'Profile panel' }, { id: 'b', label: 'Billing', content: 'Billing panel' }, { id: 'c', label: 'Team', disabled: true }] })),
+          ...['plain', 'soft'].map((variant) => e(Breadcrumb, { key: 'bc' + variant, variant, label: 'Breadcrumb ' + variant + ' ' + pack, maxItems: 3, items: [{ label: 'Home', href: '#h' }, { label: 'Projects', href: '#p' }, { label: 'Pinfold', href: '#f' }, { label: 'Settings' }] })),
+          ...['ghost', 'soft', 'outline'].map((variant) => e(Pagination, { key: 'pg' + variant, variant, label: 'Pages ' + variant + ' ' + pack, count: 12, defaultPage: 6, showEdges: true })),
+          ...['circle', 'dot', 'bar'].map((variant) => e(Stepper, { key: 'st' + variant, variant, label: 'Checkout ' + variant + ' ' + pack, defaultValue: 1, onChange: () => {}, items: [{ label: 'Cart' }, { label: 'Shipping', description: 'Address' }, { label: 'Payment' }] })),
         );
       }
       const items = [
@@ -190,6 +199,10 @@ const app = await build({
     '@pinfold/react/slider': './packages/react/dist/slider/index.js',
     '@pinfold/react/number': './packages/react/dist/number/index.js',
     '@pinfold/react/otp': './packages/react/dist/otp/index.js',
+    '@pinfold/react/tabs': './packages/react/dist/tabs/index.js',
+    '@pinfold/react/breadcrumb': './packages/react/dist/breadcrumb/index.js',
+    '@pinfold/react/pagination': './packages/react/dist/pagination/index.js',
+    '@pinfold/react/stepper': './packages/react/dist/stepper/index.js',
   },
   logLevel: 'silent',
 });
@@ -248,7 +261,7 @@ for (const scheme of ['light', 'dark']) {
 // The fixture really holds every component (an axe run over a page missing one proves nothing).
 {
   const page = await open();
-  const names = ['accordion', 'button', 'spinner', 'separator', 'kbd', 'skeleton', 'badge', 'alert', 'avatar', 'card', 'progress', 'tooltip', 'popover', 'dialog', 'menu', 'toast', 'input', 'checkbox', 'radio', 'switch', 'toggle', 'toolbar', 'slider', 'number', 'otp'];
+  const names = ['accordion', 'button', 'spinner', 'separator', 'kbd', 'skeleton', 'badge', 'alert', 'avatar', 'card', 'progress', 'tooltip', 'popover', 'dialog', 'menu', 'toast', 'input', 'checkbox', 'radio', 'switch', 'toggle', 'toolbar', 'slider', 'number', 'otp', 'tabs', 'breadcrumb', 'pagination', 'stepper'];
   const missing = await page.evaluate((list) => list.filter((n) => !document.querySelector(`.pinfold-${n}`)), names);
   check('Every component is on the page that axe checks', missing.length === 0, missing.join(', '));
   await page.close();
@@ -349,7 +362,7 @@ await browser.close();
 const failed = results.checks.filter((c) => !c.pass);
 const violations = Object.values(results.axe).flatMap((r) => r.violations);
 const md = [
-  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code',
+  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper',
   '',
   `Generated ${new Date().toISOString()} by \`scripts/a11y-report.mjs\` on the built packages, in Chromium.`,
   `Pattern: ${accordionMeta.pattern}`,
@@ -375,7 +388,7 @@ const md = [
   '',
   ...accordionMeta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
   '',
-  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
+  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
   '## Snapshots',
   '',
   ...results.snapshots.map((s) => `- ![${s}](${s})`),

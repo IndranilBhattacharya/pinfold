@@ -19,6 +19,10 @@ import { alertMeta } from './alert.meta';
 import { avatarMeta } from './avatar.meta';
 import { cardMeta } from './card.meta';
 import { progressMeta } from './progress.meta';
+import { stepperMeta } from './stepper.meta';
+import { paginationMeta } from './pagination.meta';
+import { breadcrumbMeta } from './breadcrumb.meta';
+import { tabsMeta } from './tabs.meta';
 import { otpMeta } from './otp.meta';
 import { numberMeta } from './number.meta';
 import { sliderMeta } from './slider.meta';
@@ -331,5 +335,5 @@ export function metaToMarkdown(meta: ComponentMeta): string {
 }
 
 /** Every component's meta. Tooling iterates this. */
-export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta];
-export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta };
+export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta];
+export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta };

@@ -7,11 +7,19 @@ import type { ButtonConfig, ButtonVariant } from '../button/types';
 export type ToolbarSlot = 'root' | 'item';
 export type ToolbarVariant = Exclude<ButtonVariant, 'link'>;
 
+/** One button: any button config, plus the value it stands for when the toolbar keeps a selection. */
+export interface ToolbarItem extends ButtonConfig {
+  /** With `selection`: the value this button stands for. Default its position, as a string. */
+  value?: string;
+}
+
 /** Passed to slot `render` overrides. */
 export interface ToolbarState {
   attached: boolean;
   orientation: 'horizontal' | 'vertical';
   size: PinfoldSize;
+  /** The pressed values. */
+  value: string[];
 }
 
 export interface ToolbarDimensions {
@@ -26,12 +34,24 @@ export interface ToolbarConfig extends SlotOverrides<ToolbarSlot, ToolbarState> 
   /** The accessible name, e.g. "Text formatting". */
   label: string;
   /** One button each. Each one's own settings win over the toolbar's. */
-  items: readonly ButtonConfig[];
+  items: readonly ToolbarItem[];
+  /**
+   * Buttons that stay pressed: `single` (one at a time, like text alignment) or `multiple` (like bold
+   * and italic). `none`: every button is an action.
+   * @default 'none'
+   */
+  selection?: 'none' | 'single' | 'multiple';
+  /** With `selection`: the pressed values, controlled. */
+  value?: readonly string[];
+  /** With `selection`: the pressed values when uncontrolled. */
+  defaultValue?: readonly string[];
+  /** With `selection`: `(values, event)` when a button is pressed or released. */
+  onChange?: (values: string[], event: React.MouseEvent<HTMLElement>) => void;
   /** @default true */
   attached?: boolean;
   /** @default 'horizontal' */
   orientation?: 'horizontal' | 'vertical';
-  /** @default 'soft' */
+  /** @default 'ghost' */
   variant?: ToolbarVariant;
   /** @default 'md' */
   size?: PinfoldSize;
@@ -46,7 +66,7 @@ export interface ToolbarConfig extends SlotOverrides<ToolbarSlot, ToolbarState> 
   style?: React.CSSProperties;
 }
 
-export type ToolbarRootProps = Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> & { [key: `data-${string}`]: unknown };
+export type ToolbarRootProps = Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'onChange' | 'defaultValue'> & { [key: `data-${string}`]: unknown };
 export type ToolbarTagProps = ToolbarConfig & Omit<ToolbarRootProps, keyof ToolbarConfig>;
 
 export interface ToolbarApi {

@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -36,7 +36,11 @@
     "toolbar",
     "slider",
     "number",
-    "otp"
+    "otp",
+    "tabs",
+    "breadcrumb",
+    "pagination",
+    "stepper"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -322,6 +326,46 @@
         "default": "./dist/otp/index.cjs"
       }
     },
+    "./tabs": {
+      "import": {
+        "types": "./dist/tabs/index.d.ts",
+        "default": "./dist/tabs/index.js"
+      },
+      "require": {
+        "types": "./dist/tabs/index.d.cts",
+        "default": "./dist/tabs/index.cjs"
+      }
+    },
+    "./breadcrumb": {
+      "import": {
+        "types": "./dist/breadcrumb/index.d.ts",
+        "default": "./dist/breadcrumb/index.js"
+      },
+      "require": {
+        "types": "./dist/breadcrumb/index.d.cts",
+        "default": "./dist/breadcrumb/index.cjs"
+      }
+    },
+    "./pagination": {
+      "import": {
+        "types": "./dist/pagination/index.d.ts",
+        "default": "./dist/pagination/index.js"
+      },
+      "require": {
+        "types": "./dist/pagination/index.d.cts",
+        "default": "./dist/pagination/index.cjs"
+      }
+    },
+    "./stepper": {
+      "import": {
+        "types": "./dist/stepper/index.d.ts",
+        "default": "./dist/stepper/index.js"
+      },
+      "require": {
+        "types": "./dist/stepper/index.d.cts",
+        "default": "./dist/stepper/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -403,6 +447,18 @@
       ],
       "otp": [
         "./dist/otp/index.d.cts"
+      ],
+      "tabs": [
+        "./dist/tabs/index.d.cts"
+      ],
+      "breadcrumb": [
+        "./dist/breadcrumb/index.d.cts"
+      ],
+      "pagination": [
+        "./dist/pagination/index.d.cts"
+      ],
+      "stepper": [
+        "./dist/stepper/index.d.cts"
       ]
     }
   },
@@ -433,6 +489,10 @@
     "slider",
     "number",
     "otp",
+    "tabs",
+    "breadcrumb",
+    "pagination",
+    "stepper",
     "registry",
     "schema",
     "llms.txt",
@@ -442,7 +502,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.12.0"
+    "@pinfold/core": "0.13.0"
   },
   "peerDependencies": {
     "react": ">=18"

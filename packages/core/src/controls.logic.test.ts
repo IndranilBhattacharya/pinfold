@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { inactiveNumberOptions, inactiveOtpOptions, inactiveSliderOptions, inactiveToggleOptions, otpBreaks, otpSanitize, sliderNextStop, sliderPercent, sliderValues, stepValue } from './controls.logic';
+import { inactiveToolbarOptions, toolbarPress, inactiveNumberOptions, inactiveOtpOptions, inactiveSliderOptions, inactiveToggleOptions, otpBreaks, otpSanitize, sliderNextStop, sliderPercent, sliderValues, stepValue } from './controls.logic';
 
 describe('controls logic', () => {
   it('slider: percent, snapping, order and the gap', () => {
@@ -47,6 +47,12 @@ describe('controls logic', () => {
     expect(Object.keys(inactiveSliderOptions({ value: [1, 2], marks: [{}] }))).toEqual(['showSteps']);
     expect(Object.keys(inactiveSliderOptions({ value: [1, 2], marks: [{}], snapToMarks: true }))).toEqual(['step', 'showSteps']);
     expect(Object.keys(inactiveNumberOptions({ steppers: 'none' }))).toEqual(['incrementLabel', 'decrementLabel']);
+    expect(Object.keys(inactiveToolbarOptions({}))).toEqual(['value', 'defaultValue', 'onChange']);
+    expect(inactiveToolbarOptions({ selection: 'single' })).toEqual({});
+    expect(toolbarPress(['a'], 'b', 'single')).toEqual(['b']);
+    expect(toolbarPress(['a'], 'a', 'single')).toEqual([]);
+    expect(toolbarPress(['a'], 'b', 'multiple')).toEqual(['a', 'b']);
+    expect(toolbarPress(['a', 'b'], 'a', 'multiple')).toEqual(['b']);
     expect(Object.keys(inactiveOtpOptions({}))).toEqual(['separator']);
     expect(inactiveOtpOptions({ groups: [3, 3] })).toEqual({});
   });

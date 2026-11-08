@@ -110,6 +110,19 @@ export function inactiveSliderOptions(config: {
   return out;
 }
 
+export function inactiveToolbarOptions(config: { selection?: string }): Record<string, string> {
+  if (config.selection && config.selection !== 'none') return {};
+  const why = 'only used with `selection`: every button is an action.';
+  return { value: why, defaultValue: why, onChange: why };
+}
+
+/** The pressed values after a press: `single` keeps one (a second press releases it), `multiple` toggles. */
+export function toolbarPress(values: readonly string[], value: string, selection: 'single' | 'multiple'): string[] {
+  const on = values.includes(value);
+  if (selection === 'single') return on ? [] : [value];
+  return on ? values.filter((v) => v !== value) : [...values, value];
+}
+
 export function inactiveNumberOptions(config: { steppers?: string }): Record<string, string> {
   return config.steppers === 'none' ? { incrementLabel: 'there are no stepper buttons.', decrementLabel: 'there are no stepper buttons.' } : {};
 }

@@ -1,0 +1,147 @@
+/* Pinfold — stepper. Marks joined by a line that fills with the tone as steps are done (a
+   background-size transition, mirrored in right-to-left text). circle: numbered circles, a check
+   when done, a halo on the current one. dot: small dots. bar: a segment per step, names under it.
+   State is never colour alone: the circle's check and number, and spoken text, carry it too. */
+
+@layer pinfold.components {
+  .pinfold-stepper {
+    --pinfold-stp-d: 2rem;
+    --pinfold-stp-g: 0.5rem;
+    --pinfold-stp-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-stp-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    --pinfold-stp-track: color-mix(in oklab, var(--pinfold-color-text) 14%, transparent);
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-control-text);
+    color: var(--pinfold-color-text);
+  }
+  .pinfold-stepper[data-size='sm'] { --pinfold-stp-d: 1.5rem; }
+  .pinfold-stepper[data-size='lg'] { --pinfold-stp-d: 2.5rem; }
+  .pinfold-stepper[data-variant='dot'] { --pinfold-stp-d: 0.75rem; }
+  .pinfold-stepper[data-variant='dot'][data-size='sm'] { --pinfold-stp-d: 0.625rem; }
+  .pinfold-stepper[data-variant='dot'][data-size='lg'] { --pinfold-stp-d: 0.875rem; }
+  .pinfold-stepper[data-orientation='vertical'] { flex-direction: column; }
+
+  .pinfold-stepper__step {
+    position: relative;
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+  .pinfold-stepper__step,
+  .pinfold-stepper__button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--pinfold-stp-g);
+  }
+  .pinfold-stepper__button {
+    inline-size: 100%;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    background: none;
+    border: 0;
+    border-radius: var(--pinfold-radius-sm);
+    cursor: pointer;
+  }
+  .pinfold-stepper__button:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-stepper__button:hover .pinfold-stepper__label { text-decoration: underline; text-underline-offset: 0.2em; }
+
+  .pinfold-stepper__indicator {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: var(--pinfold-stp-d);
+    block-size: var(--pinfold-stp-d);
+    font-size: calc(var(--pinfold-stp-d) * 0.42);
+    font-weight: var(--pinfold-weight-semibold);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: var(--pinfold-color-text-muted);
+    background-color: var(--pinfold-color-surface);
+    border: 2px solid var(--pinfold-stp-track);
+    border-radius: var(--pinfold-radius-full);
+  }
+  .pinfold-stepper__indicator > svg { inline-size: 55%; block-size: 55%; }
+  [data-status='current'] > .pinfold-stepper__indicator,
+  [data-status='current'] > * > .pinfold-stepper__indicator {
+    color: var(--pinfold-stp-solid);
+    border-color: var(--pinfold-stp-solid);
+    box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--pinfold-stp-solid) 18%, transparent);
+  }
+  [data-status='complete'] > .pinfold-stepper__indicator,
+  [data-status='complete'] > * > .pinfold-stepper__indicator {
+    color: var(--pinfold-stp-on);
+    background-color: var(--pinfold-stp-solid);
+    border-color: var(--pinfold-stp-solid);
+  }
+  .pinfold-stepper[data-variant='dot'] .pinfold-stepper__indicator { border-width: 0; background-color: var(--pinfold-stp-track); }
+  .pinfold-stepper[data-variant='dot'] [data-status]:not([data-status='upcoming']) .pinfold-stepper__indicator { background-color: var(--pinfold-stp-solid); }
+
+  .pinfold-stepper__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    padding-inline: 0.25rem;
+    text-align: center;
+  }
+  .pinfold-stepper__label { font-weight: var(--pinfold-weight-medium); overflow-wrap: anywhere; }
+  [data-status='upcoming'] .pinfold-stepper__label { color: var(--pinfold-color-text-muted); }
+  .pinfold-stepper__description { font-size: 0.875em; color: var(--pinfold-color-text-muted); }
+
+  /* The line to the next step: from this mark's edge to the next one's, filled once this step is done. */
+  .pinfold-stepper__connector {
+    position: absolute;
+    inset-block-start: calc(var(--pinfold-stp-d) / 2 - 1px);
+    inset-inline-start: calc(50% + var(--pinfold-stp-d) / 2 + var(--pinfold-stp-g));
+    inline-size: calc(100% - var(--pinfold-stp-d) - var(--pinfold-stp-g) * 2);
+    block-size: 2px;
+    background: linear-gradient(var(--pinfold-stp-solid), var(--pinfold-stp-solid)) no-repeat 0 0 / 0% 100%, var(--pinfold-stp-track);
+    border-radius: var(--pinfold-radius-full);
+  }
+  [dir='rtl'] .pinfold-stepper__connector { background-position: 100% 0, 0 0; }
+  [data-status='complete'] > .pinfold-stepper__connector { background-size: 100% 100%, auto; }
+  .pinfold-stepper[data-animate] .pinfold-stepper__connector { transition: background-size var(--pinfold-duration-slow) var(--pinfold-ease-out); }
+  .pinfold-stepper[data-animate] .pinfold-stepper__indicator { transition: background-color var(--pinfold-duration-md) var(--pinfold-ease-out), border-color var(--pinfold-duration-md) var(--pinfold-ease-out), color var(--pinfold-duration-md) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out); }
+
+  /* vertical: marks in a column, names beside them, the line down between marks. */
+  .pinfold-stepper[data-orientation='vertical'] .pinfold-stepper__step { padding-block-end: 1.5rem; }
+  .pinfold-stepper[data-orientation='vertical'] .pinfold-stepper__step:last-child { padding-block-end: 0; }
+  .pinfold-stepper[data-orientation='vertical'] :is(.pinfold-stepper__step, .pinfold-stepper__button) { flex-direction: row; align-items: flex-start; gap: 0.75rem; }
+  .pinfold-stepper[data-orientation='vertical'] .pinfold-stepper__text { padding-block-start: calc((var(--pinfold-stp-d) - 1.4em) / 2); text-align: start; }
+  .pinfold-stepper[data-orientation='vertical'] .pinfold-stepper__connector {
+    inset-block: calc(var(--pinfold-stp-d) + var(--pinfold-stp-g)) var(--pinfold-stp-g);
+    inset-inline-start: calc(var(--pinfold-stp-d) / 2 - 1px);
+    inline-size: 2px;
+    block-size: auto;
+    background-size: 100% 0%, auto;
+  }
+  .pinfold-stepper[data-orientation='vertical'] [data-status='complete'] > .pinfold-stepper__connector { background-size: 100% 100%, auto; }
+
+  /* bar: a segment per step and the names under it, left-aligned. */
+  .pinfold-stepper[data-variant='bar'] { gap: 0.5rem; }
+  .pinfold-stepper[data-variant='bar'] :is(.pinfold-stepper__step, .pinfold-stepper__button) { align-items: stretch; }
+  .pinfold-stepper[data-variant='bar'] .pinfold-stepper__indicator { inline-size: 100%; block-size: 0.375rem; border: 0; border-radius: var(--pinfold-radius-full); background-color: var(--pinfold-stp-track); box-shadow: none; }
+  .pinfold-stepper[data-variant='bar'] [data-status]:not([data-status='upcoming']) .pinfold-stepper__indicator { background-color: var(--pinfold-stp-solid); }
+  .pinfold-stepper[data-variant='bar'] .pinfold-stepper__text { padding-inline: 0; text-align: start; }
+  .pinfold-stepper[data-variant='bar'] [data-status='current'] .pinfold-stepper__label { color: var(--pinfold-stp-solid); }
+  .pinfold-stepper[data-variant='bar'] .pinfold-stepper__connector { display: none; }
+
+  @media (forced-colors: active) {
+    .pinfold-stepper__indicator { forced-color-adjust: none; border-color: CanvasText; color: CanvasText; background: Canvas; }
+    [data-status='complete'] .pinfold-stepper__indicator,
+    [data-status='current'] .pinfold-stepper__indicator { border-color: Highlight; }
+    [data-status='complete'] .pinfold-stepper__indicator { background: Highlight; color: HighlightText; }
+    .pinfold-stepper__connector { forced-color-adjust: none; background: CanvasText; }
+  }
+}

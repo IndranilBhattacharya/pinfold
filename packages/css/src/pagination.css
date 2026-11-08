@@ -1,0 +1,79 @@
+/* Pinfold — pagination. Square controls on the control tokens; the current page is the tone's
+   solid fill with a soft glow, the others quiet (ghost), tinted (soft) or framed (outline).
+   Controls at an end stay in place and fade (aria-disabled), so nothing shifts under the pointer. */
+
+@layer pinfold.components {
+  .pinfold-pagination {
+    --pinfold-pgn-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-pgn-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-control-text);
+    color: var(--pinfold-color-text);
+  }
+  .pinfold-pagination__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pinfold-pagination__cell { display: flex; }
+
+  .pinfold-pagination__item,
+  .pinfold-pagination__previous,
+  .pinfold-pagination__next,
+  .pinfold-pagination__first,
+  .pinfold-pagination__last,
+  .pinfold-pagination__gap {
+    display: inline-grid;
+    place-items: center;
+    box-sizing: border-box;
+    min-inline-size: var(--pinfold-control-height);
+    block-size: var(--pinfold-control-height);
+    margin: 0;
+    padding-inline: 0.5rem;
+    font: inherit;
+    font-weight: var(--pinfold-weight-medium);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: inherit;
+    text-decoration: none;
+    background: transparent;
+    border: var(--pinfold-border-width) solid transparent;
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pinfold-pagination__gap { color: var(--pinfold-color-text-muted); cursor: default; padding-inline: 0; }
+  .pinfold-pagination svg { inline-size: var(--pinfold-control-icon); block-size: var(--pinfold-control-icon); }
+  .pinfold-pagination [data-flip] > svg { transform: scaleX(-1); }
+  [dir='rtl'] .pinfold-pagination [data-pagination-control] > svg { transform: scaleX(-1); }
+  [dir='rtl'] .pinfold-pagination [data-flip] > svg { transform: none; }
+
+  .pinfold-pagination[data-variant='soft'] [data-pagination-control]:not([data-current]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
+  .pinfold-pagination[data-variant='outline'] [data-pagination-control]:not([data-current]) {
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border-color: var(--pinfold-control-edge, var(--pinfold-color-border));
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+  }
+  .pinfold-pagination [data-pagination-control]:hover:not([aria-disabled='true']):not([data-current]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 10%, transparent); }
+  .pinfold-pagination [data-current] {
+    color: var(--pinfold-pgn-on);
+    background-color: var(--pinfold-pgn-solid);
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--pinfold-pgn-solid) 30%, transparent), 0 4px 12px -2px color-mix(in oklab, var(--pinfold-pgn-solid) 45%, transparent);
+    cursor: default;
+  }
+  .pinfold-pagination[data-tone='neutral'] [data-current] { box-shadow: var(--pinfold-shadow-sm); }
+  .pinfold-pagination [aria-disabled='true'] { opacity: 0.4; cursor: not-allowed; }
+  .pinfold-pagination[data-animate] [data-pagination-control] { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
+  .pinfold-pagination[data-animate] [data-pagination-control]:active:not([aria-disabled='true']) { transform: scale(0.94); }
+  /* After the variants: the ring always shows. */
+  .pinfold-pagination[data-variant] [data-pagination-control][data-pagination-control]:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+
+  @media (forced-colors: active) {
+    .pinfold-pagination [data-current] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  }
+}

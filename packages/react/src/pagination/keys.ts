@@ -1,0 +1,26 @@
+/** Every config key of the pagination. Tag and preset props with these names are config; the rest go to the root
+ * element. `config-keys.test.ts` keeps this equal to the meta. */
+export const PAGINATION_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
+  'count',
+  'page',
+  'defaultPage',
+  'onChange',
+  'getHref',
+  'label',
+  'siblings',
+  'boundaries',
+  'showControls',
+  'showEdges',
+  'variant',
+  'size',
+  'tone',
+  'disabled',
+  'labels',
+  'unstyled',
+  'className',
+  'style',
+  'classNames',
+  'styles',
+  'slotProps',
+  'render',
+]);

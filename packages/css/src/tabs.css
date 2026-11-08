@@ -1,0 +1,140 @@
+/* Pinfold — tabs. One indicator slides to the selected tab: the script writes its box
+   (--pinfold-tab-ix/iy/iw/ih) on the list and marks it data-placed; until then (first paint, no
+   script) the selected tab draws the indicator itself. underline: a 2px bar under a hairline.
+   segmented: a raised pill in a tray (the tone's solid fill, neutral = a raised surface). pills:
+   the tone's solid fill, no tray. */
+
+@layer pinfold.components {
+  .pinfold-tabs {
+    --pinfold-tab-h: var(--pinfold-tabs-height, var(--pinfold-control-height));
+    --pinfold-tab-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-tab-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    --pinfold-tab-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    display: flex;
+    flex-direction: column;
+    gap: var(--pinfold-tabs-gap, var(--pinfold-space-4));
+    min-inline-size: 0;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-control-text);
+    color: var(--pinfold-color-text);
+  }
+  .pinfold-tabs[data-orientation='vertical'] { flex-direction: row; align-items: flex-start; }
+
+  .pinfold-tabs__list {
+    position: relative;
+    display: flex;
+    gap: 0.25rem;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .pinfold-tabs:not([data-variant='underline']):not([data-full-width]) .pinfold-tabs__list { align-self: flex-start; }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__list { flex-direction: column; flex-shrink: 0; overflow: visible; }
+
+  .pinfold-tabs__tab {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pinfold-control-gap);
+    box-sizing: border-box;
+    block-size: var(--pinfold-tab-h);
+    margin: 0;
+    padding-inline: calc(var(--pinfold-control-pad-x) * 0.8);
+    font: inherit;
+    font-weight: var(--pinfold-weight-medium);
+    line-height: 1.25;
+    white-space: nowrap;
+    color: var(--pinfold-color-text-muted);
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-tab-radius);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__tab { justify-content: flex-start; }
+  .pinfold-tabs[data-full-width] .pinfold-tabs__tab { flex: 1 1 0; }
+  .pinfold-tabs__tab:hover:not([aria-disabled='true']),
+  .pinfold-tabs__tab[data-selected] { color: var(--pinfold-color-text); }
+  .pinfold-tabs__tab[aria-disabled='true'] { cursor: not-allowed; opacity: 0.45; }
+  .pinfold-tabs__tab:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); z-index: 2; }
+  .pinfold-tabs__icon { display: inline-flex; flex-shrink: 0; }
+  .pinfold-tabs__icon > svg { inline-size: var(--pinfold-control-icon); block-size: var(--pinfold-control-icon); }
+  .pinfold-tabs__endContent { display: inline-flex; margin-inline-start: 0.125rem; }
+  .pinfold-tabs[data-animate] .pinfold-tabs__tab { transition: color var(--pinfold-duration-md) var(--pinfold-ease-out); }
+
+  /* The indicator: the selected tab's box, or the bar along its edge. */
+  .pinfold-tabs__indicator {
+    position: absolute;
+    inset-block-start: 0;
+    left: 0;
+    display: none;
+    inline-size: var(--pinfold-tab-iw, 0);
+    block-size: var(--pinfold-tab-ih, 0);
+    background: var(--pinfold-tab-solid);
+    border-radius: var(--pinfold-tab-radius);
+    transform: translate(var(--pinfold-tab-ix, 0), var(--pinfold-tab-iy, 0));
+    pointer-events: none;
+  }
+  .pinfold-tabs__list[data-placed] > .pinfold-tabs__indicator { display: block; }
+  .pinfold-tabs[data-animate] .pinfold-tabs__indicator {
+    transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-spring), inline-size var(--pinfold-duration-slow) var(--pinfold-ease-spring), block-size var(--pinfold-duration-slow) var(--pinfold-ease-spring);
+  }
+
+  /* underline */
+  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__list { box-shadow: inset 0 calc(var(--pinfold-border-width) * -1) 0 var(--pinfold-color-border); }
+  .pinfold-tabs[data-variant='underline'][data-orientation='vertical'] .pinfold-tabs__list { box-shadow: inset calc(var(--pinfold-border-width) * -1) 0 0 var(--pinfold-color-border); }
+  [dir='rtl'] .pinfold-tabs[data-variant='underline'][data-orientation='vertical'] .pinfold-tabs__list { box-shadow: inset var(--pinfold-border-width) 0 0 var(--pinfold-color-border); }
+  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__indicator {
+    block-size: 2px;
+    border-radius: 2px 2px 0 0;
+    transform: translate(var(--pinfold-tab-ix, 0), calc(var(--pinfold-tab-iy, 0px) + var(--pinfold-tab-ih, 0px) - 2px));
+  }
+  .pinfold-tabs[data-variant='underline'][data-orientation='vertical'] .pinfold-tabs__indicator {
+    inline-size: 2px;
+    block-size: var(--pinfold-tab-ih, 0);
+    border-radius: 2px 0 0 2px;
+    transform: translate(calc(var(--pinfold-tab-ix, 0px) + var(--pinfold-tab-iw, 0px) - 2px), var(--pinfold-tab-iy, 0));
+  }
+  [dir='rtl'] .pinfold-tabs[data-variant='underline'][data-orientation='vertical'] .pinfold-tabs__indicator { border-radius: 0 2px 2px 0; transform: translate(var(--pinfold-tab-ix, 0), var(--pinfold-tab-iy, 0)); }
+  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__tab:hover:not([aria-disabled='true']):not([data-selected]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 5%, transparent); }
+  .pinfold-tabs[data-variant='underline'] .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { box-shadow: inset 0 -2px 0 var(--pinfold-tab-solid); }
+
+  /* segmented */
+  .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__list {
+    gap: 0.125rem;
+    padding: 0.25rem;
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent);
+    background-image: var(--pinfold-texture);
+    border-radius: calc(var(--pinfold-tab-radius) + 0.25rem);
+    box-shadow: inset 0 0 0 var(--pinfold-border-width) var(--pinfold-control-edge, transparent);
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__tab { block-size: calc(var(--pinfold-tab-h) - 0.5rem); }
+  .pinfold-tabs[data-variant='segmented'][data-tone='neutral'] {
+    --pinfold-tab-solid: var(--pinfold-control-surface, var(--pinfold-color-raised));
+    --pinfold-tab-on: var(--pinfold-color-text);
+  }
+  .pinfold-tabs:is([data-variant='segmented'], [data-variant='pills']) .pinfold-tabs__indicator {
+    box-shadow: var(--pinfold-control-shadow, 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-color-text) 6%, transparent), 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-900) 14%, transparent), 0 3px 10px -2px color-mix(in oklab, var(--pinfold-tab-solid) 40%, transparent));
+  }
+  .pinfold-tabs:is([data-variant='segmented'], [data-variant='pills']) .pinfold-tabs__tab[data-selected] { color: var(--pinfold-tab-on); }
+  .pinfold-tabs:is([data-variant='segmented'], [data-variant='pills']) .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { background: var(--pinfold-tab-solid); }
+  .pinfold-tabs[data-variant='pills'] .pinfold-tabs__tab:hover:not([aria-disabled='true']):not([data-selected]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
+
+  .pinfold-tabs__panel {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    border-radius: var(--pinfold-radius-sm);
+  }
+  .pinfold-tabs__panel:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+
+  @media (forced-colors: active) {
+    .pinfold-tabs__indicator { forced-color-adjust: none; background: Highlight; }
+    .pinfold-tabs__tab[data-selected] { forced-color-adjust: none; color: HighlightText; }
+    .pinfold-tabs[data-variant='underline'] .pinfold-tabs__tab[data-selected] { color: CanvasText; text-decoration: underline; }
+  }
+}
