@@ -34,6 +34,8 @@ export interface Row {
   icon?: React.ReactNode;
   group?: string;
   disabled: boolean;
+  /** After the label: a shortcut hint (a command). */
+  end?: React.ReactNode;
 }
 
 export function toRows(items: ReadonlyArray<ListItem | string> | undefined): Row[] {
@@ -141,6 +143,8 @@ interface RenderOptions {
   /** A combobox marks what matched what was typed. */
   query?: string;
   unstyled?: boolean;
+  /** Rows carry a check column (select, combobox); a command has none. @default true */
+  checks?: boolean;
   /** Shown instead of rows: "No results", "Loading…". */
   status?: React.ReactNode;
   busy?: boolean;
@@ -162,12 +166,13 @@ export function renderRows(o: RenderOptions): React.ReactNode {
         {o.slot(
           'option',
           <>
-            {o.slot('check', isSelected ? CHECK_ICON : null, 'span', { 'aria-hidden': true })}
+            {o.checks === false ? null : o.slot('check', isSelected ? CHECK_ICON : null, 'span', { 'aria-hidden': true })}
             {row.icon != null ? o.slot('icon', row.icon, 'span', { 'aria-hidden': true }) : null}
             <span className={o.unstyled ? undefined : 'pinfold-select__text'}>
               <span className={o.unstyled ? undefined : 'pinfold-select__label'}>{label}</span>
               {row.description != null ? o.slot('detail', row.description, 'span') : null}
             </span>
+            {row.end != null ? o.slot('shortcut', row.end, 'kbd') : null}
           </>,
           'div',
           {
