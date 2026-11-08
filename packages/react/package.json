@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -44,7 +44,9 @@
     "select",
     "combobox",
     "tags",
-    "command"
+    "command",
+    "calendar",
+    "datepicker"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -410,6 +412,26 @@
         "default": "./dist/command/index.cjs"
       }
     },
+    "./calendar": {
+      "import": {
+        "types": "./dist/calendar/index.d.ts",
+        "default": "./dist/calendar/index.js"
+      },
+      "require": {
+        "types": "./dist/calendar/index.d.cts",
+        "default": "./dist/calendar/index.cjs"
+      }
+    },
+    "./datepicker": {
+      "import": {
+        "types": "./dist/datepicker/index.d.ts",
+        "default": "./dist/datepicker/index.js"
+      },
+      "require": {
+        "types": "./dist/datepicker/index.d.cts",
+        "default": "./dist/datepicker/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -515,6 +537,12 @@
       ],
       "command": [
         "./dist/command/index.d.cts"
+      ],
+      "calendar": [
+        "./dist/calendar/index.d.cts"
+      ],
+      "datepicker": [
+        "./dist/datepicker/index.d.cts"
       ]
     }
   },
@@ -553,6 +581,8 @@
     "combobox",
     "tags",
     "command",
+    "calendar",
+    "datepicker",
     "registry",
     "schema",
     "llms.txt",
@@ -562,7 +592,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.16.0"
+    "@pinfold/core": "0.17.0"
   },
   "peerDependencies": {
     "react": ">=18"

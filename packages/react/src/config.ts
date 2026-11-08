@@ -7,6 +7,8 @@ import type { SeparatorConfig } from './separator/types';
 import type { KbdConfig } from './kbd/types';
 import type { SkeletonConfig } from './skeleton/types';
 import type { BadgeConfig } from './badge/types';
+import type { DatePickerConfig } from './datepicker/types';
+import type { CalendarConfig } from './calendar/types';
 import type { CommandConfig } from './command/types';
 import type { TagsConfig } from './tags/types';
 import type { ComboboxConfig } from './combobox/types';
@@ -43,6 +45,8 @@ export interface PinfoldComponentDefaults {
   kbd?: Omit<KbdConfig, 'keys'>;
   skeleton?: Omit<SkeletonConfig, 'content' | 'loading'>;
   badge?: Omit<BadgeConfig, 'label' | 'count' | 'anchor'>;
+  datepicker?: Omit<DatePickerConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'isDateDisabled' | 'open' | 'defaultOpen' | 'onOpenChange' | 'placeholder'>;
+  calendar?: Omit<CalendarConfig, 'value' | 'defaultValue' | 'onChange' | 'month' | 'defaultMonth' | 'onMonthChange' | 'min' | 'max' | 'isDateDisabled'>;
   command?: Omit<CommandConfig, 'label' | 'items' | 'onSelect' | 'inputValue' | 'defaultInputValue' | 'onInputChange' | 'loading' | 'open' | 'defaultOpen' | 'onOpenChange'>;
   tags?: Omit<TagsConfig, 'label' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'onRemove'>;
   combobox?: Omit<ComboboxConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'inputValue' | 'defaultInputValue' | 'onInputChange' | 'placeholder' | 'loading' | 'open' | 'defaultOpen' | 'onOpenChange'>;
