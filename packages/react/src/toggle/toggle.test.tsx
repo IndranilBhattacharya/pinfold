@@ -99,6 +99,28 @@ describe('Toggle', () => {
 describe('Toolbar', () => {
   const items = [{ label: 'Previous' }, { label: 'Today', disabled: true }, { label: 'Next' }];
 
+  it('selection: toggle buttons with aria-pressed; single keeps one, multiple toggles; own onClick still runs', () => {
+    const onChange = vi.fn();
+    const onBold = vi.fn();
+    const format = [{ label: 'Bold', value: 'b', onClick: onBold }, { label: 'Italic', value: 'i' }];
+    const { rerender } = render(<Toolbar label="Format" items={format} selection="multiple" defaultValue={['b']} onChange={onChange} />);
+    const [bold, italic] = screen.getAllByRole('button');
+    expect(bold.getAttribute('aria-pressed')).toBe('true');
+    expect(italic.getAttribute('aria-pressed')).toBe('false');
+    fireEvent.click(italic);
+    expect(onChange).toHaveBeenLastCalledWith(['b', 'i'], expect.anything());
+    fireEvent.click(bold);
+    expect(onBold).toHaveBeenCalled();
+    expect(onChange).toHaveBeenLastCalledWith(['i'], expect.anything());
+    rerender(<Toolbar label="Align" items={[{ label: 'Left' }, { label: 'Right' }]} selection="single" defaultValue={['0']} />);
+    const [left, right] = screen.getAllByRole('button');
+    fireEvent.click(right);
+    expect([left.getAttribute('aria-pressed'), right.getAttribute('aria-pressed')]).toEqual(['false', 'true']);
+    // Without selection, buttons are actions: no aria-pressed.
+    rerender(<Toolbar label="Pages" items={items} />);
+    expect(screen.getAllByRole('button')[0].hasAttribute('aria-pressed')).toBe(false);
+  });
+
   it('is a named toolbar with one tab stop; arrows reach disabled buttons and stop at the ends', () => {
     render(<Toolbar label="Pages" items={items} />);
     expect(screen.getByRole('toolbar', { name: 'Pages' }).hasAttribute('data-attached')).toBe(true);

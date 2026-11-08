@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn, dataAttr, dimensionVars, inactiveToggleOptions, mergeProps, nextIndexFromKey, warnOnce, type PropsBag } from '@pinfold/core';
-import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
+import { useControllableState, useId } from '../hooks';
+import { useSlidingIndicator } from '../indicator';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
@@ -66,26 +67,7 @@ export function useToggle(input: ToggleConfig): ToggleComponent {
   // The segmented pill: measured from the selected button, so it slides between any widths. One
   // observer per group, only while it shows.
   const selectedIndex = group ? items!.findIndex((item) => selected.includes(item.value)) : -1;
-  useIsomorphicLayoutEffect(() => {
-    const box = list.current;
-    if (!segmented || !box) return;
-    const place = () => {
-      const button = box.querySelectorAll<HTMLElement>('[data-toggle-item]')[selectedIndex];
-      if (!button) {
-        box.removeAttribute('data-placed');
-        return;
-      }
-      box.style.setProperty('--pinfold-tgl-ix', `${button.offsetLeft}px`);
-      box.style.setProperty('--pinfold-tgl-iy', `${button.offsetTop}px`);
-      box.style.setProperty('--pinfold-tgl-iw', `${button.offsetWidth}px`);
-      box.style.setProperty('--pinfold-tgl-ih', `${button.offsetHeight}px`);
-      box.setAttribute('data-placed', '');
-    };
-    place();
-    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place);
-    observer?.observe(box);
-    return () => observer?.disconnect();
-  }, [segmented, selectedIndex, items?.length]);
+  useSlidingIndicator(list, segmented, '[data-toggle-item]', selectedIndex, '--pinfold-tgl-i', items?.length);
 
   const enabled = (i: number) => !config.disabled && !items![i]?.disabled;
   const firstEnabled = group ? items!.findIndex((_, i) => enabled(i)) : -1;

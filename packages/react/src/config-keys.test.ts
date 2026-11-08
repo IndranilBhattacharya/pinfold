@@ -4,7 +4,7 @@
  * must equal the meta, or a new option would silently land on the DOM element instead of the hook.
  */
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta } from '@pinfold/core/meta';
+import { accordionMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta } from '@pinfold/core/meta';
 import { ACCORDION_KEYS } from './accordion/keys';
 import { BUTTON_KEYS } from './button/keys';
 import { SPINNER_KEYS } from './spinner/keys';
@@ -12,6 +12,10 @@ import { SEPARATOR_KEYS } from './separator/keys';
 import { KBD_KEYS } from './kbd/keys';
 import { SKELETON_KEYS } from './skeleton/keys';
 import { BADGE_KEYS } from './badge/keys';
+import { STEPPER_KEYS } from './stepper/keys';
+import { PAGINATION_KEYS } from './pagination/keys';
+import { BREADCRUMB_KEYS } from './breadcrumb/keys';
+import { TABS_KEYS } from './tabs/keys';
 import { OTP_KEYS } from './otp/keys';
 import { NUMBER_KEYS } from './number/keys';
 import { SLIDER_KEYS } from './slider/keys';
@@ -40,6 +44,10 @@ describe('config key lists match the meta', () => {
     [kbdMeta, KBD_KEYS],
     [skeletonMeta, SKELETON_KEYS],
     [badgeMeta, BADGE_KEYS],
+    [stepperMeta, STEPPER_KEYS],
+    [paginationMeta, PAGINATION_KEYS],
+    [breadcrumbMeta, BREADCRUMB_KEYS],
+    [tabsMeta, TABS_KEYS],
     [otpMeta, OTP_KEYS],
     [numberMeta, NUMBER_KEYS],
     [sliderMeta, SLIDER_KEYS],

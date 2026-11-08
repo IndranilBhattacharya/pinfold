@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, mergeProps, nextIndexFromKey, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveToolbarOptions, mergeProps, nextIndexFromKey, toolbarPress, warnOnce, type PropsBag } from '@pinfold/core';
+import { useControllableState } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
@@ -27,12 +28,16 @@ export function useToolbar(input: ToolbarConfig): ToolbarComponent {
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ toolbarMeta, validateConfig }) => {
       for (const problem of validateConfig(toolbarMeta, input)) warnOnce(true, problem.message);
+      const inactive = inactiveToolbarOptions(config);
+      for (const key in inactive) warnOnce((input as unknown as Record<string, unknown>)[key] !== undefined, `Toolbar: \`${key}\` has no visible effect here. ${inactive[key]}`);
     });
     warnOnce(!config.label, 'Toolbar: give it a `label`, e.g. "Text formatting": it names the toolbar for screen readers.');
   }
 
   const orientation = config.orientation ?? 'horizontal';
-  const state: ToolbarState = { attached: config.attached !== false, orientation, size: config.size ?? ctx.size };
+  const selection = config.selection ?? 'none';
+  const [pressed, setPressed] = useControllableState<readonly string[]>({ value: config.value, defaultValue: config.defaultValue ?? [] });
+  const state: ToolbarState = { attached: config.attached !== false, orientation, size: config.size ?? ctx.size, value: [...pressed] };
   // The tab stop: the button last focused, else the first one that can take focus.
   const stop = active < items.length ? active : 0;
   const buttons = () => Array.from(root.current?.querySelectorAll<HTMLElement>(':scope > [data-toolbar-item]') ?? []);
@@ -57,9 +62,10 @@ export function useToolbar(input: ToolbarConfig): ToolbarComponent {
         'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
         'data-attached': dataAttr(state.attached),
         'data-orientation': orientation,
-        'data-variant': config.variant ?? 'soft',
+        'data-variant': config.variant ?? 'ghost',
         'data-size': state.size,
         'data-tone': config.tone ?? 'neutral',
+        'data-selection': selection,
         'data-unstyled': dataAttr(config.unstyled),
         onKeyDown,
       },
@@ -81,11 +87,28 @@ export function useToolbar(input: ToolbarConfig): ToolbarComponent {
         onFocus: () => setActive(i),
       });
       // The toolbar's look first; each item's own config wins.
-      const look = { variant: config.variant ?? 'soft', size: state.size, tone: config.tone ?? 'neutral', disabled: config.disabled || undefined };
+      const look = { variant: config.variant ?? 'ghost', size: state.size, tone: config.tone ?? 'neutral', disabled: config.disabled || undefined };
+      // A toggle button keeps its own onClick, then flips its value.
+      const value = item.value ?? String(i);
+      const on = selection !== 'none' && pressed.includes(value);
+      const toggle =
+        selection === 'none'
+          ? null
+          : {
+              'aria-pressed': on,
+              'data-pressed': dataAttr(on),
+              onClick: (event: React.MouseEvent<HTMLElement>) => {
+                const result = item.onClick?.(event);
+                const next = toolbarPress(pressed, value, selection);
+                setPressed(next);
+                config.onChange?.(next, event);
+                return result;
+              },
+            };
       return (
         <React.Fragment key={i}>
           {renderSlot(config, 'item', own, state, null, (p) => (
-            <Button {...look} {...item} {...p} className={cn(p.className as string | undefined, item.className)} />
+            <Button {...look} {...item} {...toggle} {...p} className={cn(p.className as string | undefined, item.className)} />
           ))}
         </React.Fragment>
       );

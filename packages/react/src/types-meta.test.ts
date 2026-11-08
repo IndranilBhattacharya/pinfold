@@ -12,7 +12,7 @@
 import { resolve } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
+import { accordionMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
 
 interface Entry {
   meta: ComponentMeta;
@@ -37,6 +37,10 @@ const COMPONENTS: Entry[] = [
   { meta: kbdMeta, file: 'kbd/types.ts', configs: ['KbdConfig'], nested: { dimensions: 'KbdDimensions' } },
   { meta: skeletonMeta, file: 'skeleton/types.ts', configs: ['SkeletonConfig'], nested: { dimensions: 'SkeletonDimensions' } },
   { meta: badgeMeta, file: 'badge/types.ts', configs: ['BadgeConfig'], nested: { dimensions: 'BadgeDimensions' } },
+  { meta: stepperMeta, file: 'stepper/types.ts', configs: ['StepperConfig'], nested: { items: 'StepperItem' } },
+  { meta: paginationMeta, file: 'pagination/types.ts', configs: ['PaginationConfig'], nested: { labels: 'PaginationLabels' } },
+  { meta: breadcrumbMeta, file: 'breadcrumb/types.ts', configs: ['BreadcrumbConfig'], nested: { items: 'BreadcrumbItem' } },
+  { meta: tabsMeta, file: 'tabs/types.ts', configs: ['TabsConfig'], nested: { items: 'TabsItem', dimensions: 'TabsDimensions' } },
   { meta: otpMeta, file: 'otp/types.ts', configs: ['OtpConfig'], nested: { dimensions: 'OtpDimensions' } },
   { meta: numberMeta, file: 'number/types.ts', configs: ['NumberFieldConfig'], nested: { dimensions: 'NumberFieldDimensions' } },
   { meta: sliderMeta, file: 'slider/types.ts', configs: ['SliderConfig'], nested: { dimensions: 'SliderDimensions' } },

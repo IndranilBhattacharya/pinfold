@@ -323,6 +323,61 @@
       ],
       "hook": "useOtp",
       "snippet": "<Otp label=\"Verification code\" />"
+    },
+    {
+      "name": "tabs",
+      "import": "@pinfold/react/tabs",
+      "styles": "@pinfold/css/tabs.css",
+      "status": "experimental",
+      "description": "Panels picked from a row of tabs with a sliding indicator.",
+      "variants": [
+        "underline",
+        "segmented",
+        "pills"
+      ],
+      "hook": "useTabs",
+      "snippet": "const Settings = defineTabs();\n<Settings label=\"Settings\" items={[{ id: 'profile', label: 'Profile', content: <Profile /> }]} />"
+    },
+    {
+      "name": "breadcrumb",
+      "import": "@pinfold/react/breadcrumb",
+      "styles": "@pinfold/css/breadcrumb.css",
+      "status": "experimental",
+      "description": "The path to the current page, collapsing a long trail.",
+      "variants": [
+        "plain",
+        "soft"
+      ],
+      "hook": "useBreadcrumb",
+      "snippet": "const Trail = defineBreadcrumb();\n<Trail items={[{ label: 'Home', href: '/' }, { label: 'Settings' }]} />"
+    },
+    {
+      "name": "pagination",
+      "import": "@pinfold/react/pagination",
+      "styles": "@pinfold/css/pagination.css",
+      "status": "experimental",
+      "description": "Numbered pages with gaps, previous and next; buttons or links.",
+      "variants": [
+        "ghost",
+        "soft",
+        "outline"
+      ],
+      "hook": "usePagination",
+      "snippet": "const Pages = definePagination();\n<Pages count={24} page={page} onChange={setPage} />"
+    },
+    {
+      "name": "stepper",
+      "import": "@pinfold/react/stepper",
+      "styles": "@pinfold/css/stepper.css",
+      "status": "experimental",
+      "description": "Progress through the steps of a task.",
+      "variants": [
+        "circle",
+        "dot",
+        "bar"
+      ],
+      "hook": "useStepper",
+      "snippet": "const Checkout = defineStepper();\n<Checkout value={1} items={[{ label: 'Cart' }, { label: 'Payment' }]} />"
     }
   ],
   "planned": [
@@ -331,10 +386,6 @@
     "toggle-group",
     "number-field",
     "input-otp",
-    "tabs",
-    "breadcrumb",
-    "pagination",
-    "stepper",
     "select",
     "combobox",
     "tag-group",
