@@ -433,6 +433,34 @@
       ],
       "hook": "useCommand",
       "snippet": "<Palette label=\"Commands\" mode=\"dialog\" items={commands} />"
+    },
+    {
+      "name": "calendar",
+      "import": "@pinfold/react/calendar",
+      "styles": "@pinfold/css/calendar.css",
+      "status": "experimental",
+      "description": "A month grid to choose a day, a range or several days; locale week start; ISO dates.",
+      "variants": [
+        "single",
+        "range",
+        "multiple"
+      ],
+      "hook": "useCalendar",
+      "snippet": "<Picker value={day} onChange={setDay} />"
+    },
+    {
+      "name": "datepicker",
+      "import": "@pinfold/react/datepicker",
+      "styles": "@pinfold/css/datepicker.css",
+      "status": "experimental",
+      "description": "A date field: type a date in your own format or pick it from a calendar; one day or a range.",
+      "variants": [
+        "outline",
+        "filled",
+        "underline"
+      ],
+      "hook": "useDatePicker",
+      "snippet": "<DateField label=\"Due date\" value={due} onChange={setDue} />"
     }
   ],
   "planned": [
@@ -443,7 +471,6 @@
     "input-otp",
     "tag-group",
     "table",
-    "calendar",
     "date-picker"
   ]
 }

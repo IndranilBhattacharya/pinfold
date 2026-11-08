@@ -4,7 +4,7 @@
  * must equal the meta, or a new option would silently land on the DOM element instead of the hook.
  */
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, commandMeta, tagsMeta, comboboxMeta, selectMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta } from '@pinfold/core/meta';
+import { accordionMeta, datepickerMeta, calendarMeta, commandMeta, tagsMeta, comboboxMeta, selectMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta } from '@pinfold/core/meta';
 import { ACCORDION_KEYS } from './accordion/keys';
 import { BUTTON_KEYS } from './button/keys';
 import { SPINNER_KEYS } from './spinner/keys';
@@ -12,6 +12,8 @@ import { SEPARATOR_KEYS } from './separator/keys';
 import { KBD_KEYS } from './kbd/keys';
 import { SKELETON_KEYS } from './skeleton/keys';
 import { BADGE_KEYS } from './badge/keys';
+import { DATEPICKER_KEYS } from './datepicker/keys';
+import { CALENDAR_KEYS } from './calendar/keys';
 import { COMMAND_KEYS } from './command/keys';
 import { TAGS_KEYS } from './tags/keys';
 import { COMBOBOX_KEYS } from './combobox/keys';
@@ -48,6 +50,8 @@ describe('config key lists match the meta', () => {
     [kbdMeta, KBD_KEYS],
     [skeletonMeta, SKELETON_KEYS],
     [badgeMeta, BADGE_KEYS],
+    [datepickerMeta, DATEPICKER_KEYS],
+    [calendarMeta, CALENDAR_KEYS],
     [commandMeta, COMMAND_KEYS],
     [tagsMeta, TAGS_KEYS],
     [comboboxMeta, COMBOBOX_KEYS],
