@@ -9,6 +9,8 @@ import type { ComponentMeta } from '@pinfold/core/meta';
 export interface ConformanceOptions {
   /** Component name in kebab-case, e.g. `accordion`. Drives the expected classes. */
   name: string;
+  /** The class block when the component wears another's stylesheet: a combobox wears `select`. */
+  block?: string;
   /**
    * The component's meta. Every enum option the root reflects as `data-<option>` is checked
    * against it: the meta default appears when unset, and every listed value reaches the DOM.
@@ -73,7 +75,7 @@ const BLOCK = (name: string) => `pinfold-${name}`;
  */
 export function describePinfoldConformance(options: ConformanceOptions): void {
   const { name, meta, preset, inherits = ['size', 'tone'], variants = true, slots, render, dimension, cssFile, hook, optionalSlots = [] } = options;
-  const block = BLOCK(name);
+  const block = BLOCK(options.block ?? name);
 
   describe(`${name} — Pinfold conformance`, () => {
     it('roots itself with the scoped reset class and its own block class', () => {

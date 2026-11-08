@@ -12,7 +12,7 @@
 import { resolve } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
+import { accordionMeta, comboboxMeta, selectMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
 
 interface Entry {
   meta: ComponentMeta;
@@ -37,6 +37,8 @@ const COMPONENTS: Entry[] = [
   { meta: kbdMeta, file: 'kbd/types.ts', configs: ['KbdConfig'], nested: { dimensions: 'KbdDimensions' } },
   { meta: skeletonMeta, file: 'skeleton/types.ts', configs: ['SkeletonConfig'], nested: { dimensions: 'SkeletonDimensions' } },
   { meta: badgeMeta, file: 'badge/types.ts', configs: ['BadgeConfig'], nested: { dimensions: 'BadgeDimensions' } },
+  { meta: comboboxMeta, file: 'combobox/types.ts', configs: ['ComboboxConfig'], nested: { dimensions: 'ComboboxDimensions' } },
+  { meta: selectMeta, file: 'select/types.ts', configs: ['SelectConfig'], nested: { dimensions: 'SelectDimensions' } },
   { meta: stepperMeta, file: 'stepper/types.ts', configs: ['StepperConfig'], nested: { items: 'StepperItem' } },
   { meta: paginationMeta, file: 'pagination/types.ts', configs: ['PaginationConfig'], nested: { labels: 'PaginationLabels' } },
   { meta: breadcrumbMeta, file: 'breadcrumb/types.ts', configs: ['BreadcrumbConfig'], nested: { items: 'BreadcrumbItem' } },

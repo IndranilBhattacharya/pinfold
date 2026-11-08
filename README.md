@@ -15,7 +15,7 @@ Created by **Indranil Bhattacharya**
 
 > **Status: pre-release.** The accordion is complete (server and client APIs,
 > global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report);
-> button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination and stepper are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
+> button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper, select and combobox are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
 
 ---
 
@@ -158,6 +158,7 @@ The config never changes shape as you go deeper.
 | [input.md](docs/components/input.md) · [checkbox.md](docs/components/checkbox.md) · [radio.md](docs/components/radio.md) · [switch.md](docs/components/switch.md) | Input, Checkbox, Radio and Switch specs |
 | [toggle.md](docs/components/toggle.md) · [toolbar.md](docs/components/toolbar.md) · [slider.md](docs/components/slider.md) · [number.md](docs/components/number.md) · [otp.md](docs/components/otp.md) | Toggle (and segmented control), Toolbar (and button group), Slider, Number field and One-time code specs |
 | [tabs.md](docs/components/tabs.md) · [breadcrumb.md](docs/components/breadcrumb.md) · [pagination.md](docs/components/pagination.md) · [stepper.md](docs/components/stepper.md) | Tabs, Breadcrumb, Pagination and Stepper specs |
+| [select.md](docs/components/select.md) · [combobox.md](docs/components/combobox.md) | Select and Combobox specs |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
 | [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
 | [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | Accessibility evidence: the automated report and the screen-reader matrix |

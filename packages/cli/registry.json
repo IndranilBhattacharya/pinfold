@@ -378,6 +378,34 @@
       ],
       "hook": "useStepper",
       "snippet": "const Checkout = defineStepper();\n<Checkout value={1} items={[{ label: 'Cart' }, { label: 'Payment' }]} />"
+    },
+    {
+      "name": "select",
+      "import": "@pinfold/react/select",
+      "styles": "@pinfold/css/select.css",
+      "status": "experimental",
+      "description": "A field that opens a list to choose one value, or several as chips; a native select underneath.",
+      "variants": [
+        "outline",
+        "filled",
+        "underline"
+      ],
+      "hook": "useSelect",
+      "snippet": "<Field label=\"Country\" items={[\"India\", \"Japan\"]} />"
+    },
+    {
+      "name": "combobox",
+      "import": "@pinfold/react/combobox",
+      "styles": "@pinfold/css/combobox.css",
+      "status": "experimental",
+      "description": "A text field that suggests as you type: filtered rows or server results, chips, free text.",
+      "variants": [
+        "outline",
+        "filled",
+        "underline"
+      ],
+      "hook": "useCombobox",
+      "snippet": "<Search label=\"City\" items={cities} onChange={setCity} />"
     }
   ],
   "planned": [
@@ -386,8 +414,6 @@
     "toggle-group",
     "number-field",
     "input-otp",
-    "select",
-    "combobox",
     "tag-group",
     "command",
     "table",

@@ -19,6 +19,8 @@ import { alertMeta } from './alert.meta';
 import { avatarMeta } from './avatar.meta';
 import { cardMeta } from './card.meta';
 import { progressMeta } from './progress.meta';
+import { comboboxMeta } from './combobox.meta';
+import { selectMeta } from './select.meta';
 import { stepperMeta } from './stepper.meta';
 import { paginationMeta } from './pagination.meta';
 import { breadcrumbMeta } from './breadcrumb.meta';
@@ -62,7 +64,7 @@ export interface PropMeta {
   orNode?: boolean;
   /** Also accepts a length, e.g. `radius`: a preset name or `20` / `'1.25rem'`. */
   orLength?: boolean;
-  /** An `array` whose rows may also be strings, a shorthand row: `items={['Board', 'List']}`. */
+  /** An `array` whose rows may also be strings (`items={['Board', 'List']}`); a `string[]` that also takes one string or `null`. */
   orString?: boolean;
   default?: unknown;
   /** What an unset option resolves to when it has no fixed default (e.g. `theme radius`). */
@@ -184,7 +186,9 @@ function checkType(prop: PropMeta, v: unknown): string | null {
     case 'length':
       return typeof v === 'number' || typeof v === 'string' ? null : `must be a number (px) or a CSS length string.`;
     case 'string[]':
-      return Array.isArray(v) && v.every((x) => typeof x === 'string') ? null : `must be an array of strings.`;
+      // `orString`: one value or none (`null`) as well, e.g. a select's value with and without `multiple`.
+      if (prop.orString && (typeof v === 'string' || v === null)) return null;
+      return Array.isArray(v) && v.every((x) => typeof x === 'string') ? null : `must be an array of strings${prop.orString ? ', a string or null' : ''}.`;
     case 'array':
       return Array.isArray(v) ? null : `must be an array, got ${describe(v)}.`;
     case 'object':
@@ -261,6 +265,7 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
       case 'length':
         return { ...base, type: ['number', 'string'] };
       case 'string[]':
+        if (p.orString) return { ...base, anyOf: [{ type: 'array', items: { type: 'string' } }, { type: ['string', 'null'] }] };
         return { ...base, type: 'array', items: { type: 'string' } };
       case 'enum':
         if (p.orLength) return { ...base, anyOf: [{ enum: p.values }, { type: ['number', 'string'] }] };
@@ -338,5 +343,5 @@ export function metaToMarkdown(meta: ComponentMeta): string {
 }
 
 /** Every component's meta. Tooling iterates this. */
-export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta];
-export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta };
+export const componentMetas: readonly ComponentMeta[] = [accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta];
+export { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta };
