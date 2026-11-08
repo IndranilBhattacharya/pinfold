@@ -130,10 +130,16 @@ const app = await build({
           e(Slider, { label: 'Volume ' + pack, defaultValue: [40], marks: [{ value: 0, label: '0' }, { value: 100, label: '100' }] }), e(Slider, { label: 'Price ' + pack, defaultValue: [20, 80], showValue: 'tooltip', description: 'Drag either end.' }),
           e(NumberField, { label: 'Quantity ' + pack, defaultValue: 1, min: 1, max: 9, description: 'Up to 9.' }), e(NumberField, { label: 'Price ' + pack, steppers: 'end', variant: 'filled', startContent: '$', error: 'Too low.' }),
           ...['outline', 'filled', 'underline'].map((variant) => e(Otp, { key: 'o' + variant, variant, label: 'Code ' + variant + ' ' + pack, defaultValue: '12', groups: [3, 3] })),
-          ...['underline', 'segmented', 'pills'].map((variant) => e(Tabs, { key: 'tb' + variant, variant, label: 'Settings ' + variant + ' ' + pack, defaultValue: 'b', items: [{ id: 'a', label: 'Profile', content: 'Profile panel' }, { id: 'b', label: 'Billing', content: 'Billing panel' }, { id: 'c', label: 'Team', disabled: true }] })),
-          ...['plain', 'soft'].map((variant) => e(Breadcrumb, { key: 'bc' + variant, variant, label: 'Breadcrumb ' + variant + ' ' + pack, maxItems: 3, items: [{ label: 'Home', href: '#h' }, { label: 'Projects', href: '#p' }, { label: 'Pinfold', href: '#f' }, { label: 'Settings' }] })),
-          ...['ghost', 'soft', 'outline'].map((variant) => e(Pagination, { key: 'pg' + variant, variant, label: 'Pages ' + variant + ' ' + pack, count: 12, defaultPage: 6, showEdges: true })),
-          ...['circle', 'dot', 'bar'].map((variant) => e(Stepper, { key: 'st' + variant, variant, label: 'Checkout ' + variant + ' ' + pack, defaultValue: 1, onChange: () => {}, items: [{ label: 'Cart' }, { label: 'Shipping', description: 'Address' }, { label: 'Payment' }] })),
+          ...['segmented', 'underline', 'pills', 'soft', 'enclosed'].map((variant) => e(Tabs, { key: 'tb' + variant, variant, label: 'Settings ' + variant + ' ' + pack, defaultValue: 'b', items: [{ id: 'a', label: 'Profile', content: 'Profile panel' }, { id: 'b', label: 'Billing', content: 'Billing panel' }, { id: 'c', label: 'Team', disabled: true }] })),
+          e(Tabs, { key: 'tbedit', label: 'Open files ' + pack, placement: 'start', onClose: () => {}, onAdd: () => {}, items: ['index.tsx', 'App.tsx'].map((id) => ({ id, content: 'Source of ' + id })) }),
+          ...['plain', 'soft', 'outline', 'pills'].map((variant) => e(Breadcrumb, { key: 'bc' + variant, variant, label: 'Breadcrumb ' + variant + ' ' + pack, maxItems: 4, items: [{ label: 'Home', href: '#h' }, { label: 'Projects', href: '#p', menu: [{ label: 'Atlas', href: '#a' }] }, { label: 'Team', menu: [{ label: 'Design', href: '#d' }] }, { label: 'Pinfold', href: '#f' }, 'Settings'] })),
+          e(Breadcrumb, { key: 'bcpath', label: 'Path ' + pack, path: '/projects/user-settings' }),
+          ...['soft', 'ghost', 'outline', 'panel'].map((variant) => e(Pagination, { key: 'pg' + variant, variant, label: 'Pages ' + variant + ' ' + pack, total: 230, defaultPage: 6, showEdges: true, showInfo: true, pageSizes: [10, 25], showJump: variant === 'soft' })),
+          e(Pagination, { key: 'pgcursor', label: 'More ' + pack, hasNext: true, defaultPage: 3, loading: true }),
+          e(Pagination, { key: 'pgcompact', label: 'Compact ' + pack, count: 20, defaultPage: 4, compact: true }),
+          ...['circle', 'dot', 'bar'].map((variant) => e(Stepper, { key: 'st' + variant, variant, label: 'Checkout ' + variant + ' ' + pack, defaultValue: 1, onChange: () => {}, items: [{ label: 'Cart' }, { label: 'Shipping', description: 'Address', error: variant === 'circle' }, { label: 'Payment', optional: true }] })),
+          e(Stepper, { key: 'stwizard', label: 'Wizard ' + pack, labelPlacement: 'end', defaultValue: 1, items: [{ label: 'Cart', content: 'Two items' }, { label: 'Shipping', content: 'Address form' }, { label: 'Pay', content: 'Card' }] }),
+          e(Stepper, { key: 'stvertical', label: 'Vertical ' + pack, orientation: 'vertical', defaultValue: 0, items: [{ label: 'Account', content: 'Email' }, 'Profile'] }),
         );
       }
       const items = [

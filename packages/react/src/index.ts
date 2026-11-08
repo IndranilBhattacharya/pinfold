@@ -30,5 +30,6 @@ export type {
   SlotOverrides,
   SlotRenderer,
   Slottable,
+  PinfoldNavigate,
 } from './client';
 export { defineConfig, type PinfoldConfig, type PinfoldComponentDefaults } from './config';

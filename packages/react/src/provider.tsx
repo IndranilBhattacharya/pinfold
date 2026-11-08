@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useIsomorphicLayoutEffect } from './hooks';
 import type { PinfoldDir, PinfoldLazy, PinfoldRadius, PinfoldSize, PinfoldStylePack, PinfoldTheme, PinfoldTone } from '@pinfold/core';
 import type { PinfoldComponentDefaults, PinfoldConfig } from './config';
+import type { PinfoldNavigate } from './link';
 
 export interface PinfoldContextValue {
   theme: PinfoldTheme;
@@ -13,6 +14,8 @@ export interface PinfoldContextValue {
   lazy: PinfoldLazy;
   /** Disable every component transition, e.g. in tests or on low-power devices. */
   disableAnimation: boolean;
+  /** The app's router, when one was given: Pinfold links hand plain clicks to it. */
+  navigate?: PinfoldNavigate;
   defaults: PinfoldComponentDefaults;
 }
 
@@ -52,12 +55,17 @@ export function PinfoldProvider(props: PinfoldProviderProps): React.ReactElement
   const { children, applyToDocument = false, className, config, ...own } = props;
   const parent = React.useContext(PinfoldContext);
   const overrides = { ...stripUndefined(config ?? {}), ...stripUndefined(own) };
+  // The router is read at click time through a ref: a new function each render must neither go stale
+  // nor rebuild the context.
+  const router = React.useRef<PinfoldNavigate | undefined>(undefined);
+  router.current = overrides.navigate;
+  const routed = !!overrides.navigate;
 
   const value = React.useMemo<PinfoldContextValue>(
-    () => ({ ...parent, ...overrides, defaults: mergeDefaults(parent.defaults, overrides.defaults) }),
+    () => ({ ...parent, ...overrides, navigate: routed ? (href: string) => router.current?.(href) : parent.navigate, defaults: mergeDefaults(parent.defaults, overrides.defaults) }),
     // Keyed on the serialised overrides: configs are plain data, and inline objects must not bust the memo.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [parent, stableKey(overrides)],
+    [parent, stableKey(overrides), routed],
   );
 
   useIsomorphicLayoutEffect(() => {

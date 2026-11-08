@@ -1,28 +1,39 @@
-/* Pinfold — breadcrumb. Muted links that firm up on hover, the current page in full text colour,
-   quiet separators that mirror in right-to-left text, and long names cut with an ellipsis. */
+/* Pinfold — breadcrumb. Muted crumbs that light up as chips on hover, the current page in full
+   text colour, quiet separators that mirror in right-to-left text, long names cut with an ellipsis.
+   plain: crumbs on the page. soft: a tinted bar. outline: a raised bar on the control tokens (style
+   packs reach it). pills: every crumb a chip, the current one in the tone. */
 
 @layer pinfold.components {
   .pinfold-breadcrumb {
+    --pinfold-bc-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    --pinfold-bc-tint: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent);
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-control-text);
     line-height: 1.4;
     color: var(--pinfold-color-text-muted);
     max-inline-size: 100%;
   }
-  .pinfold-breadcrumb[data-variant='soft'] {
+  .pinfold-breadcrumb[data-size='sm'] { font-size: calc(var(--pinfold-control-text) * 0.95); }
+  .pinfold-breadcrumb:is([data-variant='soft'], [data-variant='outline']) {
     display: inline-flex;
-    padding: 0.375rem 0.75rem;
-    background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent);
+    padding: 0.25rem 0.5rem;
     background-image: var(--pinfold-texture);
-    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
-    box-shadow: inset 0 0 0 var(--pinfold-border-width) var(--pinfold-control-edge, transparent);
+    border-radius: calc(var(--pinfold-bc-radius) + 0.25rem);
     backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-breadcrumb[data-variant='soft'] {
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, var(--pinfold-control-surface, transparent));
+    box-shadow: inset 0 0 0 var(--pinfold-border-width) var(--pinfold-control-edge, transparent);
+  }
+  .pinfold-breadcrumb[data-variant='outline'] {
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    box-shadow: 0 0 0 var(--pinfold-border-width) var(--pinfold-control-edge, var(--pinfold-color-border)), var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
   }
   .pinfold-breadcrumb__list {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.25rem 0.375rem;
+    gap: 0.25rem 0.125rem;
     min-inline-size: 0;
     margin: 0;
     padding: 0;
@@ -31,25 +42,44 @@
   .pinfold-breadcrumb__item {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: 0.125rem;
     min-inline-size: 0;
   }
-  .pinfold-breadcrumb__link {
+  .pinfold-breadcrumb__link,
+  .pinfold-breadcrumb__menuButton,
+  .pinfold-breadcrumb__ellipsis {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
+    box-sizing: border-box;
     min-inline-size: 0;
-    padding-inline: 0.125rem;
+    min-block-size: max(1.5rem, 1.75em);
+    margin: 0;
+    padding: 0.125rem 0.375rem;
+    font: inherit;
     color: inherit;
     text-decoration: none;
-    border-radius: var(--pinfold-radius-xs);
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-bc-radius);
   }
-  .pinfold-breadcrumb[data-animate] .pinfold-breadcrumb__link { transition: color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
-  a.pinfold-breadcrumb__link:hover { color: var(--pinfold-color-text); text-decoration: underline; text-decoration-color: color-mix(in oklab, currentColor 35%, transparent); text-underline-offset: 0.2em; }
-  .pinfold-breadcrumb__link:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  :is(a.pinfold-breadcrumb__link, .pinfold-breadcrumb__menuButton, .pinfold-breadcrumb__ellipsis) { cursor: pointer; }
+  :is(a.pinfold-breadcrumb__link, .pinfold-breadcrumb__menuButton, .pinfold-breadcrumb__ellipsis):hover,
+  .pinfold-breadcrumb__menuButton[aria-expanded='true'],
+  .pinfold-breadcrumb__ellipsis[aria-expanded='true'] { color: var(--pinfold-color-text); background-color: var(--pinfold-bc-tint); }
+  .pinfold-breadcrumb[data-animate] :is(.pinfold-breadcrumb__link, .pinfold-breadcrumb__menuButton, .pinfold-breadcrumb__ellipsis) { transition: color var(--pinfold-duration-fast) var(--pinfold-ease-out), background-color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  :is(.pinfold-breadcrumb__link, .pinfold-breadcrumb__menuButton, .pinfold-breadcrumb__ellipsis):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
   .pinfold-breadcrumb__link[aria-current='page'] { color: var(--pinfold-color-text); font-weight: var(--pinfold-weight-medium); }
+  .pinfold-breadcrumb__link[aria-disabled='true'] { opacity: 0.55; }
+  /* The menu toggle beside a linked crumb: a narrow chevron. */
+  .pinfold-breadcrumb__link + .pinfold-breadcrumb__menuButton,
+  .pinfold-breadcrumb__menuButton:only-child:not([data-crumb-trigger]) { justify-content: center; min-inline-size: 1.5rem; padding-inline: 0.125rem; margin-inline-start: -0.125rem; }
+  .pinfold-breadcrumb__menuButton > svg,
+  .pinfold-breadcrumb__ellipsis > svg { inline-size: 1em; block-size: 1em; flex-shrink: 0; }
+  .pinfold-breadcrumb__menuButton[data-crumb-trigger] > svg { inline-size: 0.875em; block-size: 0.875em; opacity: 0.7; }
+  .pinfold-breadcrumb__ellipsis { justify-content: center; min-inline-size: 1.5rem; padding-inline: 0.25rem; }
   .pinfold-breadcrumb__text {
-    max-inline-size: 22ch;
+    max-inline-size: var(--pinfold-breadcrumb-item-width, 22ch);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -59,26 +89,28 @@
   .pinfold-breadcrumb__separator {
     display: inline-flex;
     flex-shrink: 0;
-    color: color-mix(in oklab, var(--pinfold-color-text-muted) 70%, transparent);
+    padding-inline: 0.125rem;
+    color: color-mix(in oklab, var(--pinfold-color-text-muted) 65%, transparent);
   }
   .pinfold-breadcrumb__separator > svg { inline-size: 0.875em; block-size: 0.875em; }
   [dir='rtl'] .pinfold-breadcrumb__separator > svg { transform: scaleX(-1); }
-  .pinfold-breadcrumb__ellipsis {
-    display: inline-grid;
-    place-items: center;
-    inline-size: 1.5rem;
-    block-size: 1.5rem;
-    margin: 0;
-    padding: 0;
-    color: inherit;
-    background: transparent;
-    border: 0;
-    border-radius: var(--pinfold-radius-sm);
-    cursor: pointer;
+
+  /* pills: every crumb a chip; the current one in the tone. */
+  .pinfold-breadcrumb[data-variant='pills'] .pinfold-breadcrumb__list { gap: 0.375rem 0.25rem; }
+  .pinfold-breadcrumb[data-variant='pills'] :is(.pinfold-breadcrumb__link, [data-crumb-trigger]) {
+    padding-inline: 0.625rem;
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, var(--pinfold-control-surface, transparent));
+    background-image: var(--pinfold-texture);
+    border-radius: var(--pinfold-radius-full);
+    box-shadow: inset 0 0 0 var(--pinfold-border-width) var(--pinfold-control-edge, transparent);
   }
-  .pinfold-breadcrumb__ellipsis > svg { inline-size: 1.1em; block-size: 1.1em; }
-  .pinfold-breadcrumb__ellipsis:hover { color: var(--pinfold-color-text); background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); }
-  .pinfold-breadcrumb__ellipsis:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-breadcrumb[data-variant='pills'] :is(a.pinfold-breadcrumb__link, [data-crumb-trigger]):hover { background-color: color-mix(in oklab, var(--pinfold-color-text) 11%, var(--pinfold-control-surface, transparent)); }
+  .pinfold-breadcrumb[data-variant='pills'] .pinfold-breadcrumb__link[aria-current='page'] {
+    color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text));
+    background-color: color-mix(in oklab, var(--pinfold-tone-solid, var(--pinfold-color-accent)) 14%, var(--pinfold-control-surface, transparent));
+    box-shadow: inset 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-tone-solid, var(--pinfold-color-accent)) 28%, transparent);
+  }
+  .pinfold-breadcrumb[data-variant='pills'] .pinfold-breadcrumb__ellipsis { border-radius: var(--pinfold-radius-full); }
 
   @media (forced-colors: active) {
     .pinfold-breadcrumb__link[aria-current='page'] { text-decoration: underline; }

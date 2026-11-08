@@ -1,6 +1,6 @@
 # Stepper: spec
 
-Status: **experimental**. Pattern: an ordered list with `aria-current="step"`.
+Status: **experimental**. Pattern: an ordered list with `aria-current="step"`, and a labelled group for the current step's content.
 
 ## Usage
 ```tsx
@@ -8,34 +8,58 @@ import { defineStepper } from '@pinfold/react/stepper';
 
 export const Checkout = defineStepper();
 
-<Checkout value={step} onChange={setStep} items={[
-  { label: 'Cart' },
-  { label: 'Shipping', description: 'Address and speed' },
-  { label: 'Payment' },
-]} />
+// A wizard: content, Back / Next / Finish, a check before leaving a step
+<Checkout
+  items={[
+    { label: 'Cart', content: <Cart /> },
+    { label: 'Shipping', content: <ShippingForm />, error: !addressValid },
+    { label: 'Payment', optional: true, content: <Payment /> },
+  ]}
+  onNext={(step) => step !== 1 || checkAddress()}   // false (or a promise of it) stays
+  onComplete={placeOrder}                            // a promise keeps Finish loading
+  doneContent={<Receipt />}
+/>
+
+// Progress only, beside your own flow
+<Checkout value={step} items={['Cart', 'Shipping', 'Payment']} variant="bar" />
 ```
-`value` is the current step from 0; `items.length` marks every step done. With `onChange`, steps
-already done are buttons that go back to them; steps not reached never are. The controller has
-`next()`, `previous()` and `setValue()` for the app's own buttons. Precedence: use-site props, the
-preset, `defaults.stepper`, the provider (size, tone), the library default.
+Precedence: use-site props, the preset, `defaults.stepper`, the provider (size, tone), the library
+default.
 
 ## Config
 | Key | Type | Default |
 |---|---|---|
-| `items` | `{ label, description?, icon? }[]` | required |
-| `label` | the list's name | `'Progress'` |
-| `value`, `defaultValue`, `onChange` | from 0; `(step, event)` | none, `0` |
-| `variant` | `'circle'` (numbers, a check when done) \| `'dot'` \| `'bar'` (a segment per step) | `'circle'` |
-| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` |
+| `items` | `{ label, description?, icon?, content?, optional?, error?, disabled? }[]` or strings | required |
+| `value`, `defaultValue` | from 0; the length of `items` marks every step done | none, `0` |
+| `onChange` | `(step, event)`: after Back, Next or a click; with it, steps are buttons | none |
+| `onNext` | `(step) => boolean \| Promise<boolean>`: before Next leaves a step | none |
+| `onComplete` | `() => void \| Promise`: Finish on the last step | none |
+| `linear` | only done steps can be clicked; `false`: any step | `true` |
+| `showActions` | Back and Next under the content | `true` |
+| `doneContent` | the panel once every step is done | none |
+| `labels` | `{ back, next, finish, optional, status: { complete, current, upcoming, error } }` | English |
+| `variant` | `'circle' \| 'dot' \| 'bar'` | `'circle'` |
+| `orientation` | `'horizontal' \| 'vertical'` (content opens under the current step) | `'horizontal'` |
+| `labelPlacement` | `'bottom' \| 'end'` (names beside the marks) | `'bottom'` |
 | `size`, `tone` | | `'md'`, `'primary'` (provider) |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root step button indicator connector text label description`) | | |
+| `label` | the list's name | `'Progress'` |
+| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root list step button indicator connector text label description panel actions`) | | |
 
-Inactive (`inactiveStepperOptions`): `orientation` with `variant: 'bar'`.
+Controller: `value`, `isFirst`, `isLast`, `isComplete`, `setValue`, `next` (skips `onNext`),
+`previous`, `reset`.
+
+Inactive (`inactiveStepperOptions`): `orientation` and `labelPlacement` with `bar`;
+`labelPlacement` when vertical; `linear` without `onChange`; `showActions` and `doneContent` when
+no step has `content`.
+
+The panel is a card on the control tokens, so style packs reach it; it slides in after a change,
+never on load.
 
 ## Accessibility
-- An `<ol>` named by `label`, so the number of steps is read; the current step has
-  `aria-current="step"`.
-- Each step speaks its state ("done", "current", "not started") as hidden text. On screen, state is
-  the mark too (a check, the number, a halo), never colour alone.
-- The line between steps fills as they are done (a `background-size` transition) and mirrors in
-  right-to-left text.
+- An ordered list named by `label`; each step reads its state ("done", "current", "not started",
+  "error") as hidden text, never colour alone; the error mark is an icon too.
+- The content is a `group` labelled by its step's name. After Back or Next, focus moves to it, so
+  reading starts at the new step.
+- Back and Next are Pinfold buttons: a pending `onNext` or `onComplete` shows loading and sets
+  `aria-busy`.
+- With `linear`, steps not yet reached are never buttons, so the order of the task holds.

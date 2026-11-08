@@ -4,6 +4,7 @@ import { Tabs } from './Tabs';
 import { useTabs } from './useTabs';
 import { Breadcrumb } from '../breadcrumb/Breadcrumb';
 import { Pagination } from '../pagination/Pagination';
+import { usePagination } from '../pagination/usePagination';
 import { Stepper } from '../stepper/Stepper';
 
 const items = [
@@ -19,21 +20,36 @@ export function Checks(): React.ReactElement {
   useTabs({ label: 'S', items, defaultValue: 'biling' });
   // @ts-expect-error: the tab list needs a name
   useTabs({ items });
+  // Strings are tabs too, and their ids are typed.
+  useTabs({ label: 'View', items: ['Board', 'List'], defaultValue: 'List' });
+  // @ts-expect-error: not one of the string tabs
+  useTabs({ label: 'View', items: ['Board', 'List'], defaultValue: 'Grid' });
+  const Pages = usePagination({ total: 120, pageSizes: [10, 25] });
+  const rows: string[] = Pages.slice(['a', 'b']);
   return (
     <>
       <Own />
-      <Tabs label="S" items={items} value="profile" onChange={(id) => id satisfies 'profile' | 'billing'} />
+      <Pages />
+      {rows.length}
+      <Tabs label="S" items={items} value="profile" onChange={(id) => id satisfies 'profile' | 'billing'} onClose={(id) => id satisfies 'profile' | 'billing'} />
       {/* @ts-expect-error: not one of the tab ids */}
       <Tabs label="S" items={items} value="team" />
-      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Here' }]} separator="slash" />
+      {/* @ts-expect-error: no such placement */}
+      <Tabs label="S" items={items} placement="left" />
+      <Breadcrumb items={[{ label: 'Home', href: '/', menu: [{ label: 'Docs', href: '/docs' }] }, 'Here']} separator="arrow" onNavigate={(href) => href satisfies string} />
+      <Breadcrumb path="/projects/pinfold" pathLabels={{ pinfold: 'Pinfold' }} />
       {/* @ts-expect-error: no such separator */}
-      <Breadcrumb items={[{ label: 'Home' }]} separator="arrow" />
+      <Breadcrumb items={[{ label: 'Home' }]} separator="pipe" />
       <Pagination count={10} />
-      {/* @ts-expect-error: count is required */}
-      <Pagination page={2} />
-      <Stepper items={[{ label: 'Cart' }]} variant="dot" />
+      <Pagination total={532} pageSizes={[10, 25]} onChange={(page, { pageSize, offset }) => [page, pageSize, offset]} />
+      <Pagination hasNext />
+      {/* @ts-expect-error: no such variant */}
+      <Pagination count={3} variant="solid" />
+      <Stepper items={['Cart', { label: 'Pay', content: 'x', optional: true }]} variant="dot" onNext={async () => true} />
       {/* @ts-expect-error: no such variant */}
       <Stepper items={[{ label: 'Cart' }]} variant="line" />
+      {/* @ts-expect-error: onNext returns a boolean or nothing */}
+      <Stepper items={['Cart']} onNext={() => 'yes'} />
     </>
   );
 }

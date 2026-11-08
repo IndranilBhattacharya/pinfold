@@ -44,7 +44,7 @@ function withChunks(file, seen = new Set()) {
  * overrides and state-function config fields.
  */
 const BUDGETS = [
-  ['packages/core/dist/index.js', 10], // every component's rules live here; apps tree-shake to what they use (see the app row)
+  ['packages/core/dist/index.js', 11], // every component's rules live here; apps tree-shake to what they use (see the app row)
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
   ['packages/react/dist/accordion/index.js', 9], // 2026-11-03: presets, tag prop split, no :has(); the app row is what ships
@@ -52,12 +52,12 @@ const BUDGETS = [
   ['packages/react/dist/spinner/index.js', 4],
   ['packages/react/dist/separator/index.js', 4],
   ['packages/react/dist/kbd/index.js', 4],
-  ['packages/react/dist/skeleton/index.js', 4],
+  ['packages/react/dist/skeleton/index.js', 4.5], // shares the provider, which now carries the app's router
   ['packages/react/dist/badge/index.js', 5],
-  ['packages/react/dist/stepper/index.js', 5],
-  ['packages/react/dist/pagination/index.js', 5],
-  ['packages/react/dist/breadcrumb/index.js', 5],
-  ['packages/react/dist/tabs/index.js', 6],
+  ['packages/react/dist/stepper/index.js', 8], // renders Pinfold buttons (Back, Next, Finish) and the step panels
+  ['packages/react/dist/pagination/index.js', 7], // page size select, go to page, summary, sliding cursor, cursor-paged mode
+  ['packages/react/dist/breadcrumb/index.js', 12], // renders Pinfold menus (crumb menus, collapsed crumbs), with the overlay layer
+  ['packages/react/dist/tabs/index.js', 7], // close and add, link tabs, overflow fades
   ['packages/react/dist/otp/index.js', 6],
   ['packages/react/dist/number/index.js', 7],
   ['packages/react/dist/slider/index.js', 7],
@@ -84,10 +84,10 @@ const BUDGETS = [
   ['packages/css/dist/kbd.css', 1],
   ['packages/css/dist/skeleton.css', 1],
   ['packages/css/dist/badge.css', 2],
-  ['packages/css/dist/stepper.css', 2],
+  ['packages/css/dist/stepper.css', 2.5], // label placement, the step panel and actions, error steps
   ['packages/css/dist/pagination.css', 2],
   ['packages/css/dist/breadcrumb.css', 2],
-  ['packages/css/dist/tabs.css', 2],
+  ['packages/css/dist/tabs.css', 3], // five variants, four placements, overflow fades, close and add
   ['packages/css/dist/otp.css', 2],
   ['packages/css/dist/number.css', 2],
   ['packages/css/dist/slider.css', 2.5], // three variants (line, bar, minimal), step dots, marks, value bubble

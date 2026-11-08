@@ -1,16 +1,26 @@
-/* Pinfold — pagination. Square controls on the control tokens; the current page is the tone's
-   solid fill with a soft glow, the others quiet (ghost), tinted (soft) or framed (outline).
-   Controls at an end stay in place and fade (aria-disabled), so nothing shifts under the pointer. */
+/* Pinfold — pagination. Square controls on the control tokens (packs reach them). The current page
+   is a cursor in the tone's solid fill that slides between pages; until the script places it (first
+   paint, no script) the current page fills itself. soft: tinted chips. ghost: quiet. outline:
+   framed. panel: one raised bar. Controls at an end stay in place and fade (aria-disabled). */
 
 @layer pinfold.components {
   .pinfold-pagination {
     --pinfold-pgn-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
     --pinfold-pgn-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    --pinfold-pgn-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    --pinfold-pgn-h: var(--pinfold-control-height);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-control-text);
     color: var(--pinfold-color-text);
   }
+  .pinfold-pagination[data-radius='sm'] { --pinfold-pgn-radius: var(--pinfold-radius-sm); }
+  .pinfold-pagination[data-radius='full'] { --pinfold-pgn-radius: var(--pinfold-radius-full); }
   .pinfold-pagination__list {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -19,19 +29,21 @@
     padding: 0;
     list-style: none;
   }
-  .pinfold-pagination__cell { display: flex; }
+  .pinfold-pagination__cell { position: relative; z-index: 1; display: flex; }
+  .pinfold-pagination__info { color: var(--pinfold-color-text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
   .pinfold-pagination__item,
   .pinfold-pagination__previous,
   .pinfold-pagination__next,
   .pinfold-pagination__first,
   .pinfold-pagination__last,
-  .pinfold-pagination__gap {
+  .pinfold-pagination__gap,
+  .pinfold-pagination__status {
     display: inline-grid;
     place-items: center;
     box-sizing: border-box;
-    min-inline-size: var(--pinfold-control-height);
-    block-size: var(--pinfold-control-height);
+    min-inline-size: var(--pinfold-pgn-h);
+    block-size: var(--pinfold-pgn-h);
     margin: 0;
     padding-inline: 0.5rem;
     font: inherit;
@@ -40,40 +52,120 @@
     line-height: 1;
     color: inherit;
     text-decoration: none;
+    white-space: nowrap;
     background: transparent;
     border: var(--pinfold-border-width) solid transparent;
-    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    border-radius: var(--pinfold-pgn-radius);
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
   .pinfold-pagination__gap { color: var(--pinfold-color-text-muted); cursor: default; padding-inline: 0; }
+  /* Where you are, in the tone: the compact and cursor-paged rows have no current-page cursor. */
+  .pinfold-pagination__status { padding-inline: 0.75rem; cursor: default; color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 86%, var(--pinfold-color-text)); }
+  .pinfold-pagination[data-tone='neutral'] .pinfold-pagination__status { color: var(--pinfold-color-text); }
   .pinfold-pagination svg { inline-size: var(--pinfold-control-icon); block-size: var(--pinfold-control-icon); }
   .pinfold-pagination [data-flip] > svg { transform: scaleX(-1); }
   [dir='rtl'] .pinfold-pagination [data-pagination-control] > svg { transform: scaleX(-1); }
   [dir='rtl'] .pinfold-pagination [data-flip] > svg { transform: none; }
 
-  .pinfold-pagination[data-variant='soft'] [data-pagination-control]:not([data-current]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
-  .pinfold-pagination[data-variant='outline'] [data-pagination-control]:not([data-current]) {
+  .pinfold-pagination[data-variant='soft'] :is([data-pagination-control], .pinfold-pagination__status) {
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, var(--pinfold-control-surface, transparent));
+    background-image: var(--pinfold-texture);
+    border-color: var(--pinfold-control-edge, transparent);
+  }
+  .pinfold-pagination[data-variant='outline'] :is([data-pagination-control], .pinfold-pagination__status) {
     background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
     border-color: var(--pinfold-control-edge, var(--pinfold-color-border));
     box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
   }
-  .pinfold-pagination [data-pagination-control]:hover:not([aria-disabled='true']):not([data-current]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 10%, transparent); }
-  .pinfold-pagination [data-current] {
-    color: var(--pinfold-pgn-on);
-    background-color: var(--pinfold-pgn-solid);
-    box-shadow: 0 1px 2px color-mix(in oklab, var(--pinfold-pgn-solid) 30%, transparent), 0 4px 12px -2px color-mix(in oklab, var(--pinfold-pgn-solid) 45%, transparent);
-    cursor: default;
+  .pinfold-pagination[data-variant='panel'] .pinfold-pagination__list {
+    flex-wrap: nowrap;
+    gap: 0.125rem;
+    padding: 0.25rem;
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-raised));
+    background-image: var(--pinfold-texture);
+    border-radius: calc(var(--pinfold-pgn-radius) + 0.25rem);
+    box-shadow: 0 0 0 var(--pinfold-border-width) var(--pinfold-control-edge, var(--pinfold-color-border)), var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+    backdrop-filter: var(--pinfold-backdrop);
   }
-  .pinfold-pagination[data-tone='neutral'] [data-current] { box-shadow: var(--pinfold-shadow-sm); }
+  .pinfold-pagination[data-variant='panel'] { --pinfold-pgn-h: calc(var(--pinfold-control-height) - 0.25rem); }
+  .pinfold-pagination [data-pagination-control]:hover:not([aria-disabled='true']):not([data-current]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 11%, var(--pinfold-control-surface, transparent)); }
+
+  /* The current page: the cursor, or the page itself before the cursor is placed. */
+  .pinfold-pagination__cursor,
+  .pinfold-pagination__list:not([data-placed]) [data-current] {
+    color: var(--pinfold-pgn-on);
+    background: var(--pinfold-pgn-solid);
+    border-color: transparent;
+    box-shadow: 0 1px 2px color-mix(in oklab, var(--pinfold-pgn-solid) 30%, transparent), 0 4px 12px -2px color-mix(in oklab, var(--pinfold-pgn-solid) 50%, transparent);
+  }
+  .pinfold-pagination__cursor {
+    position: absolute;
+    inset-block-start: 0;
+    left: 0;
+    z-index: 0;
+    display: none;
+    inline-size: var(--pinfold-pgn-iw, 0);
+    block-size: var(--pinfold-pgn-ih, 0);
+    border-radius: var(--pinfold-pgn-radius);
+    transform: translate(var(--pinfold-pgn-ix, 0), var(--pinfold-pgn-iy, 0));
+    pointer-events: none;
+  }
+  .pinfold-pagination__list[data-placed] > .pinfold-pagination__cursor { display: block; }
+  .pinfold-pagination[data-tone='neutral'] .pinfold-pagination__cursor { box-shadow: var(--pinfold-shadow-sm); }
+  .pinfold-pagination [data-current] { color: var(--pinfold-pgn-on); cursor: default; }
+  .pinfold-pagination__list[data-placed] [data-current] { background: transparent; border-color: transparent; box-shadow: none; }
+  .pinfold-pagination[data-animate] .pinfold-pagination__cursor { transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-spring), inline-size var(--pinfold-duration-slow) var(--pinfold-ease-spring); }
+  .pinfold-pagination[data-loading] .pinfold-pagination__cursor { animation: pinfold-pagination-wait 0.8s var(--pinfold-ease-out) infinite alternate; }
+  @keyframes pinfold-pagination-wait {
+    to { opacity: 0.45; }
+  }
+
   .pinfold-pagination [aria-disabled='true'] { opacity: 0.4; cursor: not-allowed; }
-  .pinfold-pagination[data-animate] [data-pagination-control] { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
+  .pinfold-pagination[data-loading] [aria-disabled='true'] { cursor: progress; }
+  .pinfold-pagination[data-animate] [data-pagination-control] { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-md) var(--pinfold-ease-out), opacity var(--pinfold-duration-fast) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
   .pinfold-pagination[data-animate] [data-pagination-control]:active:not([aria-disabled='true']) { transform: scale(0.94); }
+
+  /* Rows per page and go to page: a label and a small field on the control tokens. */
+  .pinfold-pagination__size,
+  .pinfold-pagination__jump {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--pinfold-color-text-muted);
+    white-space: nowrap;
+  }
+  .pinfold-pagination__field { position: relative; display: inline-flex; align-items: center; }
+  .pinfold-pagination__field > :is(select, input) {
+    box-sizing: border-box;
+    block-size: var(--pinfold-pgn-h);
+    margin: 0;
+    padding-inline: 0.625rem;
+    font: inherit;
+    font-weight: var(--pinfold-weight-medium);
+    font-variant-numeric: tabular-nums;
+    color: var(--pinfold-color-text);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border: var(--pinfold-border-width) solid var(--pinfold-field-edge, var(--pinfold-color-border));
+    border-radius: var(--pinfold-pgn-radius);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .pinfold-pagination__field > select { padding-inline-end: 1.75rem; cursor: pointer; }
+  .pinfold-pagination__field > input { inline-size: 4.5em; -moz-appearance: textfield; }
+  .pinfold-pagination__field > input::-webkit-inner-spin-button,
+  .pinfold-pagination__field > input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .pinfold-pagination__field > svg { position: absolute; inset-inline-end: 0.5rem; inline-size: 0.875em; block-size: 0.875em; color: var(--pinfold-color-text-muted); pointer-events: none; }
+  .pinfold-pagination__field > :is(select, input):disabled { opacity: 0.5; cursor: not-allowed; }
+
   /* After the variants: the ring always shows. */
-  .pinfold-pagination[data-variant] [data-pagination-control][data-pagination-control]:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-pagination[data-variant] [data-pagination-control][data-pagination-control]:focus-visible,
+  .pinfold-pagination__field > :is(select, input):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
 
   @media (forced-colors: active) {
-    .pinfold-pagination [data-current] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+    .pinfold-pagination__cursor { forced-color-adjust: none; background: Highlight; }
+    .pinfold-pagination [data-current] { forced-color-adjust: none; color: HighlightText; }
   }
 }
