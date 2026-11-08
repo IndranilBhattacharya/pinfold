@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'a11y-report');
 const require = createRequire(import.meta.url);
-const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
+const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
@@ -67,6 +67,8 @@ const app = await build({
       import { Breadcrumb } from '@pinfold/react/breadcrumb';
       import { Pagination } from '@pinfold/react/pagination';
       import { Stepper } from '@pinfold/react/stepper';
+      import { Select } from '@pinfold/react/select';
+      import { Combobox } from '@pinfold/react/combobox';
       // Overlays sit in the page flow here, not the top layer, so axe can measure their contrast.
       delete HTMLElement.prototype.showPopover;
       const toastStores = {};
@@ -140,6 +142,11 @@ const app = await build({
           ...['circle', 'dot', 'bar'].map((variant) => e(Stepper, { key: 'st' + variant, variant, label: 'Checkout ' + variant + ' ' + pack, defaultValue: 1, onChange: () => {}, items: [{ label: 'Cart' }, { label: 'Shipping', description: 'Address', error: variant === 'circle' }, { label: 'Payment', optional: true }] })),
           e(Stepper, { key: 'stwizard', label: 'Wizard ' + pack, labelPlacement: 'end', defaultValue: 1, items: [{ label: 'Cart', content: 'Two items' }, { label: 'Shipping', content: 'Address form' }, { label: 'Pay', content: 'Card' }] }),
           e(Stepper, { key: 'stvertical', label: 'Vertical ' + pack, orientation: 'vertical', defaultValue: 0, items: [{ label: 'Account', content: 'Email' }, 'Profile'] }),
+          ...['outline', 'filled', 'underline'].map((variant) => e(Select, { key: 'se' + variant, variant, label: 'Plan ' + variant + ' ' + pack, description: 'Billed monthly.', defaultValue: 'pro', items: [{ value: 'free', label: 'Free', group: 'Personal' }, { value: 'pro', label: 'Pro', description: '$12 a month', group: 'Personal' }, { value: 'team', label: 'Team', group: 'Business', disabled: true }] })),
+          e(Select, { key: 'semulti', label: 'Labels ' + pack, multiple: true, clearable: true, defaultValue: ['bug', 'docs'], items: ['bug', 'docs', 'feature'], error: 'Pick at most two.' }),
+          e(Select, { key: 'seopen', label: 'Open select ' + pack, defaultOpen: true, defaultValue: 'b', items: [{ value: 'a', label: 'Alpha', group: 'First' }, { value: 'b', label: 'Beta', description: 'Second letter', group: 'First' }, { value: 'c', label: 'Gamma', disabled: true, group: 'Later' }] }),
+          e(Combobox, { key: 'cbopen', label: 'City ' + pack, defaultOpen: true, defaultInputValue: 'os', items: ['Oslo', 'Osaka', 'Boston'], clearable: true }),
+          e(Combobox, { key: 'cbtags', label: 'Tags ' + pack, multiple: true, allowCustom: true, defaultValue: ['react'], items: ['react', 'vue'], placeholder: 'Add a tag' }),
         );
       }
       const items = [
@@ -209,6 +216,8 @@ const app = await build({
     '@pinfold/react/breadcrumb': './packages/react/dist/breadcrumb/index.js',
     '@pinfold/react/pagination': './packages/react/dist/pagination/index.js',
     '@pinfold/react/stepper': './packages/react/dist/stepper/index.js',
+    '@pinfold/react/select': './packages/react/dist/select/index.js',
+    '@pinfold/react/combobox': './packages/react/dist/combobox/index.js',
   },
   logLevel: 'silent',
 });
@@ -267,7 +276,7 @@ for (const scheme of ['light', 'dark']) {
 // The fixture really holds every component (an axe run over a page missing one proves nothing).
 {
   const page = await open();
-  const names = ['accordion', 'button', 'spinner', 'separator', 'kbd', 'skeleton', 'badge', 'alert', 'avatar', 'card', 'progress', 'tooltip', 'popover', 'dialog', 'menu', 'toast', 'input', 'checkbox', 'radio', 'switch', 'toggle', 'toolbar', 'slider', 'number', 'otp', 'tabs', 'breadcrumb', 'pagination', 'stepper'];
+  const names = ['accordion', 'button', 'spinner', 'separator', 'kbd', 'skeleton', 'badge', 'alert', 'avatar', 'card', 'progress', 'tooltip', 'popover', 'dialog', 'menu', 'toast', 'input', 'checkbox', 'radio', 'switch', 'toggle', 'toolbar', 'slider', 'number', 'otp', 'tabs', 'breadcrumb', 'pagination', 'stepper', 'select'];
   const missing = await page.evaluate((list) => list.filter((n) => !document.querySelector(`.pinfold-${n}`)), names);
   check('Every component is on the page that axe checks', missing.length === 0, missing.join(', '));
   await page.close();
@@ -368,7 +377,7 @@ await browser.close();
 const failed = results.checks.filter((c) => !c.pass);
 const violations = Object.values(results.axe).flatMap((r) => r.violations);
 const md = [
-  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper',
+  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper, select, combobox',
   '',
   `Generated ${new Date().toISOString()} by \`scripts/a11y-report.mjs\` on the built packages, in Chromium.`,
   `Pattern: ${accordionMeta.pattern}`,
@@ -394,7 +403,7 @@ const md = [
   '',
   ...accordionMeta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
   '',
-  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
+  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
   '## Snapshots',
   '',
   ...results.snapshots.map((s) => `- ![${s}](${s})`),

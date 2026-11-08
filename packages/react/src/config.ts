@@ -7,6 +7,8 @@ import type { SeparatorConfig } from './separator/types';
 import type { KbdConfig } from './kbd/types';
 import type { SkeletonConfig } from './skeleton/types';
 import type { BadgeConfig } from './badge/types';
+import type { ComboboxConfig } from './combobox/types';
+import type { SelectConfig } from './select/types';
 import type { StepperConfig } from './stepper/types';
 import type { PaginationConfig } from './pagination/types';
 import type { BreadcrumbConfig } from './breadcrumb/types';
@@ -39,6 +41,8 @@ export interface PinfoldComponentDefaults {
   kbd?: Omit<KbdConfig, 'keys'>;
   skeleton?: Omit<SkeletonConfig, 'content' | 'loading'>;
   badge?: Omit<BadgeConfig, 'label' | 'count' | 'anchor'>;
+  combobox?: Omit<ComboboxConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'inputValue' | 'defaultInputValue' | 'onInputChange' | 'placeholder' | 'loading' | 'open' | 'defaultOpen' | 'onOpenChange'>;
+  select?: Omit<SelectConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'placeholder' | 'open' | 'defaultOpen' | 'onOpenChange'>;
   stepper?: Omit<StepperConfig, 'items' | 'value' | 'defaultValue' | 'onChange'>;
   pagination?: Omit<PaginationConfig, 'count' | 'page' | 'defaultPage' | 'onChange'>;
   breadcrumb?: Omit<BreadcrumbConfig, 'items'>;

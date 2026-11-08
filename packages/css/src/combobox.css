@@ -1,0 +1,5 @@
+/* Pinfold — combobox. It wears select.css (the field, chips, list and loading row), so import
+   that one; this file is here so every component has its stylesheet path. */
+
+@layer pinfold.components {
+}

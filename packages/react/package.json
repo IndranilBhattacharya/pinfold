@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -40,7 +40,9 @@
     "tabs",
     "breadcrumb",
     "pagination",
-    "stepper"
+    "stepper",
+    "select",
+    "combobox"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -366,6 +368,26 @@
         "default": "./dist/stepper/index.cjs"
       }
     },
+    "./select": {
+      "import": {
+        "types": "./dist/select/index.d.ts",
+        "default": "./dist/select/index.js"
+      },
+      "require": {
+        "types": "./dist/select/index.d.cts",
+        "default": "./dist/select/index.cjs"
+      }
+    },
+    "./combobox": {
+      "import": {
+        "types": "./dist/combobox/index.d.ts",
+        "default": "./dist/combobox/index.js"
+      },
+      "require": {
+        "types": "./dist/combobox/index.d.cts",
+        "default": "./dist/combobox/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -459,6 +481,12 @@
       ],
       "stepper": [
         "./dist/stepper/index.d.cts"
+      ],
+      "select": [
+        "./dist/select/index.d.cts"
+      ],
+      "combobox": [
+        "./dist/combobox/index.d.cts"
       ]
     }
   },
@@ -493,6 +521,8 @@
     "breadcrumb",
     "pagination",
     "stepper",
+    "select",
+    "combobox",
     "registry",
     "schema",
     "llms.txt",
@@ -502,7 +532,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.14.0"
+    "@pinfold/core": "0.15.0"
   },
   "peerDependencies": {
     "react": ">=18"

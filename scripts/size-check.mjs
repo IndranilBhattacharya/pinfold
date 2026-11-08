@@ -54,6 +54,8 @@ const BUDGETS = [
   ['packages/react/dist/kbd/index.js', 4],
   ['packages/react/dist/skeleton/index.js', 4.5], // shares the provider, which now carries the app's router
   ['packages/react/dist/badge/index.js', 5],
+  ['packages/react/dist/combobox/index.js', 13], // the select's listbox engine plus the overlay layer
+  ['packages/react/dist/select/index.js', 13], // the overlay layer (top layer, flip, dismiss stack), shared with menu, which also carries the trigger button
   ['packages/react/dist/stepper/index.js', 8], // renders Pinfold buttons (Back, Next, Finish) and the step panels
   ['packages/react/dist/pagination/index.js', 7], // page size select, go to page, summary, sliding cursor, cursor-paged mode
   ['packages/react/dist/breadcrumb/index.js', 12], // renders Pinfold menus (crumb menus, collapsed crumbs), with the overlay layer
@@ -84,6 +86,8 @@ const BUDGETS = [
   ['packages/css/dist/kbd.css', 1],
   ['packages/css/dist/skeleton.css', 1],
   ['packages/css/dist/badge.css', 2],
+  ['packages/css/dist/combobox.css', 1],
+  ['packages/css/dist/select.css', 3],
   ['packages/css/dist/stepper.css', 2.5], // label placement, the step panel and actions, error steps
   ['packages/css/dist/pagination.css', 2],
   ['packages/css/dist/breadcrumb.css', 2],
