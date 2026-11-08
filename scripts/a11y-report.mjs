@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'a11y-report');
 const require = createRequire(import.meta.url);
-const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
+const { accordionMeta, buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta, tableMeta } = await import(pathToFileURL(join(root, 'packages/core/dist/meta.js')).href);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
@@ -73,6 +73,7 @@ const app = await build({
       import { Command } from '@pinfold/react/command';
       import { Calendar } from '@pinfold/react/calendar';
       import { DatePicker } from '@pinfold/react/datepicker';
+      import { Table } from '@pinfold/react/table';
       // Overlays sit in the page flow here, not the top layer, so axe can measure their contrast.
       delete HTMLElement.prototype.showPopover;
       const toastStores = {};
@@ -160,6 +161,9 @@ const app = await build({
           e(Calendar, { key: 'calrange', label: 'Stay ' + pack, mode: 'range', months: 2, locale: 'en-US', defaultValue: { start: '2026-11-20', end: '2026-12-02' } }),
           ...['outline', 'filled', 'underline'].map((variant) => e(DatePicker, { key: 'dp' + variant, variant, label: 'Due date ' + variant + ' ' + pack, locale: 'en-GB', defaultValue: '2026-11-12', clearable: true, description: 'Type it or pick it.' })),
           e(DatePicker, { key: 'dpopen', label: 'Stay ' + pack, mode: 'range', locale: 'en-US', defaultOpen: true, defaultValue: { start: '2026-11-20', end: '2026-11-24' }, error: 'Pick at most a week.' }),
+          ...['card', 'plain', 'outline'].map((variant) => e(Table, { key: 'tb' + variant, variant, label: 'Invoices ' + variant + ' ' + pack, striped: variant === 'card', selection: 'multiple', defaultSelected: ['b'], defaultSort: { key: 'amount', direction: 'descending' }, pageSize: 2, rows: [{ id: 'a', customer: 'Acme', amount: 120 }, { id: 'b', customer: 'Globex', amount: 4800 }, { id: 'c', customer: 'Initech', amount: 75 }], columns: ['customer', { key: 'amount', align: 'end', sortable: true }] })),
+          e(Table, { key: 'tbload', label: 'Loading ' + pack, rows: [], columns: ['a', 'b'], loading: true }),
+          e(Table, { key: 'tbempty', label: 'Empty ' + pack, rows: [], columns: ['a'], onRowAction: () => {} }),
         );
       }
       const items = [
@@ -235,6 +239,7 @@ const app = await build({
     '@pinfold/react/command': './packages/react/dist/command/index.js',
     '@pinfold/react/calendar': './packages/react/dist/calendar/index.js',
     '@pinfold/react/datepicker': './packages/react/dist/datepicker/index.js',
+    '@pinfold/react/table': './packages/react/dist/table/index.js',
   },
   logLevel: 'silent',
 });
@@ -293,7 +298,7 @@ for (const scheme of ['light', 'dark']) {
 // The fixture really holds every component (an axe run over a page missing one proves nothing).
 {
   const page = await open();
-  const names = ['accordion', 'button', 'spinner', 'separator', 'kbd', 'skeleton', 'badge', 'alert', 'avatar', 'card', 'progress', 'tooltip', 'popover', 'dialog', 'menu', 'toast', 'input', 'checkbox', 'radio', 'switch', 'toggle', 'toolbar', 'slider', 'number', 'otp', 'tabs', 'breadcrumb', 'pagination', 'stepper', 'select', 'tags', 'command', 'calendar', 'datepicker'];
+  const names = ['accordion', 'button', 'spinner', 'separator', 'kbd', 'skeleton', 'badge', 'alert', 'avatar', 'card', 'progress', 'tooltip', 'popover', 'dialog', 'menu', 'toast', 'input', 'checkbox', 'radio', 'switch', 'toggle', 'toolbar', 'slider', 'number', 'otp', 'tabs', 'breadcrumb', 'pagination', 'stepper', 'select', 'tags', 'command', 'calendar', 'datepicker', 'table'];
   const missing = await page.evaluate((list) => list.filter((n) => !document.querySelector(`.pinfold-${n}`)), names);
   check('Every component is on the page that axe checks', missing.length === 0, missing.join(', '));
   await page.close();
@@ -394,7 +399,7 @@ await browser.close();
 const failed = results.checks.filter((c) => !c.pass);
 const violations = Object.values(results.axe).flatMap((r) => r.violations);
 const md = [
-  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper, select, combobox, tag group, command, calendar, date picker',
+  '# Accessibility report: accordion, button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper, select, combobox, tag group, command, calendar, date picker, table',
   '',
   `Generated ${new Date().toISOString()} by \`scripts/a11y-report.mjs\` on the built packages, in Chromium.`,
   `Pattern: ${accordionMeta.pattern}`,
@@ -420,7 +425,7 @@ const md = [
   '',
   ...accordionMeta.keyboard.map((k) => `- **${k.keys}**: ${k.action}`),
   '',
-  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
+  ...[buttonMeta, spinnerMeta, separatorMeta, kbdMeta, skeletonMeta, badgeMeta, alertMeta, avatarMeta, cardMeta, progressMeta, tooltipMeta, popoverMeta, dialogMeta, menuMeta, toastMeta, inputMeta, checkboxMeta, radioMeta, switchMeta, toggleMeta, toolbarMeta, sliderMeta, numberMeta, otpMeta, tabsMeta, breadcrumbMeta, paginationMeta, stepperMeta, selectMeta, comboboxMeta, tagsMeta, commandMeta, calendarMeta, datepickerMeta, tableMeta].flatMap((m) => [`## ${m.displayName} (from meta)`, '', `Pattern: ${m.pattern}`, '', ...m.aria.map((a) => `- ${a}`), '']),
   '## Snapshots',
   '',
   ...results.snapshots.map((s) => `- ![${s}](${s})`),

@@ -15,7 +15,7 @@ Created by **Indranil Bhattacharya**
 
 > **Status: pre-release.** The accordion is complete (server and client APIs,
 > global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report);
-> button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper, select, combobox, tag group, command, calendar and date picker are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
+> button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper, select, combobox, tag group, command, calendar, date picker and table are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
 
 ---
 
@@ -161,6 +161,7 @@ The config never changes shape as you go deeper.
 | [select.md](docs/components/select.md) · [combobox.md](docs/components/combobox.md) | Select and Combobox specs |
 | [tags.md](docs/components/tags.md) · [command.md](docs/components/command.md) | Tag group and Command specs |
 | [calendar.md](docs/components/calendar.md) · [datepicker.md](docs/components/datepicker.md) | Calendar and Date picker specs |
+| [table.md](docs/components/table.md) | Table spec |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
 | [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
 | [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | Accessibility evidence: the automated report and the screen-reader matrix |

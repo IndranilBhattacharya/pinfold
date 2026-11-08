@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -46,7 +46,8 @@
     "tags",
     "command",
     "calendar",
-    "datepicker"
+    "datepicker",
+    "table"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -432,6 +433,16 @@
         "default": "./dist/datepicker/index.cjs"
       }
     },
+    "./table": {
+      "import": {
+        "types": "./dist/table/index.d.ts",
+        "default": "./dist/table/index.js"
+      },
+      "require": {
+        "types": "./dist/table/index.d.cts",
+        "default": "./dist/table/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -543,6 +554,9 @@
       ],
       "datepicker": [
         "./dist/datepicker/index.d.cts"
+      ],
+      "table": [
+        "./dist/table/index.d.cts"
       ]
     }
   },
@@ -583,6 +597,7 @@
     "command",
     "calendar",
     "datepicker",
+    "table",
     "registry",
     "schema",
     "llms.txt",
@@ -592,7 +607,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.17.0"
+    "@pinfold/core": "0.18.0"
   },
   "peerDependencies": {
     "react": ">=18"
