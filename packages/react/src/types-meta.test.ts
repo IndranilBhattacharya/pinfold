@@ -12,7 +12,7 @@
 import { resolve } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, emptyMeta, timelineMeta, ratingMeta, tableMeta, datepickerMeta, calendarMeta, commandMeta, tagsMeta, comboboxMeta, selectMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
+import { accordionMeta, resizableMeta, carouselMeta, emptyMeta, timelineMeta, ratingMeta, tableMeta, datepickerMeta, calendarMeta, commandMeta, tagsMeta, comboboxMeta, selectMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
 
 interface Entry {
   meta: ComponentMeta;
@@ -37,6 +37,8 @@ const COMPONENTS: Entry[] = [
   { meta: kbdMeta, file: 'kbd/types.ts', configs: ['KbdConfig'], nested: { dimensions: 'KbdDimensions' } },
   { meta: skeletonMeta, file: 'skeleton/types.ts', configs: ['SkeletonConfig'], nested: { dimensions: 'SkeletonDimensions' } },
   { meta: badgeMeta, file: 'badge/types.ts', configs: ['BadgeConfig'], nested: { dimensions: 'BadgeDimensions' } },
+  { meta: resizableMeta, file: 'resizable/types.ts', configs: ['ResizableConfig'], nested: { panels: 'ResizablePanel' } },
+  { meta: carouselMeta, file: 'carousel/types.ts', configs: ['CarouselConfig'], nested: { dimensions: 'CarouselDimensions' } },
   { meta: emptyMeta, file: 'empty/types.ts', configs: ['EmptyConfig'], nested: {} },
   { meta: timelineMeta, file: 'timeline/types.ts', configs: ['TimelineConfig'], nested: { items: 'TimelineItem' } },
   { meta: ratingMeta, file: 'rating/types.ts', configs: ['RatingConfig'], nested: {} },
