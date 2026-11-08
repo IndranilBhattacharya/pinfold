@@ -44,7 +44,7 @@ function withChunks(file, seen = new Set()) {
  * overrides and state-function config fields.
  */
 const BUDGETS = [
-  ['packages/core/dist/index.js', 14], // every component's rules live here; apps tree-shake to what they use (see the app row)
+  ['packages/core/dist/index.js', 16], // every component's rules live here; apps tree-shake to what they use (see the app row)
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
   ['packages/react/dist/accordion/index.js', 9], // 2026-11-03: presets, tag prop split, no :has(); the app row is what ships
@@ -54,6 +54,8 @@ const BUDGETS = [
   ['packages/react/dist/kbd/index.js', 4],
   ['packages/react/dist/skeleton/index.js', 4.5], // shares the provider, which now carries the app's router
   ['packages/react/dist/badge/index.js', 5],
+  ['packages/react/dist/resizable/index.js', 6],
+  ['packages/react/dist/carousel/index.js', 7],
   ['packages/react/dist/empty/index.js', 6],
   ['packages/react/dist/timeline/index.js', 6],
   ['packages/react/dist/rating/index.js', 6],
@@ -94,6 +96,8 @@ const BUDGETS = [
   ['packages/css/dist/kbd.css', 1],
   ['packages/css/dist/skeleton.css', 1],
   ['packages/css/dist/badge.css', 2],
+  ['packages/css/dist/resizable.css', 2],
+  ['packages/css/dist/carousel.css', 2],
   ['packages/css/dist/empty.css', 2],
   ['packages/css/dist/timeline.css', 2],
   ['packages/css/dist/rating.css', 2],

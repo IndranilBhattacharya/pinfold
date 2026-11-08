@@ -1,6 +1,6 @@
 {
   "name": "@pinfold/react",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "description": "Pinfold for React: hooks-first, config-driven, accessible components. One subpath per component.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -50,7 +50,9 @@
     "table",
     "rating",
     "timeline",
-    "empty"
+    "empty",
+    "carousel",
+    "resizable"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -476,6 +478,26 @@
         "default": "./dist/empty/index.cjs"
       }
     },
+    "./carousel": {
+      "import": {
+        "types": "./dist/carousel/index.d.ts",
+        "default": "./dist/carousel/index.js"
+      },
+      "require": {
+        "types": "./dist/carousel/index.d.cts",
+        "default": "./dist/carousel/index.cjs"
+      }
+    },
+    "./resizable": {
+      "import": {
+        "types": "./dist/resizable/index.d.ts",
+        "default": "./dist/resizable/index.js"
+      },
+      "require": {
+        "types": "./dist/resizable/index.d.cts",
+        "default": "./dist/resizable/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -599,6 +621,12 @@
       ],
       "empty": [
         "./dist/empty/index.d.cts"
+      ],
+      "carousel": [
+        "./dist/carousel/index.d.cts"
+      ],
+      "resizable": [
+        "./dist/resizable/index.d.cts"
       ]
     }
   },
@@ -643,6 +671,8 @@
     "rating",
     "timeline",
     "empty",
+    "carousel",
+    "resizable",
     "registry",
     "schema",
     "llms.txt",
@@ -652,7 +682,7 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup && node ../../scripts/subpath-stubs.mjs && node ../../scripts/generate-artifacts.mjs"
   },
   "dependencies": {
-    "@pinfold/core": "0.19.0"
+    "@pinfold/core": "0.20.0"
   },
   "peerDependencies": {
     "react": ">=18"

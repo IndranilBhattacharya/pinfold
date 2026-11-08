@@ -516,6 +516,32 @@
       ],
       "hook": "useEmpty",
       "snippet": "<NoResults title=\"No results\" />"
+    },
+    {
+      "name": "carousel",
+      "import": "@pinfold/react/carousel",
+      "styles": "@pinfold/css/carousel.css",
+      "status": "experimental",
+      "description": "Slides in a scroll-snapping row: swipe, buttons, dots; autoplay with a pause button.",
+      "variants": [
+        "one",
+        "several"
+      ],
+      "hook": "useCarousel",
+      "snippet": "<Gallery label=\"New arrivals\" slides={slides} />"
+    },
+    {
+      "name": "resizable",
+      "import": "@pinfold/react/resizable",
+      "styles": "@pinfold/css/resizable.css",
+      "status": "experimental",
+      "description": "Panels with handles to drag or move by keys; min and max; sizes kept per browser.",
+      "variants": [
+        "line",
+        "grip"
+      ],
+      "hook": "useResizable",
+      "snippet": "<Workspace label=\"Editor\" panels={panels} />"
     }
   ],
   "planned": [

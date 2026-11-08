@@ -1,0 +1,97 @@
+/* Pinfold — carousel. A native scroll row with snapping (swipe and trackpad for free), the slides
+   sized by --pinfold-crs-per, round buttons over the edges on the control tokens (packs reach them),
+   and dots where the current one stretches into a pill in the tone. */
+
+@layer pinfold.components {
+  .pinfold-carousel {
+    --pinfold-crs-gap: var(--pinfold-carousel-gap, 1rem);
+    --pinfold-crs-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    min-inline-size: 0;
+    font-family: var(--pinfold-font-sans);
+    color: var(--pinfold-color-text);
+  }
+  .pinfold-carousel__viewport { position: relative; min-inline-size: 0; }
+  .pinfold-carousel__track {
+    display: flex;
+    gap: var(--pinfold-crs-gap);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) + 0.25rem);
+  }
+  .pinfold-carousel__track::-webkit-scrollbar { display: none; }
+  .pinfold-carousel__slide {
+    flex: 0 0 calc((100% - var(--pinfold-crs-gap) * (var(--pinfold-crs-per) - 1)) / var(--pinfold-crs-per));
+    min-inline-size: 0;
+    scroll-snap-align: start;
+  }
+  .pinfold-carousel__previous,
+  .pinfold-carousel__next {
+    position: absolute;
+    inset-block-start: 50%;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    margin: 0;
+    padding: 0;
+    color: var(--pinfold-color-text);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border-radius: var(--pinfold-radius-full);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-md));
+    backdrop-filter: var(--pinfold-backdrop);
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+  .pinfold-carousel__previous { inset-inline-start: 0.75rem; }
+  .pinfold-carousel__next { inset-inline-end: 0.75rem; }
+  .pinfold-carousel__previous > svg,
+  .pinfold-carousel__next > svg { inline-size: 1.125rem; block-size: 1.125rem; }
+  .pinfold-carousel [data-flip] > svg { transform: scaleX(-1); }
+  [dir='rtl'] .pinfold-carousel :is(.pinfold-carousel__previous, .pinfold-carousel__next) > svg { transform: scaleX(-1); }
+  [dir='rtl'] .pinfold-carousel [data-flip] > svg { transform: none; }
+  :is(.pinfold-carousel__previous, .pinfold-carousel__next)[aria-disabled='true'] { opacity: 0; pointer-events: none; }
+  .pinfold-carousel[data-animate] :is(.pinfold-carousel__previous, .pinfold-carousel__next) { transition: opacity var(--pinfold-duration-md) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
+  .pinfold-carousel[data-animate] :is(.pinfold-carousel__previous, .pinfold-carousel__next):hover { transform: translateY(-50%) scale(1.06); }
+
+  .pinfold-carousel__indicators { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.25rem; }
+  .pinfold-carousel__indicator,
+  .pinfold-carousel__play {
+    display: grid;
+    place-items: center;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-radius-full);
+    cursor: pointer;
+  }
+  .pinfold-carousel__indicator::before {
+    content: '';
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: color-mix(in oklab, var(--pinfold-color-text) 25%, transparent);
+    border-radius: var(--pinfold-radius-full);
+  }
+  .pinfold-carousel__indicator[aria-current='true'] { inline-size: 2rem; }
+  .pinfold-carousel__indicator[aria-current='true']::before { inline-size: 1.5rem; background: var(--pinfold-crs-solid); }
+  .pinfold-carousel[data-animate] .pinfold-carousel__indicator::before { transition: inline-size var(--pinfold-duration-md) var(--pinfold-ease-spring), background-color var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-carousel__play { color: var(--pinfold-color-text-muted); margin-inline-end: 0.25rem; }
+  .pinfold-carousel__play > svg { inline-size: 0.875rem; block-size: 0.875rem; }
+  .pinfold-carousel :is(.pinfold-carousel__previous, .pinfold-carousel__next, .pinfold-carousel__indicator, .pinfold-carousel__play):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+
+  @media (forced-colors: active) {
+    .pinfold-carousel__indicator[aria-current='true']::before { forced-color-adjust: none; background: Highlight; }
+    .pinfold-carousel__indicator::before { forced-color-adjust: none; background: GrayText; }
+  }
+}

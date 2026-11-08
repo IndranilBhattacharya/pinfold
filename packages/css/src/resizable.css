@@ -1,0 +1,71 @@
+/* Pinfold — resizable panels. Panels share the group by percent (flex-basis from JS); a handle is
+   a hairline that widens into a tone bar under the pointer or focus, with an optional grip. The
+   group is a card on the control tokens. */
+
+@layer pinfold.components {
+  .pinfold-resizable {
+    --pinfold-rsz-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    display: flex;
+    min-inline-size: 0;
+    min-block-size: 12rem;
+    overflow: hidden;
+    font-family: var(--pinfold-font-sans);
+    color: var(--pinfold-color-text);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) + 0.375rem);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-resizable[data-orientation='vertical'] { flex-direction: column; }
+  .pinfold-resizable__panel { flex-grow: 0; flex-shrink: 1; min-inline-size: 0; min-block-size: 0; overflow: auto; }
+
+  .pinfold-resizable__handle {
+    position: relative;
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    inline-size: 1px;
+    background: var(--pinfold-control-edge, var(--pinfold-color-border));
+    cursor: col-resize;
+    touch-action: none;
+    outline: none;
+  }
+  .pinfold-resizable[data-orientation='vertical'] .pinfold-resizable__handle { inline-size: auto; block-size: 1px; cursor: row-resize; }
+  /* A wide invisible target around the hairline, and a bar that shows on hover, focus and drag. */
+  .pinfold-resizable__handle::before { content: ''; position: absolute; inset: 0 -0.5rem; }
+  .pinfold-resizable[data-orientation='vertical'] .pinfold-resizable__handle::before { inset: -0.5rem 0; }
+  .pinfold-resizable__handle::after { content: ''; position: absolute; inset: 0 -1px; background: var(--pinfold-rsz-solid); opacity: 0; }
+  .pinfold-resizable[data-orientation='vertical'] .pinfold-resizable__handle::after { inset: -1px 0; }
+  .pinfold-resizable__handle:is(:hover, :focus-visible, [data-dragging])::after { opacity: 1; }
+  .pinfold-resizable[data-animate] .pinfold-resizable__handle::after { transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-resizable__grip {
+    position: relative;
+    z-index: 1;
+    inline-size: 0.5rem;
+    block-size: 1.75rem;
+    --pinfold-rsz-dot: var(--pinfold-color-text-muted) 1.25px, transparent 1.5px;
+    /* Three whole dots, never cut by the rounded ends. */
+    background-image:
+      radial-gradient(circle at 50% 30%, var(--pinfold-rsz-dot)),
+      radial-gradient(circle at 50% 50%, var(--pinfold-rsz-dot)),
+      radial-gradient(circle at 50% 70%, var(--pinfold-rsz-dot));
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border-radius: var(--pinfold-radius-full);
+  }
+  .pinfold-resizable[data-orientation='vertical'] .pinfold-resizable__grip {
+    inline-size: 1.75rem;
+    block-size: 0.5rem;
+    background-image:
+      radial-gradient(circle at 30% 50%, var(--pinfold-rsz-dot)),
+      radial-gradient(circle at 50% 50%, var(--pinfold-rsz-dot)),
+      radial-gradient(circle at 70% 50%, var(--pinfold-rsz-dot));
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-resizable__handle { forced-color-adjust: none; background: CanvasText; }
+    .pinfold-resizable__handle:is(:hover, :focus-visible)::after { background: Highlight; }
+  }
+}

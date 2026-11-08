@@ -7,6 +7,8 @@ import type { SeparatorConfig } from './separator/types';
 import type { KbdConfig } from './kbd/types';
 import type { SkeletonConfig } from './skeleton/types';
 import type { BadgeConfig } from './badge/types';
+import type { ResizableConfig } from './resizable/types';
+import type { CarouselConfig } from './carousel/types';
 import type { EmptyConfig } from './empty/types';
 import type { TimelineConfig } from './timeline/types';
 import type { RatingConfig } from './rating/types';
@@ -49,6 +51,8 @@ export interface PinfoldComponentDefaults {
   kbd?: Omit<KbdConfig, 'keys'>;
   skeleton?: Omit<SkeletonConfig, 'content' | 'loading'>;
   badge?: Omit<BadgeConfig, 'label' | 'count' | 'anchor'>;
+  resizable?: Omit<ResizableConfig, 'label' | 'panels' | 'sizes' | 'onResize' | 'autoSaveId'>;
+  carousel?: Omit<CarouselConfig, 'label' | 'slides' | 'index' | 'defaultIndex' | 'onIndexChange'>;
   empty?: Omit<EmptyConfig, 'title' | 'description' | 'media' | 'actions'>;
   timeline?: Omit<TimelineConfig, 'label' | 'items'>;
   rating?: Omit<RatingConfig, 'label' | 'value' | 'defaultValue' | 'onChange' | 'name' | 'disabled'>;
