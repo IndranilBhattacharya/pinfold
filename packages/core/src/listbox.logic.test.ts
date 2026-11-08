@@ -44,3 +44,19 @@ describe('listbox logic', () => {
     expect(Object.keys(inactiveComboboxOptions({}))).toEqual(['maxChips']);
   });
 });
+
+describe('hotkeys, tags and command options', () => {
+  it('matches mod+k as ⌘K on Apple and Ctrl+K elsewhere, modifiers exactly', async () => {
+    const { matchHotkey, inactiveTagsOptions, inactiveCommandOptions } = await import('./listbox.logic');
+    const k = (o: Partial<{ key: string; metaKey: boolean; ctrlKey: boolean; shiftKey: boolean; altKey: boolean }>) => ({ key: 'k', metaKey: false, ctrlKey: false, shiftKey: false, altKey: false, ...o });
+    expect(matchHotkey(k({ metaKey: true }), 'mod+k', true)).toBe(true);
+    expect(matchHotkey(k({ ctrlKey: true }), 'mod+k', true)).toBe(false);
+    expect(matchHotkey(k({ ctrlKey: true }), 'mod+k', false)).toBe(true);
+    expect(matchHotkey(k({ ctrlKey: true, shiftKey: true }), 'mod+k', false)).toBe(false);
+    expect(matchHotkey(k({ key: '/', shiftKey: true }), 'shift+/', false)).toBe(true);
+    expect(Object.keys(inactiveTagsOptions({}))).toEqual(['value', 'defaultValue', 'onChange', 'removeHint', 'removeLabel', 'moreLabel']);
+    expect(inactiveTagsOptions({ selection: 'single', onRemove: 1, maxVisible: 3 })).toEqual({});
+    expect(Object.keys(inactiveCommandOptions({}))).toEqual(['open', 'defaultOpen', 'onOpenChange', 'hotkey', 'closeOnSelect']);
+    expect(inactiveCommandOptions({ mode: 'dialog' })).toEqual({});
+  });
+});

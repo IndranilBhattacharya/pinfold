@@ -1,0 +1,124 @@
+/* Pinfold — command palette. A raised panel on the surface tokens (packs reach it): a search row,
+   the list (its rows and marks come from select.css, so import both), and key hints. As a dialog
+   it is the browser's modal, set near the top of the screen over a dimmed, blurred page. */
+
+@layer pinfold.components {
+  .pinfold-command {
+    --pinfold-cmd-row: 2.5rem;
+    box-sizing: border-box;
+    inline-size: var(--pinfold-command-width, 100%);
+    max-inline-size: 100%;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-text-sm);
+    color: var(--pinfold-color-text);
+  }
+  .pinfold-command[data-size='sm'] { --pinfold-cmd-row: 2.125rem; font-size: var(--pinfold-text-xs); }
+  .pinfold-command[data-size='lg'] { --pinfold-cmd-row: 3rem; font-size: var(--pinfold-text-md); }
+  .pinfold-command__panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) + 0.375rem);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-md));
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-command__search {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding-inline: 1rem;
+    border-block-end: var(--pinfold-border-width) solid var(--pinfold-color-border);
+  }
+  .pinfold-command__searchIcon { display: inline-flex; color: var(--pinfold-color-text-muted); }
+  .pinfold-command__searchIcon > svg { inline-size: 1.125rem; block-size: 1.125rem; }
+  .pinfold-command__input {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    block-size: 3rem;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    font-size: 1.0625em;
+    color: var(--pinfold-color-text);
+    background: transparent;
+    border: 0;
+    outline: none;
+  }
+  .pinfold-command .pinfold-command__input:focus-visible { outline: none; box-shadow: none; }
+  .pinfold-command__input::placeholder { color: var(--pinfold-color-text-muted); }
+  .pinfold-command__list {
+    max-block-size: var(--pinfold-command-max-height, 20rem);
+    padding: 0.375rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .pinfold-command__groupLabel { padding: 0.5rem 0.625rem 0.25rem; font-size: 0.75rem; font-weight: var(--pinfold-weight-semibold); color: var(--pinfold-color-text-muted); }
+  .pinfold-command__option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-block-size: var(--pinfold-cmd-row);
+    padding: 0.25rem 0.625rem;
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    cursor: pointer;
+    user-select: none;
+  }
+  .pinfold-command__option[data-active] { background-color: color-mix(in oklab, var(--pinfold-tone-solid, var(--pinfold-color-accent)) 12%, transparent); }
+  .pinfold-command__option[aria-disabled='true'] { opacity: 0.45; cursor: not-allowed; }
+  .pinfold-command__icon { display: inline-grid; flex-shrink: 0; place-items: center; inline-size: 1.75rem; block-size: 1.75rem; color: var(--pinfold-color-text-muted); background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); border-radius: var(--pinfold-radius-sm); }
+  .pinfold-command__option[data-active] .pinfold-command__icon { color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text)); }
+  .pinfold-command__icon > svg { inline-size: 1rem; block-size: 1rem; }
+  .pinfold-command__detail { font-size: 0.875em; color: var(--pinfold-color-text-muted); }
+  .pinfold-command__shortcut { margin-inline-start: auto; }
+  .pinfold-command__shortcut,
+  .pinfold-command__footer kbd {
+    display: inline-flex;
+    align-items: center;
+    min-inline-size: 1.25rem;
+    padding: 0.0625rem 0.375rem;
+    font-family: var(--pinfold-font-sans);
+    font-size: 0.75rem;
+    color: var(--pinfold-color-text-muted);
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent);
+    border: var(--pinfold-border-width) solid var(--pinfold-color-border);
+    border-radius: var(--pinfold-radius-xs, 0.25rem);
+  }
+  .pinfold-command__empty { padding: 1.5rem 0.75rem; color: var(--pinfold-color-text-muted); text-align: center; }
+  .pinfold-command[data-loading] .pinfold-command__empty { animation: pinfold-command-wait 1s var(--pinfold-ease-out) infinite alternate; }
+  @keyframes pinfold-command-wait {
+    to { opacity: 0.5; }
+  }
+  .pinfold-command__footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    color: var(--pinfold-color-text-muted);
+    border-block-start: var(--pinfold-border-width) solid var(--pinfold-color-border);
+  }
+  .pinfold-command__footer span { display: inline-flex; align-items: center; gap: 0.25rem; }
+
+  /* As a dialog: near the top, over a dimmed and blurred page. */
+  dialog.pinfold-command {
+    inline-size: min(var(--pinfold-command-width, 36rem), calc(100vw - 2rem));
+    margin: 12vh auto auto;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    overflow: visible;
+  }
+  dialog.pinfold-command .pinfold-command__panel { box-shadow: var(--pinfold-shadow-xl, var(--pinfold-shadow-lg)); }
+  dialog.pinfold-command::backdrop { background: color-mix(in oklab, var(--pinfold-neutral-950, var(--pinfold-color-text)) 45%, transparent); backdrop-filter: blur(4px); }
+  .pinfold-command[data-animate][open] .pinfold-command__panel { animation: pinfold-command-in var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  @keyframes pinfold-command-in {
+    from { opacity: 0; scale: 0.97; }
+  }
+
+  @media (forced-colors: active) {
+    .pinfold-command__option[data-active] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  }
+}

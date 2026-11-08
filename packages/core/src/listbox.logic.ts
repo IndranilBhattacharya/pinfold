@@ -74,3 +74,35 @@ export function inactiveComboboxOptions(config: { multiple?: boolean }): Record<
   if (!config.multiple) out.maxChips = 'only used with `multiple`.';
   return out;
 }
+
+export function inactiveTagsOptions(config: { selection?: string; onRemove?: unknown; maxVisible?: number }): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!config.selection || config.selection === 'none') {
+    const why = 'only used with `selection`: tags are labels to read.';
+    Object.assign(out, { value: why, defaultValue: why, onChange: why, removeHint: why });
+  }
+  if (!config.onRemove) {
+    const why = 'only used with `onRemove`.';
+    out.removeLabel = why;
+    out.removeHint = why;
+  }
+  if (config.maxVisible === undefined) out.moreLabel = 'only used with `maxVisible`.';
+  return out;
+}
+
+/**
+ * Whether a key event is a hotkey such as `mod+k` or `shift+/`: `mod` is ⌘ on Apple systems and
+ * Ctrl elsewhere; the other modifiers must match exactly, so ⌘⇧K is not ⌘K.
+ */
+export function matchHotkey(event: { key: string; metaKey: boolean; ctrlKey: boolean; shiftKey: boolean; altKey: boolean }, hotkey: string, apple: boolean): boolean {
+  const parts = hotkey.toLowerCase().split('+').map((p) => p.trim());
+  const key = parts.pop();
+  const want = { meta: parts.includes('meta') || (apple && parts.includes('mod')), ctrl: parts.includes('ctrl') || (!apple && parts.includes('mod')), shift: parts.includes('shift'), alt: parts.includes('alt') };
+  return event.key.toLowerCase() === key && event.metaKey === want.meta && event.ctrlKey === want.ctrl && event.shiftKey === want.shift && event.altKey === want.alt;
+}
+
+export function inactiveCommandOptions(config: { mode?: string }): Record<string, string> {
+  if (config.mode === 'dialog') return {};
+  const why = 'only used with `mode: "dialog"`.';
+  return { open: why, defaultOpen: why, onOpenChange: why, hotkey: why, closeOnSelect: why };
+}

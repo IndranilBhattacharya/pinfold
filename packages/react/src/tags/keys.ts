@@ -1,0 +1,28 @@
+/** Every config key of the tag group. Tag and preset props with these names are config; the rest go to the root
+ * element. `config-keys.test.ts` keeps this equal to the meta. */
+export const TAGS_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
+  'label',
+  'hideLabel',
+  'items',
+  'selection',
+  'value',
+  'defaultValue',
+  'onChange',
+  'onRemove',
+  'maxVisible',
+  'moreLabel',
+  'removeLabel',
+  'removeHint',
+  'emptyText',
+  'variant',
+  'radius',
+  'size',
+  'tone',
+  'unstyled',
+  'className',
+  'style',
+  'classNames',
+  'styles',
+  'slotProps',
+  'render',
+]);

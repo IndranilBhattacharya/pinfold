@@ -1,0 +1,93 @@
+import type { ComponentMeta, PropMeta } from './meta';
+
+const SLOTS = ['root', 'label', 'list', 'tag', 'icon', 'text', 'remove', 'more', 'empty'] as const;
+const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
+  type: 'object',
+  description,
+  group: 'escape-hatch',
+  keys: Object.fromEntries(SLOTS.map((s) => [s, { type, description: `The \`${s}\` slot.`, group: 'escape-hatch' }])),
+});
+const TONES = ['primary', 'neutral', 'success', 'warning', 'danger', 'info'];
+
+export const tagsMeta: ComponentMeta = {
+  name: 'tags',
+  displayName: 'Tag group',
+  pascal: 'Tags',
+  description: 'Tags (chips): labels to read, filters to remove, links, or choices to pick one or several of. Each tag can have its own tone and icon; long groups fold into "+3".',
+  pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/listbox/',
+  importPath: '@pinfold/react/tags',
+  slots: SLOTS,
+  props: {
+    label: { type: 'node', required: true, description: 'Names the group, e.g. "Filters".', group: 'data' },
+    hideLabel: { type: 'boolean', default: false, description: 'Keep the label for screen readers only.', group: 'appearance', control: true },
+    items: {
+      type: 'array',
+      orString: true,
+      required: true,
+      description: 'The tags. A string is a tag whose value and label are that string.',
+      group: 'data',
+      items: {
+        value: { type: 'string', required: true, description: 'Stable value: what `value`, `onChange` and `onRemove` hold.', group: 'data' },
+        label: { type: 'node', description: 'Shown. Default the value.', group: 'data' },
+        icon: { type: 'node', description: 'Before the label: an icon, a dot, an avatar.', group: 'data' },
+        tone: { type: 'enum', values: TONES, description: 'This tag\'s colour.', group: 'appearance' },
+        href: { type: 'string', description: 'A link, routed by the provider\'s `navigate`.', group: 'data' },
+        removable: { type: 'boolean', description: 'With `onRemove`, every tag can go; `false` keeps this one.', group: 'behaviour' },
+        disabled: { type: 'boolean', description: 'Shown, never chosen or removed.', group: 'behaviour' },
+      },
+    },
+    selection: {
+      type: 'enum',
+      values: ['none', 'single', 'multiple'],
+      default: 'none',
+      description: '`none`: tags to read (a list). `single` / `multiple`: tags to pick (a listbox; arrows move, Space picks).',
+      group: 'behaviour',
+      control: true,
+    },
+    value: { type: 'string[]', description: 'The chosen values, controlled.', group: 'data' },
+    defaultValue: { type: 'string[]', description: 'The chosen values when uncontrolled.', group: 'data' },
+    onChange: { type: 'function', description: '`(values, event) => void` when the choice changes.', group: 'events' },
+    onRemove: { type: 'function', description: '`(value, event) => void`: tags get a remove button (a mark plus Delete when they can be picked); focus moves to the next tag.', group: 'events' },
+    maxVisible: { type: 'number', description: 'Tags shown before a "+3" button that shows the rest.', group: 'behaviour' },
+    moreLabel: { type: 'string', default: 'Show all', description: 'The "+3" button\'s name.', group: 'data' },
+    removeLabel: { type: 'string', default: 'Remove', description: 'Starts each remove button\'s name: "Remove React".', group: 'data' },
+    removeHint: { type: 'string', default: 'Press Delete to remove', description: 'Read with a removable tag that can be picked.', group: 'data' },
+    emptyText: { type: 'node', description: 'Shown when there are no tags.', group: 'data' },
+    variant: { type: 'enum', values: ['soft', 'solid', 'outline'], default: 'soft', description: 'Tinted, filled, or framed. Chosen tags fill with the tone.', group: 'appearance', control: true },
+    radius: { type: 'enum', values: ['sm', 'md', 'full'], default: 'full', description: 'Corner shape: tight, the theme radius, or a pill.', group: 'appearance', control: true },
+    size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.tags`, the provider, then md.', group: 'appearance', control: true },
+    tone: { type: 'enum', values: TONES, default: 'neutral', description: 'The tags\' colour. Never from the provider: tags stay quiet unless asked.', group: 'appearance', control: true },
+    unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
+    className: { type: 'string', description: 'Class on the root.', group: 'appearance' },
+    style: { type: 'object', description: 'Inline style on the root.', group: 'appearance' },
+    classNames: perSlot('Classes per slot.', 'string'),
+    styles: perSlot('Inline styles per slot.', 'object'),
+    slotProps: perSlot('Any DOM props per slot.', 'object'),
+    render: perSlot('Replace a slot element: `({ props, state, children }) => node`.', 'function'),
+  },
+  keyboard: [
+    { keys: 'Tab', action: 'Each link and remove button (tags to read); one stop for the group (tags to pick).' },
+    { keys: 'Arrow keys / Home / End', action: 'Tags to pick: move between tags, following the reading direction; wraps.' },
+    { keys: 'Space / Enter', action: 'Pick or unpick the focused tag.' },
+    { keys: 'Delete / Backspace', action: 'Remove the focused tag (with `onRemove`); focus moves to the next.' },
+  ],
+  aria: [
+    'Tags to read are a list named by `label`; each remove button is named "Remove <tag>".',
+    'Tags to pick are a `listbox` (`aria-multiselectable` with `multiple`, horizontal) of `option`s with `aria-selected`, one tab stop.',
+    'A tag that can be picked and removed has `aria-keyshortcuts="Delete"` and is described by `removeHint`; its mark is for pointers (a button inside an option is not allowed).',
+    'Picked tags are filled and bold, never colour alone.',
+  ],
+  dataAttributes: [
+    { name: 'data-variant', on: 'root', values: '"soft" | "solid" | "outline"' },
+    { name: 'data-radius', on: 'root', values: '"sm" | "md" | "full"' },
+    { name: 'data-selection', on: 'root', values: '"single" | "multiple" when tags can be picked' },
+    { name: 'data-selected', on: 'tag', values: 'present on picked tags' },
+    { name: 'data-tone', on: 'tag', values: 'the tag\'s own tone' },
+  ],
+  cssVariables: [],
+  examples: [
+    { title: 'Filters to remove', code: "import { defineTags } from '@pinfold/react/tags';\n\nexport const Chips = defineTags();\n\n<Chips label=\"Filters\" items={filters} onRemove={(v) => setFilters((f) => f.filter((x) => x !== v))} />" },
+    { title: 'Pick several', code: "<Chips label=\"Topics\" selection=\"multiple\" items={['Design', 'Code', 'Writing']} value={topics} onChange={setTopics} />" },
+    { title: 'Status labels', code: "<Chips label=\"Status\" hideLabel items={[{ value: 'live', tone: 'success' }, { value: 'beta', tone: 'warning' }]} />" },
+  ],
+};

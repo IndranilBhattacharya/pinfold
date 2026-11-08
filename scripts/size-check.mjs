@@ -44,7 +44,7 @@ function withChunks(file, seen = new Set()) {
  * overrides and state-function config fields.
  */
 const BUDGETS = [
-  ['packages/core/dist/index.js', 11], // every component's rules live here; apps tree-shake to what they use (see the app row)
+  ['packages/core/dist/index.js', 12], // every component's rules live here; apps tree-shake to what they use (see the app row)
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
   ['packages/react/dist/accordion/index.js', 9], // 2026-11-03: presets, tag prop split, no :has(); the app row is what ships
@@ -54,6 +54,8 @@ const BUDGETS = [
   ['packages/react/dist/kbd/index.js', 4],
   ['packages/react/dist/skeleton/index.js', 4.5], // shares the provider, which now carries the app's router
   ['packages/react/dist/badge/index.js', 5],
+  ['packages/react/dist/command/index.js', 10],
+  ['packages/react/dist/tags/index.js', 7],
   ['packages/react/dist/combobox/index.js', 13], // the select's listbox engine plus the overlay layer
   ['packages/react/dist/select/index.js', 13], // the overlay layer (top layer, flip, dismiss stack), shared with menu, which also carries the trigger button
   ['packages/react/dist/stepper/index.js', 8], // renders Pinfold buttons (Back, Next, Finish) and the step panels
@@ -86,6 +88,8 @@ const BUDGETS = [
   ['packages/css/dist/kbd.css', 1],
   ['packages/css/dist/skeleton.css', 1],
   ['packages/css/dist/badge.css', 2],
+  ['packages/css/dist/command.css', 2],
+  ['packages/css/dist/tags.css', 2],
   ['packages/css/dist/combobox.css', 1],
   ['packages/css/dist/select.css', 3],
   ['packages/css/dist/stepper.css', 2.5], // label placement, the step panel and actions, error steps

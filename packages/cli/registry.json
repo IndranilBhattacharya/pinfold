@@ -406,6 +406,33 @@
       ],
       "hook": "useCombobox",
       "snippet": "<Search label=\"City\" items={cities} onChange={setCity} />"
+    },
+    {
+      "name": "tags",
+      "import": "@pinfold/react/tags",
+      "styles": "@pinfold/css/tags.css",
+      "status": "experimental",
+      "description": "Tags (chips): labels, removable filters, links, or choices to pick one or several of.",
+      "variants": [
+        "soft",
+        "solid",
+        "outline"
+      ],
+      "hook": "useTags",
+      "snippet": "<Chips label=\"Filters\" items={filters} onRemove={remove} />"
+    },
+    {
+      "name": "command",
+      "import": "@pinfold/react/command",
+      "styles": "@pinfold/css/command.css",
+      "status": "experimental",
+      "description": "A command palette, on the page or as a ⌘K dialog: type, move, run.",
+      "variants": [
+        "inline",
+        "dialog"
+      ],
+      "hook": "useCommand",
+      "snippet": "<Palette label=\"Commands\" mode=\"dialog\" items={commands} />"
     }
   ],
   "planned": [
@@ -415,7 +442,6 @@
     "number-field",
     "input-otp",
     "tag-group",
-    "command",
     "table",
     "calendar",
     "date-picker"
