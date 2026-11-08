@@ -475,6 +475,47 @@
       ],
       "hook": "useTable",
       "snippet": "<Grid label=\"Invoices\" rows={invoices} pageSize={10} />"
+    },
+    {
+      "name": "rating",
+      "import": "@pinfold/react/rating",
+      "styles": "@pinfold/css/rating.css",
+      "status": "experimental",
+      "description": "Stars (or any symbol) to give or show a score; whole or half steps; native radios.",
+      "variants": [
+        "interactive",
+        "readonly"
+      ],
+      "hook": "useRating",
+      "snippet": "<Stars label=\"Your rating\" value={stars} onChange={setStars} />"
+    },
+    {
+      "name": "timeline",
+      "import": "@pinfold/react/timeline",
+      "styles": "@pinfold/css/timeline.css",
+      "status": "experimental",
+      "description": "Events in order: dots, icons or cards; vertical, alternating or horizontal; ISO times in the locale.",
+      "variants": [
+        "dot",
+        "icon",
+        "card"
+      ],
+      "hook": "useTimeline",
+      "snippet": "<History label=\"Order history\" items={events} />"
+    },
+    {
+      "name": "empty",
+      "import": "@pinfold/react/empty",
+      "styles": "@pinfold/css/empty.css",
+      "status": "experimental",
+      "description": "An empty state: what is missing and what to do about it.",
+      "variants": [
+        "plain",
+        "dashed",
+        "card"
+      ],
+      "hook": "useEmpty",
+      "snippet": "<NoResults title=\"No results\" />"
     }
   ],
   "planned": [
