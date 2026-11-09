@@ -18,6 +18,7 @@ export const COMMAND_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'hotkey',
   'closeOnSelect',
   'footer',
+  'radius',
   'size',
   'tone',
   'dimensions',

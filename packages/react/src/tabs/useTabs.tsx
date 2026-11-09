@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveTabsOptions, mergeProps, moveItem, nextIndexFromKey, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveTabsOptions, mergeProps, moveItem, nextIndexFromKey, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
 import { useSlidingIndicator } from '../indicator';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { followLink } from '../link';
 import { VISUALLY_HIDDEN } from '../a11y';
 import { CLOSE_ICON, PLUS_ICON } from '../nav-icons';
@@ -154,6 +154,7 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'data-variant': variant,
         'data-placement': placement,
         'data-orientation': orientation,
@@ -211,6 +212,7 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
                 </>,
                 link ? 'a' : 'button',
                 {
+                  [ITEM]: { ...item, index: i, selected: isSelected },
                   ...(link ? { href: item.href } : { type: 'button' }),
                   role: 'tab',
                   id: `${base}-tab-${i}`,

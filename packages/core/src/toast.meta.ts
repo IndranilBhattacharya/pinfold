@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'list', 'item', 'icon', 'content', 'title', 'description', 'action', 'dismiss'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -35,6 +36,7 @@ export const toastMeta: ComponentMeta = {
     swipe: { type: 'boolean', default: true, description: 'Swipe a toast toward its edge (a third of its width, or a flick) to dismiss it; a shorter swipe springs back. The dismiss button stays for everyone else.', group: 'behaviour', control: true, silent: true },
     store: { type: 'object', description: 'A store from `createToastStore()` to show toasts from outside React. `defineToast` makes one for you.', group: 'behaviour' },
     dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { width: len('Toast width.'), gap: len('Space between toasts.'), inset: len('Distance from the viewport edge.') } },
+    radius: RADIUS_PROP,
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },
     style: { type: 'object', description: 'Inline style on the root.', group: 'appearance' },

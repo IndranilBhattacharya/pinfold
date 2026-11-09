@@ -140,4 +140,7 @@
     .pinfold-progress[data-shape='bar'] .pinfold-progress__indicator { forced-color-adjust: none; background: Highlight; }
     .pinfold-progress[data-shape='circle'] .pinfold-progress__indicator { stroke: Highlight; }
   }
+
+  /* An explicit radius squares the bar off (none) or rounds it (full); unset stays a pill. */
+  .pinfold-progress[data-pinfold-radius][data-shape='bar'] .pinfold-progress__track { border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) * 0.25); }
 }

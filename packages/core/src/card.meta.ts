@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'media', 'body', 'title', 'description', 'content', 'actions'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -56,6 +57,7 @@ export const cardMeta: ComponentMeta = {
       group: 'appearance',
       keys: { padding: len('Inner padding.'), gap: len('Space between parts.'), radius: len('Corner radius.'), mediaSize: len('Image height (vertical) or width (horizontal).') },
     },
+    radius: RADIUS_PROP,
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the structure and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },
     style: { type: 'object', description: 'Inline style on the root.', group: 'appearance' },

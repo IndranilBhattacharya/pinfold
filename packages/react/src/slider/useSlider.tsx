@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveSliderOptions, mergeProps, SLIDER_MAX_STEP_DOTS, sliderNextStop, sliderPercent, sliderValues, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveSliderOptions, mergeProps, SLIDER_MAX_STEP_DOTS, sliderNextStop, sliderPercent, sliderValues, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -95,6 +95,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: field.root,
         role: range ? 'group' : undefined,
         'aria-labelledby': range ? `${field.base}-label` : undefined,

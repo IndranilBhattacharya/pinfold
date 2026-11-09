@@ -10,6 +10,7 @@ export const PROGRESS_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'formatValue',
   'kind',
   'shape',
+  'radius',
   'size',
   'tone',
   'dimensions',

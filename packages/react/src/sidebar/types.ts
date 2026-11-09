@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -50,7 +50,10 @@ export interface SidebarDimensions {
  *     { label: 'Settings', href: '/settings', group: 'Account' },
  *   ]} />
  */
-export interface SidebarConfig extends SlotOverrides<SidebarSlot, SidebarState> {
+/** One entry as you wrote it, its key, depth, whether it is current, and (sections) open. `render` overrides of the repeating parts get it as `item`. */
+export type SidebarItemContext = SidebarItem & { key: string; depth: number; current: boolean; open?: boolean };
+
+export interface SidebarConfig extends SlotOverrides<SidebarSlot, SidebarState, SidebarItemContext> {
   /** Names the navigation landmark, e.g. "Main". */
   label: string;
   /** Entries; a string is an entry whose key and text are that string. */
@@ -83,6 +86,8 @@ export interface SidebarConfig extends SlotOverrides<SidebarSlot, SidebarState> 
   labels?: { collapse?: string; expand?: string };
   /** @default 'soft' */
   variant?: SidebarVariant;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

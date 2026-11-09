@@ -23,6 +23,7 @@ Precedence: use-site props, the preset, `defaults.otp`, the provider (size), the
 | `groups`, `separator` | e.g. `[3, 3]`; what sits between | none, `'–'` |
 | `mask` | dots instead of characters | `false` |
 | `variant` | `'outline' \| 'filled' \| 'underline'` | `'outline'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size` | | `'md'` (provider) |
 | `dimensions` | `slotSize, gap` | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label control input slots slot caret separator description error`) | | |

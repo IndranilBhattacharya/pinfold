@@ -8,6 +8,7 @@ export const DIALOG_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'trigger',
   'role',
   'placement',
+  'radius',
   'size',
   'modal',
   'closeButton',

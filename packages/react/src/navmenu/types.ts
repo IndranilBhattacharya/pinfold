@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -73,6 +73,8 @@ export interface NavMenuConfig extends SlotOverrides<NavMenuSlot, NavMenuState> 
   openOn?: 'hover' | 'click';
   /** @default 'ghost' */
   variant?: NavMenuVariant;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

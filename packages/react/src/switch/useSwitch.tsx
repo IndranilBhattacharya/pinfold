@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
@@ -40,6 +40,7 @@ export function useSwitch(input: SwitchConfig): SwitchComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: field.root,
         'data-size': state.size,
         'data-tone': state.tone,

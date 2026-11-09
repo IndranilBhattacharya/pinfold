@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { IsoDate, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { IsoDate, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -30,7 +30,10 @@ export interface CalendarState {
   month: IsoDate;
 }
 
-interface CalendarShared extends SlotOverrides<CalendarSlot, CalendarState> {
+/** One day of the grid and its state. `render` overrides of the repeating parts get it as `item`. */
+export type CalendarDayContext = { date: IsoDate; outside: boolean; disabled: boolean; selected: boolean; today: boolean; rangeStart: boolean; rangeEnd: boolean };
+
+interface CalendarShared extends SlotOverrides<CalendarSlot, CalendarState, CalendarDayContext> {
   /** Names the calendar. @default 'Calendar' */
   label?: string;
   /** The earliest day that can be chosen. */
@@ -55,6 +58,8 @@ interface CalendarShared extends SlotOverrides<CalendarSlot, CalendarState> {
   /** A "Today" button under the grid. @default false */
   showToday?: boolean;
   labels?: CalendarLabels;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

@@ -10,6 +10,7 @@ export const AVATAR_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'tooltip',
   'max',
   'label',
+  'radius',
   'size',
   'shape',
   'tone',

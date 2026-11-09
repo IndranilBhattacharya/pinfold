@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'header', 'list', 'tab', 'indicator', 'icon', 'endContent', 'close', 'add', 'panel'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -65,6 +66,7 @@ export const tabsMeta: ComponentMeta = {
     },
     fullWidth: { type: 'boolean', default: false, description: 'A row of tabs that shares the full width.', group: 'appearance', control: true },
     keepMounted: { type: 'boolean', default: false, description: 'Keep hidden panels in the DOM (their state survives a switch). Otherwise only the selected panel renders.', group: 'behaviour', control: true, silent: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.tabs`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

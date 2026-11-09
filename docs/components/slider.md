@@ -33,6 +33,7 @@ preset, `defaults.slider`, the provider (size, tone), the library default.
 | `showValue` | `'label' \| 'tooltip' \| 'never'` | `'label'` |
 | `formatValue` | `(value) => string`, shown and read | the number |
 | `thumbLabels` | range: thumb names after the label | `['Minimum', 'Maximum']` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | | `'md'`, `'primary'` (provider) |
 | `orientation` | `horizontal`, or `vertical` with the minimum at the bottom | `'horizontal'` |
 | `dimensions` | `thickness, thumbSize, length` (vertical track, 12rem) | from the size |

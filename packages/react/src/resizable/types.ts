@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -48,6 +48,8 @@ export interface ResizableConfig extends SlotOverrides<ResizableSlot, ResizableS
   handle?: 'line' | 'grip';
   /** Percent an arrow key moves a handle. @default 5 */
   step?: number;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -57,7 +57,10 @@ export interface StepperState {
  *     { label: 'Payment', content: <Payment /> },
  *   ]} onNext={validate} onComplete={placeOrder} doneContent={<Receipt />} />
  */
-export interface StepperConfig extends SlotOverrides<StepperSlot, StepperState> {
+/** One step as you wrote it (strings become `{ label }`), its position and status. `render` overrides of the repeating parts get it as `item`. */
+export type StepperItemContext = StepperItem & { index: number; status: string };
+
+export interface StepperConfig extends SlotOverrides<StepperSlot, StepperState, StepperItemContext> {
   /** One step each; a string is a step with that name. */
   items: ReadonlyArray<StepperItem | string>;
   /** @default 'Progress' */
@@ -85,6 +88,8 @@ export interface StepperConfig extends SlotOverrides<StepperSlot, StepperState> 
   orientation?: 'horizontal' | 'vertical';
   /** @default 'bottom' */
   labelPlacement?: 'bottom' | 'end';
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

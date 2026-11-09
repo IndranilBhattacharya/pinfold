@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'header', 'title', 'previous', 'next', 'months', 'grid', 'weekday', 'day', 'footer', 'today'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -43,6 +44,7 @@ export const calendarMeta: ComponentMeta = {
         today: { type: 'string', description: 'Default "Today".', group: 'data' },
       },
     },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.calendar`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

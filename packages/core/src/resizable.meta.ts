@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'panel', 'handle', 'grip'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -37,6 +38,7 @@ export const resizableMeta: ComponentMeta = {
     autoSaveId: { type: 'string', description: 'Keep the sizes in this browser under this key (loaded after the first paint, so server HTML matches).', group: 'behaviour' },
     handle: { type: 'enum', values: ['line', 'grip'], default: 'line', description: 'A hairline, or a hairline with a grip.', group: 'appearance', control: true },
     step: { type: 'number', default: 5, description: 'Percent an arrow key moves a handle.', group: 'behaviour' },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.resizable`, the provider, then md.', group: 'appearance', control: true },
     tone: { type: 'enum', values: ['primary', 'neutral', 'success', 'warning', 'danger', 'info'], default: 'primary', description: 'Colour of a handle in use. Precedence: this config, `defaults.resizable`, the provider, then primary.', group: 'appearance', control: true },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },

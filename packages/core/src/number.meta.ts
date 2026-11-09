@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 
 const SLOTS = ['root', 'label', 'control', 'input', 'decrement', 'increment', 'startContent', 'endContent', 'description', 'error'] as const;
@@ -41,6 +42,7 @@ export const numberMeta: ComponentMeta = {
     startContent: { type: 'node', description: 'Before the number: a currency, an icon.', group: 'data' },
     endContent: { type: 'node', description: 'After the number: a unit.', group: 'data' },
     variant: { type: 'enum', values: ['outline', 'filled'], default: 'outline', description: 'A frame, or a tinted fill.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'The same heights as a button and an input. Precedence: this config, `defaults.number`, the provider, then md.', group: 'appearance', control: true },
     dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { width: len('Field width (default 10rem).'), height: len('Control height.') } },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },

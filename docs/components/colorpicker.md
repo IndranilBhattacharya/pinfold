@@ -26,6 +26,7 @@ preset, `defaults.colorpicker`, the provider, the library default.
 | `showInput`, `eyeDropper` | the text field; the screen eyedropper where the browser has it | `true`, `true` |
 | `name`, `disabled` | a hidden input for forms; read only | none, `false` |
 | `labels` | `{ area, hue, alpha, input, eyeDropper, swatches }` | English |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size` | `sm`, `md`, `lg` | `'md'` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root area thumb controls hue alpha preview eyedropper field input swatches swatch` | |
 

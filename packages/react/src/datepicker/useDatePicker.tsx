@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveDatePickerOptions, mergeProps, orderRange, parseIso, parseTypedDate, warnOnce, type IsoDate, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveDatePickerOptions, mergeProps, orderRange, parseIso, parseTypedDate, warnOnce, type IsoDate, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -126,6 +126,7 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: field.root,
         'data-mode': state.mode,
         'data-variant': state.variant,

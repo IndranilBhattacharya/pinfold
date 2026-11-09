@@ -21,6 +21,7 @@ export const OTP_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'separator',
   'mask',
   'variant',
+  'radius',
   'size',
   'dimensions',
   'unstyled',

@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, PinfoldTone, PropsBag, ToastStore } from '@pinfold/core';
+import type { Length, PinfoldTone, PropsBag, ToastStore, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 import type { ButtonConfig } from '../button/types';
@@ -70,6 +70,8 @@ export interface ToastConfig extends SlotOverrides<ToastSlot, ToastState> {
   /** A store from `createToastStore()`, to show toasts from outside React. */
   store?: ToastStore<ToastMessage>;
   dimensions?: ToastDimensions;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default false */
   unstyled?: boolean;
   className?: string;

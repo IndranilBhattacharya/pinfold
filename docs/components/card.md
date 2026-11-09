@@ -28,6 +28,7 @@ preset, `defaults.card`, the library default.
 | `padding` | `'none' \| 'sm' \| 'md' \| 'lg'` | `'md'` |
 | `orientation` | `'vertical' \| 'horizontal'`; horizontal wraps when narrower than ~30rem | `'vertical'` |
 | `dimensions` | `padding, gap, radius, mediaSize` | theme |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame (`dimensions.radius` wins) | the theme radius |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root media body title description content actions`) | | |
 
 Inactive (`inactiveCardOptions`): `target`, `rel` without `href`; `href` without a `title`;

@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'panel', 'search', 'searchIcon', 'input', 'list', 'group', 'groupLabel', 'option', 'icon', 'detail', 'shortcut', 'empty', 'footer'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -54,6 +55,7 @@ export const commandMeta: ComponentMeta = {
     hotkey: { type: 'string', default: 'mod+k', description: 'Dialog: the key that opens it from anywhere (`mod` is ⌘ on Apple, Ctrl elsewhere). An empty string for none.', group: 'behaviour' },
     closeOnSelect: { type: 'boolean', default: true, description: 'Dialog: close after a command runs.', group: 'behaviour' },
     footer: { type: 'boolean', default: true, description: 'Key hints under the list.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.command`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

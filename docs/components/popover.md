@@ -29,6 +29,7 @@ the preset, `defaults.popover`, the library default.
 | `closeOnOutside`, `closeOnEscape` | `boolean` | `true`, `true` |
 | `open`, `defaultOpen`, `onOpenChange` | state | uncontrolled, closed |
 | `dimensions` | `width, padding` | `20rem`, theme |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root title description content actions arrow`) | | |
 
 Controller: `isOpen`, `open()`, `close()`, `toggle()`, `getTriggerProps()`.

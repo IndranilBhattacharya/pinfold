@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'panel', 'title', 'description', 'content', 'actions', 'close'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -32,6 +33,7 @@ export const dialogMeta: ComponentMeta = {
       control: true,
     },
     placement: { type: 'enum', values: ['center', 'top', 'bottom', 'start', 'end'], default: 'center', description: 'Centred, or a sheet from an edge. `start` and `end` swap in RTL.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg', 'xl', 'full'], default: 'md', description: 'Width of a centred dialog. Independent of the provider size: it is a layout choice, not a density.', group: 'appearance', control: true },
     modal: { type: 'boolean', default: true, description: 'Modal: the rest of the page is inert and scroll is locked. `false` opens it without either.', group: 'behaviour' },
     closeButton: { type: 'boolean', description: 'Show a close button in the corner.', group: 'behaviour', auto: 'on, off for an alert dialog' },

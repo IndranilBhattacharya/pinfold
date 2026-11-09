@@ -38,7 +38,10 @@ export interface TagsState {
  *   <Chips label="Filters" items={filters} onRemove={(v) => setFilters((f) => f.filter((x) => x !== v))} />
  *   <Chips label="Size" items={['S', 'M', 'L']} selection="single" value={size} onChange={([v]) => setSize(v)} />
  */
-export interface TagsConfig<V extends string = string> extends SlotOverrides<TagsSlot, TagsState> {
+/** One tag, its position, whether it is picked, and `remove` when it can be removed. `render` overrides of the repeating parts get it as `item`. */
+export type TagsItemContext = { value: string; label: React.ReactNode; text: string; icon?: React.ReactNode; tone?: string; disabled?: boolean; href?: string; index: number; selected: boolean; remove?: (event: React.SyntheticEvent) => void };
+
+export interface TagsConfig<V extends string = string> extends SlotOverrides<TagsSlot, TagsState, TagsItemContext> {
   /** Names the group, e.g. "Filters". */
   label: React.ReactNode;
   /** @default false */

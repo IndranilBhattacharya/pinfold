@@ -31,6 +31,7 @@ preset, `defaults.dialog`, the library default.
 | `trigger` | `ButtonConfig` or an element | none |
 | `role` | `'dialog' \| 'alertdialog'` | `'dialog'` |
 | `placement` | `'center' \| 'top' \| 'bottom' \| 'start' \| 'end'` | `'center'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size` | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'full'`; a layout choice, not the provider size | `'md'` |
 | `modal` | `boolean` | `true` |
 | `closeButton` | `boolean` | on, off for an alert dialog |

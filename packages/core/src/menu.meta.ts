@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'item', 'indicator', 'icon', 'label', 'shortcut', 'separator', 'group', 'groupLabel', 'submenu', 'chevron'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -47,6 +48,7 @@ export const menuMeta: ComponentMeta = {
     },
     label: { type: 'string', description: 'Accessible name of the menu. A dropdown is named by its trigger without one; a context menu needs it.', group: 'data' },
     placement: { type: 'enum', values: PLACEMENTS, default: 'bottom-start', description: 'Preferred side and alignment. `start` and `end` swap in RTL. It flips when there is no room.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Row size. Precedence: this config, `defaults.menu`, the provider, then md.', group: 'appearance', control: true },
     offset: { type: 'number', default: 4, description: 'Gap from the trigger, in px.', group: 'appearance' },
     loop: { type: 'boolean', default: true, description: 'Arrow keys wrap from the last row to the first.', group: 'behaviour' },

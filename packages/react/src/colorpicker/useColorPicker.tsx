@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, formatColor, hsvToRgba, inactiveColorPickerOptions, mergeProps, parseColor, rgbToHsv, warnOnce, type Hsva, type PropsBag, type Rgba } from '@pinfold/core';
+import { cn, dataAttr, formatColor, hsvToRgba, inactiveColorPickerOptions, mergeProps, parseColor, rgbToHsv, warnOnce, type Hsva, type PropsBag, type Rgba, radiusProps } from '@pinfold/core';
 import { useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -89,6 +89,7 @@ export function useColorPicker(input: ColorPickerConfig): ColorPickerComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         role: 'group',
         'aria-label': config.label,
         'data-size': state.size,

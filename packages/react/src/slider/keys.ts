@@ -27,6 +27,7 @@ export const SLIDER_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'showValue',
   'formatValue',
   'thumbLabels',
+  'radius',
   'size',
   'tone',
   'dimensions',

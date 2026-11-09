@@ -3,6 +3,7 @@
 export interface ProgressAppearanceInput {
   value?: number;
   kind?: string;
+  shape?: string;
 }
 
 /** Where `value` sits between `min` and `max`, as 0–100 (clamped). `null` when there is no value. */
@@ -28,5 +29,6 @@ export function inactiveProgressOptions(config: ProgressAppearanceInput): Record
     out.showValue = 'an indeterminate progress has no value to show.';
     out.formatValue = 'an indeterminate progress has no value to show.';
   }
+  if (config.shape === 'circle') out.radius = 'a ring has no corners.';
   return out;
 }

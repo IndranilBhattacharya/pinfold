@@ -27,6 +27,7 @@ export const TABLE_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'density',
   'striped',
   'stickyHeader',
+  'radius',
   'size',
   'tone',
   'dimensions',

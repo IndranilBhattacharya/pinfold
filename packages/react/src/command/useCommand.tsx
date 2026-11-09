@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveCommandOptions, matchesQuery, matchHotkey, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveCommandOptions, matchesQuery, matchHotkey, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -136,6 +136,7 @@ export function useCommand(input: CommandConfig): CommandComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'data-mode': state.mode,
         'data-size': state.size,
         'data-tone': state.tone,

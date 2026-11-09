@@ -38,6 +38,7 @@ props, the preset, `defaults.navmenu`, the provider, the library default.
 | `open`, `defaultOpen`, `onOpenChange` | the open entry's key or `null` | `null` |
 | `openOn` | `hover` (and a press) or `click` | `'hover'` |
 | `variant` | `ghost` tint, `underline` bar, `pills` fill | `'ghost'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone`, `dimensions` | `columnWidth` | `'md'`, `'primary'`, `14rem` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root list item link trigger chevron panel content grid panelLink icon description` | |
 

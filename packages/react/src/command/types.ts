@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, ListFilter, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { Length, ListFilter, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -52,7 +52,10 @@ export interface CommandDimensions {
  *     { label: 'Settings', keywords: ['preferences'], href: '/settings', group: 'Go to' },
  *   ]} />
  */
-export interface CommandConfig extends SlotOverrides<CommandSlot, CommandState> {
+/** One command row with its live state. `render` overrides of the repeating parts get it as `item`. */
+export type CommandItemContext = import('../select/listbox').ListItemContext;
+
+export interface CommandConfig extends SlotOverrides<CommandSlot, CommandState, CommandItemContext> {
   /** Names the palette, e.g. "Commands". */
   label: string;
   /** The commands. */
@@ -85,6 +88,8 @@ export interface CommandConfig extends SlotOverrides<CommandSlot, CommandState> 
   closeOnSelect?: boolean;
   /** Key hints under the list. @default true */
   footer?: boolean;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

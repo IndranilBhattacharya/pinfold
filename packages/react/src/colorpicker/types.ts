@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { ColorFormat, PinfoldSize, PropsBag } from '@pinfold/core';
+import type { ColorFormat, PinfoldSize, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -54,6 +54,8 @@ export interface ColorPickerConfig extends SlotOverrides<ColorPickerSlot, ColorP
   disabled?: boolean;
   /** Text read and shown, for translation. */
   labels?: { area?: string; hue?: string; alpha?: string; input?: string; eyeDropper?: string; swatches?: string };
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default false */

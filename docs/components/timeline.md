@@ -24,6 +24,7 @@ Precedence: use-site props, the preset, `defaults.timeline`, the provider, the l
 | `variant` | `'dot' \| 'icon' \| 'card'` | `'dot'` |
 | `orientation`, `align` | vertical (one side or `'alternate'`) or horizontal | `'vertical'`, `'start'` |
 | `pending`, `reverse`, `locale` | the last event still happening; newest first | `false`, `false`, the browser's |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | | `'md'`, `'primary'` (provider) |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots as in the meta | |
 

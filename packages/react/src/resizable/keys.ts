@@ -9,6 +9,7 @@ export const RESIZABLE_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'autoSaveId',
   'handle',
   'step',
+  'radius',
   'size',
   'tone',
   'unstyled',

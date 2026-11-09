@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'label', 'value', 'track', 'indicator'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -34,6 +35,7 @@ export const progressMeta: ComponentMeta = {
       silent: true,
     },
     shape: { type: 'enum', values: ['bar', 'circle'], default: 'bar', description: 'A horizontal bar or a ring.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Bar thickness or ring size. Precedence: this config, `defaults.progress`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

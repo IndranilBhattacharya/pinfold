@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, PinfoldSize, PropsBag } from '@pinfold/core';
+import type { Length, PinfoldSize, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { FieldConfig } from '../field';
 import type { SlotOverrides } from '../types';
@@ -45,6 +45,8 @@ export interface OtpConfig extends FieldConfig, SlotOverrides<OtpSlot, OtpState>
   mask?: boolean;
   /** @default 'outline' */
   variant?: OtpVariant;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   dimensions?: OtpDimensions;

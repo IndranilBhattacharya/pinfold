@@ -39,6 +39,7 @@ array with `multiple`. Precedence: use-site props, the preset, `defaults.select`
 | `open`, `defaultOpen`, `onOpenChange` | the list | uncontrolled, `false` |
 | `placement` | where the list opens; it flips | `'bottom-start'` |
 | `variant` | `'outline' \| 'filled' \| 'underline'` | `'outline'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | the tone colours the check and chosen rows | `'md'`, `'primary'` (provider) |
 | `dimensions` | `width`, `maxHeight` | full width, `18rem` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root label control value placeholder chip clear chevron popup group groupLabel option check icon detail description empty error` | |

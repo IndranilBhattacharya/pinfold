@@ -28,6 +28,7 @@ the preset, `defaults.progress`, the provider (size, tone), the library default.
 | `formatValue` | `(value, { min, max, percent }) => string`, shown and read | whole percent |
 | `kind` | `'progress' \| 'meter'` | `'progress'` |
 | `shape` | `'bar' \| 'circle'` | `'bar'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | as everywhere | provider, then `'md'`, `'primary'` |
 | `dimensions` | `thickness` (bar), `size` (ring), `width` (bar) | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label value track indicator`) | | |

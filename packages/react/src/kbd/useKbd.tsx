@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dimensionVars, formatKeys, inactiveKbdOptions, kbdOs, mergeProps, warnOnce, type KbdOs, type PropsBag } from '@pinfold/core';
+import { cn, dimensionVars, formatKeys, inactiveKbdOptions, kbdOs, mergeProps, warnOnce, type KbdOs, type PropsBag, radiusProps } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { VISUALLY_HIDDEN } from '../a11y';
 import { usePinfoldComponent } from '../component';
@@ -47,6 +47,7 @@ export function useKbd(input: KbdConfig): KbdComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'data-variant': state.variant,
         'data-size': state.size,
         'data-os': os,

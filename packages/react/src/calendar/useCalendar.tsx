@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { addMonths, calendarKeyTarget, cn, dataAttr, dateAllowed, inactiveCalendarOptions, localeWeekStart, mergeProps, monthGrid, monthStart, orderRange, parseIso, todayIso, warnOnce, type IsoDate, type PropsBag } from '@pinfold/core';
+import { addMonths, calendarKeyTarget, cn, dataAttr, dateAllowed, inactiveCalendarOptions, localeWeekStart, mergeProps, monthGrid, monthStart, orderRange, parseIso, todayIso, warnOnce, type IsoDate, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { CHEVRON_ICON } from '../nav-icons';
 import type { CalendarApi, CalendarComponent, CalendarConfig, CalendarRange, CalendarRootProps, CalendarSlot, CalendarState } from './types';
 
@@ -123,6 +123,7 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         role: 'group',
         'aria-label': config.label ?? 'Calendar',
         'data-mode': mode,
@@ -200,6 +201,7 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
                       return (
                         <td key={d} role="gridcell" aria-selected={selected || undefined}>
                           {slot('day', parseIso(d)!.day, 'button', {
+                            [ITEM]: { date: d, outside: !inMonth, disabled: !ok, selected, today: d === today, rangeStart: !!range && d === range.start, rangeEnd: !!range && d === range.end },
                             type: 'button',
                             tabIndex: d === stop && inMonth ? 0 : -1,
                             'aria-label': fmt.day.format(utc(d)),

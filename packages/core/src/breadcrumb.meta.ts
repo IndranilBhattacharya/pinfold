@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'list', 'item', 'link', 'icon', 'separator', 'ellipsis', 'menuButton'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -55,6 +56,7 @@ export const breadcrumbMeta: ComponentMeta = {
       group: 'appearance',
       control: true,
     },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.breadcrumb`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

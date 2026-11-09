@@ -44,4 +44,7 @@
     from { opacity: 0.55; box-shadow: 0 0 0 0 var(--pinfold-tone-solid, var(--pinfold-color-accent)); }
     to { opacity: 0; box-shadow: 0 0 0 0.6em var(--pinfold-tone-solid, var(--pinfold-color-accent)); }
   }
+
+  /* An explicit radius shapes the dot's ring (packs can square radios too); unset stays round. */
+  .pinfold-radio[data-pinfold-radius] .pinfold-radio__box { border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) * 0.5); }
 }

@@ -24,6 +24,7 @@ the library default.
 | `loop`, `autoplay` | buttons wrap; milliseconds (at least 1500) | `false`, off |
 | `controls`, `indicators` | buttons over the edges; dots | `true`, `true` |
 | `labels` | `{ previous, next, slide(i, n), goTo(i), pause, play }` | English |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone`, `dimensions` | `gap` | `'md'`, `'primary'`, `1rem` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root viewport track slide previous next indicators indicator play` | |
 

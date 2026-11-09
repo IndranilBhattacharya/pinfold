@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'item', 'marker', 'connector', 'body', 'time', 'title', 'description', 'content'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -39,6 +40,7 @@ export const timelineMeta: ComponentMeta = {
     pending: { type: 'boolean', default: false, description: 'The last event is still happening: its marker pulses and it is the current step.', group: 'appearance', control: true },
     reverse: { type: 'boolean', default: false, description: 'Newest first.', group: 'appearance', control: true },
     locale: { type: 'string', description: 'A BCP 47 locale for ISO times. Default the browser\'s.', group: 'data' },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.timeline`, the provider, then md.', group: 'appearance', control: true },
     tone: { type: 'enum', values: TONES, default: 'primary', description: 'Colour of the markers. Precedence: this config, `defaults.timeline`, the provider, then primary.', group: 'appearance', control: true },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },

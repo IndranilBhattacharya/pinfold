@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 
 const SLOTS = ['root', 'label', 'control', 'value', 'placeholder', 'chip', 'clear', 'chevron', 'popup', 'group', 'groupLabel', 'option', 'check', 'icon', 'detail', 'description', 'empty', 'error'] as const;
@@ -40,6 +41,7 @@ export const listChoiceProps = (name: string): Record<string, PropMeta> => ({
     group: 'appearance',
   },
   variant: { type: 'enum', values: ['outline', 'filled', 'underline'], default: 'outline', description: 'The field: framed, tinted, or a line under it (as Input).', group: 'appearance', control: true },
+  radius: RADIUS_PROP,
   size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: `Precedence: this config, \`defaults.${name}\`, the provider, then md.`, group: 'appearance', control: true },
   tone: {
     type: 'enum',

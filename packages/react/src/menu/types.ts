@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, OverlayPlacement, PinfoldSize, PropsBag } from '@pinfold/core';
+import type { Length, OverlayPlacement, PinfoldSize, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { OverlayTrigger } from '../overlay';
 import type { SlotOverrides } from '../types';
@@ -77,7 +77,10 @@ export interface MenuDimensions {
  *   const RowActions = defineMenu({ placement: 'bottom-end' });
  *   <RowActions trigger={{ label: 'Actions' }} items={[{ label: 'Edit', onSelect: edit }]} />
  */
-export interface MenuConfig extends SlotOverrides<MenuSlot, MenuState> {
+/** One menu row as you wrote it (a submenu row also says if it is open). `render` overrides of the repeating parts get it as `item`. */
+export type MenuItemContext = MenuItem & { index?: number; open?: boolean };
+
+export interface MenuConfig extends SlotOverrides<MenuSlot, MenuState, MenuItemContext> {
   /** The rows. */
   items: readonly MenuItem[];
   /** A dropdown's button config or element; a context menu's area. */
@@ -88,6 +91,8 @@ export interface MenuConfig extends SlotOverrides<MenuSlot, MenuState> {
   label?: string;
   /** @default 'bottom-start' */
   placement?: OverlayPlacement;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 4 */

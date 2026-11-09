@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { ButtonConfig } from '../button/types';
 import type { SlotOverrides } from '../types';
@@ -31,6 +31,8 @@ export interface EmptyConfig extends SlotOverrides<EmptySlot, EmptyState> {
   headingLevel?: 2 | 3 | 4 | 5 | 6;
   /** @default 'plain' */
   variant?: EmptyVariant;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

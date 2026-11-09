@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveToggleOptions, mergeProps, nextIndexFromKey, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveToggleOptions, mergeProps, nextIndexFromKey, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId } from '../hooks';
 import { useSlidingIndicator } from '../indicator';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { VISUALLY_HIDDEN } from '../a11y';
 import type { ToggleApi, ToggleComponent, ToggleConfig, ToggleItem, ToggleRootProps, ToggleSlot, ToggleState } from './types';
 
@@ -91,6 +91,7 @@ export function useToggle(input: ToggleConfig): ToggleComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'data-variant': state.variant,
         'data-size': state.size,
         'data-tone': state.tone,
@@ -158,6 +159,7 @@ export function useToggle(input: ToggleConfig): ToggleComponent {
               return (
                 <React.Fragment key={item.value}>
                   {slot('item', face(item.icon, item.label, item.iconOnly), 'button', {
+                    [ITEM]: { ...item, index: i, selected: on },
                     type: 'button',
                     'data-toggle-item': '',
                     role: multiple ? undefined : 'radio',

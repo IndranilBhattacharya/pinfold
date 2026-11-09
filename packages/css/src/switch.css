@@ -136,4 +136,7 @@
     .pinfold-switch__thumb { forced-color-adjust: none; background: CanvasText; color: Canvas; }
     .pinfold-switch__input:checked + .pinfold-switch__box .pinfold-switch__thumb { background: Canvas; color: CanvasText; }
   }
+
+  /* An explicit radius shapes the track and its thumb; unset stays a pill. */
+  .pinfold-switch[data-pinfold-radius] .pinfold-switch__box { border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) * 0.5); }
 }

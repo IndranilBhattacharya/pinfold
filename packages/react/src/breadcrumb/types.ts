@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -49,7 +49,10 @@ export interface BreadcrumbDimensions {
  *   <Trail path={location.pathname} />
  *   <Trail items={[{ label: 'Home', href: '/' }, { label: 'Projects', href: '/projects', menu: projects }, 'Settings']} />
  */
-export interface BreadcrumbConfig extends SlotOverrides<BreadcrumbSlot, BreadcrumbState> {
+/** One crumb as you wrote it, its position and whether it is the current page. `render` overrides of the repeating parts get it as `item`. */
+export type BreadcrumbItemContext = BreadcrumbItem & { index: number; current: boolean };
+
+export interface BreadcrumbConfig extends SlotOverrides<BreadcrumbSlot, BreadcrumbState, BreadcrumbItemContext> {
   /** From the top of the site to the current page; the last one is the current page. A string is a crumb with no link. */
   items?: ReadonlyArray<BreadcrumbItem | string>;
   /** Build the crumbs from a URL path instead: one per segment, each linking to the path up to it. */
@@ -78,6 +81,8 @@ export interface BreadcrumbConfig extends SlotOverrides<BreadcrumbSlot, Breadcru
   menuLabel?: string;
   /** @default 'plain' */
   variant?: BreadcrumbVariant;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

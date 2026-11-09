@@ -83,7 +83,7 @@ const BUDGETS = [
   ['packages/react/dist/checkbox/index.js', 6],
   ['packages/react/dist/input/index.js', 9],
   ['packages/react/dist/toast/index.js', 10],
-  ['packages/react/dist/menu/index.js', 10],
+  ['packages/react/dist/menu/index.js', 11],
   ['packages/react/dist/dialog/index.js', 10],
   ['packages/react/dist/popover/index.js', 10],
   ['packages/react/dist/tooltip/index.js', 10],

@@ -15,6 +15,7 @@ export {
 export { variants, type VariantProps } from './variants';
 export { nextIndexFromKey, type ListNavOptions } from './navigation';
 export { dimensionVars } from './dimensions';
+export { radiusProps, type RadiusOption } from './radius';
 export * from './accordion.logic';
 export * from './button.logic';
 export * from './kbd.logic';

@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 
 const SLOTS = ['root', 'label', 'items', 'item', 'input', 'box', 'itemLabel', 'itemDescription', 'description', 'error'] as const;
@@ -36,6 +37,7 @@ export const checkboxMeta: ComponentMeta = {
     orientation: { type: 'enum', values: ['vertical', 'horizontal'], default: 'vertical', description: 'Group: rows or a wrapping line.', group: 'appearance', control: true },
     variant: { type: 'enum', values: ['plain', 'card'], default: 'plain', description: 'Group: bare rows, or each row a bordered card.', group: 'appearance', control: true },
     animation: { type: 'enum', values: ['draw', 'pop', 'none'], default: 'draw', description: 'How the mark arrives: `draw` traces the tick, `pop` springs it in. Reduced motion and `disableAnimation` turn it off.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Box and text size. Precedence: this config, `defaults.checkbox`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

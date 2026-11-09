@@ -25,6 +25,7 @@ export const NUMBER_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'startContent',
   'endContent',
   'variant',
+  'radius',
   'size',
   'dimensions',
   'unstyled',

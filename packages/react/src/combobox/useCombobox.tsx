@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, foldText, inactiveComboboxOptions, matchesQuery, mergeProps, toggleValue, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, foldText, inactiveComboboxOptions, matchesQuery, mergeProps, toggleValue, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { filled, hiddenStyle, labelContent, useField } from '../field';
 import { useFloating, useMounted, useOverlayLayer } from '../overlay';
 import { CHEVRON_DOWN_ICON, CLOSE_ICON } from '../nav-icons';
-import { renderRows, toRows, useListNav, type Row } from '../select/listbox';
+import { renderRows, toRows, useListNav, type Row, type ListItemContext } from '../select/listbox';
 import type { ComboboxApi, ComboboxComponent, ComboboxConfig, ComboboxRootProps, ComboboxSlot, ComboboxState } from './types';
 
 const asList = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : v == null || v === '' ? [] : [String(v)]);
@@ -156,6 +156,7 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: field.root,
         'data-combobox': '',
         'data-variant': state.variant,
@@ -185,9 +186,13 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
       getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-select pinfold-field', config.className), style: vars || config.style ? { ...vars, ...config.style } : undefined }, rootProps)),
     );
     const max = config.maxChips ?? 3;
+    const chipItem = (v: string, index: number): ListItemContext => {
+      const r = all.find((x) => x.value === v);
+      return { value: v, label: r?.label ?? v, text: r?.text ?? v, description: r?.description, icon: r?.icon, group: r?.group, disabled: !!r?.disabled, selected: true, active: false, index, remove: (e) => commit(value.filter((x) => x !== v), e) };
+    };
     const chips = multiple ? (
       <>
-        {value.slice(0, max).map((v) => (
+        {value.slice(0, max).map((v, index) => (
           <React.Fragment key={v}>
             {slot(
               'chip',
@@ -200,6 +205,7 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
                 )}
               </>,
               'span',
+              { [ITEM]: chipItem(v, index) },
             )}
           </React.Fragment>
         ))}

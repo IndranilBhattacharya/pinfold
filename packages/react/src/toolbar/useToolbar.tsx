@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveToolbarOptions, mergeProps, nextIndexFromKey, toolbarPress, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveToolbarOptions, mergeProps, nextIndexFromKey, toolbarPress, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -56,6 +56,7 @@ export function useToolbar(input: ToolbarConfig): ToolbarComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: root,
         role: 'toolbar',
         'aria-label': config.label,

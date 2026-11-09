@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, inactiveResizableOptions, initialSizes, mergeProps, resizePanels, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, inactiveResizableOptions, initialSizes, mergeProps, resizePanels, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -96,6 +96,7 @@ export function useResizable(input: ResizableConfig): ResizableComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         role: 'group',
         'aria-label': config.label,
         'data-orientation': orientation,

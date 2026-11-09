@@ -20,17 +20,23 @@ export type Slottable<State, T = React.ReactNode> = CoreSlottable<State, T>;
  * - `styles`     — inline style for one slot.
  * - `render`     — replace one slot's element entirely, keeping its behaviour props.
  */
-export interface SlotOverrides<Slot extends string, State = unknown> {
+export interface SlotOverrides<Slot extends string, State = unknown, Item = unknown> {
   classNames?: Partial<Record<Slot, string>>;
   styles?: Partial<Record<Slot, React.CSSProperties>>;
   slotProps?: Partial<Record<Slot, PropsBag>>;
-  render?: Partial<Record<Slot, SlotRenderer<State>>>;
+  render?: Partial<Record<Slot, SlotRenderer<State, Item>>>;
 }
 
-export type SlotRenderer<State = unknown> = (args: {
+export type SlotRenderer<State = unknown, Item = unknown> = (args: {
   /** Behaviour props (ARIA, handlers, refs). Spread these or accessibility breaks. */
   props: PropsBag;
   /** Live component state for this slot. */
   state: State;
+  /** The default content: keep it, wrap it, or ignore it and render your own. */
   children: React.ReactNode;
+  /**
+   * For a part that repeats (a row, an option, a tab, a day, a cell): the one this element is,
+   * with its data and live state. Undefined for parts that do not repeat.
+   */
+  item?: Item;
 }) => React.ReactNode;

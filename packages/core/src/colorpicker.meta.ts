@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'area', 'thumb', 'controls', 'hue', 'alpha', 'preview', 'eyedropper', 'field', 'input', 'swatches', 'swatch'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -41,6 +42,7 @@ export const colorpickerMeta: ComponentMeta = {
         swatches: { type: 'string', description: 'Default "Swatches".', group: 'data' },
       },
     },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.colorpicker`, the provider, then md.', group: 'appearance', control: true },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },

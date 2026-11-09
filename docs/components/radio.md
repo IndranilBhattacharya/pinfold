@@ -32,6 +32,7 @@ preset, `defaults.radio`, the provider (size, tone), the library default.
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` |
 | `variant` | `'plain' \| 'card'` (the selected card takes a frame in the tone) | `'plain'` |
 | `animation` | `'spring'`: the dot grows with a little overshoot · `'ripple'`: a ring also goes out from the one just picked · `'none'` | `'spring'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | as everywhere | provider, then `'md'`, `'primary'` |
 | `dimensions` | `size, gap` | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label items item input box itemLabel itemDescription description error`) | | |

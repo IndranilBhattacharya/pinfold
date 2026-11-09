@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 
 const SLOTS = ['root', 'label', 'control', 'input', 'clear', 'trigger', 'popup', 'description', 'error'] as const;
@@ -50,6 +51,7 @@ export const datepickerMeta: ComponentMeta = {
     onOpenChange: { type: 'function', description: '`(open) => void`.', group: 'events' },
     placement: { type: 'enum', values: ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end'], default: 'bottom-start', description: 'Where the calendar opens; it flips when there is no room.', group: 'appearance' },
     variant: { type: 'enum', values: ['outline', 'filled', 'underline'], default: 'outline', description: 'The field: framed, tinted, or a line under it (as Input).', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.datepicker`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

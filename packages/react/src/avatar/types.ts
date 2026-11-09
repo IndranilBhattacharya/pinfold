@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -50,6 +50,8 @@ export interface AvatarConfig extends AvatarPerson, SlotOverrides<AvatarSlot, Av
   max?: number;
   /** Group: accessible name of the group. */
   label?: string;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'circle' */

@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveSidebarOptions, mergeProps, sidebarKey, sidebarTrail, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveSidebarOptions, mergeProps, sidebarKey, sidebarTrail, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { followLink } from '../link';
 import { CHEVRON_DOWN_ICON } from '../nav-icons';
 import type { SidebarApi, SidebarComponent, SidebarConfig, SidebarItem, SidebarRootProps, SidebarSlot, SidebarState } from './types';
@@ -57,6 +57,7 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'aria-label': config.label,
         'data-variant': state.variant,
         'data-collapsed': dataAttr(collapsed),
@@ -152,7 +153,7 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
             : null}
         </>,
         'li',
-        { 'data-disabled': dataAttr(item.disabled) },
+        { [ITEM]: { ...item, key, depth, current, open: section ? open : undefined }, 'data-disabled': dataAttr(item.disabled) },
       );
     };
 

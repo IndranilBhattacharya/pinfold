@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveNavMenuOptions, mergeProps, pushOverlayLayer, sidebarKey, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveNavMenuOptions, mergeProps, pushOverlayLayer, sidebarKey, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -103,6 +103,7 @@ export function useNavMenu(input: NavMenuConfig): NavMenuComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'aria-label': config.label,
         'data-variant': state.variant,
         'data-size': state.size,

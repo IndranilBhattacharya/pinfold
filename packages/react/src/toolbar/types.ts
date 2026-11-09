@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 import type { ButtonConfig, ButtonVariant } from '../button/types';
@@ -53,6 +53,8 @@ export interface ToolbarConfig extends SlotOverrides<ToolbarSlot, ToolbarState> 
   orientation?: 'horizontal' | 'vertical';
   /** @default 'ghost' */
   variant?: ToolbarVariant;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'neutral' */

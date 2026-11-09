@@ -2,6 +2,7 @@ import * as React from 'react';
 import { edgeEnabled, matchRanges, nextEnabled, typeaheadIndex, type PropsBag } from '@pinfold/core';
 import { useIsomorphicLayoutEffect } from '../hooks';
 import { CHECK_ICON } from '../nav-icons';
+import { ITEM } from '../slots';
 
 /**
  * The listbox under a select or a combobox: rows from config (strings or objects, grouped by a
@@ -24,6 +25,29 @@ export interface ListItem<V extends string = string> {
   group?: string;
   /** Shown, never chosen. */
   disabled?: boolean;
+}
+
+/**
+ * What a `render` override of a repeating list part gets as `item`: an option (with its live state) or
+ * a chosen chip (with `remove`).
+ */
+export interface ListItemContext {
+  value: string;
+  label: React.ReactNode;
+  /** The text matched and typed ahead on. */
+  text: string;
+  description?: React.ReactNode;
+  icon?: React.ReactNode;
+  group?: string;
+  disabled: boolean;
+  /** Chosen. Always true for a chip. */
+  selected: boolean;
+  /** The keyboard is on it (options). */
+  active: boolean;
+  /** Position among the rows (options) or the chips. */
+  index: number;
+  /** Chips: unchoose this value. */
+  remove?: (event?: React.SyntheticEvent) => void;
 }
 
 export interface Row {
@@ -176,6 +200,7 @@ export function renderRows(o: RenderOptions): React.ReactNode {
           </>,
           'div',
           {
+            [ITEM]: { value: row.value, label: row.label, text: row.text, description: row.description, icon: row.icon, group: row.group, disabled: row.disabled, selected: isSelected, active: i === o.active, index: i } satisfies ListItemContext,
             id: o.optionId(i),
             role: 'option',
             'aria-selected': isSelected,

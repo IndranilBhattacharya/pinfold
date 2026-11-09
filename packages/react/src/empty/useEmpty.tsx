@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, inactiveEmptyOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, inactiveEmptyOptions, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
@@ -38,7 +38,8 @@ export function useEmpty(input: EmptyConfig): EmptyComponent {
   const state: EmptyState = { variant: config.variant ?? 'plain', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone };
 
   const getRootProps = (props?: PropsBag): PropsBag =>
-    mergeProps({ 'data-variant': state.variant, 'data-size': state.size, 'data-tone': state.tone, 'data-animate': dataAttr(!ctx.disableAnimation), 'data-unstyled': dataAttr(config.unstyled) }, props);
+    mergeProps({
+        ...radiusProps(config.radius), 'data-variant': state.variant, 'data-size': state.size, 'data-tone': state.tone, 'data-animate': dataAttr(!ctx.disableAnimation), 'data-unstyled': dataAttr(config.unstyled) }, props);
 
   const render = (rootProps?: EmptyRootProps): React.ReactElement => {
     const cls = (name: string) => (config.unstyled ? undefined : name);

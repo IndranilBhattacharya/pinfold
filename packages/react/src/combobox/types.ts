@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, ListFilter, OverlayPlacement, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { Length, ListFilter, OverlayPlacement, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { FieldConfig } from '../field';
 import type { NoInfer, SlotOverrides } from '../types';
@@ -57,7 +57,10 @@ export interface ComboboxLabels {
   create?: (text: string) => React.ReactNode;
 }
 
-interface ComboboxShared<V extends string> extends FieldConfig, SlotOverrides<ComboboxSlot, ComboboxState> {
+/** An option (with its live state) or a chosen chip (with `remove`). `render` overrides of the repeating parts get it as `item`. */
+export type ComboboxItemContext = import('../select/listbox').ListItemContext;
+
+interface ComboboxShared<V extends string> extends FieldConfig, SlotOverrides<ComboboxSlot, ComboboxState, ComboboxItemContext> {
   /** The rows: strings, or `{ value, label, description, icon, group, disabled }`. */
   items: ReadonlyArray<ListItem<V> | V>;
   /** What is typed, controlled. */
@@ -90,6 +93,8 @@ interface ComboboxShared<V extends string> extends FieldConfig, SlotOverrides<Co
   placement?: OverlayPlacement;
   /** @default 'outline' */
   variant?: SelectVariant;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

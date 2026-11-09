@@ -25,6 +25,7 @@ written (single characters upper-cased): `['mod', 'shift', 'p']`, `['F5']`.
 |---|---|---|
 | `keys` | `string[]` | required |
 | `variant` | `'outline' \| 'solid' \| 'ghost'` | `'outline'` (a keycap) |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` |
 | `display` | `'auto' \| 'symbols' \| 'text'`; `auto`: symbols on Apple platforms | `'auto'` |
 | `separator` | `string`, between keys in text display | `'+'` |

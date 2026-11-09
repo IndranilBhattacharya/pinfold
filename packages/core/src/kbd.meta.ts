@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'key', 'separator'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -24,6 +25,7 @@ export const kbdMeta: ComponentMeta = {
       group: 'data',
     },
     variant: { type: 'enum', values: ['outline', 'solid', 'ghost'], default: 'outline', description: 'A keycap with an edge, a filled cap, or plain text.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Size preset. Precedence: this config, `defaults.kbd`, the provider, then md.', group: 'appearance', control: true },
     display: {
       type: 'enum',

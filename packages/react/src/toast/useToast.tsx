@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, createToastStore, dimensionVars, mergeProps, warnOnce, type PropsBag, type ToastStore } from '@pinfold/core';
+import { cn, createToastStore, dimensionVars, mergeProps, warnOnce, type PropsBag, type ToastStore, radiusProps } from '@pinfold/core';
 import { useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -155,6 +155,7 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: region,
         role: 'region',
         'aria-label': config.label ?? 'Notifications',

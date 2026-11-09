@@ -15,6 +15,7 @@ export const CARD_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'padding',
   'orientation',
   'dimensions',
+  'radius',
   'unstyled',
   'className',
   'style',

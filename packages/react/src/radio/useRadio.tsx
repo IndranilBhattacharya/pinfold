@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
@@ -34,6 +34,7 @@ export function useRadio(input: RadioConfig): RadioComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: field.root,
         role: 'radiogroup',
         disabled: config.disabled || undefined,

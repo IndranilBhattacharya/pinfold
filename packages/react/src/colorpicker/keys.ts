@@ -13,6 +13,7 @@ export const COLORPICKER_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'name',
   'disabled',
   'labels',
+  'radius',
   'size',
   'unstyled',
   'className',

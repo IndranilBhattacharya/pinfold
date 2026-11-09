@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, OverlayPlacement, PropsBag } from '@pinfold/core';
+import type { Length, OverlayPlacement, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { OverlayTrigger } from '../overlay';
 import type { SlotOverrides } from '../types';
@@ -53,6 +53,8 @@ export interface PopoverConfig extends SlotOverrides<PopoverSlot, PopoverState> 
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   dimensions?: PopoverDimensions;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default false */
   unstyled?: boolean;
   className?: string;

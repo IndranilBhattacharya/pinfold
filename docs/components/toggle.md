@@ -36,6 +36,7 @@ Precedence: use-site props, the preset, `defaults.toggle`, the provider (size, t
 | `name` | hidden form fields, one per selected value | none |
 | `disabled`, `orientation`, `fullWidth` | | `false`, `'horizontal'`, `false` |
 | `variant` | `'segmented' \| 'outline' \| 'ghost'` | `'segmented'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | | `'md'`, `'primary'` (provider) |
 | `dimensions` | `height, paddingX` | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label items item indicator icon text`) | | |

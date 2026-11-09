@@ -4,7 +4,7 @@ import { useControllableState, useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { followLink } from '../link';
 import { VISUALLY_HIDDEN } from '../a11y';
 import { CLOSE_ICON } from '../nav-icons';
@@ -138,7 +138,7 @@ export function useTags<V extends string = string>(input: TagsConfig<V>): TagsCo
     );
     const items = shown.map((t, i) => {
       const on = value.includes(t.value);
-      const common = { 'data-tone': t.tone, 'data-disabled': dataAttr(t.disabled), 'data-selected': dataAttr(on) };
+      const common = { [ITEM]: { ...t, index: i, selected: on, remove: removable(t) ? (event: React.SyntheticEvent) => remove(i, event) : undefined }, 'data-tone': t.tone, 'data-disabled': dataAttr(t.disabled), 'data-selected': dataAttr(on) };
       if (choosing) {
         return (
           <React.Fragment key={t.value}>

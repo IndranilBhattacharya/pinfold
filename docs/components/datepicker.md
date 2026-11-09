@@ -30,6 +30,7 @@ input submits them, a range as "start/end" (ISO 8601). Precedence: use-site prop
 | `labels` | `{ open, clear, invalid }` | English |
 | `open`, `defaultOpen`, `onOpenChange`, `placement` | the popup | `'bottom-start'` |
 | `variant`, `size`, `tone`, `dimensions` | as Input; `width` | `'outline'`, `'md'`, `'primary'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root label control input clear trigger popup description error` | |
 
 Controller: `isOpen`, `open()`, `close()`, `focus()`.

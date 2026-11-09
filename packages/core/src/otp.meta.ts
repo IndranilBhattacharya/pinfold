@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 
 const SLOTS = ['root', 'label', 'control', 'input', 'slots', 'slot', 'caret', 'separator', 'description', 'error'] as const;
@@ -30,6 +31,7 @@ export const otpMeta: ComponentMeta = {
     separator: { type: 'node', default: '–', description: 'What sits between groups.', group: 'appearance' },
     mask: { type: 'boolean', default: false, description: 'Show dots instead of the characters.', group: 'appearance', control: true },
     variant: { type: 'enum', values: ['outline', 'filled', 'underline'], default: 'outline', description: 'Framed boxes, tinted boxes, or a line under each.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Box size. Precedence: this config, `defaults.otp`, the provider, then md.', group: 'appearance', control: true },
     dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { slotSize: len('Box width and height.'), gap: len('Space between boxes.') } },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },

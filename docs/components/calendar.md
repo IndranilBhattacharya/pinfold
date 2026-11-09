@@ -29,6 +29,7 @@ library default.
 | `showOutsideDays`, `showToday` | neighbouring days (one month); a Today button | `true`, `false` |
 | `labels` | `{ previous, next, today }` | English |
 | `label`, `size`, `tone` | the group's name | `'Calendar'`, `'md'`, `'primary'` (provider) |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root header title previous next months grid weekday day footer today` | |
 
 A range is two picks in any order; while the second is pending, the band follows the pointer or the

@@ -9,6 +9,7 @@ export const TIMELINE_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'pending',
   'reverse',
   'locale',
+  'radius',
   'size',
   'tone',
   'unstyled',

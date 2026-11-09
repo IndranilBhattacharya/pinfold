@@ -30,6 +30,7 @@ Precedence: each item's own settings, the use site, the preset, `defaults.toolba
 | `attached` | joined buttons with shared edges | `true` |
 | `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` |
 | `variant` | `'outline' \| 'soft' \| 'solid' \| 'ghost'` | `'ghost'` (attached: one raised panel) |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone`, `disabled` | for every button | `'md'` (provider), `'neutral'`, `false` |
 | `dimensions` | `gap` (not attached) | `space-1` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root item`) | | |

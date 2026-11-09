@@ -12,6 +12,7 @@ export const CAROUSEL_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'controls',
   'indicators',
   'labels',
+  'radius',
   'size',
   'tone',
   'dimensions',

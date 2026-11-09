@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveDialogOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveDialogOptions, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -104,6 +104,7 @@ export function useDialog(input: DialogConfig = {}): DialogComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: node,
         role: alert ? 'alertdialog' : undefined,
         'aria-labelledby': filled(config.title) ? titleId : undefined,

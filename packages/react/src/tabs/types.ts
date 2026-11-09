@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { NoInfer, SlotOverrides } from '../types';
 
@@ -48,7 +48,10 @@ export interface TabsDimensions {
  *   <Settings label="Settings" items={[{ id: 'profile', label: 'Profile', content: <Profile /> }]} />
  *   <Settings label="Views" items={['Board', 'List', 'Calendar']} onChange={setView} />
  */
-export interface TabsConfig<Id extends string = string> extends SlotOverrides<TabsSlot, TabsState> {
+/** One tab as you wrote it, its position and whether it is selected. `render` overrides of the repeating parts get it as `item`. */
+export type TabsItemContext = TabsItem & { index: number; selected: boolean };
+
+export interface TabsConfig<Id extends string = string> extends SlotOverrides<TabsSlot, TabsState, TabsItemContext> {
   /** The accessible name of the tab list, e.g. "Account settings". */
   label: string;
   /** One tab and its panel each; a string is a tab whose id and text are that string. */
@@ -81,6 +84,8 @@ export interface TabsConfig<Id extends string = string> extends SlotOverrides<Ta
   fullWidth?: boolean;
   /** @default false */
   keepMounted?: boolean;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'header', 'body', 'group', 'groupLabel', 'list', 'item', 'link', 'icon', 'badge', 'chevron', 'sublist', 'footer', 'toggle'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -47,6 +48,7 @@ export const sidebarMeta: ComponentMeta = {
       },
     },
     variant: { type: 'enum', values: ['soft', 'plain', 'solid'], default: 'soft', description: 'The current entry: a tint, a bar at its edge, or a solid fill.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.sidebar`, the provider, then md.', group: 'appearance', control: true },
     tone: { type: 'enum', values: ['primary', 'neutral', 'success', 'warning', 'danger', 'info'], default: 'primary', description: 'Colour of the current entry. Precedence: this config, `defaults.sidebar`, the provider, then primary.', group: 'appearance', control: true },
     dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { width: { type: 'length', description: 'Open width (default 16rem).', group: 'appearance' } } },

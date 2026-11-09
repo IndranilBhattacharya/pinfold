@@ -22,6 +22,7 @@ export const CHECKBOX_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'orientation',
   'variant',
   'animation',
+  'radius',
   'size',
   'tone',
   'dimensions',

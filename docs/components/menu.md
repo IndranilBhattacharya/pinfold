@@ -34,6 +34,7 @@ preset, `defaults.menu`, the provider (size), the library default.
 | `mode` | `'dropdown' \| 'context'` | `'dropdown'` |
 | `label` | `string`; a dropdown is named by its trigger without one, a context menu needs it | none |
 | `placement` | as tooltip | `'bottom-start'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` (provider) |
 | `offset` | `number`, px | `4` |
 | `loop` | `boolean` | `true` |

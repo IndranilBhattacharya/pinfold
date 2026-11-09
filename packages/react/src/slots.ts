@@ -7,8 +7,8 @@ import type { SlotOverrides } from './types';
  * behaviour props a component generated. Handlers chain, classes concatenate,
  * styles merge.
  */
-export function slotProps<Slot extends string, State>(
-  overrides: SlotOverrides<Slot, State> | undefined,
+export function slotProps<Slot extends string, State, Item = any>(
+  overrides: SlotOverrides<Slot, State, Item> | undefined,
   slot: Slot,
   base: PropsBag,
 ): PropsBag {
@@ -22,11 +22,18 @@ export function slotProps<Slot extends string, State>(
 }
 
 /**
+ * The repeating item (row, option, tab, day…) a slot belongs to. A view puts it in the slot's props
+ * under this key; `renderSlot` hands it to a `render` override as `item`. React never sees it:
+ * element creation and the DOM skip symbol keys.
+ */
+export const ITEM: unique symbol = Symbol('pinfold.item');
+
+/**
  * Render a slot, letting the consumer swap the element while keeping every
  * accessibility prop. `defaultRender` is used when no override exists.
  */
-export function renderSlot<Slot extends string, State>(
-  overrides: SlotOverrides<Slot, State> | undefined,
+export function renderSlot<Slot extends string, State, Item = any>(
+  overrides: SlotOverrides<Slot, State, Item> | undefined,
   slot: Slot,
   props: PropsBag,
   state: State,
@@ -34,6 +41,9 @@ export function renderSlot<Slot extends string, State>(
   defaultRender: (props: PropsBag, children: React.ReactNode) => React.ReactNode,
 ): React.ReactNode {
   const custom = overrides?.render?.[slot];
-  if (custom) return custom({ props, state, children });
+  if (custom) {
+    const { [ITEM]: item, ...rest } = props as PropsBag & { [ITEM]?: unknown };
+    return custom({ props: rest, state, children, item: item as Item });
+  }
   return defaultRender(props, children);
 }

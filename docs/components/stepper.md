@@ -41,6 +41,7 @@ default.
 | `variant` | `'circle' \| 'dot' \| 'bar'` | `'circle'` |
 | `orientation` | `'horizontal' \| 'vertical'` (content opens under the current step) | `'horizontal'` |
 | `labelPlacement` | `'bottom' \| 'end'` (names beside the marks) | `'bottom'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | | `'md'`, `'primary'` (provider) |
 | `label` | the list's name | `'Progress'` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root list step button indicator connector text label description panel actions`) | | |

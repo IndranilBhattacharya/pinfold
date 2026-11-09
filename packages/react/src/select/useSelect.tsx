@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveSelectOptions, mergeProps, toggleValue, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveSelectOptions, mergeProps, toggleValue, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { filled, hiddenStyle, labelContent, useField } from '../field';
 import { useFloating, useMounted, useOverlayLayer } from '../overlay';
 import { VISUALLY_HIDDEN } from '../a11y';
@@ -122,6 +122,7 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: field.root,
         'data-variant': state.variant,
         'data-size': state.size,
@@ -162,7 +163,7 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
     else
       shown = (
         <>
-          {chosen.slice(0, max).map((r) => (
+          {chosen.slice(0, max).map((r, index) => (
             <React.Fragment key={r.value}>
               {slot(
                 'chip',
@@ -176,6 +177,7 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
                   )}
                 </>,
                 'span',
+                { [ITEM]: { value: r.value, label: r.label, text: r.text, description: r.description, icon: r.icon, group: r.group, disabled: r.disabled, selected: true, active: false, index, remove: (e?: React.SyntheticEvent) => remove(r.value, e as React.SyntheticEvent) } },
               )}
             </React.Fragment>
           ))}

@@ -35,6 +35,7 @@ the library default.
 | `swipe` | swipe toward the edge to dismiss (a third of the width or a flick); shorter springs back | `true` |
 | `store` | from `createToastStore()` | its own |
 | `dimensions` | `width, gap, inset` | `22rem`, theme |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root list item icon content title description action dismiss`) | | |
 
 ## A message (`show()`)

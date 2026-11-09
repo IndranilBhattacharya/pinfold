@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { breadcrumbPath, breadcrumbVisible, cn, dataAttr, dimensionVars, inactiveBreadcrumbOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { breadcrumbPath, breadcrumbVisible, cn, dataAttr, dimensionVars, inactiveBreadcrumbOptions, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { followLink } from '../link';
 import { Menu } from '../menu/Menu';
 import type { MenuItem } from '../menu/types';
@@ -73,6 +73,7 @@ export function useBreadcrumb(input: BreadcrumbConfig): BreadcrumbComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'aria-label': config.label ?? 'Breadcrumb',
         'data-variant': state.variant,
         'data-size': state.size,
@@ -157,7 +158,7 @@ export function useBreadcrumb(input: BreadcrumbConfig): BreadcrumbComponent {
               {last ? null : separator}
             </>,
             'li',
-            { 'data-crumb': '', 'data-current': dataAttr(current) },
+            { [ITEM]: { ...item, index, current }, 'data-crumb': '', 'data-current': dataAttr(current) },
           )}
         </React.Fragment>
       );

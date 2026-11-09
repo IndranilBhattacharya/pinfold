@@ -15,6 +15,7 @@ export const BREADCRUMB_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'expandLabel',
   'menuLabel',
   'variant',
+  'radius',
   'size',
   'tone',
   'dimensions',

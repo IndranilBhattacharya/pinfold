@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, headerFromKey, inactiveTableOptions, mergeProps, nextSort, selectionState, sortRows, warnOnce, type PropsBag, type TableSort } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, headerFromKey, inactiveTableOptions, mergeProps, nextSort, selectionState, sortRows, warnOnce, type PropsBag, type TableSort, radiusProps } from '@pinfold/core';
 import { useControllableState, useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -77,6 +77,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'data-variant': state.variant,
         'data-density': state.density,
         'data-size': state.size,

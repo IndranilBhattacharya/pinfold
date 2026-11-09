@@ -18,6 +18,7 @@ export const SIDEBAR_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'footer',
   'labels',
   'variant',
+  'radius',
   'size',
   'tone',
   'dimensions',

@@ -27,6 +27,7 @@ Precedence: use-site props, the preset, `defaults.avatar`, the provider (size), 
 | `tooltip` | `boolean`: name and status on hover and focus | on in a group, off on its own |
 | `max` | `number`, group faces before "+N" (never "+1") | `4` |
 | `label` | `string`, the group's name | none |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` (provider) |
 | `shape` | `'circle' \| 'square'` | `'circle'` |
 | `tone` | `'auto'` or a tone | `'auto'` (stable per name, never danger) |

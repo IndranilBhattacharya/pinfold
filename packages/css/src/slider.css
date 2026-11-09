@@ -298,4 +298,8 @@
     .pinfold-slider__track { border: 1px solid CanvasText; }
     .pinfold-slider__thumb { forced-color-adjust: none; background: Canvas; border: 2px solid Highlight; opacity: 1; transform: none; }
   }
+
+  /* An explicit radius shapes the track and the thumb; unset stays round. */
+  .pinfold-slider[data-pinfold-radius] :is(.pinfold-slider__track) { border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) * 0.25); }
+  .pinfold-slider[data-pinfold-radius] .pinfold-slider__thumb { border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) * 0.5); }
 }

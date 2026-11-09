@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveNumberOptions, mergeProps, stepValue, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveNumberOptions, mergeProps, stepValue, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
@@ -105,6 +105,7 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: field.root,
         'data-variant': state.variant,
         'data-size': state.size,

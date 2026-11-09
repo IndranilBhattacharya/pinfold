@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'arrow'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -32,6 +33,7 @@ export const tooltipMeta: ComponentMeta = {
     defaultOpen: { type: 'boolean', default: false, description: 'Initial state when uncontrolled.', group: 'behaviour' },
     onOpenChange: { type: 'function', description: 'Called with the next state.', group: 'behaviour' },
     dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { maxWidth: len('Longest line before wrapping.') } },
+    radius: RADIUS_PROP,
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },
     style: { type: 'object', description: 'Inline style on the root.', group: 'appearance' },

@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { buttonRel, cn, dataAttr, dimensionVars, inactiveMenuOptions, mergeProps, nextIndexFromKey, typeaheadIndex, warnOnce, type OverlayRect, type PropsBag } from '@pinfold/core';
+import { buttonRel, cn, dataAttr, dimensionVars, inactiveMenuOptions, mergeProps, nextIndexFromKey, typeaheadIndex, warnOnce, type OverlayRect, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { followLink } from '../link';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { renderTrigger, restoreFocus, triggerElement, useFloating, useMounted, useOverlayLayer } from '../overlay';
 import type { MenuActionItem, MenuApi, MenuCheckItem, MenuComponent, MenuConfig, MenuItem, MenuRootProps, MenuSlot, MenuState, MenuSubmenuItem } from './types';
 
@@ -216,6 +216,7 @@ export function useMenu(input: MenuConfig): MenuComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: menu,
         id,
         role: 'menu',
@@ -247,6 +248,7 @@ export function useMenu(input: MenuConfig): MenuComponent {
       </>
     );
     return slot('item', content, 'div', {
+      [ITEM]: { ...item, index: Number(key) || 0, open },
       key,
       id: rowId,
       role: 'menuitem',
@@ -287,6 +289,7 @@ export function useMenu(input: MenuConfig): MenuComponent {
       }
     };
     const base: PropsBag = {
+      [ITEM]: item,
       key,
       role: item.type === 'checkbox' ? 'menuitemcheckbox' : item.type === 'radio' ? 'menuitemradio' : 'menuitem',
       tabIndex: -1,

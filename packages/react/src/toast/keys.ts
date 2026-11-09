@@ -11,6 +11,7 @@ export const TOAST_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'swipe',
   'store',
   'dimensions',
+  'radius',
   'unstyled',
   'className',
   'style',

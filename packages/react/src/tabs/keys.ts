@@ -17,6 +17,7 @@ export const TABS_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'activation',
   'fullWidth',
   'keepMounted',
+  'radius',
   'size',
   'tone',
   'dimensions',

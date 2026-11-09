@@ -33,6 +33,7 @@ the library default.
 | `loading`, `emptyText` | shimmering rows while there are none, busy | `false`, `'Nothing to show'` |
 | `labels` | `{ selectAll, selectRow(text) }` | English |
 | `variant`, `density`, `striped`, `stickyHeader` | `'card' \| 'plain' \| 'outline'`; `'compact' \| 'normal' \| 'relaxed'` | `'card'`, `'normal'`, `false`, `false` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone`, `dimensions` | `maxHeight` of the body | `'md'`, `'primary'` (provider) |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root caption scroll table head header sort body row cell select empty loading footer` | |
 

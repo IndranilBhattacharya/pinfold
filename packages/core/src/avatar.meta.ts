@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'image', 'fallback', 'status', 'item', 'overflow'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -41,6 +42,7 @@ export const avatarMeta: ComponentMeta = {
     },
     max: { type: 'number', default: 4, description: 'Group: how many avatars show before "+N".', group: 'behaviour' },
     label: { type: 'string', description: 'Group: accessible name of the group, e.g. "Project members".', group: 'data' },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Size preset. Precedence: this config, `defaults.avatar`, the provider, then md.', group: 'appearance', control: true },
     shape: { type: 'enum', values: ['circle', 'square'], default: 'circle', description: 'A circle for people, a rounded square for teams and apps.', group: 'appearance', control: true },
     tone: {

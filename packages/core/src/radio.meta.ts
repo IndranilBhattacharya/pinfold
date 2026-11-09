@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 
 const SLOTS = ['root', 'label', 'items', 'item', 'input', 'box', 'itemLabel', 'itemDescription', 'description', 'error'] as const;
@@ -33,6 +34,7 @@ export const radioMeta: ComponentMeta = {
     orientation: { type: 'enum', values: ['vertical', 'horizontal'], default: 'vertical', description: 'Rows or a wrapping line.', group: 'appearance', control: true },
     variant: { type: 'enum', values: ['plain', 'card'], default: 'plain', description: 'Bare rows, or each row a bordered card.', group: 'appearance', control: true },
     animation: { type: 'enum', values: ['spring', 'ripple', 'none'], default: 'spring', description: 'How the dot arrives: `spring` grows it with a little overshoot, `ripple` also sends a ring out. Reduced motion and `disableAnimation` turn it off.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Dot and text size. Precedence: this config, `defaults.radio`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

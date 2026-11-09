@@ -34,6 +34,7 @@ library default.
 | `collapse` | `'menu'` (the ellipsis opens the hidden crumbs) \| `'expand'` (shows them in place) | `'menu'` |
 | `expandLabel`, `menuLabel` | names of the ellipsis and of a crumb's menu button | `'Show the full path'`, `'Other pages'` |
 | `variant` | `'plain' \| 'soft' \| 'outline' \| 'pills'` | `'plain'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | the tone colours the current crumb with `pills` | `'md'`, `'primary'` (provider) |
 | `dimensions` | `itemWidth`: longest a crumb gets (its full text is the tooltip) | `22ch` |
 | `label` | the landmark's name | `'Breadcrumb'` |

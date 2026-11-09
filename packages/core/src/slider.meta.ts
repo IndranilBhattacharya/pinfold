@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 
 const SLOTS = ['root', 'label', 'value', 'control', 'track', 'range', 'steps', 'input', 'thumb', 'marks', 'mark', 'startContent', 'endContent', 'description', 'error'] as const;
@@ -52,6 +53,7 @@ export const sliderMeta: ComponentMeta = {
     showValue: { type: 'enum', values: ['label', 'tooltip', 'never'], default: 'label', description: '`label`: beside the label. `tooltip`: in a bubble over the thumb while it is hovered, focused or dragged. `never`.', group: 'appearance', control: true },
     formatValue: { type: 'function', description: '`(value) => string`: shown, and read as `aria-valuetext`. Default the number.', group: 'data' },
     thumbLabels: { type: 'array', description: 'A range: the names of the two thumbs, after the label.', group: 'data' },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Track and thumb size. Precedence: this config, `defaults.slider`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

@@ -31,6 +31,7 @@ export const DATEPICKER_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'onOpenChange',
   'placement',
   'variant',
+  'radius',
   'size',
   'tone',
   'dimensions',

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveProgressOptions, mergeProps, progressPercent, progressValueText, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveProgressOptions, mergeProps, progressPercent, progressValueText, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { useId } from '../hooks';
 import { VISUALLY_HIDDEN } from '../a11y';
@@ -43,6 +43,7 @@ export function useProgress(input: ProgressConfig = {}): ProgressComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         role: kind === 'meter' ? 'meter' : 'progressbar',
         'aria-labelledby': labelled ? labelId : undefined,
         'aria-valuemin': min,

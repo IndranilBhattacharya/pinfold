@@ -31,6 +31,7 @@ the preset, `defaults.tooltip`, the library default. An element trigger must pas
 | `disabled` | `boolean` | `false` |
 | `open`, `defaultOpen`, `onOpenChange` | state | uncontrolled, closed |
 | `dimensions` | `maxWidth` | `18rem` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root arrow`) | | |
 
 Controller: `isOpen`, `open()`, `close()`, `getTriggerProps()`.

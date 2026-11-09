@@ -18,6 +18,7 @@ export const CALENDAR_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'showOutsideDays',
   'showToday',
   'labels',
+  'radius',
   'size',
   'tone',
   'unstyled',

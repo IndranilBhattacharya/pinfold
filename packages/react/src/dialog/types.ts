@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, PropsBag } from '@pinfold/core';
+import type { Length, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { OverlayTrigger } from '../overlay';
 import type { SlotOverrides } from '../types';
@@ -60,6 +60,8 @@ export interface DialogConfig extends SlotOverrides<DialogSlot, DialogState> {
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   dimensions?: DialogDimensions;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. `dimensions.radius` still wins. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default false */
   unstyled?: boolean;
   className?: string;

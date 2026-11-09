@@ -10,6 +10,7 @@ export const TOOLBAR_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'attached',
   'orientation',
   'variant',
+  'radius',
   'size',
   'tone',
   'disabled',

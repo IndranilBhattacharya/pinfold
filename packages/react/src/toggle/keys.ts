@@ -18,6 +18,7 @@ export const TOGGLE_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'orientation',
   'fullWidth',
   'variant',
+  'radius',
   'size',
   'tone',
   'dimensions',

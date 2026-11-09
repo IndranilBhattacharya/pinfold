@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, OverlayPlacement, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { Length, OverlayPlacement, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { FieldConfig } from '../field';
 import type { NoInfer, SlotOverrides } from '../types';
@@ -47,7 +47,10 @@ export interface SelectDimensions {
   maxHeight?: Length;
 }
 
-interface SelectShared<V extends string> extends FieldConfig, SlotOverrides<SelectSlot, SelectState> {
+/** An option (with its live state) or a chosen chip (with `remove`). `render` overrides of the repeating parts get it as `item`. */
+export type SelectItemContext = import('./listbox').ListItemContext;
+
+interface SelectShared<V extends string> extends FieldConfig, SlotOverrides<SelectSlot, SelectState, SelectItemContext> {
   /** The rows: strings, or `{ value, label, description, icon, group, disabled }`. */
   items: ReadonlyArray<ListItem<V> | V>;
   /** @default 'Select…' */
@@ -71,6 +74,8 @@ interface SelectShared<V extends string> extends FieldConfig, SlotOverrides<Sele
   placement?: OverlayPlacement;
   /** @default 'outline' */
   variant?: SelectVariant;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

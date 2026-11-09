@@ -35,6 +35,7 @@ Precedence: use-site props, the preset, `defaults.sidebar`, the provider, the li
 | `header`, `footer` | nodes above and under the entries | none |
 | `labels` | `{ collapse, expand }` | English |
 | `variant` | `soft` tint, `plain` edge bar, `solid` fill | `'soft'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone`, `dimensions` | `width` | `'md'`, `'primary'`, `16rem` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root header body group groupLabel list item link icon badge chevron sublist footer toggle` | |
 

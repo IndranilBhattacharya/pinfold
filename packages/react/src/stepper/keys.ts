@@ -15,6 +15,7 @@ export const STEPPER_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'variant',
   'orientation',
   'labelPlacement',
+  'radius',
   'size',
   'tone',
   'unstyled',

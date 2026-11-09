@@ -243,6 +243,22 @@ renderSlot(config, 'trigger', props, itemState, children, (p, c) => <button {...
 A `render` override receives the behaviour props. If a consumer forgets to spread them,
 accessibility breaks. That is documented, not defended against.
 
+A part that repeats (an option, a chip, a tab, a tag, a crumb, a sidebar entry, a menu row, a day,
+a step, a timeline event, a toggle button) also gets `item`: the entry as the consumer wrote it plus
+its live state (`index`, `selected`, `current`, `remove`, ...), typed per component
+(`SelectItemContext`, `TabsItemContext`, ...). Your own component draws the part from it:
+
+```jsx
+render={{ option: ({ props, item }) => <li {...props}><Avatar name={item.label} /> {item.description}</li> }}
+```
+
+The view passes the item in the slot's props under the `ITEM` symbol (`slots.ts`); `renderSlot` hands
+it to the override, and React never sees it (element creation skips symbol keys).
+
+Every component also takes `radius`: a preset (`none`..`full`) becomes `data-pinfold-radius` on its
+root, which rescales every corner inside like the provider preset; a length sets the frame's corner
+(`radiusProps` in core).
+
 ---
 
 ## 5. Styling contract

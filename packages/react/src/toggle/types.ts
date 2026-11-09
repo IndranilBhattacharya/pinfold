@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -41,7 +41,10 @@ export interface ToggleDimensions {
  *   const Pin = defineToggle({ variant: 'outline' });
  *   <Pin label="Pin" onChange={setPinned} />
  */
-export interface ToggleConfig extends SlotOverrides<ToggleSlot, ToggleState> {
+/** One button of the group as you wrote it, its position and whether it is on. `render` overrides of the repeating parts get it as `item`. */
+export type ToggleItemContext = ToggleItem & { index: number; selected: boolean };
+
+export interface ToggleConfig extends SlotOverrides<ToggleSlot, ToggleState, ToggleItemContext> {
   /** One toggle: its text and name. A group: the group name. */
   label: React.ReactNode;
   /**
@@ -82,6 +85,8 @@ export interface ToggleConfig extends SlotOverrides<ToggleSlot, ToggleState> {
   fullWidth?: boolean;
   /** @default 'segmented' */
   variant?: ToggleVariant;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

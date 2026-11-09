@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'list', 'step', 'button', 'indicator', 'connector', 'text', 'label', 'description', 'panel', 'actions'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -58,6 +59,7 @@ export const stepperMeta: ComponentMeta = {
     variant: { type: 'enum', values: ['circle', 'dot', 'bar'], default: 'circle', description: '`circle`: numbered circles, a check when done. `dot`: small dots. `bar`: a segment per step.', group: 'appearance', control: true },
     orientation: { type: 'enum', values: ['horizontal', 'vertical'], default: 'horizontal', description: 'A row, or a column with each step\'s content opening under it.', group: 'appearance', control: true },
     labelPlacement: { type: 'enum', values: ['bottom', 'end'], default: 'bottom', description: 'Step names under the marks, or beside them (the line runs between steps).', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.stepper`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

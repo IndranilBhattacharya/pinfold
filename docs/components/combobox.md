@@ -39,6 +39,7 @@ default.
 | `clearable`, `maxChips`, `placeholder` | | `false`, `3`, none |
 | `labels` | `{ empty, loading, clear, create(text) }` | English |
 | `open`, `defaultOpen`, `onOpenChange`, `placement`, `variant`, `size`, `tone`, `dimensions` | as Select | |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root label control chip input clear chevron popup group groupLabel option check icon detail empty description error` | |
 
 Leaving the field with text that matches no row puts the text back to the chosen value (or keeps

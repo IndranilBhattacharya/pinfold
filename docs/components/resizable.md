@@ -24,6 +24,7 @@ HTML always shows the defaults).
 | `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` |
 | `sizes`, `onResize`, `autoSaveId` | controlled sizes; while moving; kept per browser | defaults |
 | `handle`, `step` | `'line' \| 'grip'`; percent per arrow key | `'line'`, `5` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | | `'md'`, `'primary'` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root panel handle grip` | |
 

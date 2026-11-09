@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { cn, dataAttr, inactiveTimelineOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, inactiveTimelineOptions, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import type { TimelineApi, TimelineComponent, TimelineConfig, TimelineItem, TimelineRootProps, TimelineSlot, TimelineState } from './types';
 
 const ISO = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?/;
@@ -45,6 +45,7 @@ export function useTimeline(input: TimelineConfig): TimelineComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'aria-label': config.label,
         'data-variant': state.variant,
         'data-orientation': orientation,
@@ -85,7 +86,7 @@ export function useTimeline(input: TimelineConfig): TimelineComponent {
               )}
             </>,
             'li',
-            { 'data-tone': item.tone, 'data-pending': dataAttr(pending), 'aria-current': pending ? 'step' : undefined },
+            { [ITEM]: { ...item, index: i, pending }, 'data-tone': item.tone, 'data-pending': dataAttr(pending), 'aria-current': pending ? 'step' : undefined },
           )}
         </React.Fragment>
       );

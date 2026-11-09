@@ -36,6 +36,7 @@ props, the preset, `defaults.command`, the provider (size, tone), the library de
 | `hotkey` | dialog: opens it from anywhere; `mod` is ⌘ on Apple, Ctrl elsewhere; `''` for none | `'mod+k'` |
 | `closeOnSelect` | dialog: close after a command runs | `true` |
 | `footer` | key hints under the list | `true` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone`, `dimensions` | `width`, `maxHeight` | `'md'`, `'primary'` (provider) |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root panel search searchIcon input list group groupLabel option icon detail shortcut empty footer` | |
 

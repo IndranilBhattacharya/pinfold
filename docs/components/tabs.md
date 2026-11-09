@@ -47,6 +47,7 @@ tone), the library default.
 | `activation` | `'auto'` (arrows select) \| `'manual'` (Enter or Space selects) | `'auto'` |
 | `fullWidth` | tabs share the row | `false` |
 | `keepMounted` | hidden panels stay in the DOM, keeping their state | `false` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | | `'md'`, `'primary'` (provider) |
 | `dimensions` | `height, gap` | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root header list tab indicator icon endContent close add panel`) | | |

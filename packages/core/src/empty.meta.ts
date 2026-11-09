@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'media', 'title', 'description', 'actions'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -23,6 +24,7 @@ export const emptyMeta: ComponentMeta = {
     actions: { type: 'array', description: 'Button configs; the first is the main one.', group: 'data' },
     headingLevel: { type: 'enum', values: [2, 3, 4, 5, 6], default: 3, description: 'The title\'s heading level, to fit the page outline.', group: 'appearance' },
     variant: { type: 'enum', values: ['plain', 'dashed', 'card'], default: 'plain', description: 'On the page, in a dashed drop-zone frame, or on a raised card.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.empty`, the provider, then md.', group: 'appearance', control: true },
     tone: { type: 'enum', values: ['primary', 'neutral', 'success', 'warning', 'danger', 'info'], default: 'primary', description: 'The icon tile and the main action. Precedence: this config, `defaults.empty`, the provider, then primary.', group: 'appearance', control: true },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },

@@ -12,6 +12,7 @@ export const NAVMENU_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'onOpenChange',
   'openOn',
   'variant',
+  'radius',
   'size',
   'tone',
   'dimensions',

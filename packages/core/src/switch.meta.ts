@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 
 const SLOTS = ['root', 'item', 'input', 'box', 'thumb', 'itemLabel', 'description', 'error'] as const;
@@ -26,6 +27,7 @@ export const switchMeta: ComponentMeta = {
     labelPosition: { type: 'enum', values: ['end', 'start'], default: 'end', description: 'The label after the switch, or before it (a settings row).', group: 'appearance', control: true },
     variant: { type: 'enum', values: ['solid', 'slim', 'icon', 'outline'], default: 'solid', description: '`solid`: a filled track and a white thumb. `slim`: a thin rail under a larger thumb. `icon`: the thumb carries a check or a cross. `outline`: a hollow track; the thumb takes the colour.', group: 'appearance', control: true },
     animation: { type: 'enum', values: ['spring', 'slide', 'none'], default: 'spring', description: '`spring`: the thumb stretches while pressed and lands with a little overshoot. `slide`: a plain glide. Reduced motion and `disableAnimation` turn it off.', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Track and text size. Precedence: this config, `defaults.switch`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

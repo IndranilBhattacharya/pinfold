@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Length, PinfoldSize, PinfoldTone, PropsBag, TableSort } from '@pinfold/core';
+import type { Length, PinfoldSize, PinfoldTone, PropsBag, TableSort, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -98,6 +98,8 @@ export interface TableConfig<T extends object = Record<string, unknown>> extends
   striped?: boolean;
   /** The header stays while the body scrolls (with `dimensions.maxHeight`). @default false */
   stickyHeader?: boolean;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

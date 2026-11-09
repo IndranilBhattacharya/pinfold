@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveCheckboxOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveCheckboxOptions, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -59,6 +59,7 @@ export function useCheckbox(input: CheckboxConfig): CheckboxComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: field.root,
         ...(group ? { disabled: config.disabled || undefined, 'aria-describedby': field.describedBy } : null),
         'data-size': state.size,

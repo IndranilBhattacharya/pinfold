@@ -28,6 +28,7 @@ Precedence: use-site props, the preset, `defaults.checkbox`, the provider (size,
 | `orientation` | group: `'vertical' \| 'horizontal'` | `'vertical'` |
 | `variant` | group: `'plain' \| 'card'` (the checked card takes a frame in the tone) | `'plain'` |
 | `animation` | `'draw'`: the box fills, then the tick is traced · `'pop'`: the mark springs in · `'none'` | `'draw'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | as everywhere | provider, then `'md'`, `'primary'` |
 | `dimensions` | `size, gap` | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label items item input box itemLabel itemDescription description error`) | | |

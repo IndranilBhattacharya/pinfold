@@ -1,4 +1,5 @@
 import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'caption', 'scroll', 'table', 'head', 'header', 'sort', 'body', 'row', 'cell', 'select', 'empty', 'loading', 'footer'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
@@ -66,6 +67,7 @@ export const tableMeta: ComponentMeta = {
     density: { type: 'enum', values: ['compact', 'normal', 'relaxed'], default: 'normal', description: 'Row height.', group: 'appearance', control: true },
     striped: { type: 'boolean', default: false, description: 'Every other row tinted.', group: 'appearance', control: true },
     stickyHeader: { type: 'boolean', default: false, description: 'The header stays while the body scrolls (set `dimensions.maxHeight`).', group: 'appearance', control: true },
+    radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.table`, the provider, then md.', group: 'appearance', control: true },
     tone: {
       type: 'enum',

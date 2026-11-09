@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { cn, dataAttr, inactiveStepperOptions, mergeProps, stepStatus, warnOnce, type PropsBag, type StepStatus } from '@pinfold/core';
+import { cn, dataAttr, inactiveStepperOptions, mergeProps, stepStatus, warnOnce, type PropsBag, type StepStatus, radiusProps } from '@pinfold/core';
 import { useControllableState, useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { VISUALLY_HIDDEN } from '../a11y';
 import { ALERT_ICON, CHECK_ICON } from '../nav-icons';
 import { Button } from '../button/Button';
@@ -84,6 +84,7 @@ export function useStepper(input: StepperConfig): StepperComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'data-variant': variant,
         'data-orientation': orientation,
         'data-label-placement': labelPlacement,
@@ -169,7 +170,7 @@ export function useStepper(input: StepperConfig): StepperComponent {
               ) : null}
             </>,
             'li',
-            { 'data-status': status, 'data-disabled': dataAttr(item.disabled), 'aria-current': i === value ? 'step' : undefined },
+            { [ITEM]: { ...item, index: i, status }, 'data-status': status, 'data-disabled': dataAttr(item.disabled), 'aria-current': i === value ? 'step' : undefined },
           )}
         </React.Fragment>
       );

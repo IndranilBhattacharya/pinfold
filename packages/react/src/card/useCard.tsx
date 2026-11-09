@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { buttonRel, cn, dimensionVars, inactiveCardOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { buttonRel, cn, dimensionVars, inactiveCardOptions, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { followLink } from '../link';
 import { usePinfoldComponent } from '../component';
@@ -38,6 +38,7 @@ export function useCard(input: CardConfig = {}): CardComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'data-variant': state.variant,
         'data-padding': config.padding ?? 'md',
         'data-orientation': state.orientation,

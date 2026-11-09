@@ -3,6 +3,7 @@
 export const KBD_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'keys',
   'variant',
+  'radius',
   'size',
   'display',
   'separator',

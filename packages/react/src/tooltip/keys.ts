@@ -14,6 +14,7 @@ export const TOOLTIP_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'defaultOpen',
   'onOpenChange',
   'dimensions',
+  'radius',
   'unstyled',
   'className',
   'style',

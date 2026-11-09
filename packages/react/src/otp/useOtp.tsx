@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveOtpOptions, mergeProps, otpBreaks, otpSanitize, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveOtpOptions, mergeProps, otpBreaks, otpSanitize, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -73,6 +73,7 @@ export function useOtp(input: OtpConfig): OtpComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         ref: field.root,
         'data-variant': state.variant,
         'data-size': state.size,

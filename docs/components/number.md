@@ -26,6 +26,7 @@ Precedence: use-site props, the preset, `defaults.number`, the provider (size), 
 | `incrementLabel`, `decrementLabel` | | `'Increase'`, `'Decrease'` |
 | `startContent`, `endContent` | a currency, a unit | none |
 | `variant` | `'outline' \| 'filled'` | `'outline'` |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size` | | `'md'` (provider) |
 | `dimensions` | `width, height` | `10rem`, from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label control input decrement increment startContent endContent description error`) | | |

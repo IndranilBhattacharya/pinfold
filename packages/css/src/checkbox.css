@@ -39,4 +39,7 @@
   }
   .pinfold-checkbox[data-animate='pop'] .pinfold-checkbox__input:checked + .pinfold-checkbox__box > svg,
   .pinfold-checkbox[data-animate='pop'] .pinfold-checkbox__input:indeterminate + .pinfold-checkbox__box > svg { transform: none; }
+
+  /* An explicit radius: the box follows the scale all the way to a circle. */
+  .pinfold-checkbox[data-pinfold-radius] .pinfold-checkbox__box { border-radius: var(--pinfold-radius-sm); }
 }

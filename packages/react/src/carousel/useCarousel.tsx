@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveCarouselOptions, mergeProps, slideFromScroll, stepIndex, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveCarouselOptions, mergeProps, slideFromScroll, stepIndex, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -108,6 +108,7 @@ export function useCarousel(input: CarouselConfig): CarouselComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         'aria-roledescription': 'carousel',
         'aria-label': config.label,
         'data-size': state.size,

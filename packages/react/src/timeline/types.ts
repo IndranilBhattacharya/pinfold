@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
+import type { PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -32,7 +32,10 @@ export interface TimelineState {
  *   const History = defineTimeline();
  *   <History label="Order history" items={[{ title: 'Ordered', time: '2026-11-02' }, { title: 'Shipped', time: '2026-11-04T09:30' }]} />
  */
-export interface TimelineConfig extends SlotOverrides<TimelineSlot, TimelineState> {
+/** One event as you wrote it (strings become `{ title }`), its position and whether it is pending. `render` overrides of the repeating parts get it as `item`. */
+export type TimelineItemContext = TimelineItem & { index: number; pending: boolean };
+
+export interface TimelineConfig extends SlotOverrides<TimelineSlot, TimelineState, TimelineItemContext> {
   /** Names the list of events. */
   label: string;
   items: ReadonlyArray<TimelineItem | string>;
@@ -48,6 +51,8 @@ export interface TimelineConfig extends SlotOverrides<TimelineSlot, TimelineStat
   reverse?: boolean;
   /** A BCP 47 locale for ISO times. Default the browser's. */
   locale?: string;
+  /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
+  radius?: RadiusOption;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

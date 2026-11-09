@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { avatarInitials, avatarOverflow, avatarTone, cn, dimensionVars, inactiveAvatarOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { avatarInitials, avatarOverflow, avatarTone, cn, dimensionVars, inactiveAvatarOptions, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfoldComponent } from '../component';
@@ -98,6 +98,7 @@ export function useAvatar(input: AvatarConfig = {}): AvatarComponent {
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ...radiusProps(config.radius),
         // A single avatar's role and name come from its face; only a group names itself here.
         ...(group ? { role: 'group', 'aria-label': config.label } : null),
         'data-size': state.size,
