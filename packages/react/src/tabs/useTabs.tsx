@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveTabsOptions, mergeProps, nextIndexFromKey, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveTabsOptions, mergeProps, moveItem, nextIndexFromKey, warnOnce, type PropsBag } from '@pinfold/core';
 import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
 import { useSlidingIndicator } from '../indicator';
 import { usePinfold } from '../provider';
@@ -111,10 +111,28 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
     config.onClose!(items[i].id as Id & string, event);
   };
 
+  const [moved, setMoved] = React.useState('');
+  const dragFrom = React.useRef<number | null>(null);
+  const [drop, setDrop] = React.useState<{ at: number; side: 'before' | 'after' } | null>(null);
+  const reorder = (from: number, to: number, event: React.SyntheticEvent) => {
+    if (!config.onReorder || from === to) return;
+    const ids = moveItem(items.map((it) => it.id as Id & string), from, to);
+    config.onReorder(ids, event);
+    const label = items[from]?.label;
+    setMoved(`${typeof label === 'string' ? label : items[from]?.id}: ${to + 1} of ${items.length}`);
+  };
   const onKeyDown = (event: React.KeyboardEvent) => {
     const all = tabs();
     const current = all.indexOf(document.activeElement as HTMLElement);
     if (current === -1) return;
+    if (config.onReorder && (event.ctrlKey || event.metaKey) && event.shiftKey) {
+      const by = nextIndexFromKey(event.key, current, all.length, { orientation, dir: ctx.dir, loop: false });
+      if (by !== null && by !== current && Math.abs(by - current) === 1) {
+        event.preventDefault();
+        reorder(current, by, event);
+        return;
+      }
+    }
     if ((event.key === 'Delete' || event.key === 'Backspace') && closable(current)) {
       event.preventDefault();
       close(current, event);
@@ -161,6 +179,8 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
     // The tab stop: the focused tab while focus is inside, else the selected one (or the first that can be).
     const stop = focused ?? (selected >= 0 ? selected : firstEnabled);
     const hint = `${base}-close-hint`;
+    const moveHint = `${base}-move-hint`;
+    const horizontal = orientation === 'horizontal';
     const tablist = slot(
       'list',
       <>
@@ -197,8 +217,43 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
                   'aria-selected': isSelected,
                   'aria-controls': isSelected || config.keepMounted ? `${base}-panel-${i}` : undefined,
                   'aria-disabled': item.disabled || undefined,
-                  'aria-keyshortcuts': closable(i) ? 'Delete' : undefined,
-                  'aria-describedby': closable(i) ? hint : undefined,
+                  'aria-keyshortcuts': [closable(i) ? 'Delete' : '', config.onReorder ? (horizontal ? 'Control+Shift+ArrowLeft Control+Shift+ArrowRight' : 'Control+Shift+ArrowUp Control+Shift+ArrowDown') : ''].filter(Boolean).join(' ') || undefined,
+                  'aria-describedby': [closable(i) ? hint : '', config.onReorder ? moveHint : ''].filter(Boolean).join(' ') || undefined,
+                  'data-drop': drop && drop.at === i ? drop.side : undefined,
+                  'data-dragging': dataAttr(config.onReorder ? dragFrom.current === i && drop !== null : false),
+                  ...(config.onReorder
+                    ? {
+                        draggable: true,
+                        onDragStart: (event: React.DragEvent) => {
+                          dragFrom.current = i;
+                          event.dataTransfer.effectAllowed = 'move';
+                          event.dataTransfer.setData('text/plain', String(item.id));
+                        },
+                        onDragOver: (event: React.DragEvent<HTMLElement>) => {
+                          if (dragFrom.current === null) return;
+                          event.preventDefault();
+                          const box = event.currentTarget.getBoundingClientRect();
+                          const rtl = horizontal && getComputedStyle(event.currentTarget).direction === 'rtl';
+                          const past = horizontal ? event.clientX > box.left + box.width / 2 : event.clientY > box.top + box.height / 2;
+                          const side = past !== rtl ? 'after' : 'before';
+                          if (drop?.at !== i || drop.side !== side) setDrop({ at: i, side });
+                        },
+                        onDrop: (event: React.DragEvent) => {
+                          event.preventDefault();
+                          const from = dragFrom.current;
+                          if (from !== null && drop) {
+                            const to = drop.side === 'after' ? drop.at + 1 : drop.at;
+                            reorder(from, to > from ? to - 1 : to, event);
+                          }
+                          dragFrom.current = null;
+                          setDrop(null);
+                        },
+                        onDragEnd: () => {
+                          dragFrom.current = null;
+                          setDrop(null);
+                        },
+                      }
+                    : null),
                   'data-tabs-tab': '',
                   'data-selected': dataAttr(isSelected),
                   tabIndex: i === stop ? 0 : -1,
@@ -233,6 +288,16 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
           <span id={hint} style={VISUALLY_HIDDEN}>
             {config.closeLabel ?? 'Press Delete to close'}
           </span>
+        ) : null}
+        {config.onReorder ? (
+          <>
+            <span id={moveHint} style={VISUALLY_HIDDEN}>
+              {config.reorderLabel ?? 'Press Control, Shift and an arrow key to move'}
+            </span>
+            <span role="status" style={VISUALLY_HIDDEN}>
+              {moved}
+            </span>
+          </>
         ) : null}
       </>,
       'div',

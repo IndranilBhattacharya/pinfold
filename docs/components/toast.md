@@ -32,6 +32,7 @@ the library default.
 | `visible` | `number` shown at full size when fanned out; more scroll, with no scrollbar | `3` |
 | `label` | `string`, the region's name | `'Notifications'` |
 | `dismissLabel` | `string` | `'Dismiss'` |
+| `swipe` | swipe toward the edge to dismiss (a third of the width or a flick); shorter springs back | `true` |
 | `store` | from `createToastStore()` | its own |
 | `dimensions` | `width, gap, inset` | `22rem`, theme |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root list item icon content title description action dismiss`) | | |
@@ -74,4 +75,5 @@ leaves fades toward the edge while its space closes, so the others glide into pl
 | `toast.promise()` | `promise` | | `id`: update in place |
 
 ## Deliberately excluded
-- Swipe to dismiss: a pointer-only gesture on top of a button that already does it.
+- Vertical swipes: the page scrolls on a vertical drag (`touch-action: pan-y`), so only a sideways
+  swipe dismisses.

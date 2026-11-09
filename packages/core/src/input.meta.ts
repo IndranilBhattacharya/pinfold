@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 
-const SLOTS = ['root', 'label', 'control', 'field', 'input', 'startContent', 'endContent', 'clear', 'handle', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'control', 'field', 'input', 'startContent', 'endContent', 'clear', 'reveal', 'handle', 'description', 'counter', 'error'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -20,7 +20,7 @@ export const inputMeta: ComponentMeta = {
   slots: SLOTS,
   props: {
     ...fieldProps,
-    type: { type: 'enum', values: ['text', 'email', 'password', 'search', 'url', 'tel'], default: 'text', description: 'The native type: it picks the mobile keyboard and the built-in validation.', group: 'behaviour' },
+    type: { type: 'enum', values: ['text', 'email', 'password', 'search', 'url', 'tel'], default: 'text', description: 'The native type: it picks the mobile keyboard and the built-in validation.', group: 'behaviour', control: true, silent: true },
     value: { type: 'string', description: 'Controlled value.', group: 'data' },
     defaultValue: { type: 'string', description: 'Initial value when uncontrolled. A form reset returns to it.', group: 'data' },
     onChange: { type: 'function', description: '`(value, event) => void`. `event` is absent when the clear button did it.', group: 'behaviour' },
@@ -41,6 +41,10 @@ export const inputMeta: ComponentMeta = {
     clearable: { type: 'boolean', default: false, description: 'A clear button while it has a value.', group: 'behaviour', control: true },
     clearLabel: { type: 'string', default: 'Clear', description: 'Accessible name and tooltip of the clear button.', group: 'behaviour' },
     clearIcon: { type: 'node', description: 'The clear button\'s icon, in place of the cross.', group: 'appearance' },
+    revealable: { type: 'boolean', default: false, description: 'Password: a button that shows and hides the text (`aria-pressed`).', group: 'behaviour', control: true },
+    revealLabel: { type: 'string', default: 'Show password', description: 'Accessible name of the reveal button.', group: 'behaviour' },
+    showCount: { type: 'boolean', default: false, description: 'A character count under the field: "12/80" with `maxLength`, and "20 characters left" read politely once typing pauses.', group: 'appearance', control: true },
+    countLabel: { type: 'function', description: '`(left) => string`: what is read as the limit nears. Default "20 characters left".', group: 'behaviour' },
     labelPlacement: { type: 'enum', values: ['outside', 'inside'], default: 'outside', description: '`outside`: above the field. `inside`: in the field, rising to its top edge on focus or once it has a value (a floating label).', group: 'appearance', control: true },
     variant: { type: 'enum', values: ['outline', 'filled', 'underline'], default: 'outline', description: 'A frame, a tinted fill with a frame, or a line under the text that fills in on focus.', group: 'appearance', control: true },
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'The same heights as a button. Precedence: this config, `defaults.input`, the provider, then md.', group: 'appearance', control: true },

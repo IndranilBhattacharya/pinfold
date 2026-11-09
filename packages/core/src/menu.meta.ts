@@ -1,6 +1,6 @@
 import type { ComponentMeta, PropMeta } from './meta';
 
-const SLOTS = ['root', 'item', 'indicator', 'icon', 'label', 'shortcut', 'separator', 'group', 'groupLabel'] as const;
+const SLOTS = ['root', 'item', 'indicator', 'icon', 'label', 'shortcut', 'separator', 'group', 'groupLabel', 'submenu', 'chevron'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -11,7 +11,7 @@ const len = (description: string): PropMeta => ({ type: 'length', description, g
 const PLACEMENTS = ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'start', 'start-top', 'start-bottom', 'end', 'end-top', 'end-bottom'];
 
 const item: Record<string, PropMeta> = {
-  type: { type: 'enum', values: ['item', 'checkbox', 'radio', 'separator', 'group'], default: 'item', description: 'What the row is.', group: 'data' },
+  type: { type: 'enum', values: ['item', 'checkbox', 'radio', 'separator', 'group', 'submenu'], default: 'item', description: 'What the row is. `submenu` opens its `items` in a menu beside it.', group: 'data' },
   id: { type: 'string', description: 'React key; the position is used without one.', group: 'data' },
   label: { type: 'node', description: 'The text. A group\'s label names the group.', group: 'data' },
   icon: { type: 'node', description: 'Decorative icon before the label.', group: 'data' },
@@ -23,7 +23,7 @@ const item: Record<string, PropMeta> = {
   href: { type: 'string', description: 'Makes the row a real link.', group: 'behaviour' },
   target: { type: 'string', description: 'Link target. `_blank` adds `rel="noopener noreferrer"`.', group: 'behaviour' },
   closeOnSelect: { type: 'boolean', description: 'Close after selecting.', group: 'behaviour', auto: 'on; off for checkbox and radio rows' },
-  items: { type: 'array', description: 'A group\'s rows.', group: 'data' },
+  items: { type: 'array', description: 'A group\'s or a submenu\'s rows.', group: 'data' },
 };
 
 export const menuMeta: ComponentMeta = {

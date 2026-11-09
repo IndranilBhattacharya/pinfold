@@ -10,6 +10,8 @@ export const TABS_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'onAdd',
   'addLabel',
   'closeLabel',
+  'onReorder',
+  'reorderLabel',
   'variant',
   'placement',
   'activation',

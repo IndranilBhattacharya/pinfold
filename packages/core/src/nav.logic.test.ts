@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { breadcrumbPath, breadcrumbVisible, inactiveBreadcrumbOptions, inactivePaginationOptions, inactiveStepperOptions, inactiveTabsOptions, pageAt, pageCount, pageWindow, paginationRange, stepStatus, sidebarKey, sidebarTrail, inactiveSidebarOptions, inactiveNavMenuOptions } from './nav.logic';
+import { breadcrumbPath, breadcrumbVisible, inactiveBreadcrumbOptions, inactivePaginationOptions, inactiveStepperOptions, inactiveTabsOptions, pageAt, pageCount, pageWindow, paginationRange, stepStatus, moveItem, sidebarKey, sidebarTrail, inactiveSidebarOptions, inactiveNavMenuOptions } from './nav.logic';
 import { validateConfig } from './meta';
 import { tabsMeta } from './tabs.meta';
 import { stepperMeta } from './stepper.meta';
@@ -60,8 +60,8 @@ describe('navigation logic', () => {
   });
 
   it('inactive options', () => {
-    expect(Object.keys(inactiveTabsOptions({ placement: 'start', onAdd: () => {} }))).toEqual(['fullWidth', 'closeLabel']);
-    expect(inactiveTabsOptions({ onAdd: 1, onClose: 1 })).toEqual({});
+    expect(Object.keys(inactiveTabsOptions({ placement: 'start', onAdd: () => {} }))).toEqual(['fullWidth', 'closeLabel', 'reorderLabel']);
+    expect(inactiveTabsOptions({ onAdd: 1, onClose: 1, onReorder: 1 })).toEqual({});
     expect(Object.keys(inactiveBreadcrumbOptions({ items: [] }))).toEqual(['itemsBeforeCollapse', 'itemsAfterCollapse', 'collapse', 'expandLabel', 'path', 'pathLabels', 'homeLabel', 'tone']);
     expect(inactiveBreadcrumbOptions({ maxItems: 3, path: '/a', variant: 'pills' })).toEqual({});
     expect(Object.keys(inactivePaginationOptions({ count: 5, showControls: false, pageSizes: [10] }))).toEqual(['showEdges']);
@@ -106,5 +106,14 @@ describe('navigation menu meta', () => {
     expect(validateConfig(navmenuMeta, { label: 'N', items: ['A'], open: null })).toEqual([]);
     expect(validateConfig(navmenuMeta, { label: 'N', items: ['A'], open: 'A' })).toEqual([]);
     expect(validateConfig(navmenuMeta, { label: 'N', items: ['A'], open: 3 })).toHaveLength(1);
+  });
+});
+
+describe('moveItem', () => {
+  it('moves one entry, clamping the target', () => {
+    expect(moveItem(['a', 'b', 'c'], 0, 2)).toEqual(['b', 'c', 'a']);
+    expect(moveItem(['a', 'b', 'c'], 2, 0)).toEqual(['c', 'a', 'b']);
+    expect(moveItem(['a', 'b', 'c'], 1, 9)).toEqual(['a', 'c', 'b']);
+    expect(moveItem(['a', 'b'], 5, 0)).toEqual(['a', 'b']);
   });
 });

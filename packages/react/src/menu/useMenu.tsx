@@ -7,10 +7,24 @@ import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
 import { renderTrigger, restoreFocus, triggerElement, useFloating, useMounted, useOverlayLayer } from '../overlay';
-import type { MenuActionItem, MenuApi, MenuCheckItem, MenuComponent, MenuConfig, MenuItem, MenuRootProps, MenuSlot, MenuState } from './types';
+import type { MenuActionItem, MenuApi, MenuCheckItem, MenuComponent, MenuConfig, MenuItem, MenuRootProps, MenuSlot, MenuState, MenuSubmenuItem } from './types';
 
 const ROWS = '[role^="menuitem"]';
-const rowsOf = (menu: HTMLElement | null) => (menu ? Array.from(menu.querySelectorAll<HTMLElement>(ROWS)) : []);
+// A menu's own rows: not those of a submenu nested in the same tree.
+const rowsOf = (menu: HTMLElement | null) => (menu ? Array.from(menu.querySelectorAll<HTMLElement>(ROWS)).filter((row) => row.closest('[role="menu"]') === menu) : []);
+const HOVER_DELAY = 120;
+const CHEVRON = (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" focusable="false">
+    <path d="m6 4 4 4-4 4" />
+  </svg>
+);
+
+/** A submenu: its own floating menu beside the row that opened it. */
+function SubPanel({ anchorId, props, children }: { anchorId: string; props: PropsBag; children: React.ReactNode }) {
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  useFloating({ open: true, anchor: () => document.getElementById(anchorId), floating: ref, placement: 'end-top', offset: 2 });
+  return <div {...props} ref={ref}>{children}</div>;
+}
 const TYPEAHEAD_RESET = 500;
 
 const TICK = (
@@ -49,6 +63,12 @@ export function useMenu(input: MenuConfig): MenuComponent {
   const focusOnOpen = React.useRef<'first' | 'last'>('first');
   const query = React.useRef({ text: '', at: 0 });
   const [isOpen, setOpen] = useControllableState<boolean>({ value: config.open, defaultValue: config.defaultOpen ?? false, onChange: config.onOpenChange });
+  // Open submenus, outermost first, by the id of the row that opened each.
+  const [path, setPath] = React.useState<string[]>([]);
+  const subItems = React.useRef<Record<string, readonly MenuItem[]>>({});
+  const focusSub = React.useRef(false);
+  const hoverTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  React.useEffect(() => () => clearTimeout(hoverTimer.current), []);
   const mode = config.mode ?? 'dropdown';
 
   if (process.env.NODE_ENV !== 'production') {
@@ -77,7 +97,22 @@ export function useMenu(input: MenuConfig): MenuComponent {
     return spot.current;
   };
   useFloating({ open: showing, key: placed, anchor: () => (mode === 'context' ? contextAnchor() : anchor.current), floating: menu, placement: mode === 'context' ? 'bottom-start' : config.placement ?? 'bottom-start', offset: mode === 'context' ? 0 : config.offset ?? 4 });
-  useOverlayLayer(showing, (node) => !!menu.current?.contains(node) || (mode === 'dropdown' && !!anchor.current?.contains(node)), close, close);
+  const inSubmenu = (node: Node) => !!(node instanceof Element ? node : node.parentElement)?.closest(`[data-menu-of="${id}"]`);
+  useOverlayLayer(showing, (node) => !!menu.current?.contains(node) || inSubmenu(node) || (mode === 'dropdown' && !!anchor.current?.contains(node)), close, close);
+  React.useEffect(() => {
+    if (!showing) setPath([]);
+  }, [showing]);
+  // A submenu opened from the keyboard takes focus on its first row.
+  useIsomorphicLayoutEffect(() => {
+    if (!focusSub.current || !path.length) return;
+    focusSub.current = false;
+    rowsOf(document.getElementById(`${path[path.length - 1]}-menu`))[0]?.focus();
+  }, [path]);
+  const openSub = (depth: number, rowId: string, focus: boolean) => {
+    focusSub.current = focus;
+    setPath((p) => (p[depth] === rowId && p.length === depth + 1 ? p : [...p.slice(0, depth), rowId]));
+    if (focus && path[depth] === rowId && path.length === depth + 1) rowsOf(document.getElementById(`${rowId}-menu`))[0]?.focus();
+  };
 
   // Opening moves focus to a row and closing brings it back. A menu open from the first render
   // (a preview, a test) never takes focus.
@@ -91,9 +126,27 @@ export function useMenu(input: MenuConfig): MenuComponent {
     } else restoreFocus(anchor.current, menu.current);
   }, [showing]);
 
-  const onMenuKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-    const rows = rowsOf(menu.current);
+  const onKeys = (depth: number) => (event: React.KeyboardEvent<HTMLElement>) => {
+    const rows = rowsOf(event.currentTarget);
     const current = rows.indexOf(document.activeElement as HTMLElement);
+    const rtl = getComputedStyle(event.currentTarget).direction === 'rtl';
+    const inward = rtl ? 'ArrowLeft' : 'ArrowRight';
+    const outward = rtl ? 'ArrowRight' : 'ArrowLeft';
+    const row = rows[current];
+    if (event.key === inward && row?.getAttribute('aria-haspopup') === 'menu' && row.getAttribute('aria-disabled') !== 'true') {
+      event.preventDefault();
+      openSub(depth, row.id, true);
+      return;
+    }
+    // Out of a submenu: back to the row that opened it. The whole menu stays open.
+    if (depth > 0 && (event.key === outward || event.key === 'Escape')) {
+      event.preventDefault();
+      event.stopPropagation();
+      const parent = path[depth - 1];
+      setPath((p) => p.slice(0, depth - 1));
+      document.getElementById(parent)?.focus();
+      return;
+    }
     if (event.key === 'Tab') {
       // Back on the trigger first, so the browser's Tab moves on from there.
       if (anchor.current instanceof HTMLElement) anchor.current.focus();
@@ -174,7 +227,7 @@ export function useMenu(input: MenuConfig): MenuComponent {
         'data-placement': config.placement ?? 'bottom-start',
         'data-animate': dataAttr(!ctx.disableAnimation),
         'data-unstyled': dataAttr(config.unstyled),
-        onKeyDown: onMenuKeyDown,
+        onKeyDown: onKeys(0),
       },
       props,
     );
@@ -183,7 +236,42 @@ export function useMenu(input: MenuConfig): MenuComponent {
   const slot = (name: MenuSlot, content: React.ReactNode, tag: string, base: PropsBag = {}) =>
     renderSlot(config, name, slotProps(config, name, { className: cls(`pinfold-menu__${name.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())}`), ...base }), state, content, (p, c) => React.createElement(tag, p, c));
 
-  const row = (item: MenuActionItem | MenuCheckItem, key: React.Key): React.ReactNode => {
+  const submenuRow = (item: MenuSubmenuItem, key: React.Key, rowId: string, depth: number): React.ReactNode => {
+    subItems.current[rowId] = item.items;
+    const open = path[depth] === rowId;
+    const content = (
+      <>
+        {item.icon != null && item.icon !== false ? slot('icon', item.icon, 'span', { 'aria-hidden': true }) : null}
+        {slot('label', item.label, 'span')}
+        {slot('chevron', CHEVRON, 'span', { 'aria-hidden': true })}
+      </>
+    );
+    return slot('item', content, 'div', {
+      key,
+      id: rowId,
+      role: 'menuitem',
+      tabIndex: -1,
+      'aria-haspopup': 'menu',
+      'aria-expanded': open,
+      'aria-controls': open ? `${rowId}-menu` : undefined,
+      'aria-disabled': item.disabled ? true : undefined,
+      'data-disabled': dataAttr(item.disabled),
+      'data-tone': item.tone,
+      'data-type': 'submenu',
+      'data-open': dataAttr(open),
+      onClick: () => {
+        if (!item.disabled) openSub(depth, rowId, true);
+      },
+      onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
+        if (event.pointerType === 'touch') return;
+        if (document.activeElement !== event.currentTarget) event.currentTarget.focus();
+        clearTimeout(hoverTimer.current);
+        if (!item.disabled && !open) hoverTimer.current = setTimeout(() => openSub(depth, rowId, false), HOVER_DELAY);
+      },
+    });
+  };
+
+  const row = (item: MenuActionItem | MenuCheckItem, key: React.Key, depth = 0): React.ReactNode => {
     const check = item.type === 'checkbox' || item.type === 'radio';
     const link = !check && (item as MenuActionItem).href !== undefined && !item.disabled;
     const select = (event: React.MouseEvent<HTMLElement>) => {
@@ -193,7 +281,10 @@ export function useMenu(input: MenuConfig): MenuComponent {
       }
       item.onSelect?.(event);
       if (link) followLink(event, (item as MenuActionItem).href, ctx.navigate, (item as MenuActionItem).target);
-      if (item.closeOnSelect ?? !check) close();
+      if (item.closeOnSelect ?? !check) {
+        setPath([]);
+        close();
+      }
     };
     const base: PropsBag = {
       key,
@@ -207,7 +298,11 @@ export function useMenu(input: MenuConfig): MenuComponent {
       onClick: select,
       // Pointer and keyboard share one highlight: the focused row.
       onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
-        if (event.pointerType !== 'touch' && document.activeElement !== event.currentTarget) event.currentTarget.focus();
+        if (event.pointerType === 'touch') return;
+        if (document.activeElement !== event.currentTarget) event.currentTarget.focus();
+        // Resting on a plain row shuts the submenus deeper than it.
+        clearTimeout(hoverTimer.current);
+        if (path.length > depth) hoverTimer.current = setTimeout(() => setPath((p) => p.slice(0, depth)), HOVER_DELAY);
       },
       ...(link ? { href: (item as MenuActionItem).href, target: (item as MenuActionItem).target, rel: buttonRel((item as MenuActionItem).target, undefined) } : null),
     };
@@ -222,15 +317,16 @@ export function useMenu(input: MenuConfig): MenuComponent {
     return slot('item', content, link ? 'a' : 'div', base);
   };
 
-  const rows = (items: readonly MenuItem[], prefix = ''): React.ReactNode =>
+  const rows = (items: readonly MenuItem[], prefix = '', depth = 0): React.ReactNode =>
     items.map((item, i) => {
       const key = item.id ?? `${prefix}${i}`;
+      if (item.type === 'submenu') return submenuRow(item, key, `${id}-row-${prefix}${i}`, depth);
       if (item.type === 'separator') return slot('separator', null, 'div', { key, role: 'separator' });
       if (item.type === 'group') {
         const labelId = `${id}-group-${prefix}${i}`;
-        return slot('group', <>{slot('groupLabel', item.label, 'div', { id: labelId })}{rows(item.items, `${prefix}${i}-`)}</>, 'div', { key, role: 'group', 'aria-labelledby': labelId });
+        return slot('group', <>{slot('groupLabel', item.label, 'div', { id: labelId })}{rows(item.items, `${prefix}${i}-`, depth)}</>, 'div', { key, role: 'group', 'aria-labelledby': labelId });
       }
-      return row(item, key);
+      return row(item, key, depth);
     });
 
   const render = (rootProps?: MenuRootProps): React.ReactElement => {
@@ -246,6 +342,29 @@ export function useMenu(input: MenuConfig): MenuComponent {
           if (el) anchor.current = triggerElement(el);
         })}
         {showing ? renderSlot(config, 'root', root, state, rows(config.items ?? []), (p, c) => <div {...p}>{c}</div>) : null}
+        {showing
+          ? path.map((rowId, depth) =>
+              subItems.current[rowId] ? (
+                <SubPanel
+                  key={rowId}
+                  anchorId={rowId}
+                  props={slotProps(config, 'submenu', {
+                    id: `${rowId}-menu`,
+                    role: 'menu',
+                    tabIndex: -1,
+                    'aria-labelledby': rowId,
+                    'data-menu-of': id,
+                    'data-size': state.size,
+                    'data-animate': dataAttr(!ctx.disableAnimation),
+                    className: config.unstyled ? undefined : 'pinfold pinfold-menu pinfold-menu__submenu',
+                    onKeyDown: onKeys(depth + 1),
+                  })}
+                >
+                  {rows(subItems.current[rowId], `${rowId}-`, depth + 1)}
+                </SubPanel>
+              ) : null,
+            )
+          : null}
       </>
     );
   };

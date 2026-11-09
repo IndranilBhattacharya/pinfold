@@ -32,6 +32,7 @@ export const toastMeta: ComponentMeta = {
     visible: { type: 'number', default: 3, description: 'How many show at full size when fanned out; the rest scroll, with no scrollbar.', group: 'appearance' },
     label: { type: 'string', default: 'Notifications', description: 'Accessible name of the region.', group: 'behaviour' },
     dismissLabel: { type: 'string', default: 'Dismiss', description: 'Accessible name and tooltip of each dismiss button.', group: 'behaviour' },
+    swipe: { type: 'boolean', default: true, description: 'Swipe a toast toward its edge (a third of its width, or a flick) to dismiss it; a shorter swipe springs back. The dismiss button stays for everyone else.', group: 'behaviour', control: true, silent: true },
     store: { type: 'object', description: 'A store from `createToastStore()` to show toasts from outside React. `defineToast` makes one for you.', group: 'behaviour' },
     dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { width: len('Toast width.'), gap: len('Space between toasts.'), inset: len('Distance from the viewport edge.') } },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },

@@ -88,6 +88,15 @@
   .pinfold-tabs[data-full-width] .pinfold-tabs__tab { flex: 1 0 auto; }
   .pinfold-tabs__tab:hover:not([aria-disabled='true']) { color: var(--pinfold-color-text); }
   .pinfold-tabs__tab[data-selected] { color: var(--pinfold-tab-text); }
+  /* Reordering: the dragged tab fades; a bar marks where it lands. */
+  .pinfold-tabs__tab[draggable='true'] { -webkit-user-drag: element; }
+  .pinfold-tabs__tab[data-dragging] { opacity: 0.45; }
+  .pinfold-tabs .pinfold-tabs__tab[data-drop='before'] { box-shadow: inset 2px 0 0 var(--pinfold-tab-solid); }
+  .pinfold-tabs .pinfold-tabs__tab[data-drop='after'] { box-shadow: inset -2px 0 0 var(--pinfold-tab-solid); }
+  [dir='rtl'] .pinfold-tabs .pinfold-tabs__tab[data-drop='before'] { box-shadow: inset -2px 0 0 var(--pinfold-tab-solid); }
+  [dir='rtl'] .pinfold-tabs .pinfold-tabs__tab[data-drop='after'] { box-shadow: inset 2px 0 0 var(--pinfold-tab-solid); }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__tab[data-drop='before'] { box-shadow: inset 0 2px 0 var(--pinfold-tab-solid); }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__tab[data-drop='after'] { box-shadow: inset 0 -2px 0 var(--pinfold-tab-solid); }
   .pinfold-tabs[data-tone='neutral'] .pinfold-tabs__tab[data-selected] { color: var(--pinfold-color-text); }
   .pinfold-tabs__tab[aria-disabled='true'] { cursor: not-allowed; opacity: 0.45; }
   /* Inset: the scrolling list would clip a ring outside the tab. */

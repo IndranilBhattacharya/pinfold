@@ -41,6 +41,7 @@ tone), the library default.
 | `onClose` | `(id, event)`: close marks, and Delete closes the focused tab | none |
 | `onAdd`, `addLabel` | `(event)`: a + button after the tabs | none, `'New tab'` |
 | `closeLabel` | read with a closable tab | `'Press Delete to close'` |
+| `onReorder(ids, event)`, `reorderLabel` | drag a tab, or Ctrl (⌘) + Shift + arrow; the move is announced ("App.tsx: 2 of 4"); reorder your items | none, `'Press Control, Shift and an arrow key to move'` |
 | `variant` | `'segmented'` (a raised pill in a tray) \| `'underline'` \| `'pills'` (the tone fills) \| `'soft'` (a tint of the tone) \| `'enclosed'` (folder tabs on a card) | `'segmented'` |
 | `placement` | `'top' \| 'bottom' \| 'start' \| 'end'`; start and end make a column | `'top'` |
 | `activation` | `'auto'` (arrows select) \| `'manual'` (Enter or Space selects) | `'auto'` |
@@ -54,7 +55,7 @@ Controller: `value`, `select(id)`, `next()`, `previous()`, `focus()`. Controller
 call `onChange`.
 
 Inactive (`inactiveTabsOptions`): `fullWidth` with a side placement; `addLabel` without `onAdd`;
-`closeLabel` without `onClose`. `activation` and `keepMounted` change behaviour only.
+`closeLabel` without `onClose`; `reorderLabel` without `onReorder`. `activation` and `keepMounted` change behaviour only.
 
 Closing the selected tab selects its neighbour first (the next one, else the one before), and focus
 moves to the tab that takes the closed one's place. A row wider than its box scrolls; its edges
@@ -75,4 +76,5 @@ Tray, pill, panel card and edges read the control tokens, so every style pack re
   before it is placed, the selected tab draws it, so the first paint is right without script.
 
 ## Deliberately excluded
-- Reordering tabs by drag (**Planned**).
+- Touch reordering: dragging uses the native drag and drop, which phones do not start from a tab;
+  the keys work everywhere.

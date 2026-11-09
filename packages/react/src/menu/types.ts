@@ -4,7 +4,7 @@ import type { PinfoldComponent } from '../component';
 import type { OverlayTrigger } from '../overlay';
 import type { SlotOverrides } from '../types';
 
-export type MenuSlot = 'root' | 'item' | 'indicator' | 'icon' | 'label' | 'shortcut' | 'separator' | 'group' | 'groupLabel';
+export type MenuSlot = 'root' | 'item' | 'indicator' | 'icon' | 'label' | 'shortcut' | 'separator' | 'group' | 'groupLabel' | 'submenu' | 'chevron';
 export type MenuMode = 'dropdown' | 'context';
 
 interface MenuRowBase {
@@ -49,7 +49,17 @@ export interface MenuGroupItem {
   label: React.ReactNode;
   items: readonly MenuItem[];
 }
-export type MenuItem = MenuActionItem | MenuCheckItem | MenuSeparatorItem | MenuGroupItem;
+/** A row that opens a menu beside it: on hover, a press, Enter, Space or the arrow toward it. */
+export interface MenuSubmenuItem {
+  type: 'submenu';
+  id?: string;
+  label: React.ReactNode;
+  icon?: React.ReactNode;
+  tone?: 'danger' | 'success' | 'warning' | 'info';
+  disabled?: boolean;
+  items: readonly MenuItem[];
+}
+export type MenuItem = MenuActionItem | MenuCheckItem | MenuSeparatorItem | MenuGroupItem | MenuSubmenuItem;
 
 /** Passed to slot `render` overrides. */
 export interface MenuState {

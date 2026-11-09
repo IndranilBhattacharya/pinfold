@@ -21,6 +21,7 @@ export const SLIDER_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'snapToMarks',
   'showSteps',
   'variant',
+  'orientation',
   'startContent',
   'endContent',
   'showValue',

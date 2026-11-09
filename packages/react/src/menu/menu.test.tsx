@@ -18,6 +18,45 @@ const focused = () => document.activeElement?.textContent;
 const open = () => fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
 
 describe('Menu', () => {
+  it('submenus: arrow toward it opens and focuses its first row; away or Escape returns; a row in it closes everything', () => {
+    const share = vi.fn();
+    const nested: MenuItem[] = [
+      { label: 'Copy' },
+      { type: 'submenu', label: 'Share', items: [{ label: 'Email', onSelect: share }, { type: 'submenu', label: 'More', items: [{ label: 'Print' }] }] },
+      { label: 'Delete' },
+    ];
+    render(<Menu trigger={{ label: 'Actions' }} items={nested} />);
+    open();
+    const root = screen.getByRole('menu', { name: 'Actions' });
+    expect(screen.getAllByRole('menuitem').filter((r) => root.contains(r))).toHaveLength(3);
+    fireEvent.keyDown(document.activeElement!, { key: 'ArrowDown' });
+    const shareRow = document.activeElement as HTMLElement;
+    expect(shareRow.getAttribute('aria-haspopup')).toBe('menu');
+    expect(shareRow.getAttribute('aria-expanded')).toBe('false');
+    fireEvent.keyDown(shareRow, { key: 'ArrowRight' });
+    expect(shareRow.getAttribute('aria-expanded')).toBe('true');
+    const sub = screen.getByRole('menu', { name: 'Share' });
+    expect(focused()).toBe('Email');
+    // Its own rows only: the deeper submenu's rows are not counted.
+    fireEvent.keyDown(document.activeElement!, { key: 'ArrowDown' });
+    expect(focused()).toContain('More');
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
+    expect(screen.getByRole('menu', { name: 'More' })).toBeTruthy();
+    expect(focused()).toBe('Print');
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+    expect(screen.queryByRole('menu', { name: 'More' })).toBeNull();
+    expect(focused()).toContain('More');
+    fireEvent.keyDown(document.activeElement!, { key: 'ArrowLeft' });
+    expect(screen.queryByRole('menu', { name: 'Share' })).toBeNull();
+    expect(document.activeElement).toBe(shareRow);
+    expect(root.isConnected).toBe(true);
+    fireEvent.click(shareRow);
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Email' }));
+    expect(share).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('menu')).toBeNull();
+    expect(sub.isConnected).toBe(false);
+  });
+
   it('wires the trigger and focuses the first row on open', () => {
     render(<Menu trigger={{ label: 'Actions' }} items={items} />);
     const button = screen.getByRole('button', { name: 'Actions' });

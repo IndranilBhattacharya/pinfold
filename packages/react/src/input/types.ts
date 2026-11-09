@@ -4,7 +4,7 @@ import type { PinfoldComponent } from '../component';
 import type { FieldConfig } from '../field';
 import type { SlotOverrides } from '../types';
 
-export type InputSlot = 'root' | 'label' | 'control' | 'field' | 'input' | 'startContent' | 'endContent' | 'clear' | 'handle' | 'description' | 'error';
+export type InputSlot = 'root' | 'label' | 'control' | 'field' | 'input' | 'startContent' | 'endContent' | 'clear' | 'reveal' | 'handle' | 'description' | 'counter' | 'error';
 export type InputType = 'text' | 'email' | 'password' | 'search' | 'url' | 'tel';
 export type InputVariant = 'outline' | 'filled' | 'underline';
 export type InputElement = HTMLInputElement | HTMLTextAreaElement;
@@ -72,6 +72,14 @@ export interface InputConfig extends FieldConfig, SlotOverrides<InputSlot, Input
   clearLabel?: string;
   /** The clear button's icon, in place of the cross. */
   clearIcon?: React.ReactNode;
+  /** Password: a button that shows and hides the text. @default false */
+  revealable?: boolean;
+  /** @default 'Show password' */
+  revealLabel?: string;
+  /** A character count under the field: "12/80" with `maxLength`, and "20 characters left" read once typing pauses. @default false */
+  showCount?: boolean;
+  /** What is read as the limit nears, for translation: `(left) => string`. Default "20 characters left". */
+  countLabel?: (left: number) => string;
   /**
    * `outside`: above the field. `inside`: in the field, rising to its top edge on focus or once it
    * has a value (a floating label).

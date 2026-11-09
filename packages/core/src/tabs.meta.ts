@@ -43,6 +43,8 @@ export const tabsMeta: ComponentMeta = {
     onAdd: { type: 'function', description: '`(event) => void`: a + button after the tabs. Add an item in your state.', group: 'events' },
     addLabel: { type: 'string', default: 'New tab', description: 'The name of the + button.', group: 'data' },
     closeLabel: { type: 'string', default: 'Press Delete to close', description: 'Read with a closable tab.', group: 'data' },
+    onReorder: { type: 'function', description: '`(ids, event) => void`: tabs can be dragged, or moved with Ctrl (⌘) + Shift + an arrow key; the move is announced. Reorder the items in your state.', group: 'events' },
+    reorderLabel: { type: 'string', default: 'Press Control, Shift and an arrow key to move', description: 'Read with a tab that can be moved.', group: 'data' },
     variant: {
       type: 'enum',
       values: ['segmented', 'underline', 'pills', 'soft', 'enclosed'],
@@ -87,6 +89,7 @@ export const tabsMeta: ComponentMeta = {
     { keys: 'Home / End', action: 'First / last tab.' },
     { keys: 'Enter / Space', action: 'With `activation: "manual"`, select the focused tab.' },
     { keys: 'Delete / Backspace', action: 'With `onClose`, close the focused tab; focus moves to the tab that takes its place.' },
+    { keys: 'Ctrl (⌘) + Shift + Arrow', action: 'With `onReorder`, move the focused tab one place; focus stays on it.' },
   ],
   aria: [
     '`role="tablist"` named by `label`, `role="tab"` with `aria-selected` and `aria-controls`, `role="tabpanel"` labelled by its tab.',

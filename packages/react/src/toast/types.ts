@@ -65,6 +65,8 @@ export interface ToastConfig extends SlotOverrides<ToastSlot, ToastState> {
   label?: string;
   /** @default 'Dismiss' */
   dismissLabel?: string;
+  /** A toast can be swiped toward its edge to dismiss it (touch and pointer); the button stays. @default true */
+  swipe?: boolean;
   /** A store from `createToastStore()`, to show toasts from outside React. */
   store?: ToastStore<ToastMessage>;
   dimensions?: ToastDimensions;

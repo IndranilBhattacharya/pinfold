@@ -8,11 +8,20 @@ import { renderSlot, slotProps } from '../slots';
 import { filled, hiddenStyle, labelContent, useField } from '../field';
 import { Button } from '../button/Button';
 import { CLOSE_ICON } from '../icons';
+import { VISUALLY_HIDDEN } from '../a11y';
 import type { InputApi, InputComponent, InputConfig, InputElement, InputRootProps, InputSlot, InputState } from './types';
 
 const GRIP = (
   <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" focusable="false">
     <path d="M10.5 4.5l-6 6M10.5 8.5l-2 2" />
+  </svg>
+);
+
+const eye = (open: boolean) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" focusable="false" aria-hidden="true">
+    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+    <circle cx="12" cy="12" r="3" />
+    {open ? null : <path d="M3 3l18 18" />}
   </svg>
 );
 
@@ -36,6 +45,14 @@ export function useInput(input: InputConfig): InputComponent {
   const hasValue = controlled ? config.value !== '' : uncontrolledFilled;
   const inside = config.labelPlacement === 'inside' && !config.hideLabel;
   const handle = !!config.multiline && !config.autosize && config.resize !== 'none';
+  const reveal = !!config.revealable && !config.multiline && config.type === 'password';
+  const [revealed, setRevealed] = React.useState(false);
+  const [typedLength, setLength] = React.useState(() => (config.defaultValue ?? '').length);
+  const length = controlled ? (config.value ?? '').length : typedLength;
+  // Read the count once typing pauses, not on every key.
+  const [spoken, setSpoken] = React.useState('');
+  const speakTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  React.useEffect(() => () => clearTimeout(speakTimer.current), []);
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ inputMeta, validateConfig }) => {
@@ -65,6 +82,7 @@ export function useInput(input: InputConfig): InputComponent {
       // After the reset has applied.
       setTimeout(() => {
         setFilled(!!node.current?.value);
+        setLength(node.current?.value.length ?? 0);
         fit();
       });
     };
@@ -74,6 +92,12 @@ export function useInput(input: InputConfig): InputComponent {
 
   const onChange = (event: React.ChangeEvent<InputElement>) => {
     setFilled(event.target.value !== '');
+    setLength(event.target.value.length);
+    if (config.showCount && config.maxLength !== undefined) {
+      const left = config.maxLength - event.target.value.length;
+      clearTimeout(speakTimer.current);
+      speakTimer.current = setTimeout(() => setSpoken(config.countLabel ? config.countLabel(left) : `${left} character${left === 1 ? '' : 's'} left`), 800);
+    }
     field.revalidate(event.target);
     fit();
     config.onChange?.(event.target.value, event);
@@ -82,6 +106,7 @@ export function useInput(input: InputConfig): InputComponent {
     const el = node.current;
     if (el && !controlled) el.value = '';
     setFilled(false);
+    setLength(0);
     if (el) field.revalidate(el);
     fit();
     config.onChange?.('');
@@ -159,7 +184,7 @@ export function useInput(input: InputConfig): InputComponent {
       onChange,
       onInvalid: field.onInvalid,
       ...(controlled ? { value: config.value } : { defaultValue: config.defaultValue }),
-      ...(config.multiline ? { rows: config.rows ?? 3 } : { type: config.type ?? 'text', pattern: config.pattern }),
+      ...(config.multiline ? { rows: config.rows ?? 3 } : { type: reveal && revealed ? 'text' : (config.type ?? 'text'), pattern: config.pattern }),
     };
     const canClear = config.clearable && hasValue && !config.disabled && !config.readOnly;
     const label = slot('label', labelContent(config, config.unstyled), 'label', { htmlFor: field.controlId, ...hiddenStyle(config.hideLabel) }, 'pinfold-field__label');
@@ -174,12 +199,28 @@ export function useInput(input: InputConfig): InputComponent {
             {/* Inside, the label follows the input in the DOM so CSS can lift it on the input's state. */}
             {inside ? slot('field', <>{text}{label}</>, 'span') : text}
             {canClear ? slot('clear', <Button label={config.clearLabel ?? 'Clear'} icon={config.clearIcon ?? CLOSE_ICON} iconOnly variant="ghost" tone="neutral" size="sm" onClick={clear} />, 'span') : null}
+            {reveal
+              ? slot('reveal', <Button label={config.revealLabel ?? 'Show password'} icon={eye(!revealed)} iconOnly variant="ghost" tone="neutral" size="sm" disabled={config.disabled} aria-pressed={revealed} onClick={() => setRevealed((r) => !r)} />, 'span')
+              : null}
             {filled(config.endContent) ? slot('endContent', config.endContent, 'span') : null}
             {handle ? slot('handle', config.resizeIcon ?? GRIP, 'span', { 'aria-hidden': true, onPointerDown: startResize }) : null}
           </>,
           'div',
         )}
         {filled(config.description) ? slot('description', config.description, 'div', { id: field.descriptionId }, 'pinfold-field__description') : null}
+        {config.showCount
+          ? slot(
+              'counter',
+              <>
+                <span aria-hidden="true">{config.maxLength !== undefined ? `${length}/${config.maxLength}` : length}</span>
+                <span role="status" style={VISUALLY_HIDDEN}>
+                  {spoken}
+                </span>
+              </>,
+              'div',
+              { 'data-near': dataAttr(config.maxLength !== undefined && length >= config.maxLength * 0.9 && length < config.maxLength), 'data-full': dataAttr(config.maxLength !== undefined && length >= config.maxLength) },
+            )
+          : null}
         {filled(field.message) ? slot('error', field.message, 'div', { id: field.errorId }, 'pinfold-field__error') : null}
       </>
     );

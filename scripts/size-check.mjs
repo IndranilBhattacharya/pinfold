@@ -71,8 +71,8 @@ const BUDGETS = [
   ['packages/react/dist/select/index.js', 13], // the overlay layer (top layer, flip, dismiss stack), shared with menu, which also carries the trigger button
   ['packages/react/dist/stepper/index.js', 8], // renders Pinfold buttons (Back, Next, Finish) and the step panels
   ['packages/react/dist/pagination/index.js', 7], // page size select, go to page, summary, sliding cursor, cursor-paged mode
-  ['packages/react/dist/breadcrumb/index.js', 12], // renders Pinfold menus (crumb menus, collapsed crumbs), with the overlay layer
-  ['packages/react/dist/tabs/index.js', 7], // close and add, link tabs, overflow fades
+  ['packages/react/dist/breadcrumb/index.js', 13], // renders Pinfold menus (crumb menus, collapsed crumbs), with the overlay layer
+  ['packages/react/dist/tabs/index.js', 8], // close and add, link tabs, overflow fades
   ['packages/react/dist/otp/index.js', 6],
   ['packages/react/dist/number/index.js', 7],
   ['packages/react/dist/slider/index.js', 7],
@@ -81,7 +81,7 @@ const BUDGETS = [
   ['packages/react/dist/switch/index.js', 6],
   ['packages/react/dist/radio/index.js', 6],
   ['packages/react/dist/checkbox/index.js', 6],
-  ['packages/react/dist/input/index.js', 8],
+  ['packages/react/dist/input/index.js', 9],
   ['packages/react/dist/toast/index.js', 10],
   ['packages/react/dist/menu/index.js', 10],
   ['packages/react/dist/dialog/index.js', 10],

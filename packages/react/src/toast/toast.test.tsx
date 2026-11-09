@@ -60,6 +60,23 @@ describe('Toast', () => {
     expect(shown(region)).not.toContain('Saved');
   });
 
+  it('a swipe toward the edge dismisses it; one against the edge springs back; swipe: false turns it off', () => {
+    const onDismiss = vi.fn();
+    const toasts = setup();
+    act(() => void toasts.show({ title: 'A', onDismiss, duration: 0 }));
+    const item = () => document.querySelector('.pinfold-toast__item:not([data-leaving])') as HTMLElement;
+    const drag = (el: HTMLElement, to: number) => {
+      fireEvent.pointerDown(el, { button: 0, clientX: 100, pointerId: 1 });
+      fireEvent.pointerMove(el, { clientX: 100 + to, pointerId: 1 });
+      fireEvent.pointerUp(el, { clientX: 100 + to, pointerId: 1 });
+    };
+    drag(item(), -200);
+    expect(onDismiss).not.toHaveBeenCalled();
+    drag(item(), 200);
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('region').hasAttribute('data-swipe')).toBe(true);
+  });
+
   it('the dismiss button and Escape remove it, calling onDismiss', () => {
     const onDismiss = vi.fn();
     const toasts = setup();

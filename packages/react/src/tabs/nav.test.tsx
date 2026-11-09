@@ -26,6 +26,32 @@ const tabs = [
 ] as const;
 
 describe('Tabs', () => {
+  it('onReorder: Ctrl+Shift+Arrow moves the focused tab and says where; dragging drops it before or after a tab', () => {
+    function Host() {
+      const [order, setOrder] = React.useState(['a', 'b', 'c']);
+      return <Tabs label="Files" items={order} onReorder={(ids) => setOrder(ids)} />;
+    }
+    render(<Host />);
+    const tabA = screen.getByRole('tab', { name: 'a' });
+    expect(tabA.getAttribute('aria-keyshortcuts')).toContain('Control+Shift+ArrowRight');
+    expect(tabA.getAttribute('draggable')).toBe('true');
+    tabA.focus();
+    fireEvent.keyDown(tabA, { key: 'ArrowRight', ctrlKey: true, shiftKey: true });
+    expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual(['b', 'a', 'c']);
+    expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'a' }));
+    expect(screen.getByRole('status').textContent).toBe('a: 2 of 3');
+    // A plain arrow still only moves focus.
+    fireEvent.keyDown(document.activeElement!, { key: 'ArrowRight' });
+    expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual(['b', 'a', 'c']);
+    // Drag c onto the start of b.
+    const data = { effectAllowed: '', setData: () => {} };
+    fireEvent.dragStart(screen.getByRole('tab', { name: 'c' }), { dataTransfer: data });
+    fireEvent.dragOver(screen.getByRole('tab', { name: 'b' }), { dataTransfer: data, clientX: -1 });
+    expect(screen.getByRole('tab', { name: 'b' }).getAttribute('data-drop')).toBe('before');
+    fireEvent.drop(screen.getByRole('tab', { name: 'b' }), { dataTransfer: data });
+    expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual(['c', 'b', 'a']);
+  });
+
   it('a named tab list; the selected tab controls its panel, which is labelled by it', () => {
     render(<Tabs label="Settings" items={tabs} />);
     const list = screen.getByRole('tablist', { name: 'Settings' });

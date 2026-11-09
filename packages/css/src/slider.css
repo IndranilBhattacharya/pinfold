@@ -267,6 +267,32 @@
   .pinfold-slider__input:is(:hover, :focus-visible, :active) + .pinfold-slider__thumb > .pinfold-slider__value { opacity: 1; translate: -50% 0; }
   [dir='rtl'] .pinfold-slider__input:is(:hover, :focus-visible, :active) + .pinfold-slider__thumb > .pinfold-slider__value { translate: 50% 0; }
 
+  /* Vertical: the control is laid out as a row, then turned a quarter (minimum at the bottom), so
+     the drawn parts and the native inputs keep one geometry. Margins make its box the turned size;
+     text inside reads upright through vertical-rl. Always left to right inside, so RTL pages too. */
+  .pinfold-slider[data-orientation='vertical'] {
+    --pinfold-sld-len: var(--pinfold-slider-length, 12rem);
+    --pinfold-sld-h: max(var(--pinfold-sld-t), 1.5rem);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    inline-size: auto;
+  }
+  .pinfold-slider[data-orientation='vertical'] .pinfold-slider__body { flex-direction: column-reverse; }
+  .pinfold-slider[data-orientation='vertical'] .pinfold-slider__control {
+    flex: none;
+    direction: ltr;
+    inline-size: var(--pinfold-sld-len);
+    margin: calc((var(--pinfold-sld-len) - var(--pinfold-sld-h)) / 2 + var(--pinfold-space-1)) calc((var(--pinfold-sld-h) - var(--pinfold-sld-len)) / 2);
+    rotate: -90deg;
+  }
+  .pinfold-slider[data-orientation='vertical'][data-mark-labels] .pinfold-slider__control { margin-inline-end: calc((var(--pinfold-sld-h) - var(--pinfold-sld-len)) / 2 + 2.5rem); }
+  .pinfold-slider[data-orientation='vertical'] .pinfold-slider__mark { writing-mode: vertical-rl; inset: 50% auto auto calc(var(--pinfold-sld-at) * (100% - var(--pinfold-sld-t)) + var(--pinfold-sld-t) / 2); translate: -50% 0; padding: calc(max(var(--pinfold-sld-t), var(--pinfold-sld-k)) / 2 + 0.5rem) 0 0 0; }
+  .pinfold-slider[data-orientation='vertical'] .pinfold-slider__mark::before { inset: calc(var(--pinfold-sld-d) / -2) auto auto calc(50% - var(--pinfold-sld-d) / 2); }
+  .pinfold-slider[data-orientation='vertical'] .pinfold-slider__thumb > .pinfold-slider__value { writing-mode: vertical-rl; inset: auto auto calc(100% + 0.75rem) 50%; min-inline-size: 0; min-block-size: 2rem; padding: var(--pinfold-space-2) var(--pinfold-space-1); translate: -50% 0.25rem; }
+  .pinfold-slider[data-orientation='vertical'] .pinfold-slider__thumb > .pinfold-slider__value::after { inset: auto auto -0.25rem calc(50% - 0.25rem); }
+  .pinfold-slider[data-orientation='vertical'] .pinfold-slider__input:is(:hover, :focus-visible, :active) + .pinfold-slider__thumb > .pinfold-slider__value { translate: -50% 0; }
+
   @media (forced-colors: active) {
     .pinfold-slider__range { background: Highlight; forced-color-adjust: none; }
     .pinfold-slider__track { border: 1px solid CanvasText; }

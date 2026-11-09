@@ -34,7 +34,8 @@ preset, `defaults.slider`, the provider (size, tone), the library default.
 | `formatValue` | `(value) => string`, shown and read | the number |
 | `thumbLabels` | range: thumb names after the label | `['Minimum', 'Maximum']` |
 | `size`, `tone` | | `'md'`, `'primary'` (provider) |
-| `dimensions` | `thickness, thumbSize` | from the size |
+| `orientation` | `horizontal`, or `vertical` with the minimum at the bottom | `'horizontal'` |
+| `dimensions` | `thickness, thumbSize, length` (vertical track, 12rem) | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label value control track range steps input thumb marks mark startContent endContent description error`) | | |
 
 Inactive (`inactiveSliderOptions`): `minGap` with one thumb; `formatValue` with `showValue: 'never'`;
@@ -50,5 +51,6 @@ Inactive (`inactiveSliderOptions`): `minGap` with one thumb; `formatValue` with 
   keys move to the next mark; arrows follow the reading direction.
 
 ## Deliberately excluded
-- Vertical sliders: a vertical native range needs `writing-mode` on form controls, above the
-  browser floor (**Planned**).
+- A native vertical range (`writing-mode` on form controls) is above the browser floor: a vertical
+  slider turns the whole control a quarter instead, so the native inputs keep their keys and hit
+  testing, and `aria-orientation` says vertical.

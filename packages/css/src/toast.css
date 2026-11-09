@@ -76,6 +76,9 @@
     transform-origin: 50% 100%;
   }
   .pinfold-toast[data-placement^='top'] .pinfold-toast__item { transform-origin: 50% 0; }
+  /* A swipe moves it sideways; vertical drags still scroll the page. */
+  .pinfold-toast[data-swipe] .pinfold-toast__item { touch-action: pan-y; }
+  .pinfold-toast__item[data-swiping] { cursor: grabbing; user-select: none; }
   .pinfold-toast__item > * { transition: opacity var(--pinfold-duration-md) var(--pinfold-ease-out); }
 
   /* The pile. */

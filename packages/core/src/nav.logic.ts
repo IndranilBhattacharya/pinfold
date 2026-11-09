@@ -92,12 +92,22 @@ export function stepStatus(index: number, current: number): StepStatus {
 }
 
 /** Options with no visible effect in the current config. */
-export function inactiveTabsOptions(config: { placement?: string; onAdd?: unknown; onClose?: unknown }): Record<string, string> {
+export function inactiveTabsOptions(config: { placement?: string; onAdd?: unknown; onClose?: unknown; onReorder?: unknown }): Record<string, string> {
   const out: Record<string, string> = {};
   if (config.placement === 'start' || config.placement === 'end') out.fullWidth = 'a column of tabs already fills its side.';
   if (!config.onAdd) out.addLabel = 'only used with `onAdd`.';
   if (!config.onClose) out.closeLabel = 'only used with `onClose`.';
+  if (!config.onReorder) out.reorderLabel = 'only used with `onReorder`.';
   return out;
+}
+
+/** The list with the entry at `from` moved to `to` (both clamped). */
+export function moveItem<T>(list: readonly T[], from: number, to: number): T[] {
+  const next = [...list];
+  if (from < 0 || from >= next.length) return next;
+  const [item] = next.splice(from, 1);
+  next.splice(Math.max(0, Math.min(to, next.length)), 0, item);
+  return next;
 }
 
 export function inactiveBreadcrumbOptions(config: { maxItems?: number; items?: unknown; path?: string; variant?: string }): Record<string, string> {

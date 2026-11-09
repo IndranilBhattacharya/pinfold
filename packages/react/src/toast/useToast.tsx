@@ -161,6 +161,7 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
         'aria-live': 'polite',
         'aria-relevant': 'additions',
         'data-placement': state.placement,
+        'data-swipe': config.swipe !== false ? '' : undefined,
         'data-stack': stacked ? '' : undefined,
         'data-expanded': state.expanded ? '' : undefined,
         'data-unstyled': config.unstyled ? '' : undefined,
@@ -185,6 +186,54 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
       'root',
       getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-toast', config.className), style: vars || config.style ? { ...vars, ...config.style } : undefined }, rootProps)),
     );
+    // Drag toward the placement's edge (either way when centred); far or fast enough dismisses.
+    const swipe = (event: React.PointerEvent<HTMLElement>, close: () => void) => {
+      if (event.button !== 0 || (event.target as Element).closest('button, a, input, select, textarea')) return;
+      const el = event.currentTarget;
+      const rtl = getComputedStyle(el).direction === 'rtl';
+      const edge = state.placement.endsWith('end') ? 1 : state.placement.endsWith('start') ? -1 : 0;
+      const toward = edge * (rtl ? -1 : 1);
+      const x0 = event.clientX;
+      const t0 = performance.now();
+      const motion = !ctx.disableAnimation && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      let dx = 0;
+      el.setPointerCapture?.(event.pointerId);
+      const move = (e: PointerEvent) => {
+        const d = e.clientX - x0;
+        // Against the edge it resists.
+        dx = toward && d * toward < 0 ? d / 4 : d;
+        if (Math.abs(dx) < 4) return;
+        el.setAttribute('data-swiping', '');
+        el.style.transition = 'none';
+        el.style.translate = `${dx}px 0`;
+        el.style.opacity = String(1 - Math.min(Math.abs(dx) / el.offsetWidth, 1) * 0.7);
+      };
+      const done = () => {
+        el.removeEventListener('pointermove', move);
+        el.removeEventListener('pointerup', done);
+        el.removeEventListener('pointercancel', cancel);
+        el.removeAttribute('data-swiping');
+        const fast = Math.abs(dx) > 24 && Math.abs(dx) / (performance.now() - t0) > 0.6;
+        const out = (Math.abs(dx) > el.offsetWidth / 3 || fast) && (!toward || dx * toward > 0);
+        el.style.transition = motion ? 'translate 200ms ease-out, opacity 200ms ease-out' : 'none';
+        if (out) {
+          el.style.translate = `${Math.sign(dx) * 110}%` + ' 0';
+          el.style.opacity = '0';
+          close();
+        } else {
+          el.style.translate = '';
+          el.style.opacity = '';
+          setTimeout(() => (el.style.transition = ''), 220);
+        }
+      };
+      const cancel = () => {
+        dx = 0;
+        done();
+      };
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerup', done);
+      el.addEventListener('pointercancel', cancel);
+    };
     let index = 0;
     const items = shown.map((toast) => {
       const tone = toast.tone ?? 'neutral';
@@ -225,6 +274,7 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
           onKeyDown: (event: React.KeyboardEvent) => {
             if (event.key === 'Escape') close();
           },
+          onPointerDown: config.swipe !== false && toast.dismissible !== false && !toast.leaving ? (event: React.PointerEvent<HTMLElement>) => swipe(event, close) : undefined,
         },
       );
     });

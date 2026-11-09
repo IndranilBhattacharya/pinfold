@@ -25,6 +25,8 @@ export interface SliderState {
 export interface SliderDimensions {
   thickness?: Length;
   thumbSize?: Length;
+  /** Track length when vertical (default 12rem). */
+  length?: Length;
 }
 
 /**
@@ -62,6 +64,8 @@ export interface SliderConfig extends Omit<FieldConfig, 'required' | 'nativeErro
   showSteps?: boolean;
   /** @default 'line' */
   variant?: 'line' | 'bar' | 'minimal';
+  /** `vertical`: the track stands up, the minimum at the bottom (volume, equalisers). @default 'horizontal' */
+  orientation?: 'horizontal' | 'vertical';
   /** Before the track (decorative). */
   startContent?: React.ReactNode;
   /** After the track (decorative). */

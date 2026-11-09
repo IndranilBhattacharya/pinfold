@@ -36,6 +36,8 @@ preset, `defaults.input`, the provider (size), the library default. Other tag pr
 | `resize`, `resizeIcon` | multiline: `'vertical' \| 'none'`, a drag handle in the end corner; its icon | `'vertical'`, two lines |
 | `startContent`, `endContent` | node: an icon, a unit, text, a shortcut | none |
 | `clearable`, `clearLabel`, `clearIcon` | a clear button while it has a value; its name; its icon | `false`, `'Clear'`, a cross |
+| `revealable`, `revealLabel` | password: a toggle button (`aria-pressed`) that shows the text | `false`, `'Show password'` |
+| `showCount`, `countLabel(left)` | a count under the field ("12/80" with `maxLength`); near the limit it turns amber, at it red, and "20 characters left" is read politely once typing pauses | `false`, English |
 | `labelPlacement` | `'outside' \| 'inside'`: above, or in the field rising to its top edge on focus or with a value | `'outside'` |
 | `variant` | `'outline' \| 'filled' \| 'underline'` | `'outline'` |
 | `size` | `'sm' \| 'md' \| 'lg'`, the same heights as a button | `'md'` (provider) |
@@ -46,7 +48,8 @@ Controller: `focus()`, `clear()`.
 Inactive (`inactiveInputOptions`): `type` when multiline; `rows`, `autosize`, `resize`, `resizeIcon`
 unless multiline; `resize`, `resizeIcon` with `autosize`; `resizeIcon` with `resize: 'none'`;
 `clearLabel`, `clearIcon` without `clearable`; `clearable` when read-only or disabled;
-`labelPlacement` with `hideLabel`.
+`labelPlacement` with `hideLabel`; `revealable` unless a single-line password; `revealLabel` without it;
+`countLabel` without `showCount` and `maxLength`.
 
 Motion: the frame takes the accent on focus and the ring fades in; `underline` grows a bar from the
 centre; an inside label rises; the clear button springs in. Reduced motion and `disableAnimation`
@@ -80,4 +83,4 @@ turn it off.
 ## Deliberately excluded
 - `type: 'number'`: spinners and locale parsing are a poor fit. Use the Number field.
 - `type: 'date'`: use the Date picker.
-- A password reveal button and a character counter: both are one `endContent` or `description` away.
+- A strength meter for passwords: rules differ per product; put a Progress in `description`.

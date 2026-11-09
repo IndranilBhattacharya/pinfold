@@ -15,6 +15,14 @@ import { useOtp } from '../otp/useOtp';
 import { defineOtp } from '../otp/define';
 
 describe('Slider', () => {
+  it('vertical: each input says so; the root carries the orientation; the length is a dimension', () => {
+    const { container } = render(<Slider label="Volume" orientation="vertical" defaultValue={[20, 60]} dimensions={{ length: 160 }} />);
+    for (const input of screen.getAllByRole('slider')) expect(input.getAttribute('aria-orientation')).toBe('vertical');
+    const root = container.querySelector('.pinfold-slider') as HTMLElement;
+    expect(root.getAttribute('data-orientation')).toBe('vertical');
+    expect(root.style.getPropertyValue('--pinfold-slider-length')).toBe('160px');
+  });
+
   it('one thumb is a native range named by the label, reading the formatted value', () => {
     const onChange = vi.fn();
     render(<Slider label="Volume" defaultValue={[40]} formatValue={(v) => `${v}%`} onChange={onChange} />);

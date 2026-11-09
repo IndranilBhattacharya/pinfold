@@ -10,10 +10,13 @@ import { inactiveProgressOptions, progressPercent, progressValueText } from './p
 
 describe('kbd logic', () => {
   it('input: options that do nothing in the current config', () => {
-    expect(Object.keys(inactiveInputOptions({}))).toEqual(['autosize', 'rows', 'resize', 'resizeIcon', 'clearLabel', 'clearIcon']);
-    expect(Object.keys(inactiveInputOptions({ multiline: true, autosize: true, clearable: true }))).toEqual(['type', 'resize', 'resizeIcon']);
-    expect(Object.keys(inactiveInputOptions({ multiline: true, resize: 'none', clearable: true }))).toEqual(['type', 'resizeIcon']);
-    expect(Object.keys(inactiveInputOptions({ clearable: true, readOnly: true, hideLabel: true }))).toEqual(['autosize', 'rows', 'resize', 'resizeIcon', 'clearable', 'labelPlacement']);
+    expect(Object.keys(inactiveInputOptions({}))).toEqual(['autosize', 'rows', 'resize', 'resizeIcon', 'clearLabel', 'clearIcon', 'revealable', 'revealLabel', 'countLabel']);
+    expect(Object.keys(inactiveInputOptions({ multiline: true, autosize: true, clearable: true }))).toEqual(['type', 'resize', 'resizeIcon', 'revealable', 'revealLabel', 'countLabel']);
+    expect(Object.keys(inactiveInputOptions({ multiline: true, resize: 'none', clearable: true }))).toEqual(['type', 'resizeIcon', 'revealable', 'revealLabel', 'countLabel']);
+    expect(Object.keys(inactiveInputOptions({ clearable: true, readOnly: true, hideLabel: true }))).toEqual(['autosize', 'rows', 'resize', 'resizeIcon', 'clearable', 'labelPlacement', 'revealable', 'revealLabel', 'countLabel']);
+    // A password field with a limit: reveal and the spoken count both apply.
+    expect(Object.keys(inactiveInputOptions({ type: 'password', revealable: true, showCount: true, maxLength: 20 }))).toEqual(['autosize', 'rows', 'resize', 'resizeIcon', 'clearLabel', 'clearIcon']);
+    expect(Object.keys(inactiveInputOptions({ type: 'password', multiline: true, revealable: true }))).toEqual(['type', 'clearLabel', 'clearIcon', 'revealable', 'revealLabel', 'countLabel']);
   });
 
   it('maps mod to Command on Apple platforms and Ctrl elsewhere, with spoken names', () => {

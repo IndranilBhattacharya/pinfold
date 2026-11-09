@@ -67,6 +67,10 @@ export interface TabsConfig<Id extends string = string> extends SlotOverrides<Ta
   addLabel?: string;
   /** @default 'Press Delete to close' */
   closeLabel?: string;
+  /** Tabs can be dragged, or moved with Ctrl (⌘) + Shift + an arrow key: `(ids, event)` in the new order. Reorder the items in your state. */
+  onReorder?: (ids: Id[], event: React.SyntheticEvent) => void;
+  /** @default 'Press Control, Shift and an arrow key to move' */
+  reorderLabel?: string;
   /** @default 'segmented' */
   variant?: TabsVariant;
   /** @default 'top' */

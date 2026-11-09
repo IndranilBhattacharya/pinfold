@@ -113,6 +113,10 @@
     flex-shrink: 0;
     margin-inline-end: calc(var(--pinfold-space-1) * -1);
   }
+  .pinfold-input__reveal { display: inline-flex; flex-shrink: 0; margin-inline-end: calc(var(--pinfold-space-1) * -1); }
+  .pinfold-input__counter { margin-block-start: 0.25rem; font-size: 0.75rem; font-variant-numeric: tabular-nums; color: var(--pinfold-color-text-muted); text-align: end; }
+  .pinfold-input__counter[data-near] { color: var(--pinfold-color-warning); }
+  .pinfold-input__counter[data-full] { color: var(--pinfold-color-danger); }
   .pinfold-input[data-animate] .pinfold-input__clear { animation: pinfold-input-in var(--pinfold-duration-md) var(--pinfold-ease-spring); }
   @keyframes pinfold-input-in {
     from { opacity: 0; transform: scale(0.6); }

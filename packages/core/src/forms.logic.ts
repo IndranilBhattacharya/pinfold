@@ -6,7 +6,7 @@ export function fieldDescribedBy(ids: ReadonlyArray<string | false | null | unde
 }
 
 /** Options with no visible effect in the current config. */
-export function inactiveInputOptions(config: { multiline?: boolean; autosize?: boolean; resize?: string; clearable?: boolean; readOnly?: boolean; disabled?: boolean; hideLabel?: boolean }): Record<string, string> {
+export function inactiveInputOptions(config: { type?: string; multiline?: boolean; autosize?: boolean; resize?: string; clearable?: boolean; readOnly?: boolean; disabled?: boolean; hideLabel?: boolean; revealable?: boolean; showCount?: boolean; maxLength?: number }): Record<string, string> {
   const out: Record<string, string> = {};
   if (config.multiline) {
     out.type = 'a multiline field is always text.';
@@ -26,6 +26,9 @@ export function inactiveInputOptions(config: { multiline?: boolean; autosize?: b
     out.clearIcon = out.clearLabel;
   } else if (config.readOnly || config.disabled) out.clearable = 'a read-only or disabled field cannot be cleared.';
   if (config.hideLabel) out.labelPlacement = 'the label is hidden.';
+  if (config.multiline || config.type !== 'password') out.revealable = 'only a password field can be revealed.';
+  if (out.revealable || !config.revealable) out.revealLabel = 'only used with `revealable` on a password field.';
+  if (!config.showCount || config.maxLength === undefined) out.countLabel = 'only read with `showCount` and a `maxLength`.';
   return out;
 }
 

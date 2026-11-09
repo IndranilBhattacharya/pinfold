@@ -48,12 +48,21 @@ Rows: an action (`label`, `icon`, `shortcut`, `tone`, `disabled`, `onSelect`, `c
 Controller: `isOpen`, `open()`, `close()`, `toggle()`, `getTriggerProps()`.
 Inactive (`inactiveMenuOptions`): `placement`, `offset` in a context menu.
 
+## Submenus
+A row `{ type: 'submenu', label, items }` opens its rows in a menu beside it (the other side when
+there is no room), on hover after 120 ms, on a press, or from the keyboard. Resting on another row
+shuts it. It is a `menuitem` with `aria-haspopup="menu"` and `aria-expanded`; the submenu is its own
+`menu` named by that row. Choosing a row anywhere closes every level; slot `submenu` styles the
+panels, `chevron` the mark.
+
 ## Keyboard
 | Keys | Action |
 |---|---|
 | Enter, Space, ArrowDown (trigger) | Open on the first row |
 | ArrowUp (trigger) | Open on the last row |
 | ArrowDown, ArrowUp, Home, End | Move, wrapping unless `loop: false` |
+| ArrowRight (ArrowLeft in RTL), Enter, Space on a submenu row | Open it beside, on its first row |
+| ArrowLeft (ArrowRight in RTL), Escape in a submenu | Close just that submenu, back on its row |
 | Enter, Space | Select |
 | A letter | Jump to the next match; keep typing to narrow |
 | Escape | Close, focus back on the trigger |
@@ -72,7 +81,7 @@ Inactive (`inactiveMenuOptions`): `placement`, `offset` in a context menu.
 |---|---|---|---|
 | `DropdownMenu`, `ContextMenu` + 10 parts | `Dropdown` + `DropdownItem` | `Menu` + `MenuItem` | one config: `items`, `mode` |
 | `DropdownMenuCheckboxItem`, `RadioItem` | `selectionMode` | | `type: 'checkbox' \| 'radio'` |
-| `DropdownMenuSub` | | | **Planned** |
+| `DropdownMenuSub` + `SubTrigger` + `SubContent` | | nested `Menu` | `{ type: 'submenu', label, items }` |
 
 ## Deliberately excluded
 - Binding `shortcut` to the key: it is a hint; the app owns its key handling.

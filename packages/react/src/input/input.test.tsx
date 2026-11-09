@@ -11,6 +11,40 @@ import { defineInput } from './define';
 import type { InputComponent } from './types';
 
 describe('Input', () => {
+  it('revealable: a pressed toggle shows the password as text and hides it again', () => {
+    render(<Input label="Password" type="password" revealable />);
+    const field = screen.getByLabelText('Password') as HTMLInputElement;
+    const toggle = screen.getByRole('button', { name: 'Show password' });
+    expect(field.type).toBe('password');
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
+    fireEvent.click(toggle);
+    expect(field.type).toBe('text');
+    expect(toggle.getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(toggle);
+    expect(field.type).toBe('password');
+  });
+
+  it('showCount: "n/max" as you type, read politely once typing pauses; warns near and at the limit', () => {
+    vi.useFakeTimers();
+    const { container } = render(<Input label="Bio" showCount maxLength={10} defaultValue="abc" />);
+    const counter = container.querySelector('.pinfold-input__counter')!;
+    expect(counter.textContent).toBe('3/10');
+    fireEvent.change(screen.getByLabelText('Bio'), { target: { value: 'abcdefghi' } });
+    expect(counter.textContent).toBe('9/10');
+    expect(counter.hasAttribute('data-near')).toBe(true);
+    expect(screen.getByRole('status').textContent).toBe('');
+    act(() => vi.advanceTimersByTime(900));
+    expect(screen.getByRole('status').textContent).toBe('1 character left');
+    fireEvent.change(screen.getByLabelText('Bio'), { target: { value: 'abcdefghij' } });
+    expect(counter.hasAttribute('data-full')).toBe(true);
+    vi.useRealTimers();
+  });
+
+  it('showCount without a limit counts only; a controlled value counts too', () => {
+    const { container } = render(<Input label="Notes" showCount multiline value="hello" onChange={() => {}} />);
+    expect(container.querySelector('.pinfold-input__counter')!.textContent).toBe('5');
+  });
+
   it('label inside: it follows the input, which gets a blank placeholder so CSS sees it empty', () => {
     const { container } = render(<Input label="Email" labelPlacement="inside" />);
     const box = screen.getByRole('textbox', { name: 'Email' }) as HTMLInputElement;
