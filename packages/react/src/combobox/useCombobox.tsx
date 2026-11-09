@@ -8,7 +8,7 @@ import { ITEM, renderSlot, slotProps } from '../slots';
 import { filled, hiddenStyle, labelContent, useField } from '../field';
 import { useFloating, useMounted, useOverlayLayer } from '../overlay';
 import { CHEVRON_DOWN_ICON, CLOSE_ICON } from '../nav-icons';
-import { renderRows, toRows, useListNav, type Row, type ListItemContext } from '../select/listbox';
+import { renderRows, toRows, useListNav, useListWindow, type ListItem, type Row, type ListItemContext } from '../select/listbox';
 import type { ComboboxApi, ComboboxComponent, ComboboxConfig, ComboboxRootProps, ComboboxSlot, ComboboxState } from './types';
 
 const asList = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : v == null || v === '' ? [] : [String(v)]);
@@ -28,10 +28,23 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
   const config = ctx.defaults.combobox ? (mergeConfig<ComboboxConfig>(ctx.defaults.combobox as ComboboxConfig, own) as ComboboxConfig) : own;
   const field = useField(config);
   const multiple = !!config.multiple;
-  const all = toRows(config.items);
+  // Rows fetched by `loadItems`, per query; the last request is cancelled when the query moves on.
+  const [loaded, setLoaded] = React.useState<{ query: string; items: ReadonlyArray<ListItem | string> } | null>(null);
+  const [fetching, setFetching] = React.useState(false);
+  const [loadFailed, setLoadFailed] = React.useState(false);
+  const cache = React.useRef(new Map<string, ReadonlyArray<ListItem | string>>());
+  const loader = React.useRef(config.loadItems);
+  loader.current = config.loadItems;
+  const async = !!config.loadItems;
+  const fetched = toRows(async ? loaded?.items : config.items);
+  // Chosen values keep their labels when the fetched rows change.
+  const known = React.useRef(new Map<string, Row>());
+  for (const r of fetched) known.current.set(r.value, r);
+  const all = fetched;
   const [rawValue, setRawValue] = useControllableState<unknown>({ value: config.value === undefined ? undefined : config.value ?? null, defaultValue: config.defaultValue ?? (multiple ? [] : null) });
   const value = asList(rawValue);
-  const labelOf = (v: string) => all.find((r) => r.value === v)?.text ?? v;
+  const rowOf = (v: string) => all.find((r) => r.value === v) ?? known.current.get(v);
+  const labelOf = (v: string) => rowOf(v)?.text ?? v;
   const [query, setQueryState] = useControllableState<string>({ value: config.inputValue, defaultValue: config.defaultInputValue ?? (!multiple && value[0] ? labelOf(value[0]) : '') });
   // Typed since the last choice: the rows filter only then (a chosen label shows every row).
   const [editing, setEditing] = React.useState(() => {
@@ -39,23 +52,64 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
     return !!given && (multiple || given !== (value[0] ? labelOf(value[0]) : ''));
   });
   const [isOpen, setOpenState] = useControllableState<boolean>({ value: config.open, defaultValue: config.defaultOpen ?? false });
+  const popup = React.useRef<HTMLDivElement | null>(null);
   const control = React.useRef<HTMLDivElement | null>(null);
   const text = React.useRef<HTMLInputElement | null>(null);
-  const popup = React.useRef<HTMLDivElement | null>(null);
   const mounted = useMounted();
   const listId = `${field.base}-list`;
   const disabled = !!config.disabled;
-  const loading = !!config.loading;
+  const loading = !!config.loading || fetching;
   const open = isOpen && !disabled;
 
   const typed = editing || multiple ? query : '';
-  const shown = all.filter((r) => matchesQuery(r.text, typed, config.filter ?? 'contains'));
+  // Fetched rows are already the results: they are not filtered again.
+  const inList = config.selectedInList ?? 'check';
+  const shown = all
+    .filter((r) => matchesQuery(r.text, typed, config.filter ?? (async ? 'none' : 'contains')))
+    .filter((r) => !(multiple && inList === 'hide' && value.includes(r.value)))
+    .map((r) => (multiple && inList === 'disable' && value.includes(r.value) ? { ...r, disabled: true } : r));
   const exact = all.some((r) => foldText(r.text) === foldText(query.trim()));
   const custom: Row | null = config.allowCustom && query.trim() && !exact && !(multiple && value.includes(query.trim()))
     ? { value: query.trim(), label: config.labels?.create ? config.labels.create(query.trim()) : `Add "${query.trim()}"`, text: query.trim(), disabled: false }
     : null;
   const rows = custom ? [...shown, custom] : shown;
   const nav = useListNav({ rows, open, selected: value, listId });
+  const listWindow = useListWindow(rows, open, nav.active, popup);
+
+  React.useEffect(() => {
+    const load = loader.current;
+    if (!load || (!open && !typed)) return;
+    const hit = cache.current.get(typed);
+    if (hit) {
+      setLoaded({ query: typed, items: hit });
+      setFetching(false);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(
+      async () => {
+        setFetching(true);
+        setLoadFailed(false);
+        try {
+          const items = await load(typed, { signal: controller.signal });
+          if (controller.signal.aborted) return;
+          cache.current.set(typed, items);
+          // A small cache: the oldest query goes first.
+          if (cache.current.size > 30) cache.current.delete(cache.current.keys().next().value as string);
+          setLoaded({ query: typed, items });
+        } catch {
+          if (!controller.signal.aborted) setLoadFailed(true);
+        } finally {
+          if (!controller.signal.aborted) setFetching(false);
+        }
+      },
+      typed ? config.debounce ?? 250 : 0,
+    );
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [typed, open, async]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ comboboxMeta, validateConfig }) => {
@@ -167,6 +221,7 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
         'data-invalid': dataAttr(field.invalid),
         'data-disabled': dataAttr(disabled),
         'data-multiple': dataAttr(multiple),
+        'data-chips': multiple ? config.chipsPlacement ?? 'inside' : undefined,
         'data-loading': dataAttr(loading),
         'data-animate': dataAttr(!ctx.disableAnimation),
         'data-unstyled': dataAttr(config.unstyled),
@@ -186,19 +241,26 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
       getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-select pinfold-field', config.className), style: vars || config.style ? { ...vars, ...config.style } : undefined }, rootProps)),
     );
     const max = config.maxChips ?? 3;
+    const below = (config.chipsPlacement ?? 'inside') === 'below';
+    const limit = below ? config.maxChips ?? Infinity : max;
     const chipItem = (v: string, index: number): ListItemContext => {
-      const r = all.find((x) => x.value === v);
+      const r = rowOf(v);
       return { value: v, label: r?.label ?? v, text: r?.text ?? v, description: r?.description, icon: r?.icon, group: r?.group, disabled: !!r?.disabled, selected: true, active: false, index, remove: (e) => commit(value.filter((x) => x !== v), e) };
     };
-    const chips = multiple ? (
+    const chipList = multiple ? (
       <>
-        {value.slice(0, max).map((v, index) => (
+        {value.slice(0, limit).map((v, index) => (
           <React.Fragment key={v}>
             {slot(
               'chip',
               <>
-                <span>{all.find((r) => r.value === v)?.label ?? v}</span>
-                {disabled ? null : (
+                <span>{rowOf(v)?.label ?? v}</span>
+                {disabled ? null : below ? (
+                  // Under the field the chips are a tag group: each remove is a real button.
+                  <button type="button" className={cls('pinfold-select__chipRemove')} aria-label={`${config.labels?.clear ?? 'Remove'} ${labelOf(v)}`} onClick={(e) => { commit(value.filter((x) => x !== v), e); text.current?.focus(); }}>
+                    {CLOSE_ICON}
+                  </button>
+                ) : (
                   <span aria-hidden="true" className={cls('pinfold-select__chipRemove')} onPointerDown={(e) => e.preventDefault()} onClick={() => commit(value.filter((x) => x !== v))}>
                     {CLOSE_ICON}
                   </span>
@@ -209,9 +271,11 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
             )}
           </React.Fragment>
         ))}
-        {value.length > max ? slot('chip', `+${value.length - max}`, 'span', { 'data-more': '' }) : null}
+        {value.length > limit ? slot('chip', `+${value.length - limit}`, 'span', { 'data-more': '' }) : null}
       </>
     ) : null;
+    const chips = below ? null : chipList;
+    const chipGroup = below && multiple && value.length ? slot('chips', chipList, 'div', { role: 'group', 'aria-label': `${typeof config.label === 'string' ? config.label : 'Chosen'}: ${value.length}` }) : null;
     const canClear = !!config.clearable && (value.length > 0 || query !== '') && !disabled;
     const clearLabel = config.labels?.clear ?? 'Clear';
     const content = (
@@ -284,6 +348,7 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
           'div',
           { ref: control, onClick: () => text.current?.focus() },
         )}
+        {chipGroup}
         {(multiple ? value : value.slice(0, 1)).map((v) => (config.name ? <input key={v} type="hidden" name={config.name} value={v} /> : null))}
         {open && mounted
           ? slot(
@@ -302,7 +367,8 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
                 onPick: (row, event) => pick(row, event),
                 query: config.highlight === false ? undefined : typed,
                 unstyled: config.unstyled,
-                status: rows.length ? undefined : loading ? config.labels?.loading ?? 'Loading…' : config.labels?.empty ?? 'No results',
+                window: listWindow,
+                status: rows.length ? undefined : loading ? config.labels?.loading ?? 'Loading…' : loadFailed ? config.labels?.error ?? 'Could not load results' : config.labels?.empty ?? 'No results',
               })}
               {/* Results being refreshed stay, with a loading row under them. */}
               {loading && rows.length ? slot('empty', config.labels?.loading ?? 'Loading…', 'div', { role: 'presentation', 'data-pending': '' }) : null}

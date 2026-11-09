@@ -10,6 +10,7 @@ export type ComboboxSlot =
   | 'root'
   | 'label'
   | 'control'
+  | 'chips'
   | 'chip'
   | 'input'
   | 'clear'
@@ -55,20 +56,34 @@ export interface ComboboxLabels {
   clear?: string;
   /** With `allowCustom`, the row that adds what was typed. Default `Add "…"`. */
   create?: (text: string) => React.ReactNode;
+  /** `loadItems` failed. @default 'Could not load results' */
+  error?: React.ReactNode;
 }
 
 /** An option (with its live state) or a chosen chip (with `remove`). `render` overrides of the repeating parts get it as `item`. */
 export type ComboboxItemContext = import('../select/listbox').ListItemContext;
 
 interface ComboboxShared<V extends string> extends FieldConfig, SlotOverrides<ComboboxSlot, ComboboxState, ComboboxItemContext> {
-  /** The rows: strings, or `{ value, label, description, icon, group, disabled }`. */
-  items: ReadonlyArray<ListItem<V> | V>;
+  /** The rows: strings, or `{ value, label, description, icon, group, disabled }`. Long lists draw only the rows in view. */
+  items?: ReadonlyArray<ListItem<V> | V>;
   /** What is typed, controlled. */
   inputValue?: string;
   /** @default '' */
   defaultInputValue?: string;
   /** Every keystroke: fetch matching `items` here for a server search (with `filter: 'none'`). */
   onInputChange?: (text: string) => void;
+  /**
+   * Fetch the rows for what is typed (`''` when the list opens): the combobox waits `debounce` ms,
+   * cancels a request that is no longer needed (`signal`), shows a loading row, keeps results per
+   * query, and does not filter them again. `items` is then not needed.
+   */
+  loadItems?: (query: string, options: { signal: AbortSignal }) => Promise<ReadonlyArray<ListItem<V> | V>> | ReadonlyArray<ListItem<V> | V>;
+  /** Milliseconds `loadItems` waits after the last keystroke. @default 250 */
+  debounce?: number;
+  /** Multiple: chosen rows in the list keep a check, are shown but cannot be picked again, or leave the list. @default 'check' */
+  selectedInList?: 'check' | 'disable' | 'hide';
+  /** Multiple: chips inside the field, or as a tag group under it (every chip shows). @default 'inside' */
+  chipsPlacement?: 'inside' | 'below';
   /** How typing narrows the rows; `none` when your `items` are already the results. @default 'contains' */
   filter?: ListFilter;
   /** What was typed becomes a value of its own (a tag input with `multiple`). @default false */

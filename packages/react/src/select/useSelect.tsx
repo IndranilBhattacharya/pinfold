@@ -9,7 +9,7 @@ import { filled, hiddenStyle, labelContent, useField } from '../field';
 import { useFloating, useMounted, useOverlayLayer } from '../overlay';
 import { VISUALLY_HIDDEN } from '../a11y';
 import { CHEVRON_DOWN_ICON, CLOSE_ICON } from '../nav-icons';
-import { renderRows, toRows, useListNav, type Row } from './listbox';
+import { renderRows, toRows, useListNav, useListWindow, type Row } from './listbox';
 import type { SelectApi, SelectComponent, SelectConfig, SelectRootProps, SelectSlot, SelectState } from './types';
 
 const asList = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : v == null || v === '' ? [] : [String(v)]);
@@ -42,6 +42,7 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
   const disabled = !!config.disabled;
   const open = isOpen && !disabled;
   const nav = useListNav({ rows, open, selected: value, listId });
+  const listWindow = useListWindow(rows, open, nav.active, popup);
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ selectMeta, validateConfig }) => {
@@ -241,6 +242,7 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
               optionId: nav.optionId,
               onPick: (row, event) => pick(row, event),
               unstyled: config.unstyled,
+              window: listWindow,
               status: rows.length ? undefined : config.emptyText ?? 'No options',
             }),
             'div',

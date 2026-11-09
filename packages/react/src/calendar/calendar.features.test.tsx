@@ -55,7 +55,7 @@ describe('Calendar: jumping, months and years, presets, range rules', () => {
     const seen: Array<string | null> = [];
     render(<Calendar mode="range" defaultMonth="2026-11-01" isDateDisabled={(_d, c) => (seen.push(c.start), false)} />);
     fireEvent.click(cell('2026-11-10'));
-    expect(seen.at(-1)).toBe('2026-11-10');
+    expect(seen[seen.length - 1]).toBe('2026-11-10');
   });
 
   it('presets set the value and mark the one in use; week numbers and day content show', () => {

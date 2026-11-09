@@ -27,7 +27,10 @@ default.
 | Key | Type | Default |
 |---|---|---|
 | field options | as Input | |
-| `items` | as Select: strings or `{ value, label?, textValue?, description?, icon?, group?, disabled? }` | required |
+| `items` | as Select: strings or `{ value, label?, textValue?, description?, icon?, group?, disabled? }`; a long list (over 120 rows, no groups) draws only the rows in view, each with `aria-setsize`/`aria-posinset` | required unless `loadItems` |
+| `loadItems`, `debounce` | `(query, { signal }) => rows \| Promise<rows>`: rows for what is typed (`''` on open), after a pause; stale requests are aborted, results cached per query, a loading row while it runs, an error row when it fails; chosen values keep their labels | none, `250` ms |
+| `selectedInList` | multiple: chosen rows keep a check (pick to remove), show disabled (remove with the chip), or leave the list | `'check'` |
+| `chipsPlacement` | multiple: chips in the field (up to `maxChips`, then +n), or every chip as a tag group under it with real remove buttons | `'inside'` |
 | `multiple` | chips before the text; Backspace in an empty field removes the last | `false` |
 | `value`, `defaultValue`, `onChange` | a value (array with `multiple`), `null` for none | none |
 | `inputValue`, `defaultInputValue`, `onInputChange` | what is typed; `(text)` on every keystroke | uncontrolled, `''` |
@@ -37,10 +40,10 @@ default.
 | `highlight` | mark the typed text in rows | `true` |
 | `openOnFocus` | open before anything is typed | `false` |
 | `clearable`, `maxChips`, `placeholder` | | `false`, `3`, none |
-| `labels` | `{ empty, loading, clear, create(text) }` | English |
+| `labels` | `{ empty, loading, error, clear, create(text) }` | English |
 | `open`, `defaultOpen`, `onOpenChange`, `placement`, `variant`, `size`, `tone`, `dimensions` | as Select | |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root label control chip input clear chevron popup group groupLabel option check icon detail empty description error` | |
+| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root label control chips chip input clear chevron popup group groupLabel option check icon detail empty description error`; `render.option` and `render.chip` get `item` (`{ value, label, text, description, icon, selected, active, disabled, index, remove? }`) | |
 
 Leaving the field with text that matches no row puts the text back to the chosen value (or keeps
 it with `allowCustom`); leaving it empty clears the value. Controller: `value`, `inputValue`,

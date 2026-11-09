@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { edgeEnabled, matchRanges, nextEnabled, typeaheadIndex, type PropsBag } from '@pinfold/core';
+import { edgeEnabled, gridWindow, matchRanges, nextEnabled, RowSizes, typeaheadIndex, type PropsBag } from '@pinfold/core';
 import { useIsomorphicLayoutEffect } from '../hooks';
 import { CHECK_ICON } from '../nav-icons';
 import { ITEM } from '../slots';
@@ -151,6 +151,48 @@ export function useListNav({ rows, open, selected, listId }: ListNavOptions) {
   return { active, setActive, start, move, typeahead, activeId: open && active >= 0 && rows[active] ? id(active) : undefined, optionId: id };
 }
 
+/** Lists longer than this draw only the rows in view (lists without groups). */
+const WINDOW_FROM = 120;
+
+/** The rows a long list draws: the ones in view in the popup and a margin. Null for short lists. */
+export interface ListWindow {
+  start: number;
+  end: number;
+  before: number;
+  after: number;
+}
+
+/**
+ * Windowing for a long list: follows the popup's scroll, measures a row once, and scrolls the active
+ * row into view itself (an undrawn row cannot scroll itself in).
+ */
+export function useListWindow(rows: Row[], open: boolean, active: number, list: React.RefObject<HTMLElement | null>): ListWindow | null {
+  const on = open && rows.length > WINDOW_FROM && !rows.some((r) => r.group);
+  const [view, setView] = React.useState({ top: 0, height: 320 });
+  const rowH = React.useRef(36);
+  React.useEffect(() => {
+    const el = list.current;
+    if (!on || !el) return;
+    const first = el.querySelector<HTMLElement>('[role="option"]');
+    if (first && first.offsetHeight) rowH.current = first.offsetHeight;
+    const read = () => setView({ top: el.scrollTop, height: el.clientHeight || 320 });
+    read();
+    el.addEventListener('scroll', read, { passive: true });
+    return () => el.removeEventListener('scroll', read);
+  }, [on, list]);
+  useIsomorphicLayoutEffect(() => {
+    const el = list.current;
+    if (!on || !el || active < 0) return;
+    const h = rowH.current;
+    const y = active * h;
+    if (y < el.scrollTop) el.scrollTop = y;
+    else if (y + h > el.scrollTop + el.clientHeight) el.scrollTop = y + h - el.clientHeight;
+  }, [on, active]);
+  if (!on) return null;
+  const w = gridWindow(new RowSizes(rows.length, rowH.current), view.top, view.height, 10);
+  return { start: w.start, end: w.end, before: w.before, after: w.after };
+}
+
 type Slot = (name: string, content: React.ReactNode, tag: string, own?: PropsBag) => React.ReactNode;
 
 interface RenderOptions {
@@ -169,6 +211,8 @@ interface RenderOptions {
   unstyled?: boolean;
   /** Rows carry a check column (select, combobox); a command has none. @default true */
   checks?: boolean;
+  /** A long list: only these rows are drawn. */
+  window?: ListWindow | null;
   /** Shown instead of rows: "No results", "Loading…". */
   status?: React.ReactNode;
   busy?: boolean;
@@ -206,6 +250,9 @@ export function renderRows(o: RenderOptions): React.ReactNode {
             'aria-selected': isSelected,
             'aria-disabled': row.disabled || undefined,
             'data-active': i === o.active ? '' : undefined,
+            // A windowed list tells assistive tech the full count and each row's place.
+            'aria-setsize': o.window ? o.rows.length : undefined,
+            'aria-posinset': o.window ? i + 1 : undefined,
             'data-selected': isSelected ? '' : undefined,
             onPointerMove: () => {
               if (!row.disabled && i !== o.active) o.setActive(i);
@@ -219,6 +266,17 @@ export function renderRows(o: RenderOptions): React.ReactNode {
       </React.Fragment>
     );
   };
+  if (o.status == null && o.window) {
+    const w = o.window;
+    const spacer = (h: number, key: string) => (h > 0 ? <div key={key} aria-hidden="true" role="presentation" style={{ blockSize: h }} /> : null);
+    return (
+      <>
+        {spacer(w.before, 'before')}
+        {o.rows.slice(w.start, w.end).map((row, n) => option([row, w.start + n]))}
+        {spacer(w.after, 'after')}
+      </>
+    );
+  }
   const body =
     o.status != null
       ? o.slot('empty', o.status, 'div', { role: 'presentation' })

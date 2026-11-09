@@ -2,7 +2,7 @@ import type { ComponentMeta, PropMeta } from './meta';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 import { listChoiceProps, listItemsProp } from './select.meta';
 
-const SLOTS = ['root', 'label', 'control', 'chip', 'input', 'clear', 'chevron', 'popup', 'group', 'groupLabel', 'option', 'check', 'icon', 'detail', 'empty', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'control', 'chips', 'chip', 'input', 'clear', 'chevron', 'popup', 'group', 'groupLabel', 'option', 'check', 'icon', 'detail', 'empty', 'description', 'error'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -21,7 +21,7 @@ export const comboboxMeta: ComponentMeta = {
   slots: SLOTS,
   props: {
     ...fieldProps,
-    items: listItemsProp,
+    items: { ...listItemsProp, required: false, description: 'The rows: strings, or `{ value, label, description, icon, group, disabled }`. Not needed with `loadItems`. Long lists draw only the rows in view.' },
     multiple: { type: 'boolean', default: false, description: 'Choose several: chips before the text, Backspace in an empty field removes the last.', group: 'behaviour', control: true },
     value: { type: 'string[]', orString: true, description: 'The chosen value (an array with `multiple`), controlled; `null` for none.', group: 'data' },
     defaultValue: { type: 'string[]', orString: true, description: 'The chosen value when uncontrolled.', group: 'data' },
@@ -29,6 +29,10 @@ export const comboboxMeta: ComponentMeta = {
     inputValue: { type: 'string', description: 'What is typed, controlled.', group: 'data' },
     defaultInputValue: { type: 'string', default: '', description: 'What is typed at first.', group: 'data' },
     onInputChange: { type: 'function', description: '`(text) => void` on every keystroke: fetch matching `items` here for a server search.', group: 'events' },
+    loadItems: { type: 'function', description: '`(query, { signal }) => rows | Promise<rows>`: fetch the rows for what is typed (`\'\'` when the list opens). Debounced, cancelled when no longer needed, cached per query, a loading row while it runs; results are not filtered again.', group: 'data' },
+    debounce: { type: 'number', default: 250, description: 'Milliseconds `loadItems` waits after the last keystroke.', group: 'behaviour' },
+    selectedInList: { type: 'enum', values: ['check', 'disable', 'hide'], default: 'check', description: 'Multiple: chosen rows keep a check (pick again to remove), show but cannot be picked again (remove with the chip), or leave the list.', group: 'behaviour', control: true },
+    chipsPlacement: { type: 'enum', values: ['inside', 'below'], default: 'inside', description: 'Multiple: chips inside the field (up to `maxChips`, then +n), or every chip as a tag group under it.', group: 'appearance', control: true },
     filter: {
       type: 'enum',
       values: ['contains', 'startsWith', 'none'],
