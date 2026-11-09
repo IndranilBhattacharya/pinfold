@@ -35,7 +35,7 @@ describe('Table', () => {
     fireEvent.click(button);
     expect(screen.getAllByRole('cell').map((c) => c.textContent)).toEqual(['Item 10', 'Item 2', 'Item 1']);
     fireEvent.click(button);
-    expect(onSortChange).toHaveBeenLastCalledWith(null);
+    expect(onSortChange).toHaveBeenLastCalledWith([]);
     expect(screen.getAllByRole('cell').map((c) => c.textContent)).toEqual(['Item 10', 'Item 2', 'Item 1']);
   });
 
@@ -44,7 +44,7 @@ describe('Table', () => {
     render(<Table label="People" rows={people} columns={['name']} selection="multiple" onSelectionChange={onSelectionChange} />);
     fireEvent.click(screen.getByRole('checkbox', { name: 'Select Item 2' }));
     expect(onSelectionChange).toHaveBeenLastCalledWith(['b']);
-    const all = screen.getByRole('checkbox', { name: 'Select all rows on this page' }) as HTMLInputElement;
+    const all = screen.getByRole('checkbox', { name: 'Select all rows' }) as HTMLInputElement;
     expect(all.indeterminate).toBe(true);
     fireEvent.click(all);
     expect(onSelectionChange).toHaveBeenLastCalledWith(['b', 'a', 'c']);
@@ -72,9 +72,10 @@ describe('Table', () => {
     rerender(<Table label="People" rows={[]} columns={['name']} />);
     expect(screen.getByRole('cell').textContent).toBe('Nothing to show');
     rerender(<Table label="People" rows={people} columns={['name']} onRowAction={onRowAction} />);
-    const row = screen.getAllByRole('row')[1];
-    row.focus();
-    fireEvent.keyDown(row, { key: 'Enter' });
+    // Row actions make the table a grid: the focused cell takes Enter.
+    const cell = container.querySelector<HTMLElement>('td[data-r="0"]')!;
+    cell.focus();
+    fireEvent.keyDown(cell, { key: 'Enter' });
     expect(onRowAction).toHaveBeenCalledWith(people[0], expect.anything());
     expect(renderToString(React.createElement(defineTable({ striped: true }), { label: 'P', rows: people }))).toContain('data-striped');
   });

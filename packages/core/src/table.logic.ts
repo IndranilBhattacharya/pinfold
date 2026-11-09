@@ -46,16 +46,45 @@ export function headerFromKey(key: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
+interface TableRules {
+  selection?: string;
+  pageSize?: number;
+  total?: number;
+  virtual?: boolean;
+  dataSource?: unknown;
+  sortable?: boolean;
+  filterable?: boolean;
+  columns?: ReadonlyArray<unknown>;
+  renderDetail?: unknown;
+  groupBy?: string;
+}
+
 /** Options with no visible effect in the current config. */
-export function inactiveTableOptions(config: { selection?: string; pageSize?: number; total?: number }): Record<string, string> {
+export function inactiveTableOptions(config: TableRules): Record<string, string> {
   const out: Record<string, string> = {};
+  const cols = (config.columns ?? []).filter((c): c is Record<string, unknown> => !!c && typeof c === 'object');
+  const virtual = !!(config.virtual || config.dataSource);
   if (!config.selection || config.selection === 'none') {
     const why = 'only used with `selection`.';
     Object.assign(out, { selected: why, defaultSelected: why, onSelectionChange: why });
   }
-  if (config.pageSize === undefined) {
-    const why = 'only used with `pageSize`.';
-    Object.assign(out, { page: why, defaultPage: why, onPageChange: why, total: why });
+  if (config.pageSize === undefined || virtual) {
+    const why = virtual ? 'a virtual table scrolls instead of paging.' : 'only used with `pageSize`.';
+    Object.assign(out, { page: why, defaultPage: why, onPageChange: why, total: why, pageSizes: why, onPageSizeChange: why });
+  }
+  if (!config.sortable && !cols.some((c) => c.sortable)) {
+    const why = 'no column sorts (`sortable`).';
+    Object.assign(out, { multiSort: why });
+  }
+  if (!config.filterable && !cols.some((c) => c.filterable)) out.filterLogic = 'no filter row (`filterable`); set `filters` for filters of your own.';
+  if (!virtual) out.rowHeight = 'only for a virtual table (rows size to their content otherwise).';
+  if (!config.renderDetail) {
+    const why = 'only used with `renderDetail`.';
+    Object.assign(out, { expanded: why, defaultExpanded: why, onExpandedChange: why });
+  }
+  if (config.dataSource) {
+    const why = 'a data source sorts, filters and groups on your server.';
+    Object.assign(out, { groupBy: why, manualSort: why, manualFilter: why, rows: 'the rows come from `dataSource`.' });
   }
   return out;
 }

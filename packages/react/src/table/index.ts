@@ -4,4 +4,33 @@
 export { Table, useTable } from './client';
 export { Table as default } from './client';
 export { defineTable, type DefinedTable, type TablePresetProps } from './define';
-export type { TableApi, TableComponent, TableConfig, TableRootProps, TableTagProps, TableSlot, TableState, TableColumn, TableSort, TableLabels, TableVariant, TableDimensions } from './types';
+export type {
+  TableApi,
+  TableComponent,
+  TableConfig,
+  TableRootProps,
+  TableTagProps,
+  TableSlot,
+  TableState,
+  TableColumn,
+  TableResolvedColumn,
+  TableColumnState,
+  TableDataSource,
+  TableCellContext,
+  TableHeaderContext,
+  TableFilterContext,
+  TableEditorContext,
+  TableCellEdit,
+  TableItemContext,
+  TableToolbar,
+  TableSort,
+  TableFilter,
+  TableFilterOp,
+  TableColumnType,
+  TableAggregate,
+  TablePath,
+  TableLabels,
+  TableVariant,
+  TableDensity,
+  TableDimensions,
+} from './types';

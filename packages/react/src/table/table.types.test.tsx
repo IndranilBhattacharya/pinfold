@@ -13,7 +13,7 @@ const rows: Invoice[] = [{ id: 'a', amount: 1, customer: 'Acme' }];
 // Compile-time checks: these lines are type-checked by `npm run typecheck`, and each
 // `@ts-expect-error` fails the build if the mistake stops being caught.
 export function Checks(): React.ReactElement {
-  const Own = useTable({ label: 'Invoices', rows, columns: ['id', { key: 'amount', cell: (r) => r.amount.toFixed(2), align: 'end' }] });
+  const Own = useTable({ label: 'Invoices', rows, columns: ['id', { key: 'amount', cell: ({ row }) => row.amount.toFixed(2), align: 'end' }] });
   // @ts-expect-error: not a key of the rows
   useTable({ label: 'Invoices', rows, columns: ['total'] });
   // @ts-expect-error: a table needs a label
