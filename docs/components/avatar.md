@@ -34,7 +34,7 @@ Precedence: use-site props, the preset, `defaults.avatar`, the provider (size), 
 | `dimensions` | `size, fontSize, overlap` | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root image fallback status item overflow`) | | |
 
-Inactive (`inactiveAvatarOptions`): `max`, `label` without `items`; the person fields with `items`; `tone` when a picture covers it.
+Inactive (`inactiveAvatarOptions`): `max`, `label` without `items`; the person fields with `items`; `tone` when a picture covers it; `radius` unless `shape: 'square'` (a circle has no corners).
 
 ## Accessibility
 - Each face is `role="img"` named once ("Ada Lovelace, online"); the picture (`alt=""`), initials and

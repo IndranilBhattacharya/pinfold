@@ -102,6 +102,11 @@ describe('Table as a data grid', () => {
     expect(names()).toEqual(['Émile', 'Bo']);
     fireEvent.click(screen.getByRole('button', { name: 'Page 2' }));
     expect(names()).toEqual(['Ada', 'Cy']);
+    // A folded group keeps its place: its header takes a row's room on the page.
+    fireEvent.click(screen.getByRole('button', { name: 'Page 1' }));
+    fireEvent.click(screen.getByRole('button', { name: /Paris/ }));
+    expect([...document.querySelectorAll('tr[data-group]')].map((g) => g.textContent)).toEqual(['Paris2', 'Oslo1']);
+    expect(names()).toEqual(['Ada']);
   });
 
   it('a row opens its details; your own cells and headers draw from their context', () => {

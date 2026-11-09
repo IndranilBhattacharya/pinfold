@@ -23,8 +23,11 @@ export function inactiveRatingOptions(config: { readOnly?: boolean }): Record<st
   return { clearable: why, onChange: why };
 }
 
-export function inactiveTimelineOptions(config: { orientation?: string }): Record<string, string> {
-  return config.orientation === 'horizontal' ? { align: 'a horizontal timeline always has its text under the marks.' } : {};
+export function inactiveTimelineOptions(config: { orientation?: string; variant?: string }): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (config.orientation === 'horizontal') out.align = 'a horizontal timeline always has its text under the marks.';
+  if ((config.variant ?? 'dot') !== 'card') out.radius = 'only the card variant has corners; dots and icons are round.';
+  return out;
 }
 
 export function inactiveEmptyOptions(_config: object): Record<string, string> {

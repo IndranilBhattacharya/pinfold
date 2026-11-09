@@ -4,6 +4,7 @@ export interface AvatarAppearanceInput {
   items?: unknown;
   /** Every face shows a picture, so nothing shows the colour behind it. */
   src?: unknown;
+  shape?: string;
 }
 
 /** Up to two initials: the first letters of the first and last words ("Ada Lovelace" is "AL"). */
@@ -34,6 +35,7 @@ export function avatarOverflow(count: number, max = 4): { shown: number; rest: n
 export function inactiveAvatarOptions(config: AvatarAppearanceInput): Record<string, string> {
   const out: Record<string, string> = {};
   const group = Array.isArray(config.items);
+  if (config.shape !== 'square') out.radius = 'a circle has no corners: set `shape: \'square\'`.';
   if (config.src) out.tone = 'the colour is behind the initials, and the picture covers it.';
   const why = group ? 'set it per person in `items`.' : '';
   if (group) for (const k of ['name', 'src', 'alt', 'initials', 'status']) out[k] = why;

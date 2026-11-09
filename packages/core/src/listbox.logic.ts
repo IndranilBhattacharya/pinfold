@@ -69,9 +69,13 @@ export function inactiveSelectOptions(config: { multiple?: boolean; clearable?: 
   return out;
 }
 
-export function inactiveComboboxOptions(config: { multiple?: boolean }): Record<string, string> {
+export function inactiveComboboxOptions(config: { multiple?: boolean; loadItems?: unknown }): Record<string, string> {
   const out: Record<string, string> = {};
-  if (!config.multiple) out.maxChips = 'only used with `multiple`.';
+  if (!config.multiple) {
+    const why = 'only used with `multiple`.';
+    Object.assign(out, { maxChips: why, selectedInList: why, chipsPlacement: why });
+  }
+  if (!config.loadItems) out.debounce = 'only used with `loadItems`.';
   return out;
 }
 

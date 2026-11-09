@@ -41,7 +41,8 @@ describe('listbox logic', () => {
   it('inactive options', () => {
     expect(Object.keys(inactiveSelectOptions({}))).toEqual(['display', 'maxChips']);
     expect(inactiveSelectOptions({ multiple: true })).toEqual({});
-    expect(Object.keys(inactiveComboboxOptions({}))).toEqual(['maxChips']);
+    expect(Object.keys(inactiveComboboxOptions({}))).toEqual(['maxChips', 'selectedInList', 'chipsPlacement', 'debounce']);
+    expect(inactiveComboboxOptions({ multiple: true, loadItems: () => [] })).toEqual({});
   });
 });
 

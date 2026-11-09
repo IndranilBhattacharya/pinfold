@@ -21,6 +21,7 @@ describe('content logic', () => {
   it('inactive options', () => {
     expect(Object.keys(inactiveRatingOptions({ readOnly: true }))).toEqual(['clearable', 'onChange']);
     expect(inactiveRatingOptions({})).toEqual({});
-    expect(Object.keys(inactiveTimelineOptions({ orientation: 'horizontal' }))).toEqual(['align']);
+    expect(Object.keys(inactiveTimelineOptions({ orientation: 'horizontal' }))).toEqual(['align', 'radius']);
+    expect(inactiveTimelineOptions({ variant: 'card' })).toEqual({});
   });
 });

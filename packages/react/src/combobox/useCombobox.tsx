@@ -160,7 +160,9 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
   React.useEffect(() => {
     if (open && editing) nav.setActive(rows.findIndex((r) => !r.disabled));
   }, [query, open]); // eslint-disable-line react-hooks/exhaustive-deps
-  useFloating({ open: open && mounted, anchor: () => control.current, floating: popup, placement: config.placement ?? 'bottom-start', offset: 6 });
+  // Chips under the field stay in view while the list is open: it opens under them.
+  const chipsBox = React.useRef<HTMLDivElement | null>(null);
+  useFloating({ open: open && mounted, anchor: () => chipsBox.current ?? control.current, floating: popup, placement: config.placement ?? 'bottom-start', offset: 6, key: value.length });
   useIsomorphicLayoutEffect(() => {
     if (open && control.current && popup.current) popup.current.style.minWidth = `${control.current.offsetWidth}px`;
   }, [open]);
@@ -275,7 +277,7 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
       </>
     ) : null;
     const chips = below ? null : chipList;
-    const chipGroup = below && multiple && value.length ? slot('chips', chipList, 'div', { role: 'group', 'aria-label': `${typeof config.label === 'string' ? config.label : 'Chosen'}: ${value.length}` }) : null;
+    const chipGroup = below && multiple && value.length ? slot('chips', chipList, 'div', { ref: chipsBox, role: 'group', 'aria-label': `${typeof config.label === 'string' ? config.label : 'Chosen'}: ${value.length}` }) : null;
     const canClear = !!config.clearable && (value.length > 0 || query !== '') && !disabled;
     const clearLabel = config.labels?.clear ?? 'Clear';
     const content = (
@@ -300,7 +302,8 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
               'aria-required': multiple && config.required ? true : undefined,
               required: !multiple && config.required ? true : undefined,
               disabled: disabled || undefined,
-              placeholder: multiple && value.length ? undefined : config.placeholder,
+              // Chips in the field take the placeholder's place; chips under it leave the field empty.
+              placeholder: multiple && value.length && !below ? undefined : config.placeholder,
               value: query,
               onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
                 setQuery(event.target.value);

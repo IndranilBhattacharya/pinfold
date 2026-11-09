@@ -28,6 +28,8 @@ Precedence: use-site props, the preset, `defaults.timeline`, the provider, the l
 | `size`, `tone` | | `'md'`, `'primary'` (provider) |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots as in the meta | |
 
+Inactive (`inactiveTimelineOptions`): `align` in a horizontal timeline; `radius` unless `variant: 'card'` (dots and icons are round).
+
 ## Accessibility
 - An ordered list named by `label`.
 - Times are `<time datetime>`, shown in the reader's locale.

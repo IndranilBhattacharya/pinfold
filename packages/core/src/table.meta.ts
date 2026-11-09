@@ -95,7 +95,7 @@ export const tableMeta: ComponentMeta = {
     virtual: { type: 'boolean', default: false, description: 'Only the rows in view are drawn: any length scrolls smoothly. Needs a height.', group: 'behaviour', control: true },
     rowHeight: { type: 'number', description: 'Row height in px for a virtual table. Default by density: 36, 44, 52.', group: 'appearance' },
     resizableColumns: { type: 'boolean', default: false, description: 'Column edges drag to resize (double-click fits the content; Alt + arrows on a header).', group: 'behaviour', control: true },
-    reorderableColumns: { type: 'boolean', default: false, description: 'Headers drag to reorder (also Ctrl or Cmd + Shift + arrows on a header).', group: 'behaviour', control: true },
+    reorderableColumns: { type: 'boolean', default: false, description: 'Headers drag to reorder (also Ctrl or Cmd + Shift + arrows on a header).', group: 'behaviour', control: true, silent: true },
     resizableRows: { type: 'boolean', default: false, description: 'Row bottoms drag to resize.', group: 'behaviour', control: true, silent: true },
     columnState: { type: 'object', description: '`{ order, widths, hidden, pinned }`, controlled.', group: 'data' },
     defaultColumnState: { type: 'object', description: 'The column state when uncontrolled.', group: 'data' },

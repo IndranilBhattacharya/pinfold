@@ -237,15 +237,15 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     const starts: number[] = [];
     let rowsSeen = 0;
     all.forEach((e, i) => {
-      if (e.kind === 'detail') return;
-      if (e.kind === 'row' && rowsSeen % pageSize === 0) {
-        // A page opens at its first row, or at the group header just before it.
-        starts.push(i > 0 && all[i - 1].kind === 'group' ? i - 1 : i);
-      }
-      if (e.kind === 'row') rowsSeen++;
+      // A row counts; so does a folded group's header (nothing follows it). An open group's header
+      // rides with its first row; details ride with their row.
+      const folded = e.kind === 'group' && collapsed.includes(e.group.key);
+      if (e.kind !== 'row' && !folded) return;
+      if (rowsSeen % pageSize === 0) starts.push(e.kind === 'row' && i > 0 && all[i - 1].kind === 'group' && !collapsed.includes((all[i - 1] as { group: GridGroup }).group.key) ? i - 1 : i);
+      rowsSeen++;
     });
     return starts.length ? starts : [0];
-  }, [paged, all, pageSize]);
+  }, [paged, all, pageSize, collapsed]);
   const pageCount = pageSize > 0 ? Math.max(1, config.total !== undefined ? Math.ceil(config.total / pageSize) : pageStarts.length) : 1;
   const current = Math.min(Math.max(1, page), pageCount);
   const entries: Entry[] = paged ? all.slice(pageStarts[current - 1] ?? 0, pageStarts[current] ?? all.length) : all;
@@ -754,7 +754,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                     'aria-valuenow': widthOf(c),
                     'aria-valuemin': c.minWidth ?? 64,
                     'aria-valuemax': c.maxWidth,
-                    tabIndex: grid ? -1 : 0,
+                    // Pointer only: the keyboard resizes from the header (Alt + arrows), so the handle is a plain separator.
                     onPointerDown: onResizeStart(c),
                     onDoubleClick: () => {
                       // Fit the widest drawn cell of this column.

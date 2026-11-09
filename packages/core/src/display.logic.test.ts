@@ -105,7 +105,8 @@ describe('avatar logic', () => {
   });
 
   it('lists per-person options as inactive in a group', () => {
-    expect(Object.keys(inactiveAvatarOptions({}))).toEqual(['max', 'label']);
+    expect(Object.keys(inactiveAvatarOptions({}))).toEqual(['radius', 'max', 'label']);
+    expect(Object.keys(inactiveAvatarOptions({ shape: 'square' }))).toEqual(['max', 'label']);
     expect(Object.keys(inactiveAvatarOptions({ items: [] }))).toContain('src');
     expect(Object.keys(inactiveAvatarOptions({ src: '/a.png' }))).toContain('tone');
   });
