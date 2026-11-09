@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveDatePickerOptions, mergeProps, orderRange, parseIso, parseTypedDate, warnOnce, type IsoDate, type PropsBag, radiusProps } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, foldText, inactiveDatePickerOptions, isoDate, mergeProps, orderRange, parseIso, parseTime, parseTypedDate, splitDateTime, warnOnce, type IsoDate, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -18,17 +18,51 @@ const CALENDAR_ICON = (
     <path d="M3 10h18M8 3v4M16 3v4" />
   </svg>
 );
-const utc = (d: IsoDate) => {
-  const p = parseIso(d)!;
-  return new Date(Date.UTC(p.year, p.month - 1, p.day));
+/** A day, or a day and a wall time ("2026-11-09T14:30"), as a UTC Date for formatting. */
+const utc = (v: string) => {
+  const { date, time } = splitDateTime(v);
+  const p = parseIso(date)!;
+  const [h = 0, m = 0, sec = 0] = time ? time.split(':').map(Number) : [];
+  return new Date(Date.UTC(p.year, p.month - 1, p.day, h, m, sec));
 };
 
-/** "dd/mm/yyyy" in the locale's order and separators. */
-function pattern(locale?: string): string {
-  return new Intl.DateTimeFormat(locale, { year: 'numeric', month: '2-digit', day: '2-digit' })
+/** "dd/mm/yyyy" (or "mm/yyyy", "yyyy") in the locale's order and separators. */
+function pattern(locale?: string, granularity = 'day', time = false): string {
+  if (granularity === 'year') return 'yyyy';
+  const parts = new Intl.DateTimeFormat(locale, granularity === 'month' ? { year: 'numeric', month: '2-digit' } : { year: 'numeric', month: '2-digit', day: '2-digit' })
     .formatToParts(new Date(Date.UTC(2026, 10, 22)))
     .map((p) => (p.type === 'day' ? 'dd' : p.type === 'month' ? 'mm' : p.type === 'year' ? 'yyyy' : p.value))
     .join('');
+  return time ? parts + ' hh:mm' : parts;
+}
+
+/** A typed month ("11/2026", "Nov 2026", "november 2026") or year ("2026") as its first day. */
+function parseTypedPeriod(text: string, granularity: string, locale?: string): IsoDate | null {
+  const year = /\b(\d{4})\b/.exec(text);
+  if (!year) return null;
+  const y = Number(year[1]);
+  if (granularity === 'year') return text.trim() === year[1] ? isoDate(y, 1, 1) : null;
+  const rest = foldText(text.replace(year[1], '').replace(/[\s/.,-]+/g, ' ').trim());
+  const n = Number(rest);
+  if (Number.isInteger(n) && n >= 1 && n <= 12) return isoDate(y, n, 1);
+  for (let m = 1; m <= 12; m++) {
+    const d = new Date(Date.UTC(2026, m - 1, 1));
+    for (const style of ['long', 'short'] as const) {
+      if (foldText(new Intl.DateTimeFormat(locale, { month: style, timeZone: 'UTC' }).format(d)).replace('.', '') === rest.replace('.', '')) return isoDate(y, m, 1);
+    }
+  }
+  return null;
+}
+
+/** A typed day with an optional time after it ("09/11/2026 14:30", "Nov 9, 2026, 2:30 pm"). */
+function parseTypedDateTime(text: string, locale?: string): { date: IsoDate; time: string } | null {
+  const whole = parseTypedDate(text, locale);
+  if (whole) return { date: whole, time: '' };
+  const m = /^(.*?)[,\s]+(\d{1,2}(?::\d{2}){0,2}\s*(?:[ap]\.?\s*m?\.?)?)$/i.exec(text.trim());
+  if (!m) return null;
+  const date = parseTypedDate(m[1], locale);
+  const time = parseTime(m[2]);
+  return date && time ? { date, time } : null;
 }
 
 /**
@@ -45,6 +79,10 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
   const config = ctx.defaults.datepicker ? (mergeConfig<DatePickerConfig>(ctx.defaults.datepicker as DatePickerConfig, input) as DatePickerConfig) : input;
   const field = useField(config);
   const range = config.mode === 'range';
+  const granularity = config.granularity ?? 'day';
+  const withTime = !!config.time && granularity === 'day';
+  // Times chosen before a day is: the next pick takes them.
+  const [draftTime, setDraftTime] = React.useState<{ start: string; end: string }>({ start: '', end: '' });
   const [value, setValue] = useControllableState<unknown>({ value: config.value === undefined ? undefined : config.value ?? null, defaultValue: config.defaultValue ?? null });
   const [isOpen, setOpenState] = useControllableState<boolean>({ value: config.open, defaultValue: config.defaultOpen ?? false });
   const [text, setText] = React.useState<string | null>(null);
@@ -66,14 +104,24 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
     warnOnce(!filled(config.label), 'DatePicker: give it a `label`.');
   }
 
-  const fmt = React.useMemo(() => new Intl.DateTimeFormat(config.locale, { dateStyle: 'medium', ...config.formatOptions, timeZone: 'UTC' }), [config.locale, config.formatOptions]);
+  const fmt = React.useMemo(
+    () =>
+      new Intl.DateTimeFormat(config.locale, {
+        ...(granularity === 'month' ? { month: 'long', year: 'numeric' } : granularity === 'year' ? { year: 'numeric' } : { dateStyle: 'medium' }),
+        ...(withTime ? { timeStyle: 'short', ...(config.hourCycle ? { hourCycle: config.hourCycle === 12 ? 'h12' : 'h23' } : {}) } : {}),
+        ...config.formatOptions,
+        timeZone: 'UTC',
+      } as Intl.DateTimeFormatOptions),
+    [config.locale, config.formatOptions, granularity, withTime, config.hourCycle],
+  );
+  const valid = (v: unknown) => typeof v === 'string' && !!parseIso(splitDateTime(v).date);
   const shown = (v: unknown): string => {
     if (!v) return '';
     if (range) {
       const r = v as CalendarRange;
-      return r.start && r.end ? `${fmt.format(utc(r.start))} – ${fmt.format(utc(r.end))}` : '';
+      return valid(r.start) && valid(r.end) ? `${fmt.format(utc(r.start))} – ${fmt.format(utc(r.end))}` : '';
     }
-    return parseIso(v as string) ? fmt.format(utc(v as IsoDate)) : '';
+    return valid(v) ? fmt.format(utc(v as string)) : '';
   };
   const message = typedError ?? field.message;
   const invalid = field.invalid || !!typedError;
@@ -95,15 +143,25 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
     if (text === null) return;
     const t = text.trim();
     if (!t) return commit(null);
-    const ok = (d: IsoDate | null) => !!d && (!config.min || d >= config.min) && (!config.max || d <= config.max) && !config.isDateDisabled?.(d);
+    const day = (d: IsoDate) => (!config.min || d >= (granularity === 'day' ? config.min : config.min.slice(0, granularity === 'month' ? 7 : 4))) && (!config.max || d <= config.max) && !config.isDateDisabled?.(d, { mode: range ? 'range' : 'single', start: null });
+    const one = (part: string): string | null => {
+      if (granularity !== 'day') {
+        const d = parseTypedPeriod(part, granularity, config.locale);
+        return d && day(d) ? d : null;
+      }
+      const dt = parseTypedDateTime(part, config.locale);
+      if (!dt || !day(dt.date)) return null;
+      return withTime ? `${dt.date}T${dt.time || '00:00'}` : dt.date;
+    };
     if (range) {
-      const [a, b] = t.split(/\s+(?:–|-|to)\s+|\s*–\s*/).map((part) => parseTypedDate(part, config.locale));
-      if (ok(a) && ok(b)) return commit(orderRange(a!, b!));
+      const [a, b] = t.split(/\s+(?:–|-|to)\s+|\s*–\s*/).map(one);
+      if (a && b) return commit(a <= b ? { start: a, end: b } : { start: b, end: a });
     } else {
-      const d = parseTypedDate(t, config.locale);
-      if (ok(d)) return commit(d);
+      const d = one(t);
+      if (d) return commit(d);
     }
-    setTypedError(config.labels?.invalid ?? `Enter a date like ${pattern(config.locale)}${range ? ' – ' + pattern(config.locale) : ''}.`);
+    const p = pattern(config.locale, granularity, withTime);
+    setTypedError(config.labels?.invalid ?? `Enter a date like ${p}${range ? ' – ' + p : ''}.`);
   };
 
   useFloating({ open: open && mounted, anchor: () => control.current, floating: popup, placement: config.placement ?? 'bottom-start', offset: 6 });
@@ -129,6 +187,8 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
         ...radiusProps(config.radius),
         ref: field.root,
         'data-mode': state.mode,
+        'data-granularity': granularity,
+        'data-time': dataAttr(withTime),
         'data-variant': state.variant,
         'data-size': state.size,
         'data-tone': state.tone,
@@ -157,23 +217,80 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
     const openLabel = config.labels?.open ?? (range ? 'Choose dates' : 'Choose a date');
     const canClear = !!config.clearable && !!value && !disabled;
     const hiddenValue = !value ? '' : range ? `${(value as CalendarRange).start}/${(value as CalendarRange).end}` : (value as string);
+    const dayOf = (v: unknown) => (valid(v) ? splitDateTime(v as string).date : null);
+    // A day without a time reads as midnight, as the field shows it.
+    const timeOf = (v: unknown, which: 'start' | 'end') => (valid(v) ? splitDateTime(v as string).time.slice(0, 5) || '00:00' : draftTime[which] || '');
+    const current = range ? (value as CalendarRange | null) : null;
+    const dayValue = range ? (current && dayOf(current.start) && dayOf(current.end) ? { start: dayOf(current.start), end: dayOf(current.end) } : null) : dayOf(value);
+    const withClock = (d: string, t: string) => (withTime ? `${d}T${t || '00:00'}` : d);
+    const done = () => {
+      setOpen(false);
+      textRef.current?.focus();
+    };
+    const setTime = (which: 'start' | 'end', t: string) => {
+      setDraftTime((x) => ({ ...x, [which]: t }));
+      if (!t) return;
+      if (range) {
+        if (current && valid(current.start) && valid(current.end)) commit({ ...current, [which]: withClock(splitDateTime(current[which]).date, t) });
+      } else if (valid(value)) commit(withClock(splitDateTime(value as string).date, t));
+    };
+    const timeField = (which: 'start' | 'end', label: string) =>
+      slot(
+        'time',
+        <>
+          <span>{label}</span>
+          {slot('timeInput', null, 'input', {
+            type: 'time',
+            step: (config.timeStep ?? 1) * 60,
+            value: timeOf(range ? current?.[which] : value, which),
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setTime(which, e.target.value),
+          })}
+        </>,
+        'label',
+      );
+    const footer = withTime ? (
+      <div className={cls('pinfold-datepicker__times')}>
+        {range ? (
+          <>
+            {timeField('start', config.labels?.startTime ?? 'Start time')}
+            {timeField('end', config.labels?.endTime ?? 'End time')}
+          </>
+        ) : (
+          timeField('start', config.labels?.time ?? 'Time')
+        )}
+        {slot('done', config.labels?.done ?? 'Done', 'button', { type: 'button', onClick: done })}
+      </div>
+    ) : undefined;
     const calendar = (
       <Calendar
         {...({
           mode: range ? 'range' : 'single',
-          value: value ?? null,
+          value: dayValue,
           onChange: (next: unknown) => {
-            commit(next);
-            setOpen(false);
-            textRef.current?.focus();
+            if (range) {
+              const r = next as CalendarRange;
+              commit({ start: withClock(r.start, timeOf(current?.start, 'start')), end: withClock(r.end, timeOf(current?.end, 'end')) });
+            } else commit(withClock(next as string, timeOf(value, 'start')));
+            if (!withTime) done();
           },
           min: config.min,
           max: config.max,
           isDateDisabled: config.isDateDisabled,
+          granularity,
+          captionLayout: config.captionLayout,
+          yearRange: config.yearRange,
+          showWeekNumbers: config.showWeekNumbers,
+          dayContent: config.dayContent,
+          presets: config.presets,
+          minDays: config.minDays,
+          maxDays: config.maxDays,
+          allowDisabledInRange: config.allowDisabledInRange,
+          onRangeStart: config.onRangeStart,
           locale: config.locale,
           weekStart: config.weekStart,
           months: config.months,
           showToday: config.showToday,
+          footer,
           size: state.size,
           tone: state.tone,
           label: typeof config.label === 'string' ? config.label : undefined,
@@ -190,9 +307,9 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
               ref: textRef,
               id: field.controlId,
               type: 'text',
-              inputMode: 'numeric',
+              inputMode: granularity === 'day' && !withTime ? 'numeric' : 'text',
               autoComplete: 'off',
-              placeholder: config.placeholder ?? (range ? `${pattern(config.locale)} – ${pattern(config.locale)}` : pattern(config.locale)),
+              placeholder: config.placeholder ?? (range ? `${pattern(config.locale, granularity, withTime)} – ${pattern(config.locale, granularity, withTime)}` : pattern(config.locale, granularity, withTime)),
               value: text ?? shown(value),
               required: config.required || undefined,
               disabled: disabled || undefined,

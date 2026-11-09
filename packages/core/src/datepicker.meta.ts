@@ -1,8 +1,9 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 import { FIELD_ARIA, fieldProps } from './field.meta';
+import { CALENDAR_PICK_PROPS } from './calendar.meta';
 
-const SLOTS = ['root', 'label', 'control', 'input', 'clear', 'trigger', 'popup', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'control', 'input', 'clear', 'trigger', 'popup', 'time', 'timeInput', 'done', 'description', 'error'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -28,7 +29,11 @@ export const datepickerMeta: ComponentMeta = {
     onChange: { type: 'function', description: '`(value) => void`: a day, a `{ start, end }` range, or `null` when cleared.', group: 'events' },
     min: { type: 'string', description: 'The earliest day that can be chosen or typed.', group: 'behaviour' },
     max: { type: 'string', description: 'The latest day that can be chosen or typed.', group: 'behaviour' },
-    isDateDisabled: { type: 'function', description: '`(date) => boolean`: days that cannot be chosen.', group: 'behaviour' },
+    isDateDisabled: { type: 'function', description: '`(date, { mode, start }) => boolean`: days that cannot be chosen; `start` is a range\'s first pick while its end is chosen.', group: 'behaviour' },
+    ...CALENDAR_PICK_PROPS,
+    time: { type: 'boolean', default: false, description: 'A time with the day: values become "2026-11-09T14:30" (a wall time, no zone); the popup shows time fields and a Done button.', group: 'behaviour', control: true },
+    timeStep: { type: 'number', default: 1, description: 'Minutes between the times offered.', group: 'behaviour' },
+    hourCycle: { type: 'enum', values: [12, 24], description: '12 or 24 hours. Default the locale\'s.', group: 'appearance' },
     locale: { type: 'string', description: 'A BCP 47 locale for the shown date, the typing order and the calendar. Default the browser\'s.', group: 'data' },
     weekStart: { type: 'number', description: '0 Sunday … 6 Saturday. Default the locale\'s.', group: 'behaviour' },
     formatOptions: { type: 'object', description: '`Intl.DateTimeFormat` options for the shown date. Default `{ dateStyle: "medium" }`.', group: 'appearance' },
@@ -44,6 +49,10 @@ export const datepickerMeta: ComponentMeta = {
         open: { type: 'string', description: 'The calendar button. Default "Choose a date" ("Choose dates" for a range).', group: 'data' },
         clear: { type: 'string', description: 'Default "Clear".', group: 'data' },
         invalid: { type: 'string', description: 'Shown when typed text is not a date that can be chosen. Default "Enter a date like dd/mm/yyyy".', group: 'data' },
+        time: { type: 'string', description: 'Default "Time".', group: 'data' },
+        startTime: { type: 'string', description: 'Default "Start time".', group: 'data' },
+        endTime: { type: 'string', description: 'Default "End time".', group: 'data' },
+        done: { type: 'string', description: 'Default "Done".', group: 'data' },
       },
     },
     open: { type: 'boolean', description: 'The calendar, controlled.', group: 'behaviour' },

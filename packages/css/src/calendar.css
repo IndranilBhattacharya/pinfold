@@ -88,11 +88,11 @@
     border-radius: var(--pinfold-cal-radius);
     cursor: pointer;
   }
-  .pinfold-calendar__day:hover:not([aria-disabled='true']):not([data-selected]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); }
+  :is(.pinfold-calendar__day, .pinfold-calendar__cell):hover:not([aria-disabled='true']):not([data-selected]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); }
   .pinfold-calendar__day[data-outside] { color: var(--pinfold-color-text-muted); }
-  .pinfold-calendar__day[aria-disabled='true'] { color: var(--pinfold-color-text-muted); text-decoration: line-through; opacity: 0.55; cursor: not-allowed; }
-  .pinfold-calendar__day[aria-current='date'] { font-weight: var(--pinfold-weight-semibold); }
-  .pinfold-calendar__day[aria-current='date']::after {
+  :is(.pinfold-calendar__day, .pinfold-calendar__cell)[aria-disabled='true'] { color: var(--pinfold-color-text-muted); text-decoration: line-through; opacity: 0.55; cursor: not-allowed; }
+  :is(.pinfold-calendar__day, .pinfold-calendar__cell)[aria-current='date'] { font-weight: var(--pinfold-weight-semibold); }
+  :is(.pinfold-calendar__day, .pinfold-calendar__cell)[aria-current='date']::after {
     content: '';
     position: absolute;
     inset-block-end: 0.3rem;
@@ -101,30 +101,117 @@
     background: var(--pinfold-cal-solid);
     border-radius: var(--pinfold-radius-full);
   }
-  .pinfold-calendar__day[data-selected] {
+  :is(.pinfold-calendar__day, .pinfold-calendar__cell)[data-selected] {
     font-weight: var(--pinfold-weight-semibold);
     color: var(--pinfold-cal-on);
     background-color: var(--pinfold-cal-solid);
     box-shadow: 0 2px 8px -2px color-mix(in oklab, var(--pinfold-cal-solid) 55%, transparent);
   }
-  .pinfold-calendar__day[data-selected][aria-current='date']::after { background: var(--pinfold-cal-on); }
+  :is(.pinfold-calendar__day, .pinfold-calendar__cell)[data-selected][aria-current='date']::after { background: var(--pinfold-cal-on); }
   /* A range: the days between the ends share one tinted band. */
-  .pinfold-calendar__day[data-in-range] {
+  :is(.pinfold-calendar__day, .pinfold-calendar__cell)[data-in-range] {
     color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text));
     background-color: color-mix(in oklab, var(--pinfold-cal-solid) 14%, transparent);
     border-radius: 0;
     box-shadow: none;
   }
-  .pinfold-calendar__day[data-range-start]:not([data-range-end]) { border-start-end-radius: 0; border-end-end-radius: 0; }
-  .pinfold-calendar__day[data-range-end]:not([data-range-start]) { border-start-start-radius: 0; border-end-start-radius: 0; }
-  .pinfold-calendar[data-animate] .pinfold-calendar__day { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
-  .pinfold-calendar :is(.pinfold-calendar__day, .pinfold-calendar__previous, .pinfold-calendar__next, .pinfold-calendar__today):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); z-index: 1; }
+  :is(.pinfold-calendar__day, .pinfold-calendar__cell)[data-range-start]:not([data-range-end]) { border-start-end-radius: 0; border-end-end-radius: 0; }
+  :is(.pinfold-calendar__day, .pinfold-calendar__cell)[data-range-end]:not([data-range-start]) { border-start-start-radius: 0; border-end-start-radius: 0; }
+  .pinfold-calendar[data-animate] :is(.pinfold-calendar__day, .pinfold-calendar__cell, .pinfold-calendar__preset) { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-calendar :is(.pinfold-calendar__day, .pinfold-calendar__cell, .pinfold-calendar__preset, .pinfold-calendar__monthSelect, .pinfold-calendar__yearSelect, .pinfold-calendar__previous, .pinfold-calendar__next, .pinfold-calendar__today):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); z-index: 1; }
 
-  .pinfold-calendar__footer { display: flex; justify-content: flex-end; padding-block-start: 0.5rem; border-block-start: var(--pinfold-border-width) solid var(--pinfold-color-border); }
+  .pinfold-calendar__footer { display: flex; flex-wrap: wrap; align-items: end; justify-content: flex-end; gap: 0.5rem; padding-block-start: 0.625rem; border-block-start: var(--pinfold-border-width) solid var(--pinfold-color-border); }
   .pinfold-calendar__today { color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text)); font-weight: var(--pinfold-weight-medium); }
 
+/* Month and year pickers: three to a row, wider cells. */
+  .pinfold-calendar__cell {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: calc(var(--pinfold-cal-cell) * 2.15);
+    block-size: calc(var(--pinfold-cal-cell) * 1.15);
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-cal-radius);
+    cursor: pointer;
+  }
+  .pinfold-calendar:not([data-granularity='day']) .pinfold-calendar__grid { border-spacing: 0.25rem; }
+  .pinfold-calendar__cell[aria-current='date']::after { inset-block-end: 0.3rem; }
+
+  /* Month and year dropdowns: the spoken title stays, out of sight. */
+  .pinfold-calendar[data-caption='dropdown'] .pinfold-calendar__title { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .pinfold-calendar__jump { display: flex; flex: 1 1 auto; justify-content: center; gap: 0.375rem; }
+  .pinfold-calendar__monthSelect,
+  .pinfold-calendar__yearSelect {
+    block-size: 2rem;
+    padding-inline: 0.5rem;
+    font: inherit;
+    font-weight: var(--pinfold-weight-medium);
+    color: var(--pinfold-color-text);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border-radius: var(--pinfold-cal-radius);
+    cursor: pointer;
+  }
+  .pinfold-calendar__monthSelect:hover,
+  .pinfold-calendar__yearSelect:hover { border-color: var(--pinfold-color-text-muted); }
+
+  /* Presets beside the months; above them on narrow screens. */
+  .pinfold-calendar__body { display: flex; gap: 0.875rem; }
+  .pinfold-calendar__presets {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-inline-size: 8.5rem;
+    padding-inline-end: 0.75rem;
+    border-inline-end: var(--pinfold-border-width) solid var(--pinfold-color-border);
+  }
+  .pinfold-calendar__preset {
+    padding: 0.4rem 0.625rem;
+    font: inherit;
+    color: var(--pinfold-color-text-muted);
+    text-align: start;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-cal-radius);
+    cursor: pointer;
+  }
+  .pinfold-calendar__preset:hover { color: var(--pinfold-color-text); background-color: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent); }
+  .pinfold-calendar__preset[aria-pressed='true'] {
+    font-weight: var(--pinfold-weight-medium);
+    color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text));
+    background-color: color-mix(in oklab, var(--pinfold-cal-solid) 13%, transparent);
+  }
+  @media (max-width: 40rem) {
+    .pinfold-calendar__body { flex-direction: column; }
+    .pinfold-calendar__presets { flex-direction: row; flex-wrap: wrap; min-inline-size: 0; padding: 0 0 0.625rem; border-inline-end: 0; border-block-end: var(--pinfold-border-width) solid var(--pinfold-color-border); }
+  }
+
+  /* Week numbers: a quiet first column. */
+  .pinfold-calendar__weekNumber {
+    inline-size: 1.75rem;
+    padding: 0;
+    font-size: 0.72em;
+    font-weight: var(--pinfold-weight-normal);
+    font-variant-numeric: tabular-nums;
+    color: var(--pinfold-color-text-muted);
+    text-align: center;
+  }
+
+  /* Something under a day's number (a price, a dot). */
+  .pinfold-calendar__day[data-has-content] { align-content: center; gap: 0.0625rem; line-height: 1.05; }
+  .pinfold-calendar__dayContent { font-size: 0.6em; font-weight: var(--pinfold-weight-normal); color: var(--pinfold-color-text-muted); }
+  .pinfold-calendar__day[data-selected] .pinfold-calendar__dayContent,
+  .pinfold-calendar__day[data-in-range] .pinfold-calendar__dayContent { color: inherit; opacity: 0.85; }
+  .pinfold-calendar__day[data-has-content][aria-current='date']::after { inset-block: 0.2rem auto; }
+
   @media (forced-colors: active) {
-    .pinfold-calendar__day[data-selected] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
-    .pinfold-calendar__day[data-in-range] { forced-color-adjust: none; outline: 1px solid Highlight; }
+    :is(.pinfold-calendar__day, .pinfold-calendar__cell)[data-selected] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+    :is(.pinfold-calendar__day, .pinfold-calendar__cell)[data-in-range] { forced-color-adjust: none; outline: 1px solid Highlight; }
   }
 }

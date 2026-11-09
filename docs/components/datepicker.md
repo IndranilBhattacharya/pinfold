@@ -23,17 +23,25 @@ input submits them, a range as "start/end" (ISO 8601). Precedence: use-site prop
 | field options | as Input | |
 | `mode` | `'single' \| 'range'` | `'single'` |
 | `value`, `defaultValue`, `onChange` | a day or `{ start, end }`, `null` for none | none |
-| `min`, `max`, `isDateDisabled` | hold the calendar and typed dates alike | all |
+| `min`, `max`, `isDateDisabled` | hold the calendar and typed dates alike; `(date, { mode, start }) => boolean` | all |
 | `locale`, `weekStart`, `formatOptions` | the shown date (`dateStyle: 'medium'`), typing order, calendar | the browser's |
 | `months`, `showToday` | the popup's calendar | `1`, `false` |
 | `clearable`, `placeholder` | | `false`, the locale's pattern ("dd/mm/yyyy") |
-| `labels` | `{ open, clear, invalid }` | English |
+| `labels` | `{ open, clear, invalid, time, startTime, endTime, done }` | English |
 | `open`, `defaultOpen`, `onOpenChange`, `placement` | the popup | `'bottom-start'` |
 | `variant`, `size`, `tone`, `dimensions` | as Input; `width` | `'outline'`, `'md'`, `'primary'` |
+| `granularity` | `'day' \| 'month' \| 'year'`: what is picked (a month or a year is its first day) | `'day'` |
+| `captionLayout`, `yearRange` | `'label' \| 'dropdown'`: month and year dropdowns to jump far; the years offered | `'label'`, `min`/`max` years or 100 back, 20 ahead |
+| `presets` | quick picks beside the months: names (`'today'`, `'yesterday'`, `'last7'`, `'last30'`, `'last90'`, `'next7'`, `'next30'`, `'thisWeek'`, `'lastWeek'`, `'thisMonth'`, `'lastMonth'`, `'thisYear'`, `'lastYear'`) or `{ label, value }` | none |
+| `minDays`, `maxDays`, `allowDisabledInRange`, `onRangeStart` | a range's length; whether it may cover blocked days (off: the end cannot pass the nearest one); the first pick | none, none, `false` |
+| `showWeekNumbers`, `dayContent` | ISO week numbers; `(date) => node` under a day's number (a price, a dot) | `false`, none |
+| `time`, `timeStep`, `hourCycle` | a time with the day: values become `"2026-11-09T14:30"` (a wall time, no zone); time fields and a Done button in the popup; typed text takes a time after the date | `false`, `1` minute, the locale's |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root label control input clear trigger popup description error` | |
+| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root label control input clear trigger popup time timeInput done description error` | |
 
 Controller: `isOpen`, `open()`, `close()`, `focus()`.
+
+Inactive (`inactiveDatePickerOptions`): the calendar's rules, plus `time` when picking months or years and `hourCycle` without `time`.
 
 ## Accessibility
 - A real text input named by its label; the calendar button is named ("Choose a date") with

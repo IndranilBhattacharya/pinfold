@@ -1,7 +1,26 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
-const SLOTS = ['root', 'header', 'title', 'previous', 'next', 'months', 'grid', 'weekday', 'day', 'footer', 'today'] as const;
+const SLOTS = ['root', 'header', 'title', 'monthSelect', 'yearSelect', 'previous', 'next', 'body', 'presets', 'preset', 'months', 'grid', 'weekday', 'weekNumber', 'day', 'dayContent', 'cell', 'footer', 'today'] as const;
+
+/** Picking options the calendar and the date picker share. */
+export const CALENDAR_PICK_PROPS: Record<string, PropMeta> = {
+  granularity: { type: 'enum', values: ['day', 'month', 'year'], default: 'day', description: 'Pick a day, a month (its first day, "2026-11-01") or a year ("2026-01-01").', group: 'behaviour', control: true },
+  captionLayout: { type: 'enum', values: ['label', 'dropdown'], default: 'label', description: 'The header: the month as text with arrows, or month and year dropdowns to jump far.', group: 'appearance', control: true },
+  yearRange: { type: 'array', description: 'Years the year dropdown offers, `[from, to]`. Default `min`/`max` years, else 100 back and 20 ahead.', group: 'behaviour' },
+  showWeekNumbers: { type: 'boolean', default: false, description: 'ISO week numbers before each week.', group: 'appearance', control: true },
+  dayContent: { type: 'function', description: '`(date) => node`: something under a day\'s number, a price or an event dot.', group: 'appearance' },
+  presets: {
+    type: 'array',
+    orString: true,
+    description: "Quick picks beside the months: names ('today', 'yesterday', 'last7', 'last30', 'last90', 'next7', 'next30', 'thisWeek', 'lastWeek', 'thisMonth', 'lastMonth', 'thisYear', 'lastYear') or `{ label, value }` (a day, a range, or a function returning one).",
+    group: 'data',
+  },
+  minDays: { type: 'number', description: 'A range: fewest days it may cover (both ends counted). Ends closer than this cannot be picked.', group: 'behaviour' },
+  maxDays: { type: 'number', description: 'A range: most days it may cover.', group: 'behaviour' },
+  allowDisabledInRange: { type: 'boolean', default: false, description: 'A range may cover days that cannot be chosen. Off: once a start is picked, an end past the nearest blocked day cannot be (a booking cannot span a booked night).', group: 'behaviour' },
+  onRangeStart: { type: 'function', description: '`(date) => void`: a range\'s first day was picked.', group: 'events' },
+};
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -25,7 +44,8 @@ export const calendarMeta: ComponentMeta = {
     onChange: { type: 'function', description: '`(value) => void`: a day, a `{ start, end }` range once both ends are picked, or the days.', group: 'events' },
     min: { type: 'string', description: 'The earliest day that can be chosen ("2026-11-01"). Earlier months cannot be shown.', group: 'behaviour' },
     max: { type: 'string', description: 'The latest day that can be chosen.', group: 'behaviour' },
-    isDateDisabled: { type: 'function', description: '`(date) => boolean`: days that cannot be chosen, e.g. weekends or booked nights.', group: 'behaviour' },
+    isDateDisabled: { type: 'function', description: '`(date, { mode, start }) => boolean`: days that cannot be chosen, e.g. weekends or booked nights. `start` is a range\'s first pick while its end is being chosen, so the end can depend on it.', group: 'behaviour' },
+    ...CALENDAR_PICK_PROPS,
     month: { type: 'string', description: 'The visible month (any day in it), controlled.', group: 'data' },
     defaultMonth: { type: 'string', description: 'The visible month at first. Default the chosen day\'s, else today\'s.', group: 'data' },
     onMonthChange: { type: 'function', description: '`(month) => void`: the first day of the newly shown month.', group: 'events' },
@@ -34,6 +54,7 @@ export const calendarMeta: ComponentMeta = {
     weekStart: { type: 'number', description: '0 Sunday … 6 Saturday. Default the locale\'s.', group: 'behaviour' },
     showOutsideDays: { type: 'boolean', default: true, description: 'Days of the neighbouring months fill the grid (one month at a time).', group: 'appearance', control: true },
     showToday: { type: 'boolean', default: false, description: 'A "Today" button under the grid.', group: 'appearance', control: true },
+    footer: { type: 'node', description: 'Content under the grid, in the footer: actions, a time field.', group: 'data' },
     labels: {
       type: 'object',
       description: 'Text read and shown, for translation.',
@@ -42,6 +63,10 @@ export const calendarMeta: ComponentMeta = {
         previous: { type: 'string', description: 'Default "Previous month".', group: 'data' },
         next: { type: 'string', description: 'Default "Next month".', group: 'data' },
         today: { type: 'string', description: 'Default "Today".', group: 'data' },
+        month: { type: 'string', description: 'The month dropdown. Default "Month".', group: 'data' },
+        year: { type: 'string', description: 'The year dropdown. Default "Year".', group: 'data' },
+        week: { type: 'string', description: 'The week number column. Default "Wk".', group: 'data' },
+        presets: { type: 'string', description: 'The preset list. Default "Presets".', group: 'data' },
       },
     },
     radius: RADIUS_PROP,
@@ -60,7 +85,7 @@ export const calendarMeta: ComponentMeta = {
     classNames: perSlot('Classes per slot.', 'string'),
     styles: perSlot('Inline styles per slot.', 'object'),
     slotProps: perSlot('Any DOM props per slot.', 'object'),
-    render: perSlot('Replace a slot element: `({ props, state, children }) => node`.', 'function'),
+    render: perSlot('Replace a slot element: `({ props, state, children, item }) => node`. Days and month or year cells get `item`: `{ date, selected, disabled, today, outside, rangeStart, rangeEnd }`.', 'function'),
   },
   keyboard: [
     { keys: 'Arrow keys', action: 'The day before or after (following the reading direction), or a week up or down; the month turns as needed.' },

@@ -22,20 +22,28 @@ library default.
 |---|---|---|
 | `mode` | `'single' \| 'range' \| 'multiple'` | `'single'` |
 | `value`, `defaultValue`, `onChange` | a day, `{ start, end }`, or days, by mode | none |
-| `min`, `max`, `isDateDisabled` | days that can be chosen; `(date) => boolean` | all |
+| `min`, `max`, `isDateDisabled` | days that can be chosen; `(date, { mode, start }) => boolean` (`start`: a range's first pick, so the end can depend on it) | all |
+| `granularity` | `'day' \| 'month' \| 'year'`: what is picked (a month or a year is its first day) | `'day'` |
+| `captionLayout`, `yearRange` | `'label' \| 'dropdown'`: month and year dropdowns to jump far; the years offered | `'label'`, `min`/`max` years or 100 back, 20 ahead |
+| `presets` | quick picks beside the months: names (`'today'`, `'yesterday'`, `'last7'`, `'last30'`, `'last90'`, `'next7'`, `'next30'`, `'thisWeek'`, `'lastWeek'`, `'thisMonth'`, `'lastMonth'`, `'thisYear'`, `'lastYear'`) or `{ label, value }` | none |
+| `minDays`, `maxDays`, `allowDisabledInRange`, `onRangeStart` | a range's length; whether it may cover blocked days (off: the end cannot pass the nearest one); the first pick | none, none, `false` |
+| `showWeekNumbers`, `dayContent` | ISO week numbers; `(date) => node` under a day's number (a price, a dot) | `false`, none |
+| `footer` | content under the grid (actions, a time field) | none |
 | `month`, `defaultMonth`, `onMonthChange` | the visible month | the chosen day's, else today's |
 | `months` | `1 \| 2 \| 3` side by side (they wrap when narrow) | `1` |
 | `locale`, `weekStart` | names and the first weekday (0 Sunday … 6 Saturday) | the browser's, the locale's |
 | `showOutsideDays`, `showToday` | neighbouring days (one month); a Today button | `true`, `false` |
-| `labels` | `{ previous, next, today }` | English |
+| `labels` | `{ previous, next, today, month, year, week, presets }` | English |
 | `label`, `size`, `tone` | the group's name | `'Calendar'`, `'md'`, `'primary'` (provider) |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root header title previous next months grid weekday day footer today` | |
+| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root header title monthSelect yearSelect previous next body presets preset months grid weekday weekNumber day dayContent cell footer today`; days and month or year cells pass `item` (`{ date, selected, disabled, today, outside, rangeStart, rangeEnd }`) to `render` | |
 
 A range is two picks in any order; while the second is pending, the band follows the pointer or the
 focused day, and Escape drops it. Controller: `month`, `setMonth(date)`, `focus()`.
 
-Inactive (`inactiveCalendarOptions`): `showOutsideDays` with more than one month.
+Inactive (`inactiveCalendarOptions`): `showOutsideDays` with more than one month; `showOutsideDays`, `showWeekNumbers`, `dayContent`, `months`, `weekStart` when picking months or years; `minDays`, `maxDays`, `allowDisabledInRange` outside a range.
+
+Month and year pickers are grids of twelve buttons, three to a row: arrows move one (or a row), PageUp and PageDown a page, Home and End the page's ends.
 
 ## Accessibility
 - A `group` named by `label`; each month is a `grid` labelled by its heading, a polite live

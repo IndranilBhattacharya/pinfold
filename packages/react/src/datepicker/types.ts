@@ -3,9 +3,9 @@ import type { IsoDate, Length, OverlayPlacement, PinfoldSize, PinfoldTone, Props
 import type { PinfoldComponent } from '../component';
 import type { FieldConfig } from '../field';
 import type { SlotOverrides } from '../types';
-import type { CalendarRange } from '../calendar/types';
+import type { CalendarDateContext, CalendarGranularity, CalendarPreset, CalendarRange } from '../calendar/types';
 
-export type DatePickerSlot = 'root' | 'label' | 'control' | 'input' | 'clear' | 'trigger' | 'popup' | 'description' | 'error';
+export type DatePickerSlot = 'root' | 'label' | 'control' | 'input' | 'clear' | 'trigger' | 'popup' | 'time' | 'timeInput' | 'done' | 'description' | 'error';
 
 /** Passed to slot `render` overrides. */
 export interface DatePickerState {
@@ -31,13 +31,47 @@ export interface DatePickerLabels {
   clear?: string;
   /** Shown when typed text is not a date. Default "Enter a date like 08/11/2026" in the locale's order. */
   invalid?: string;
+  /** The time field. @default 'Time' */
+  time?: string;
+  /** A range's first time field. @default 'Start time' */
+  startTime?: string;
+  /** A range's second time field. @default 'End time' */
+  endTime?: string;
+  /** Closes the popup when a time is shown. @default 'Done' */
+  done?: string;
 }
 
 interface DatePickerShared extends FieldConfig, SlotOverrides<DatePickerSlot, DatePickerState> {
   min?: IsoDate;
   max?: IsoDate;
-  /** Days that cannot be chosen. */
-  isDateDisabled?: (date: IsoDate) => boolean;
+  /** Days that cannot be chosen: `(date, { mode, start }) => boolean` (`start`: a range's first pick). */
+  isDateDisabled?: (date: IsoDate, context: CalendarDateContext) => boolean;
+  /** Pick a day, a month or a year. @default 'day' */
+  granularity?: CalendarGranularity;
+  /** The calendar's header: the month with arrows, or month and year dropdowns. @default 'label' */
+  captionLayout?: 'label' | 'dropdown';
+  /** Years the year dropdown offers, `[from, to]`. */
+  yearRange?: readonly [number, number];
+  /** ISO week numbers in the calendar. @default false */
+  showWeekNumbers?: boolean;
+  /** Something under a day's number: a price, an event dot. */
+  dayContent?: (date: IsoDate) => React.ReactNode;
+  /** Quick picks beside the calendar: names (`'last7'`, `'thisMonth'`...) or `{ label, value }`. */
+  presets?: readonly CalendarPreset[];
+  /** A range: fewest days it may cover. */
+  minDays?: number;
+  /** A range: most days it may cover. */
+  maxDays?: number;
+  /** A range may cover days that cannot be chosen. @default false */
+  allowDisabledInRange?: boolean;
+  /** A range's first day was picked. */
+  onRangeStart?: (date: IsoDate) => void;
+  /** A time with the day: values become "2026-11-09T14:30" (a wall time, no zone). @default false */
+  time?: boolean;
+  /** Minutes between the times offered. @default 1 */
+  timeStep?: number;
+  /** 12 or 24 hours. Default the locale's. */
+  hourCycle?: 12 | 24;
   /** A BCP 47 locale for the shown date, typing order and the calendar. Default the browser's. */
   locale?: string;
   /** 0 Sunday … 6 Saturday. Default the locale's. */
@@ -77,7 +111,7 @@ interface DatePickerShared extends FieldConfig, SlotOverrides<DatePickerSlot, Da
 export interface DatePickerSingleConfig extends DatePickerShared {
   /** One day or a range. @default 'single' */
   mode?: 'single';
-  /** The chosen day ("2026-11-08"), controlled; `null` for none. */
+  /** The chosen day ("2026-11-08"; "2026-11-08T14:30" with `time`), controlled; `null` for none. */
   value?: IsoDate | null;
   defaultValue?: IsoDate;
   onChange?: (value: IsoDate | null) => void;

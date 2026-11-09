@@ -81,4 +81,33 @@
     from { opacity: 0; translate: 0 -0.25rem; }
   }
   .pinfold-datepicker__popup > * { box-shadow: var(--pinfold-shadow-lg); }
+
+  /* Time fields in the calendar's footer, with a Done button. */
+  .pinfold-datepicker__times { display: flex; flex: 1 1 auto; flex-wrap: wrap; align-items: end; gap: 0.5rem 0.75rem; }
+  .pinfold-datepicker__time { display: grid; gap: 0.25rem; font-size: 0.85em; color: var(--pinfold-color-text-muted); }
+  .pinfold-datepicker__timeInput {
+    block-size: 2rem;
+    padding-inline: 0.5rem;
+    font: inherit;
+    font-size: var(--pinfold-text-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--pinfold-color-text);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border: var(--pinfold-border-width) solid var(--pinfold-fld-edge, var(--pinfold-color-border));
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+  }
+  .pinfold-datepicker__timeInput:focus-visible { outline: none; border-color: var(--pinfold-color-accent); box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-datepicker__done {
+    margin-inline-start: auto;
+    block-size: 2rem;
+    padding-inline: 0.875rem;
+    font: inherit;
+    font-weight: var(--pinfold-weight-medium);
+    color: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    background-color: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    border: 0;
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    cursor: pointer;
+  }
+  .pinfold-datepicker__done:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
 }
