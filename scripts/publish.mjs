@@ -38,6 +38,42 @@ if (!todo.length) {
   process.exit(1);
 }
 
+/**
+ * Trusted publishing check. npm swaps the CI's OIDC token for a short-lived publish token; when
+ * npm rejects the swap it silently falls back to no auth and the publish fails with a bare
+ * "404 Not Found - PUT". Do the same swap first, for every package, so a rejected one stops the
+ * release before anything is published and prints npm's own reason.
+ */
+async function checkTrustedPublishing(names) {
+  const { ACTIONS_ID_TOKEN_REQUEST_URL: url, ACTIONS_ID_TOKEN_REQUEST_TOKEN: bearer } = process.env;
+  if (!url || !bearer) return; // not in GitHub Actions (or no `id-token: write`): nothing to check
+  const id = await fetch(`${url}&audience=npm:registry.npmjs.org`, { headers: { Authorization: `Bearer ${bearer}` } });
+  if (!id.ok) throw new Error(`GitHub refused an OIDC token (${id.status}). The job needs \`permissions: id-token: write\`.`);
+  const { value } = await id.json();
+  const failed = [];
+  for (const name of names) {
+    const res = await fetch(`https://registry.npmjs.org/-/npm/v1/oidc/token/exchange/package/${name.replace('/', '%2f')}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${value}` },
+    });
+    if (res.ok) console.log(`ok       trusted publisher for ${name}`);
+    else failed.push(`  ${name}: ${res.status} ${(await res.text()).slice(0, 300)}`);
+  }
+  if (failed.length) {
+    const repo = process.env.GITHUB_REPOSITORY ?? '<owner>/<repo>';
+    console.error(
+      `\nnpm rejected trusted publishing:\n${failed.join('\n')}\n\n` +
+        `On npmjs.com, open each package above → Settings → Trusted publisher → GitHub Actions, and enter exactly:\n` +
+        `  Organization or user: ${repo.split('/')[0]}\n  Repository: ${repo.split('/')[1]}\n` +
+        `  Workflow filename: release.yml\n  Environment name: npm\n` +
+        `A package that has never been published needs one manual \`npm publish\` first.`,
+    );
+    process.exit(1);
+  }
+}
+
+if (!dryRun) await checkTrustedPublishing(todo.map((p) => p.name));
+
 for (const { name } of todo) {
   // Provenance needs the CI's OIDC token; a local dry run turns it off (packages set it in publishConfig).
   const argv = ['publish', '-w', name, '--access', 'public', '--tag', tag];

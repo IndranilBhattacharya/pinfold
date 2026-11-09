@@ -31,7 +31,8 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org
+          # No registry-url: it writes an .npmrc with a placeholder token that npm falls back to
+          # when trusted publishing is rejected, which turns the real error into a bare 404.
       - run: npm ci
       - run: npm audit --audit-level=low
       - run: npm run verify

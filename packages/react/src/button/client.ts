@@ -5,4 +5,4 @@
  */
 export { Button } from './Button';
 export { useButton } from './useButton';
-export type { ButtonApi, ButtonConfig } from './types';
+export type { ButtonApi, ButtonComponent, ButtonConfig, ButtonTagProps } from './types';

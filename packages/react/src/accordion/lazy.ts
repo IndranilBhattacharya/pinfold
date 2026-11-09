@@ -13,5 +13,5 @@ export const Accordion = createLazyComponent<AnyAccordionConfig>(
   { displayName: 'LazyAccordion' },
 );
 
-export type { AccordionConfig, AccordionMappedConfig } from './types';
+export type { AccordionConfig, AccordionMappedConfig, AnyAccordionConfig } from './types';
 export default Accordion;

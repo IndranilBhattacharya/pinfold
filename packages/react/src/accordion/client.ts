@@ -5,4 +5,4 @@
  */
 export { Accordion } from './Accordion';
 export { useAccordion } from './useAccordion';
-export type { AccordionApi, AccordionConfig, AccordionMappedConfig } from './types';
+export type { AccordionApi, AccordionConfig, AccordionMappedConfig, AccordionRootProps } from './types';
