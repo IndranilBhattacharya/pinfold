@@ -37,6 +37,7 @@
     "./skeleton.css": "./dist/skeleton.css",
     "./badge.css": "./dist/badge.css",
     "./colorpicker.css": "./dist/colorpicker.css",
+    "./cursor.css": "./dist/cursor.css",
     "./navbar.css": "./dist/navbar.css",
     "./appshell.css": "./dist/appshell.css",
     "./scrollarea.css": "./dist/scrollarea.css",

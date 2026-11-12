@@ -1,0 +1,125 @@
+/* Pinfold — cursor. A decoration that follows the pointer: fixed, above everything, never in the way of
+   a click. The hook writes each part's position as a transform; this sheet draws the parts and their
+   states. The system cursor is hidden only where the hook says so, and never over text fields. */
+
+@layer pinfold.components {
+  /* The one place the library uses !important: a page's own `cursor: pointer` rules must lose to this
+     while a custom cursor is active, and an important declaration in a layer is what beats them. */
+  [data-pinfold-cursor-hidden],
+  [data-pinfold-cursor-hidden] :not(input):not(textarea):not(select):not([contenteditable='true']):not([contenteditable='']) { cursor: none !important; }
+
+  .pinfold-cursor {
+    --pinfold-cur-size: var(--pinfold-cursor-size, 0.5rem);
+    --pinfold-cur-ring: var(--pinfold-cursor-follower-size, 2.25rem);
+    --pinfold-cur-color: var(--pinfold-cursor-color, var(--pinfold-tone-solid, var(--pinfold-color-accent)));
+    position: fixed;
+    inset: 0 auto auto 0;
+    z-index: calc(var(--pinfold-z-tooltip) + 1);
+    inline-size: 0;
+    block-size: 0;
+    pointer-events: none;
+    opacity: 0;
+    font-family: var(--pinfold-font-sans);
+  }
+  .pinfold-cursor[data-size='sm'] { --pinfold-cur-size: var(--pinfold-cursor-size, 0.375rem); --pinfold-cur-ring: var(--pinfold-cursor-follower-size, 1.75rem); }
+  .pinfold-cursor[data-size='lg'] { --pinfold-cur-size: var(--pinfold-cursor-size, 0.625rem); --pinfold-cur-ring: var(--pinfold-cursor-follower-size, 3rem); }
+  .pinfold-cursor[data-visible] { opacity: 1; }
+  .pinfold-cursor[data-animate] { transition: opacity var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-cursor[data-blend='difference'] { --pinfold-cur-color: white; mix-blend-mode: difference; }
+  .pinfold-cursor[data-state='hidden'],
+  .pinfold-cursor[data-state='text'] { opacity: 0; }
+  .pinfold-cursor__area { position: relative; }
+
+  /* Each part sits at the origin and is moved by a transform; its own box is centred with margins. */
+  .pinfold-cursor__dot,
+  .pinfold-cursor__follower,
+  .pinfold-cursor__trail,
+  .pinfold-cursor__label { position: absolute; inset: 0 auto auto 0; will-change: transform; }
+  .pinfold-cursor__dot::before,
+  .pinfold-cursor__follower::before,
+  .pinfold-cursor__trail::before { content: ''; position: absolute; border-radius: var(--pinfold-radius-full); }
+  .pinfold-cursor[data-animate] :is(.pinfold-cursor__dot, .pinfold-cursor__follower)::before { transition: inline-size var(--pinfold-duration-md) var(--pinfold-ease-out), block-size var(--pinfold-duration-md) var(--pinfold-ease-out), margin var(--pinfold-duration-md) var(--pinfold-ease-out), background-color var(--pinfold-duration-md) var(--pinfold-ease-out), border-color var(--pinfold-duration-md) var(--pinfold-ease-out), opacity var(--pinfold-duration-md) var(--pinfold-ease-out); }
+
+  /* The dot. */
+  .pinfold-cursor__dot::before {
+    inline-size: var(--pinfold-cur-size);
+    block-size: var(--pinfold-cur-size);
+    margin: calc(var(--pinfold-cur-size) / -2) 0 0 calc(var(--pinfold-cur-size) / -2);
+    background-color: var(--pinfold-cur-color);
+  }
+  .pinfold-cursor[data-pressed] .pinfold-cursor__dot::before { opacity: 0.6; }
+  .pinfold-cursor[data-variant='dot'][data-state='pointer'] .pinfold-cursor__dot::before,
+  .pinfold-cursor[data-variant='dot']:not([data-state='default']):not([data-state='pointer']) .pinfold-cursor__dot::before { --pinfold-cur-size: 1.75rem; background-color: color-mix(in oklab, var(--pinfold-cur-color) 35%, transparent); }
+  .pinfold-cursor[data-variant='dot-ring']:not([data-state='default']) .pinfold-cursor__dot::before { opacity: 0; }
+
+  /* The follower: a ring, a blob or a glow. */
+  .pinfold-cursor__follower::before {
+    box-sizing: border-box;
+    inline-size: var(--pinfold-cur-ring);
+    block-size: var(--pinfold-cur-ring);
+    margin: calc(var(--pinfold-cur-ring) / -2) 0 0 calc(var(--pinfold-cur-ring) / -2);
+    border: 1.5px solid color-mix(in oklab, var(--pinfold-cur-color) 70%, transparent);
+  }
+  .pinfold-cursor:not([data-state='default']) .pinfold-cursor__follower::before { --pinfold-cur-ring: 3.5rem; background-color: color-mix(in oklab, var(--pinfold-cur-color) 16%, transparent); border-color: color-mix(in oklab, var(--pinfold-cur-color) 40%, transparent); }
+  .pinfold-cursor[data-pressed] .pinfold-cursor__follower::before { --pinfold-cur-ring: 1.5rem; }
+  .pinfold-cursor[data-variant='blob'] .pinfold-cursor__follower::before { border: 0; background-color: color-mix(in oklab, var(--pinfold-cur-color) 28%, transparent); }
+  .pinfold-cursor[data-variant='blob'][data-blend='difference'] .pinfold-cursor__follower::before { background-color: var(--pinfold-cur-color); }
+  .pinfold-cursor[data-variant='blob']:not([data-state='default']) .pinfold-cursor__follower::before { --pinfold-cur-ring: 4.5rem; background-color: color-mix(in oklab, var(--pinfold-cur-color) 22%, transparent); }
+  .pinfold-cursor[data-variant='blob'][data-blend='difference']:not([data-state='default']) .pinfold-cursor__follower::before { background-color: var(--pinfold-cur-color); }
+  .pinfold-cursor[data-variant='spotlight'] .pinfold-cursor__follower::before {
+    --pinfold-cur-ring: var(--pinfold-cursor-follower-size, 26rem);
+    border: 0;
+    background: radial-gradient(closest-side, color-mix(in oklab, var(--pinfold-cur-color) 22%, transparent), color-mix(in oklab, var(--pinfold-cur-color) 7%, transparent) 55%, transparent);
+  }
+  .pinfold-cursor[data-variant='spotlight']:not([data-state='default']) .pinfold-cursor__follower::before { --pinfold-cur-ring: var(--pinfold-cursor-follower-size, 26rem); background: radial-gradient(closest-side, color-mix(in oklab, var(--pinfold-cur-color) 30%, transparent), color-mix(in oklab, var(--pinfold-cur-color) 9%, transparent) 55%, transparent); }
+
+  /* The crosshair: two hairlines through the point. */
+  .pinfold-cursor[data-variant='crosshair'] .pinfold-cursor__dot::before { --pinfold-cur-size: 1.5rem; background: linear-gradient(var(--pinfold-cur-color), var(--pinfold-cur-color)) center / 100% 1.5px no-repeat, linear-gradient(var(--pinfold-cur-color), var(--pinfold-cur-color)) center / 1.5px 100% no-repeat; border-radius: 0; }
+  .pinfold-cursor[data-variant='crosshair'][data-state='pointer'] .pinfold-cursor__dot::before { --pinfold-cur-size: 2.25rem; }
+
+  /* The arrow, and a shape of your own: drawn from the point, not centred on it. */
+  .pinfold-cursor[data-variant='arrow'] .pinfold-cursor__dot::before,
+  .pinfold-cursor[data-custom] .pinfold-cursor__dot::before { content: none; }
+  .pinfold-cursor[data-variant='arrow'] .pinfold-cursor__dot { color: var(--pinfold-cur-color); }
+  .pinfold-cursor[data-variant='arrow'] .pinfold-cursor__dot > svg { position: absolute; inset: -3px auto auto -4px; inline-size: 1.5rem; block-size: 1.5rem; max-inline-size: none; filter: drop-shadow(0 1px 2px color-mix(in oklab, var(--pinfold-shadow-color, var(--pinfold-color-text)) 35%, transparent)); }
+  .pinfold-cursor__shape { position: absolute; display: grid; place-items: center; transform: translate(-50%, -50%); color: var(--pinfold-cur-color); font-size: 1.25rem; line-height: 1; white-space: nowrap; }
+  .pinfold-cursor[data-animate] .pinfold-cursor__shape { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-spring, var(--pinfold-ease-out)); }
+  .pinfold-cursor[data-state='pointer'] .pinfold-cursor__shape { transform: translate(-50%, -50%) scale(1.25); }
+  .pinfold-cursor[data-pressed] .pinfold-cursor__shape { transform: translate(-50%, -50%) scale(0.85); }
+
+  /* The trail: dots that shrink and fade down the line. */
+  .pinfold-cursor__trail::before {
+    --pinfold-cur-t: calc(1 - var(--pinfold-cursor-i-n) / (var(--pinfold-cursor-i-of) + 1));
+    inline-size: calc(var(--pinfold-cur-size) * (0.35 + 0.65 * var(--pinfold-cur-t)));
+    block-size: calc(var(--pinfold-cur-size) * (0.35 + 0.65 * var(--pinfold-cur-t)));
+    margin: calc(var(--pinfold-cur-size) * (0.35 + 0.65 * var(--pinfold-cur-t)) / -2) 0 0 calc(var(--pinfold-cur-size) * (0.35 + 0.65 * var(--pinfold-cur-t)) / -2);
+    background-color: var(--pinfold-cur-color);
+    opacity: calc(0.7 * var(--pinfold-cur-t));
+  }
+
+  /* The label: a chip beside the point. */
+  .pinfold-cursor__label > span {
+    position: absolute;
+    inset: 0.875rem auto auto 0.875rem;
+    padding: 0.1875rem 0.5rem;
+    font-size: var(--pinfold-text-xs);
+    font-weight: var(--pinfold-weight-medium);
+    line-height: 1.3;
+    white-space: nowrap;
+    color: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    background-color: var(--pinfold-cur-color);
+    border-radius: var(--pinfold-radius-full);
+    box-shadow: var(--pinfold-shadow-sm);
+  }
+  .pinfold-cursor[data-variant='arrow'] .pinfold-cursor__label > span { inset: 1.125rem auto auto 0.75rem; border-start-start-radius: var(--pinfold-radius-xs); }
+  .pinfold-cursor[data-blend='difference'] .pinfold-cursor__label > span { color: black; }
+  [dir='rtl'] .pinfold-cursor__label > span { inset-inline: auto 0.875rem; }
+
+  @media (pointer: coarse) {
+    .pinfold-cursor { display: none; }
+  }
+  @media (forced-colors: active) {
+    .pinfold-cursor { --pinfold-cur-color: Highlight; mix-blend-mode: normal; forced-color-adjust: none; }
+    .pinfold-cursor__label > span { color: HighlightText; }
+  }
+}

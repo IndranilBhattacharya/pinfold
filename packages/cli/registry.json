@@ -624,6 +624,24 @@
       ],
       "hook": "useNavbar",
       "snippet": "<TopBar label=\"Main\" value={pathname} items={links} />"
+    },
+    {
+      "name": "cursor",
+      "import": "@pinfold/react/cursor",
+      "styles": "@pinfold/css/cursor.css",
+      "status": "experimental",
+      "description": "A pointer of your own design for a page or an area: dot, ring, blob, spotlight, crosshair or a named arrow, with states and a trail.",
+      "variants": [
+        "dot-ring",
+        "dot",
+        "ring",
+        "blob",
+        "spotlight",
+        "crosshair",
+        "arrow"
+      ],
+      "hook": "useCursor",
+      "snippet": "<Pointer variant=\"blob\"><Gallery /></Pointer>"
     }
   ],
   "planned": [
