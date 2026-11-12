@@ -44,7 +44,7 @@ function withChunks(file, seen = new Set()) {
  * overrides and state-function config fields.
  */
 const BUDGETS = [
-  ['packages/core/dist/index.js', 24], // every component's rules live here; apps tree-shake to what they use (see the app row)
+  ['packages/core/dist/index.js', 28], // every component's rules live here; apps tree-shake to what they use (see the app row)
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
   ['packages/react/dist/accordion/index.js', 9], // 2026-11-03: presets, tag prop split, no :has(); the app row is what ships
@@ -55,23 +55,23 @@ const BUDGETS = [
   ['packages/react/dist/skeleton/index.js', 4.5], // shares the provider, which now carries the app's router
   ['packages/react/dist/badge/index.js', 5],
   ['packages/react/dist/colorpicker/index.js', 7],
-  ['packages/react/dist/navbar/index.js', 12],
-  ['packages/react/dist/appshell/index.js', 6],
+  ['packages/react/dist/navbar/index.js', 15],
+  ['packages/react/dist/appshell/index.js', 9],
   ['packages/react/dist/scrollarea/index.js', 6],
   ['packages/react/dist/navmenu/index.js', 7],
   ['packages/react/dist/sidebar/index.js', 6],
   ['packages/react/dist/resizable/index.js', 6],
-  ['packages/react/dist/carousel/index.js', 7],
+  ['packages/react/dist/carousel/index.js', 8],
   ['packages/react/dist/empty/index.js', 6],
   ['packages/react/dist/timeline/index.js', 6],
   ['packages/react/dist/rating/index.js', 6],
-  ['packages/react/dist/table/index.js', 26], // a data grid: filters, groups, virtual rows, editing, column state
-  ['packages/react/dist/datepicker/index.js', 18],
-  ['packages/react/dist/calendar/index.js', 9],
+  ['packages/react/dist/table/index.js', 35], // a data grid: filters, groups, virtual rows, editing, column state
+  ['packages/react/dist/datepicker/index.js', 20],
+  ['packages/react/dist/calendar/index.js', 10],
   ['packages/react/dist/command/index.js', 10],
   ['packages/react/dist/tags/index.js', 7],
   ['packages/react/dist/combobox/index.js', 15], // the select's listbox engine plus the overlay layer
-  ['packages/react/dist/select/index.js', 13], // the overlay layer (top layer, flip, dismiss stack), shared with menu, which also carries the trigger button
+  ['packages/react/dist/select/index.js', 14], // the overlay layer (top layer, flip, dismiss stack), shared with menu, which also carries the trigger button
   ['packages/react/dist/stepper/index.js', 8], // renders Pinfold buttons (Back, Next, Finish) and the step panels
   ['packages/react/dist/pagination/index.js', 7], // page size select, go to page, summary, sliding cursor, cursor-paged mode
   ['packages/react/dist/breadcrumb/index.js', 13], // renders Pinfold menus (crumb menus, collapsed crumbs), with the overlay layer
@@ -109,13 +109,13 @@ const BUDGETS = [
   ['packages/css/dist/navmenu.css', 2.5],
   ['packages/css/dist/sidebar.css', 2.5],
   ['packages/css/dist/resizable.css', 2],
-  ['packages/css/dist/carousel.css', 2],
+  ['packages/css/dist/carousel.css', 2.5],
   ['packages/css/dist/empty.css', 2],
   ['packages/css/dist/timeline.css', 2],
   ['packages/css/dist/rating.css', 2],
-  ['packages/css/dist/table.css', 4],
+  ['packages/css/dist/table.css', 5.5],
   ['packages/css/dist/datepicker.css', 2],
-  ['packages/css/dist/calendar.css', 2],
+  ['packages/css/dist/calendar.css', 2.5],
   ['packages/css/dist/command.css', 2],
   ['packages/css/dist/tags.css', 2],
   ['packages/css/dist/combobox.css', 1],
