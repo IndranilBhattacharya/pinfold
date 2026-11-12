@@ -22,14 +22,70 @@
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
+    outline: none;
     border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) + 0.25rem);
   }
   .pinfold-carousel__track::-webkit-scrollbar { display: none; }
+  .pinfold-carousel__track:focus-visible { box-shadow: var(--pinfold-focus-ring); }
   .pinfold-carousel__slide {
-    flex: 0 0 calc((100% - var(--pinfold-crs-gap) * (var(--pinfold-crs-per) - 1)) / var(--pinfold-crs-per));
+    --pinfold-crs-size: calc((100% - var(--pinfold-crs-gap) * (var(--pinfold-crs-per) - 1)) / var(--pinfold-crs-per));
+    flex: 0 0 var(--pinfold-crs-size);
     min-inline-size: 0;
     scroll-snap-align: start;
   }
+  /* Dragging with a mouse: nothing is selected or picked up, and the hand shows it. */
+  .pinfold-carousel__track { cursor: grab; }
+  .pinfold-carousel[data-dragging] .pinfold-carousel__track { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+  .pinfold-carousel[data-dragging] .pinfold-carousel__slide { pointer-events: none; }
+  .pinfold-carousel__slide :where(img, svg, video) { -webkit-user-drag: none; user-select: none; -webkit-user-select: none; }
+
+  /* The edges fade, so slides arrive and leave softly. */
+  .pinfold-carousel[data-edge-fade] .pinfold-carousel__viewport {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+  .pinfold-carousel[data-edge-fade][data-orientation='vertical'] .pinfold-carousel__viewport {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 8%, black 92%, transparent);
+  }
+
+  /* center, coverflow: the current slide in the middle; the track pads so the first and last can reach it. */
+  .pinfold-carousel:is([data-variant='center'], [data-variant='coverflow']) .pinfold-carousel__track { padding-block: 1rem; }
+  /* Spacers, not padding: padding would shrink the box the slide widths are measured from. */
+  .pinfold-carousel:is([data-variant='center'], [data-variant='coverflow'], [data-variant='stagger']) .pinfold-carousel__track::before,
+  .pinfold-carousel:is([data-variant='center'], [data-variant='coverflow'], [data-variant='stagger']) .pinfold-carousel__track::after { content: ''; flex: 0 0 calc((100% - (100% - var(--pinfold-crs-gap) * (var(--pinfold-crs-per) - 1)) / var(--pinfold-crs-per)) / 2 - var(--pinfold-crs-gap)); }
+  .pinfold-carousel:is([data-variant='center'], [data-variant='coverflow']) .pinfold-carousel__slide { scroll-snap-align: center; transform-origin: center; }
+  .pinfold-carousel:is([data-variant='center'], [data-variant='coverflow']) .pinfold-carousel__slide:not([data-active]) { cursor: pointer; }
+  .pinfold-carousel[data-animate]:is([data-variant='center'], [data-variant='coverflow']) .pinfold-carousel__slide { transition: transform var(--pinfold-duration-slow, 400ms) var(--pinfold-ease-out), opacity var(--pinfold-duration-slow, 400ms) var(--pinfold-ease-out), filter var(--pinfold-duration-slow, 400ms) var(--pinfold-ease-out); }
+  .pinfold-carousel[data-variant='center'] .pinfold-carousel__slide:not([data-active]) { transform: scale(0.86); opacity: 0.5; }
+  .pinfold-carousel[data-variant='center'] .pinfold-carousel__slide[data-active] { z-index: 1; }
+  .pinfold-carousel[data-variant='coverflow'] .pinfold-carousel__track { perspective: 62.5rem; --pinfold-crs-gap: 0px; }
+  .pinfold-carousel[data-variant='coverflow'] .pinfold-carousel__slide[data-active] { z-index: 3; transform: translateZ(0) scale(1.04); }
+  .pinfold-carousel[data-variant='coverflow'] .pinfold-carousel__slide[data-side='before'] { z-index: 2; transform: translateX(18%) rotateY(38deg) scale(0.82); opacity: 0.8; filter: brightness(0.78); }
+  .pinfold-carousel[data-variant='coverflow'] .pinfold-carousel__slide[data-side='after'] { z-index: 2; transform: translateX(-18%) rotateY(-38deg) scale(0.82); opacity: 0.8; filter: brightness(0.78); }
+  .pinfold-carousel[data-variant='coverflow'] .pinfold-carousel__slide:is([data-distance='2'], [data-distance='3']) { z-index: 1; opacity: 0.45; }
+  [dir='rtl'] .pinfold-carousel[data-variant='coverflow'] .pinfold-carousel__slide[data-side='before'] { transform: translateX(-18%) rotateY(-38deg) scale(0.82); }
+  [dir='rtl'] .pinfold-carousel[data-variant='coverflow'] .pinfold-carousel__slide[data-side='after'] { transform: translateX(18%) rotateY(38deg) scale(0.82); }
+
+  /* stagger: slides step up and down in turn. */
+  .pinfold-carousel[data-variant='stagger'] .pinfold-carousel__track { padding-block: 1.25rem; }
+  .pinfold-carousel[data-variant='stagger'] .pinfold-carousel__slide { scroll-snap-align: center; }
+  .pinfold-carousel[data-variant='stagger'] .pinfold-carousel__slide:nth-child(odd) { transform: translateY(-1.25rem); }
+  .pinfold-carousel[data-variant='stagger'] .pinfold-carousel__slide:nth-child(even) { transform: translateY(1.25rem); }
+  .pinfold-carousel[data-variant='stagger'] .pinfold-carousel__slide:not([data-active]) { opacity: 0.6; cursor: pointer; }
+  .pinfold-carousel[data-animate][data-variant='stagger'] .pinfold-carousel__slide { transition: opacity var(--pinfold-duration-md) var(--pinfold-ease-out); }
+
+  /* vertical: a column that moves up and down. */
+  .pinfold-carousel[data-orientation='vertical'] .pinfold-carousel__viewport { block-size: var(--pinfold-carousel-height, 24rem); }
+  .pinfold-carousel[data-orientation='vertical'] .pinfold-carousel__track { flex-direction: column; block-size: 100%; overflow: hidden auto; overscroll-behavior: contain; scroll-snap-type: y mandatory; }
+  .pinfold-carousel[data-orientation='vertical'] .pinfold-carousel__slide { min-block-size: 0; }
+  .pinfold-carousel[data-orientation='vertical']:is([data-variant='center'], [data-variant='coverflow'], [data-variant='stagger']) .pinfold-carousel__track { padding-block: 0; }
+  .pinfold-carousel[data-orientation='vertical'][data-variant='coverflow'] .pinfold-carousel__slide[data-side='before'] { transform: translateY(18%) rotateX(-38deg) scale(0.82); }
+  .pinfold-carousel[data-orientation='vertical'][data-variant='coverflow'] .pinfold-carousel__slide[data-side='after'] { transform: translateY(-18%) rotateX(38deg) scale(0.82); }
+  .pinfold-carousel[data-orientation='vertical'][data-variant='stagger'] .pinfold-carousel__slide:nth-child(odd) { transform: translateX(-1.25rem); }
+  .pinfold-carousel[data-orientation='vertical'][data-variant='stagger'] .pinfold-carousel__slide:nth-child(even) { transform: translateX(1.25rem); }
+  .pinfold-carousel:not([data-orientation='vertical']) .pinfold-carousel__viewport { block-size: var(--pinfold-carousel-height, auto); }
+
   .pinfold-carousel__previous,
   .pinfold-carousel__next {
     position: absolute;
@@ -62,6 +118,22 @@
   .pinfold-carousel[data-animate] :is(.pinfold-carousel__previous, .pinfold-carousel__next) { transition: opacity var(--pinfold-duration-md) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
   .pinfold-carousel[data-animate] :is(.pinfold-carousel__previous, .pinfold-carousel__next):hover { transform: translateY(-50%) scale(1.06); }
 
+  /* Buttons that wait for the pointer or the keyboard; buttons under the slides. */
+  .pinfold-carousel[data-controls='hover'] :is(.pinfold-carousel__previous, .pinfold-carousel__next):not(:focus-visible) { opacity: 0; }
+  .pinfold-carousel[data-controls='hover']:hover :is(.pinfold-carousel__previous, .pinfold-carousel__next):not([aria-disabled='true']),
+  .pinfold-carousel[data-controls='hover']:focus-within :is(.pinfold-carousel__previous, .pinfold-carousel__next):not([aria-disabled='true']) { opacity: 1; }
+  .pinfold-carousel[data-controls='below'] { padding-block-end: 0; }
+  .pinfold-carousel[data-controls='below'] .pinfold-carousel__viewport { padding-block-end: 3.25rem; }
+  .pinfold-carousel[data-controls='below'] :is(.pinfold-carousel__previous, .pinfold-carousel__next) { inset-block: auto 0; transform: none; }
+  .pinfold-carousel[data-controls='below'] .pinfold-carousel__previous { inset-inline: auto 3.25rem; }
+  .pinfold-carousel[data-controls='below'] .pinfold-carousel__next { inset-inline-end: 0; }
+  .pinfold-carousel[data-controls='below'] :is(.pinfold-carousel__previous, .pinfold-carousel__next)[aria-disabled='true'] { opacity: 0.35; }
+  .pinfold-carousel[data-animate][data-controls='below'] :is(.pinfold-carousel__previous, .pinfold-carousel__next):hover { transform: scale(1.06); }
+  .pinfold-carousel[data-orientation='vertical']:not([data-controls='below']) :is(.pinfold-carousel__previous, .pinfold-carousel__next) { inset-inline: calc(50% - 1.25rem) auto; transform: rotate(90deg); }
+  .pinfold-carousel[data-orientation='vertical']:not([data-controls='below']) .pinfold-carousel__previous { inset-block: 0.75rem auto; }
+  .pinfold-carousel[data-orientation='vertical']:not([data-controls='below']) .pinfold-carousel__next { inset-block: auto 0.75rem; }
+  .pinfold-carousel[data-animate][data-orientation='vertical']:not([data-controls='below']) :is(.pinfold-carousel__previous, .pinfold-carousel__next):hover { transform: rotate(90deg) scale(1.06); }
+
   .pinfold-carousel__indicators { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.25rem; }
   .pinfold-carousel__indicator,
   .pinfold-carousel__play {
@@ -86,6 +158,13 @@
   .pinfold-carousel__indicator[aria-current='true'] { inline-size: 2rem; }
   .pinfold-carousel__indicator[aria-current='true']::before { inline-size: 1.5rem; background: var(--pinfold-crs-solid); }
   .pinfold-carousel[data-animate] .pinfold-carousel__indicator::before { transition: inline-size var(--pinfold-duration-md) var(--pinfold-ease-spring), background-color var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  /* lines: thin bars, the current one in the tone. fraction: "3 / 8". */
+  .pinfold-carousel[data-indicators='lines'] .pinfold-carousel__indicator { inline-size: 1.75rem; block-size: 1rem; }
+  .pinfold-carousel[data-indicators='lines'] .pinfold-carousel__indicator::before { inline-size: 100%; block-size: 0.1875rem; }
+  .pinfold-carousel[data-indicators='lines'] .pinfold-carousel__indicator[aria-current='true'] { inline-size: 2.5rem; }
+  .pinfold-carousel[data-indicators='lines'] .pinfold-carousel__indicator[aria-current='true']::before { inline-size: 100%; }
+  .pinfold-carousel__fraction { font-size: var(--pinfold-text-sm); color: var(--pinfold-color-text-muted); font-variant-numeric: tabular-nums; }
+  .pinfold-carousel__fraction > b { font-weight: var(--pinfold-weight-semibold); color: var(--pinfold-color-text); }
   .pinfold-carousel__play { color: var(--pinfold-color-text-muted); margin-inline-end: 0.25rem; }
   .pinfold-carousel__play > svg { inline-size: 0.875rem; block-size: 0.875rem; }
   .pinfold-carousel :is(.pinfold-carousel__previous, .pinfold-carousel__next, .pinfold-carousel__indicator, .pinfold-carousel__play):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }

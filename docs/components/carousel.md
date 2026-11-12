@@ -20,15 +20,24 @@ the library default.
 |---|---|---|
 | `label`, `slides` | names it; nodes or `{ content, label }` | required |
 | `index`, `defaultIndex`, `onIndexChange` | the first slide in view | `0` |
-| `slidesPerView` | slides in view; a fraction peeks | `1` |
+| `variant` | `'slide'`: a row that moves by a slide. `'center'`: the current slide in the middle and larger, neighbours peeking. `'coverflow'`: the same, neighbours turned away in depth. `'stagger'`: a row that steps up and down | `'slide'` |
+| `orientation` | `'horizontal'`, or `'vertical'`: a column that moves up and down like a feed of clips (set `dimensions.height`) | `'horizontal'` |
+| `slidesPerView` | slides in view; a fraction peeks | `1` (`center` 1.4, `coverflow` 2, `stagger` 3) |
+| `draggable`, `edgeFade` | a mouse drags the slides (a flick carries to the next; nothing is selected, the click that ends a drag presses nothing); the viewport's edges fade out | `true`, `false` |
 | `loop`, `autoplay` | buttons wrap; milliseconds (at least 1500) | `false`, off |
-| `controls`, `indicators` | buttons over the edges; dots | `true`, `true` |
+| `controls`, `indicators` | `'always' \| 'hover' \| 'below' \| 'none'`: buttons over the edges, only while pointing or focused, under the slides; `'dots' \| 'lines' \| 'fraction' \| 'none'` (`true` and `false` still read) | `'always'`, `'dots'` |
 | `labels` | `{ previous, next, slide(i, n), goTo(i), pause, play }` | English |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone`, `dimensions` | `gap` | `'md'`, `'primary'`, `1rem` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root viewport track slide previous next indicators indicator play` | |
 
 Controller: `index`, `goTo(i)`, `next()`, `previous()`.
+
+## Moving it
+A swipe or a trackpad scrolls it natively; a mouse drags it; on the slides ArrowLeft and ArrowRight (ArrowUp and ArrowDown
+in a column) go to the previous and next slide, Home and End to the first and last. In the centred variants, pressing a
+neighbour brings it to the middle. `useCarousel` adds `index`, `count`, `goTo(i)`, `next()`, `previous()`, `playing`, `play()`
+and `pause()`. The `slide` render override gets `item`: `{ index, active, offset, label }`.
 
 ## Accessibility
 - A section with `aria-roledescription="carousel"` named by `label`; slides are groups with

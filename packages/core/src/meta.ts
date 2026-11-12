@@ -80,7 +80,7 @@ export interface PropMeta {
   orLength?: boolean;
   /** An `array` whose rows may also be strings (`items={['Board', 'List']}`); a `string[]` that also takes one string or `null`; a `string` that also takes `null` (none open). */
   orString?: boolean;
-  /** An `object` that is also a switch: `true` for its defaults, `false` for off (a table's `toolbar`). */
+  /** An `object` or `enum` that is also a switch: `true` for its default, `false` for off (a table's `toolbar`, a carousel's `controls`). */
   orBoolean?: boolean;
   default?: unknown;
   /** What an unset option resolves to when it has no fixed default (e.g. `theme radius`). */
@@ -216,6 +216,7 @@ function checkType(prop: PropMeta, v: unknown): string | null {
       return isObject(v) ? null : `must be an object, got ${describe(v)}.`;
     case 'enum':
       if (prop.values!.indexOf(v as string) !== -1) return null;
+      if (prop.orBoolean && typeof v === 'boolean') return null;
       if (prop.orNode && typeof v !== 'string') return null;
       // A length is a number or a string with a digit or a function (`var()`, `calc()`); a bare word is a typo.
       if (prop.orLength && (typeof v === 'number' || (typeof v === 'string' && /\d|\(/.test(v)))) return null;
@@ -291,6 +292,7 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
         return { ...base, type: 'array', items: { type: 'string' } };
       case 'enum':
         if (p.orLength) return { ...base, anyOf: [{ enum: p.values }, { type: ['number', 'string'] }] };
+        if (p.orBoolean) return { ...base, anyOf: [{ enum: p.values }, { type: 'boolean' }] };
         return p.orNode ? { ...base, anyOf: [{ enum: p.values }, {}] } : { ...base, enum: p.values };
       case 'array':
         // Rows may carry extra data, so they stay open.
