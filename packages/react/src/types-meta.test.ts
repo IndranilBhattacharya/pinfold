@@ -12,7 +12,7 @@
 import { resolve } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { accordionMeta, colorpickerMeta, scrollareaMeta, navmenuMeta, sidebarMeta, resizableMeta, carouselMeta, emptyMeta, timelineMeta, ratingMeta, tableMeta, datepickerMeta, calendarMeta, commandMeta, tagsMeta, comboboxMeta, selectMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
+import { accordionMeta, navbarMeta, appshellMeta, colorpickerMeta, scrollareaMeta, navmenuMeta, sidebarMeta, resizableMeta, carouselMeta, emptyMeta, timelineMeta, ratingMeta, tableMeta, datepickerMeta, calendarMeta, commandMeta, tagsMeta, comboboxMeta, selectMeta, stepperMeta, paginationMeta, breadcrumbMeta, tabsMeta, otpMeta, numberMeta, sliderMeta, toolbarMeta, toggleMeta, switchMeta, radioMeta, checkboxMeta, inputMeta, toastMeta, menuMeta, dialogMeta, popoverMeta, tooltipMeta, progressMeta, cardMeta, avatarMeta, alertMeta, badgeMeta, buttonMeta, kbdMeta, separatorMeta, skeletonMeta, spinnerMeta, type ComponentMeta, type PropMeta } from '@pinfold/core/meta';
 
 interface Entry {
   meta: ComponentMeta;
@@ -38,6 +38,8 @@ const COMPONENTS: Entry[] = [
   { meta: skeletonMeta, file: 'skeleton/types.ts', configs: ['SkeletonConfig'], nested: { dimensions: 'SkeletonDimensions' } },
   { meta: badgeMeta, file: 'badge/types.ts', configs: ['BadgeConfig'], nested: { dimensions: 'BadgeDimensions' } },
   { meta: colorpickerMeta, file: 'colorpicker/types.ts', configs: ['ColorPickerConfig'], nested: {} },
+  { meta: navbarMeta, file: 'navbar/types.ts', configs: ['NavbarConfig'], nested: {} },
+  { meta: appshellMeta, file: 'appshell/types.ts', configs: ['AppShellConfig'], nested: {} },
   { meta: scrollareaMeta, file: 'scrollarea/types.ts', configs: ['ScrollAreaConfig'], nested: {} },
   { meta: navmenuMeta, file: 'navmenu/types.ts', configs: ['NavMenuConfig'], nested: { dimensions: 'NavMenuDimensions' } },
   { meta: sidebarMeta, file: 'sidebar/types.ts', configs: ['SidebarConfig'], nested: { dimensions: 'SidebarDimensions' } },

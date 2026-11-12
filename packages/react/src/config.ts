@@ -8,6 +8,8 @@ import type { KbdConfig } from './kbd/types';
 import type { SkeletonConfig } from './skeleton/types';
 import type { BadgeConfig } from './badge/types';
 import type { ColorPickerConfig } from './colorpicker/types';
+import type { NavbarConfig } from './navbar/types';
+import type { AppShellConfig } from './appshell/types';
 import type { ScrollAreaConfig } from './scrollarea/types';
 import type { NavMenuConfig } from './navmenu/types';
 import type { SidebarConfig } from './sidebar/types';
@@ -56,6 +58,8 @@ export interface PinfoldComponentDefaults {
   skeleton?: Omit<SkeletonConfig, 'content' | 'loading'>;
   badge?: Omit<BadgeConfig, 'label' | 'count' | 'anchor'>;
   colorpicker?: Omit<ColorPickerConfig, 'label'>;
+  navbar?: Omit<NavbarConfig, 'label' | 'items' | 'brand' | 'value' | 'defaultValue' | 'onChange' | 'onNavigate' | 'start' | 'center' | 'end' | 'actions'>;
+  appshell?: Omit<AppShellConfig, 'content' | 'navbar' | 'sidebar' | 'aside' | 'footer' | 'sidebarOpen' | 'defaultSidebarOpen' | 'onSidebarOpenChange'>;
   scrollarea?: Omit<ScrollAreaConfig, 'content' | 'label' | 'onReachStart' | 'onReachEnd' | 'onEdgesChange' | 'onScroll'>;
   navmenu?: Omit<NavMenuConfig, 'items' | 'label'>;
   sidebar?: Omit<SidebarConfig, 'items' | 'label'>;

@@ -596,6 +596,34 @@
       ],
       "hook": "useScrollArea",
       "snippet": "<Scroll label=\"Changelog\">{entries}</Scroll>"
+    },
+    {
+      "name": "appshell",
+      "import": "@pinfold/react/appshell",
+      "styles": "@pinfold/css/appshell.css",
+      "status": "experimental",
+      "description": "The frame of an app: a bar, a sidebar that becomes a drawer when narrow, the page, a far panel and a footer.",
+      "variants": [
+        "navbar-top",
+        "sidebar-full"
+      ],
+      "hook": "useAppShell",
+      "snippet": "<Shell navbar={<TopBar />} sidebar={<AppNav />}>{page}</Shell>"
+    },
+    {
+      "name": "navbar",
+      "import": "@pinfold/react/navbar",
+      "styles": "@pinfold/css/navbar.css",
+      "status": "experimental",
+      "description": "The bar across the top: a brand, links that overflow into More and fold into a menu, actions; solid, glass or floating.",
+      "variants": [
+        "solid",
+        "glass",
+        "floating",
+        "plain"
+      ],
+      "hook": "useNavbar",
+      "snippet": "<TopBar label=\"Main\" value={pathname} items={links} />"
     }
   ],
   "planned": [

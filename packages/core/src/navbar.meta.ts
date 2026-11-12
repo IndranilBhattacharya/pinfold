@@ -1,0 +1,109 @@
+import type { ComponentMeta, PropMeta } from './meta';
+import { RADIUS_PROP } from './meta-shared';
+
+const SLOTS = ['root', 'inner', 'brand', 'start', 'list', 'item', 'link', 'icon', 'badge', 'indicator', 'more', 'center', 'end', 'actions', 'toggle', 'panel', 'panelLink'] as const;
+const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
+  type: 'object',
+  description,
+  group: 'escape-hatch',
+  keys: Object.fromEntries(SLOTS.map((s) => [s, { type, description: `The \`${s}\` slot.`, group: 'escape-hatch' }])),
+});
+const length = (description: string): PropMeta => ({ type: 'length', description, group: 'appearance' });
+
+export const navbarMeta: ComponentMeta = {
+  name: 'navbar',
+  displayName: 'Navbar',
+  description: 'The bar across the top of an app or a site: a brand, links (with dropdowns), your own content in the middle and at the end, and actions. Links that do not fit move under "More"; on a narrow bar they all fold into a menu button. Solid, glass or a floating pill; it can shrink or hide as the page scrolls; the current link carries a marker that slides between links.',
+  pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/',
+  importPath: '@pinfold/react/navbar',
+  requires: ['button', 'menu'],
+  slots: SLOTS,
+  props: {
+    label: { type: 'string', required: true, description: 'Names the navigation landmark, e.g. "Main".', group: 'data' },
+    brand: { type: 'node', description: 'The logo and name: a node, or `{ label, logo, href }` (a link home).', group: 'data' },
+    items: {
+      type: 'array',
+      orString: true,
+      description: 'The links. A string is a link whose key and text are that string.',
+      group: 'data',
+      items: {
+        id: { type: 'string', description: 'The key `value` matches. Default the href, else the label.', group: 'data' },
+        label: { type: 'string', required: true, description: 'The text.', group: 'data' },
+        href: { type: 'string', description: 'A link, followed through `onNavigate` or the provider\'s `navigate`.', group: 'data' },
+        target: { type: 'string', description: 'Opens in another tab or frame: the browser follows it.', group: 'data' },
+        icon: { type: 'node', description: 'Before the text.', group: 'data' },
+        badge: { type: 'node', description: 'After the text: a count, "New".', group: 'data' },
+        items: { type: 'array', description: 'Links under this one, in a dropdown.', group: 'data' },
+        disabled: { type: 'boolean', description: 'Shown, not followed.', group: 'behaviour' },
+        onClick: { type: 'function', description: '`(event) => void`.', group: 'events' },
+      },
+    },
+    value: { type: 'string', description: 'The current link\'s key (id, href or label), controlled: usually the router\'s path.', group: 'data' },
+    defaultValue: { type: 'string', description: 'The current link at first, when uncontrolled.', group: 'data' },
+    onChange: { type: 'function', description: '`(key, item, event) => void`: a link was chosen.', group: 'events' },
+    onNavigate: { type: 'function', description: '`(href, event) => void`: follow links yourself. Default the provider\'s `navigate`, else the browser.', group: 'events' },
+    start: { type: 'node', description: 'After the brand: a workspace switcher, a breadcrumb.', group: 'data' },
+    center: { type: 'node', description: 'In the middle, in place of the links\' free space: a search field, a navigation menu.', group: 'data' },
+    end: { type: 'node', description: 'At the end: an avatar, a theme switch, anything.', group: 'data' },
+    actions: { type: 'array', description: 'Buttons at the end, as button configs.', group: 'data' },
+    align: { type: 'enum', values: ['start', 'center', 'end'], default: 'start', description: 'Where the links sit in the bar.', group: 'appearance', control: true },
+    variant: { type: 'enum', values: ['solid', 'glass', 'floating', 'plain'], default: 'solid', description: 'A surface with a hairline; a translucent blur; a rounded pill that floats clear of the edges; no surface at all.', group: 'appearance', control: true },
+    indicator: { type: 'enum', values: ['pill', 'underline', 'none'], default: 'pill', description: 'How the current link is marked. The marker slides between links, and follows the pointer.', group: 'appearance', control: true },
+    position: { type: 'enum', values: ['static', 'sticky', 'fixed'], default: 'static', description: 'In the flow, stuck to the top while the page scrolls, or fixed over it. Inside an app shell leave it static: the shell keeps it in view.', group: 'behaviour', control: true },
+    shrinkOnScroll: { type: 'boolean', default: false, description: 'Once the page has scrolled the bar gets shorter (a floating bar also narrows toward the middle).', group: 'behaviour', control: true },
+    hideOnScroll: { type: 'boolean', default: false, description: 'Scrolling down slides the bar away; scrolling up brings it back.', group: 'behaviour', control: true },
+    overflow: { type: 'enum', values: ['more', 'scroll', 'none'], default: 'more', description: 'Links that do not fit: under a "More" menu, in a row that scrolls sideways, or left to you.', group: 'behaviour', control: true },
+    collapseAt: { type: 'number', default: 640, description: 'The bar width (px) under which the links fold into a menu button and a panel.', group: 'behaviour' },
+    labels: {
+      type: 'object',
+      description: 'Text read and shown, for translation.',
+      group: 'data',
+      keys: {
+        more: { type: 'string', description: 'Default "More".', group: 'data' },
+        openMenu: { type: 'string', description: 'Default "Open menu".', group: 'data' },
+        closeMenu: { type: 'string', description: 'Default "Close menu".', group: 'data' },
+      },
+    },
+    radius: RADIUS_PROP,
+    size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.navbar`, the provider, then md.', group: 'appearance', control: true },
+    tone: { type: 'enum', values: ['primary', 'neutral', 'success', 'warning', 'danger', 'info'], default: 'primary', description: 'Colour of the current link\'s marker. Precedence: this config, `defaults.navbar`, the provider, then primary.', group: 'appearance', control: true },
+    dimensions: {
+      type: 'object',
+      description: 'Exact measurements. Numbers are px.',
+      group: 'appearance',
+      keys: { height: length('Default by size: 3rem, 3.5rem, 4rem.'), maxWidth: length('Widest the bar\'s content gets; centred beyond that.'), paddingX: length('Space at the bar\'s ends.') },
+    },
+    unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
+    className: { type: 'string', description: 'Class on the root.', group: 'appearance' },
+    style: { type: 'object', description: 'Inline style on the root.', group: 'appearance' },
+    classNames: perSlot('Classes per slot.', 'string'),
+    styles: perSlot('Inline styles per slot.', 'object'),
+    slotProps: perSlot('Any DOM props per slot.', 'object'),
+    render: perSlot('Replace a slot element: `({ props, state, children, item }) => node`. Links get `item`: the entry, its key and whether it is current.', 'function'),
+  },
+  keyboard: [
+    { keys: 'Tab', action: 'The brand, each link, "More", your content, the actions.' },
+    { keys: 'Enter / Space', action: 'Follow a link; open a dropdown, "More" or the menu panel.' },
+    { keys: 'Escape', action: 'Close the open dropdown or the menu panel; focus returns to its button.' },
+  ],
+  aria: [
+    'A `nav` landmark named by `label`; the current link has `aria-current="page"`.',
+    'Links under "More" and in the folded panel are the same links: nothing is lost on a narrow bar. Links that moved under "More" leave the tab order of the row.',
+    'The menu button has `aria-expanded` and controls its panel.',
+  ],
+  dataAttributes: [
+    { name: 'data-variant / data-align / data-indicator / data-position', on: 'root', values: 'the options' },
+    { name: 'data-scrolled', on: 'root', values: 'present once the page has scrolled' },
+    { name: 'data-hidden', on: 'root', values: 'present while `hideOnScroll` has slid the bar away' },
+    { name: 'data-collapsed', on: 'root', values: 'present while the links are folded into the menu button' },
+    { name: 'data-current', on: 'link', values: 'the current link' },
+  ],
+  cssVariables: ['--pinfold-navbar-height', '--pinfold-navbar-max-width', '--pinfold-navbar-padding-x'],
+  examples: [
+    {
+      title: 'A product bar',
+      code: "import { defineNavbar } from '@pinfold/react/navbar';\n\nexport const TopBar = defineNavbar({ variant: 'glass', position: 'sticky' });\n\n<TopBar label=\"Main\" value={pathname} brand={{ label: 'Acme', logo: <Logo />, href: '/' }}\n  items={[{ label: 'Docs', href: '/docs' }, { label: 'Pricing', href: '/pricing' }, { label: 'Resources', items: [{ label: 'Blog', href: '/blog' }] }]}\n  actions={[{ label: 'Sign in', variant: 'ghost' }, { label: 'Start free' }]} end={<UserMenu />} />",
+    },
+    { title: 'A floating pill that shrinks as you scroll', code: "<TopBar label=\"Main\" variant=\"floating\" position=\"fixed\" shrinkOnScroll align=\"center\" items={links} />" },
+  ],
+};

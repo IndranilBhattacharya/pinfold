@@ -1,0 +1,124 @@
+/* Pinfold — app shell. A grid of regions: the bar, the sidebar, the page (with its footer) and a far
+   panel. The bar and the sidebar stay in view while the page scrolls; in a narrow shell the sidebar
+   leaves the grid and slides over the page as a drawer, under a veil. Regions carry no look of their
+   own: what you put in them does. */
+
+@layer pinfold.components {
+  .pinfold-appshell {
+    --pinfold-shell-line: var(--pinfold-color-border);
+    --pinfold-shell-bar: var(--pinfold-appshell-i-navbar, 0px);
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: 'navbar navbar navbar' 'sidebar main aside';
+    min-block-size: 100vh;
+    min-block-size: 100dvh;
+    min-inline-size: 0;
+    font-family: var(--pinfold-font-sans);
+    color: var(--pinfold-color-text);
+    background-color: var(--pinfold-color-bg);
+  }
+  .pinfold-appshell[data-layout='sidebar-full'] { grid-template-areas: 'sidebar navbar aside' 'sidebar main aside'; }
+
+  .pinfold-appshell__navbar { grid-area: navbar; display: flex; align-items: center; min-inline-size: 0; z-index: var(--pinfold-z-sticky); background-color: var(--pinfold-color-bg); }
+  .pinfold-appshell__navbar > :not(.pinfold-appshell__trigger) { flex: 1 1 auto; min-inline-size: 0; }
+  .pinfold-appshell[data-navbar-position='sticky'] > .pinfold-appshell__navbar { position: sticky; inset-block-start: 0; }
+  .pinfold-appshell[data-dividers] > .pinfold-appshell__navbar { border-block-end: var(--pinfold-border-width) solid var(--pinfold-shell-line); }
+
+  .pinfold-appshell__sidebar {
+    grid-area: sidebar;
+    display: flex;
+    flex-direction: column;
+    inline-size: var(--pinfold-appshell-sidebar-width, auto);
+    min-inline-size: 0;
+    outline: none;
+    background-color: var(--pinfold-color-bg);
+  }
+  .pinfold-appshell__sidebar > * { flex: 1 1 auto; min-block-size: 0; }
+  /* The page scrolls: the sidebar stays under the bar, as tall as what is left of the viewport. */
+  .pinfold-appshell[data-scroll='page']:not([data-drawer]) > .pinfold-appshell__sidebar,
+  .pinfold-appshell[data-scroll='page'] > .pinfold-appshell__aside {
+    position: sticky;
+    inset-block-start: var(--pinfold-shell-bar);
+    align-self: start;
+    block-size: calc(100vh - var(--pinfold-shell-bar));
+    block-size: calc(100dvh - var(--pinfold-shell-bar));
+    overflow: hidden auto;
+    scrollbar-width: thin;
+  }
+  .pinfold-appshell[data-layout='sidebar-full'][data-scroll='page']:not([data-drawer]) > .pinfold-appshell__sidebar,
+  .pinfold-appshell[data-navbar-position='static'][data-scroll='page']:not([data-drawer]) > .pinfold-appshell__sidebar,
+  .pinfold-appshell[data-navbar-position='static'][data-scroll='page'] > .pinfold-appshell__aside { inset-block-start: 0; block-size: 100vh; block-size: 100dvh; }
+  .pinfold-appshell[data-dividers]:not([data-drawer]) > .pinfold-appshell__sidebar { border-inline-end: var(--pinfold-border-width) solid var(--pinfold-shell-line); }
+
+  .pinfold-appshell__main { grid-area: main; display: flex; flex-direction: column; min-inline-size: 0; min-block-size: 0; }
+  .pinfold-appshell__content { flex: 1 1 auto; inline-size: 100%; max-inline-size: var(--pinfold-appshell-max-width, none); margin-inline: auto; padding: var(--pinfold-appshell-padding, 0); min-inline-size: 0; }
+  .pinfold-appshell__footer { inline-size: 100%; max-inline-size: var(--pinfold-appshell-max-width, none); margin-inline: auto; padding-inline: var(--pinfold-appshell-padding, 0); }
+  .pinfold-appshell[data-dividers] .pinfold-appshell__footer { border-block-start: var(--pinfold-border-width) solid var(--pinfold-shell-line); }
+  .pinfold-appshell__aside { grid-area: aside; inline-size: var(--pinfold-appshell-aside-width, 18rem); min-inline-size: 0; }
+  .pinfold-appshell[data-dividers] > .pinfold-appshell__aside { border-inline-start: var(--pinfold-border-width) solid var(--pinfold-shell-line); }
+
+  /* Only the page region scrolls: the shell has a height and everything else is fixed in it. */
+  .pinfold-appshell[data-scroll='content'] { block-size: var(--pinfold-appshell-height, 100dvh); min-block-size: 0; overflow: hidden; }
+  .pinfold-appshell[data-scroll='content'] > .pinfold-appshell__main,
+  .pinfold-appshell[data-scroll='content']:not([data-drawer]) > .pinfold-appshell__sidebar,
+  .pinfold-appshell[data-scroll='content'] > .pinfold-appshell__aside { overflow: hidden auto; overscroll-behavior: contain; scrollbar-width: thin; }
+
+  /* The menu button the shell adds to the bar while the sidebar is a drawer. */
+  .pinfold-appshell__trigger {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    margin-inline: 0.5rem 0;
+    padding: 0;
+    color: var(--pinfold-color-text);
+    background: transparent;
+    border: 0;
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    cursor: pointer;
+  }
+  .pinfold-appshell__trigger > svg { inline-size: 1.25rem; block-size: 1.25rem; }
+  .pinfold-appshell__trigger:hover { background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); }
+  .pinfold-appshell__trigger:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+
+  /* ---- the drawer ---- */
+  .pinfold-appshell[data-drawer] { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'navbar navbar' 'main aside'; }
+  .pinfold-appshell[data-drawer] > .pinfold-appshell__sidebar {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: var(--pinfold-z-modal);
+    inline-size: var(--pinfold-appshell-sidebar-width, 16rem);
+    max-inline-size: calc(100vw - 3rem);
+    overflow: hidden auto;
+    overscroll-behavior: contain;
+    background-color: var(--pinfold-color-surface-raised, var(--pinfold-color-surface));
+    box-shadow: var(--pinfold-shadow-xl);
+    transform: translateX(-102%);
+    visibility: hidden;
+  }
+  [dir='rtl'] .pinfold-appshell[data-drawer] > .pinfold-appshell__sidebar { transform: translateX(102%); }
+  .pinfold-appshell[data-drawer][data-sidebar-open] > .pinfold-appshell__sidebar { transform: none; visibility: visible; }
+  .pinfold-appshell[data-animate][data-drawer] > .pinfold-appshell__sidebar { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-out), visibility 0s linear var(--pinfold-duration-md); }
+  .pinfold-appshell[data-animate][data-drawer][data-sidebar-open] > .pinfold-appshell__sidebar { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-out), visibility 0s; }
+  .pinfold-appshell__backdrop { position: fixed; inset: 0; z-index: calc(var(--pinfold-z-modal) - 1); background-color: var(--pinfold-color-overlay); opacity: 0; pointer-events: none; }
+  .pinfold-appshell__backdrop[data-open] { opacity: 1; pointer-events: auto; }
+  .pinfold-appshell[data-backdrop='blur'] > .pinfold-appshell__backdrop { background-color: color-mix(in oklab, var(--pinfold-color-overlay) 45%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .pinfold-appshell[data-animate] > .pinfold-appshell__backdrop { transition: opacity var(--pinfold-duration-md) var(--pinfold-ease-out); }
+
+  /* Before the shell has measured itself (the server's HTML, the first paint): a narrow window hides an
+     auto sidebar rather than squeeze the page beside it. */
+  @media (max-width: 48rem) {
+    .pinfold-appshell[data-sidebar-behavior='auto']:not([data-measured]) > .pinfold-appshell__sidebar { display: none; }
+    .pinfold-appshell > .pinfold-appshell__aside { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pinfold-appshell[data-drawer] > .pinfold-appshell__sidebar, .pinfold-appshell > .pinfold-appshell__backdrop { transition: none; }
+  }
+  @media (forced-colors: active) {
+    .pinfold-appshell[data-drawer] > .pinfold-appshell__sidebar { border-inline-end: 1px solid CanvasText; }
+  }
+}

@@ -56,7 +56,9 @@
     "sidebar",
     "navmenu",
     "colorpicker",
-    "scrollarea"
+    "scrollarea",
+    "appshell",
+    "navbar"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -532,6 +534,26 @@
         "default": "./dist/scrollarea/index.cjs"
       }
     },
+    "./appshell": {
+      "import": {
+        "types": "./dist/appshell/index.d.ts",
+        "default": "./dist/appshell/index.js"
+      },
+      "require": {
+        "types": "./dist/appshell/index.d.cts",
+        "default": "./dist/appshell/index.cjs"
+      }
+    },
+    "./navbar": {
+      "import": {
+        "types": "./dist/navbar/index.d.ts",
+        "default": "./dist/navbar/index.js"
+      },
+      "require": {
+        "types": "./dist/navbar/index.d.cts",
+        "default": "./dist/navbar/index.cjs"
+      }
+    },
     "./accordion/lazy": {
       "import": {
         "types": "./dist/accordion/lazy.d.ts",
@@ -683,6 +705,12 @@
       ],
       "scrollarea": [
         "./dist/scrollarea/index.d.cts"
+      ],
+      "appshell": [
+        "./dist/appshell/index.d.cts"
+      ],
+      "navbar": [
+        "./dist/navbar/index.d.cts"
       ]
     }
   },
@@ -732,6 +760,8 @@
     "sidebar",
     "navmenu",
     "colorpicker",
+    "navbar",
+    "appshell",
     "scrollarea",
     "registry",
     "schema",
