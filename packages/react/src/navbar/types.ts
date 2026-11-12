@@ -2,9 +2,10 @@ import type * as React from 'react';
 import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { ButtonConfig } from '../button/types';
+import type { MenuItem } from '../menu/types';
 import type { SlotOverrides } from '../types';
 
-export type NavbarSlot = 'root' | 'inner' | 'brand' | 'start' | 'list' | 'item' | 'link' | 'icon' | 'badge' | 'indicator' | 'more' | 'center' | 'end' | 'actions' | 'toggle' | 'panel' | 'panelLink';
+export type NavbarSlot = 'root' | 'inner' | 'brand' | 'start' | 'list' | 'item' | 'link' | 'icon' | 'badge' | 'indicator' | 'more' | 'center' | 'end' | 'actions' | 'toggle' | 'panel' | 'panelLink' | 'zone' | 'tools' | 'tool' | 'toolBadge' | 'secondary';
 export type NavbarVariant = 'solid' | 'glass' | 'floating' | 'plain';
 
 /** One link: `href`, or a button (`onClick`), or a dropdown of links (`items`). */
@@ -22,6 +23,57 @@ export interface NavbarItem {
   items?: ReadonlyArray<NavbarItem | string>;
   disabled?: boolean;
   onClick?: (event: React.MouseEvent) => void;
+}
+
+/** A tool in the bar: an icon button (search, notifications, theme), a link, a dropdown, or anything of your own. */
+export interface NavbarTool {
+  /** Names it in `layout` (`'tool:search'`). Default the label. */
+  id?: string;
+  /** Its accessible name and tooltip; shown as text with `showLabel` or when there is no icon. */
+  label: string;
+  icon?: React.ReactNode;
+  /** Show the label beside the icon. @default false */
+  showLabel?: boolean;
+  /** A count or a word on its corner; `true` for a dot. */
+  badge?: React.ReactNode | boolean;
+  onClick?: (event: React.MouseEvent) => void;
+  /** Makes it a link, followed like the bar's links. */
+  href?: string;
+  target?: string;
+  /** Rows of a dropdown it opens. */
+  menu?: readonly MenuItem[];
+  /** A toggle: pressed or not (`aria-pressed`). */
+  active?: boolean;
+  disabled?: boolean;
+  /** Your own element in its place: a search field, a switch, an avatar menu. */
+  content?: React.ReactNode;
+  /** The zone it sits in when the layout says `'tools'`. @default 'end' */
+  placement?: 'start' | 'center' | 'end';
+  /** In a folded bar: stay in the bar, become a row of the panel, or go away. @default 'keep' */
+  whenCollapsed?: 'keep' | 'panel' | 'hide';
+}
+
+/** Anything of your own in a zone, with rules for a narrow bar. */
+export interface NavbarCustomPart {
+  content: React.ReactNode;
+  /** Leave the bar while it is narrower than this (px). */
+  hideBelow?: number;
+  /** In a folded bar: stay or go away. @default 'keep' */
+  whenCollapsed?: 'keep' | 'hide';
+}
+
+/**
+ * One part of a zone. Built-in parts by name: `'brand'`, `'links'`, `'actions'`, `'tools'` (the tools placed in
+ * that zone), `'tool:<id>'` (one tool), `'start'`, `'center'`, `'end'` (your nodes), `'toggle'` (the menu button of
+ * a folded bar), `'spacer'` (takes the free room), `'separator'` (a hairline). Or any node, or `{ content, hideBelow }`.
+ */
+export type NavbarPart = 'brand' | 'links' | 'actions' | 'tools' | 'start' | 'center' | 'end' | 'toggle' | 'spacer' | 'separator' | `tool:${string}` | React.ReactElement | NavbarCustomPart;
+
+/** What sits in each zone of the bar, in order. A zone left out keeps its default. */
+export interface NavbarLayout {
+  start?: readonly NavbarPart[];
+  center?: readonly NavbarPart[];
+  end?: readonly NavbarPart[];
 }
 
 /** The brand as data: a link home with a logo and a name. */
@@ -56,7 +108,7 @@ export interface NavbarDimensions {
 }
 
 /** One link as you wrote it, its key and whether it is current: `render` overrides of links get it as `item`. */
-export type NavbarItemContext = NavbarItem & { key: string; current: boolean; overflowed: boolean };
+export type NavbarItemContext = (NavbarItem & { key: string; current: boolean; overflowed: boolean }) | NavbarTool;
 
 /**
  *   const TopBar = defineNavbar({ variant: 'glass', position: 'sticky' });
@@ -83,6 +135,15 @@ export interface NavbarConfig extends SlotOverrides<NavbarSlot, NavbarState, Nav
   end?: React.ReactNode;
   /** Buttons at the end, as button configs. */
   actions?: readonly ButtonConfig[];
+  /** Icon buttons, links, dropdowns or your own elements, as data; each names the zone it sits in. */
+  tools?: readonly NavbarTool[];
+  /**
+   * What sits where: three zones, each a list of parts in order. Default: start `['brand', 'tools', 'start', 'links']`,
+   * center `['tools', 'center']`, end `['tools', 'actions', 'end', 'toggle']` (`align` moves `'links'`).
+   */
+  layout?: NavbarLayout;
+  /** A second row under the bar: tabs, a breadcrumb, filters. */
+  secondary?: React.ReactNode;
   /** Where the links sit. @default 'start' */
   align?: 'start' | 'center' | 'end';
   /** @default 'solid' */

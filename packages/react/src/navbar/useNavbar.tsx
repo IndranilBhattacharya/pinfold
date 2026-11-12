@@ -12,7 +12,7 @@ import { CHEVRON_DOWN_ICON } from '../nav-icons';
 import { Button } from '../button/Button';
 import { Menu } from '../menu/Menu';
 import type { MenuItem } from '../menu/types';
-import type { NavbarApi, NavbarBrand, NavbarComponent, NavbarConfig, NavbarItem, NavbarItemContext, NavbarRootProps, NavbarSlot, NavbarState } from './types';
+import type { NavbarApi, NavbarBrand, NavbarComponent, NavbarConfig, NavbarCustomPart, NavbarItem, NavbarItemContext, NavbarLayout, NavbarPart, NavbarRootProps, NavbarSlot, NavbarState, NavbarTool } from './types';
 
 const MENU_ICON = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" focusable="false" aria-hidden="true">
@@ -60,6 +60,8 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
   // How many links fit; null until measured (then all of them are shown, as the server sends them).
   const [fit, setFit] = React.useState<number | null>(null);
   const [narrow, setNarrow] = React.useState(false);
+  // The bar's width, for parts that leave under a width of their own.
+  const [barWidth, setBarWidth] = React.useState(0);
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [hover, setHover] = React.useState<number | null>(null);
   const root = React.useRef<HTMLElement | null>(null);
@@ -68,6 +70,8 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
   const panel = React.useRef<HTMLDivElement | null>(null);
   const widths = React.useRef<number[]>([]);
 
+  const watchWidth = React.useRef(false);
+  watchWidth.current = [...(config.layout?.start ?? []), ...(config.layout?.center ?? []), ...(config.layout?.end ?? [])].some((p) => !!p && typeof p === 'object' && !React.isValidElement(p) && (p as NavbarCustomPart).hideBelow !== undefined);
   const overflow = config.overflow ?? 'more';
   const collapseAt = config.collapseAt ?? 640;
   const collapsed = narrow && items.length > 0;
@@ -124,6 +128,7 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
     if (!el) return;
     const measure = () => {
       setNarrow(el.clientWidth > 0 && el.clientWidth < collapseAt);
+      if (watchWidth.current) setBarWidth(el.clientWidth);
       const row = list.current;
       if (!row || overflow !== 'more') return setFit(null);
       const cells = Array.from(row.querySelectorAll<HTMLElement>(':scope > [data-nav-item]'));
@@ -322,55 +327,151 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
         );
       });
 
+    // ---- tools: icon buttons (or anything) placed in any zone ----
+    const tools = config.tools ?? [];
+    const toolNode = (tool: NavbarTool, i: number): React.ReactNode => {
+      if (tool.content != null) return <React.Fragment key={tool.id ?? i}>{slot('tool', tool.content, 'span', { [ITEM]: tool, 'data-tool': tool.id ?? tool.label })}</React.Fragment>;
+      const inner = (
+        <>
+          {tool.icon != null ? slot('icon', tool.icon, 'span', { 'aria-hidden': true }) : null}
+          {tool.showLabel || tool.icon == null ? <span>{tool.label}</span> : null}
+          {tool.badge != null && tool.badge !== false ? slot('toolBadge', tool.badge === true ? null : tool.badge, 'span', { 'data-dot': dataAttr(tool.badge === true) }) : null}
+        </>
+      );
+      const own: PropsBag = {
+        [ITEM]: tool,
+        'data-tool': tool.id ?? tool.label,
+        'data-labelled': dataAttr(tool.showLabel || tool.icon == null),
+        'data-active': dataAttr(tool.active),
+        'aria-label': tool.showLabel || tool.icon == null ? undefined : tool.label,
+        'aria-pressed': tool.active === undefined ? undefined : tool.active,
+        'aria-disabled': tool.disabled || undefined,
+        title: tool.showLabel || tool.icon == null ? undefined : tool.label,
+      };
+      const press = (event: React.MouseEvent) => {
+        if (tool.disabled) return event.preventDefault();
+        tool.onClick?.(event);
+        if (tool.href !== undefined) followLink(event, tool.href, config.onNavigate ? (href) => config.onNavigate!(href, event) : ctx.navigate, tool.target);
+      };
+      const control = tool.menu?.length ? (
+        <Menu items={tool.menu} size={state.size} placement="bottom-end" trigger={slot('tool', inner, 'button', { type: 'button', ...own }) as React.ReactElement} />
+      ) : tool.href !== undefined ? (
+        slot('tool', inner, 'a', { href: tool.disabled ? undefined : tool.href, target: tool.target, ...own, onClick: press })
+      ) : (
+        slot('tool', inner, 'button', { type: 'button', ...own, onClick: press })
+      );
+      return <React.Fragment key={tool.id ?? i}>{control}</React.Fragment>;
+    };
+    // Folded, a tool stays in the bar, moves into the panel as a row, or goes away: its own choice.
+    const inBar = (tool: NavbarTool) => !collapsed || (tool.whenCollapsed ?? 'keep') === 'keep';
+    const panelTools = collapsed ? tools.filter((tool) => tool.whenCollapsed === 'panel') : [];
+
+    const linkList =
+      items.length && !collapsed
+        ? slot(
+            'list',
+            <>
+              {cells}
+              {more}
+              {marker !== 'none' ? slot('indicator', null, 'li', { 'aria-hidden': true, role: 'presentation' }) : null}
+            </>,
+            'ul',
+            { ref: list, role: 'list' },
+          )
+        : null;
+    const toggleButton = collapsed
+      ? slot('toggle', menuOpen ? CLOSE_ICON : MENU_ICON, 'button', {
+          ref: toggle,
+          type: 'button',
+          'aria-label': menuOpen ? config.labels?.closeMenu ?? 'Close menu' : config.labels?.openMenu ?? 'Open menu',
+          'aria-expanded': menuOpen,
+          'aria-controls': `${base}-panel`,
+          onClick: () => setMenuOpen(!menuOpen),
+        })
+      : null;
+
+    // ---- the arrangement: three zones, each a list of parts in order ----
+    const align = config.align ?? 'start';
+    const fallback: Required<NavbarLayout> = {
+      start: ['brand', 'tools', 'start', ...(align === 'start' ? (['links'] as const) : [])],
+      center: [...(align === 'center' ? (['links'] as const) : []), 'tools', 'center'],
+      end: [...(align === 'end' ? (['links'] as const) : []), 'tools', 'actions', 'end', 'toggle'],
+    };
+    const layout: Required<NavbarLayout> = { start: config.layout?.start ?? fallback.start, center: config.layout?.center ?? fallback.center, end: config.layout?.end ?? fallback.end };
+    // A part named in a custom layout is drawn where it is named; the menu button always exists while folded.
+    const named = new Set<string>();
+    for (const zone of ['start', 'center', 'end'] as const) for (const part of layout[zone]) if (typeof part === 'string') named.add(part);
+    const part = (zone: 'start' | 'center' | 'end', entry: NavbarPart, i: number): React.ReactNode => {
+      if (typeof entry !== 'string') {
+        if (React.isValidElement(entry) || entry === null || typeof entry !== 'object') return <React.Fragment key={i}>{entry as React.ReactNode}</React.Fragment>;
+        const custom = entry as NavbarCustomPart;
+        if (custom.hideBelow !== undefined && barWidth > 0 && barWidth < custom.hideBelow) return null;
+        if (collapsed && custom.whenCollapsed === 'hide') return null;
+        return <React.Fragment key={i}>{custom.content}</React.Fragment>;
+      }
+      const key = `${entry}-${i}`;
+      if (entry === 'brand') return <React.Fragment key={key}>{brand}</React.Fragment>;
+      if (entry === 'links') return <React.Fragment key={key}>{linkList}</React.Fragment>;
+      if (entry === 'start') return config.start != null ? <React.Fragment key={key}>{slot('start', config.start, 'div')}</React.Fragment> : null;
+      if (entry === 'center') return config.center != null ? <React.Fragment key={key}>{slot('center', config.center, 'div')}</React.Fragment> : null;
+      if (entry === 'end') return config.end != null ? <React.Fragment key={key}>{slot('end', config.end, 'div')}</React.Fragment> : null;
+      if (entry === 'actions') return collapsed ? null : <React.Fragment key={key}>{actions}</React.Fragment>;
+      if (entry === 'toggle') return <React.Fragment key={key}>{toggleButton}</React.Fragment>;
+      if (entry === 'spacer') return <span key={key} className={cls('pinfold-navbar__spacer')} aria-hidden="true" />;
+      if (entry === 'separator') return <span key={key} className={cls('pinfold-navbar__separator')} role="separator" aria-orientation="vertical" />;
+      if (entry === 'tools') {
+        // Tools with no placement belong to the end; a zone draws its own.
+        const mine = tools.filter((tool) => (tool.placement ?? 'end') === zone && inBar(tool));
+        return mine.length ? <React.Fragment key={key}>{slot('tools', mine.map(toolNode), 'div', { role: 'group' })}</React.Fragment> : null;
+      }
+      if (entry.startsWith('tool:')) {
+        const tool = tools.find((t) => (t.id ?? t.label) === entry.slice(5));
+        return tool && inBar(tool) ? toolNode(tool, i) : null;
+      }
+      return null;
+    };
+    const zone = (name: 'start' | 'center' | 'end') => {
+      const parts = layout[name].map((entry, i) => part(name, entry, i)).filter((node) => node !== null && node !== undefined && node !== false);
+      // The menu button must exist while folded, even in a layout that forgot it.
+      if (name === 'end' && collapsed && !named.has('toggle')) parts.push(<React.Fragment key="toggle">{toggleButton}</React.Fragment>);
+      if (!parts.length && name !== 'center') return null;
+      return slot('zone', parts, 'div', { 'data-zone': name, 'data-grow': dataAttr(layout[name].includes('links') && !collapsed), 'data-empty': dataAttr(!parts.length) });
+    };
+
     const content = (
       <>
         {slot(
           'inner',
           <>
-            {brand}
-            {config.start != null ? slot('start', config.start, 'div') : null}
-            {items.length && !collapsed
-              ? slot(
-                  'list',
-                  <>
-                    {cells}
-                    {more}
-                    {marker !== 'none' ? slot('indicator', null, 'li', { 'aria-hidden': true, role: 'presentation' }) : null}
-                  </>,
-                  'ul',
-                  { ref: list, role: 'list' },
-                )
-              : null}
-            {config.center != null ? slot('center', config.center, 'div') : null}
-            {config.end != null || actions || collapsed ? (
-              slot(
-                'end',
-                <>
-                  {collapsed ? null : actions}
-                  {config.end}
-                  {collapsed
-                    ? slot('toggle', menuOpen ? CLOSE_ICON : MENU_ICON, 'button', {
-                        ref: toggle,
-                        type: 'button',
-                        'aria-label': menuOpen ? config.labels?.closeMenu ?? 'Close menu' : config.labels?.openMenu ?? 'Open menu',
-                        'aria-expanded': menuOpen,
-                        'aria-controls': `${base}-panel`,
-                        onClick: () => setMenuOpen(!menuOpen),
-                      })
-                    : null}
-                </>,
-                'div',
-              )
-            ) : null}
+            {zone('start')}
+            {zone('center')}
+            {zone('end')}
           </>,
           'div',
         )}
+        {config.secondary != null ? slot('secondary', config.secondary, 'div') : null}
         {collapsed
           ? slot(
               'panel',
               menuOpen ? (
                 <>
                   {panelRows(items, 0)}
+                  {panelTools.map((tool, i) => (
+                    <React.Fragment key={tool.id ?? i}>
+                      {tool.content != null
+                        ? tool.content
+                        : slot('panelLink', <>{tool.icon != null ? slot('icon', tool.icon, 'span', { 'aria-hidden': true }) : null}<span>{tool.label}</span></>, tool.href !== undefined ? 'a' : 'button', {
+                            ...(tool.href !== undefined ? { href: tool.href, target: tool.target } : { type: 'button' }),
+                            [ITEM]: tool,
+                            'data-depth': 0,
+                            onClick: (event: React.MouseEvent) => {
+                              tool.onClick?.(event);
+                              if (tool.href !== undefined) followLink(event, tool.href, config.onNavigate ? (href) => config.onNavigate!(href, event) : ctx.navigate, tool.target);
+                              setMenuOpen(false);
+                            },
+                          })}
+                    </React.Fragment>
+                  ))}
                   {actions}
                 </>
               ) : null,

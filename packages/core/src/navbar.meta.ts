@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
-const SLOTS = ['root', 'inner', 'brand', 'start', 'list', 'item', 'link', 'icon', 'badge', 'indicator', 'more', 'center', 'end', 'actions', 'toggle', 'panel', 'panelLink'] as const;
+const SLOTS = ['root', 'inner', 'brand', 'start', 'list', 'item', 'link', 'icon', 'badge', 'indicator', 'more', 'center', 'end', 'actions', 'toggle', 'panel', 'panelLink', 'zone', 'tools', 'tool', 'toolBadge', 'secondary'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -46,6 +46,38 @@ export const navbarMeta: ComponentMeta = {
     center: { type: 'node', description: 'In the middle, in place of the links\' free space: a search field, a navigation menu.', group: 'data' },
     end: { type: 'node', description: 'At the end: an avatar, a theme switch, anything.', group: 'data' },
     actions: { type: 'array', description: 'Buttons at the end, as button configs.', group: 'data' },
+    tools: {
+      type: 'array',
+      description: 'Icon buttons, links, dropdowns or your own elements, as data; each names the zone it sits in.',
+      group: 'data',
+      items: {
+        id: { type: 'string', description: 'Names it in `layout` (`tool:search`). Default the label.', group: 'data' },
+        label: { type: 'string', required: true, description: 'Its accessible name and tooltip; shown with `showLabel` or when there is no icon.', group: 'data' },
+        icon: { type: 'node', description: 'The icon.', group: 'data' },
+        showLabel: { type: 'boolean', default: false, description: 'Show the label beside the icon.', group: 'appearance' },
+        badge: { type: 'node', description: 'A count or a word on its corner; `true` for a dot.', group: 'data' },
+        onClick: { type: 'function', description: '`(event) => void`.', group: 'events' },
+        href: { type: 'string', description: 'Makes it a link, followed like the bar\'s links.', group: 'data' },
+        target: { type: 'string', description: 'Opens in another tab or frame.', group: 'data' },
+        menu: { type: 'array', description: 'Rows of a dropdown it opens (menu items).', group: 'data' },
+        active: { type: 'boolean', description: 'A toggle: pressed or not.', group: 'data' },
+        disabled: { type: 'boolean', description: 'Shown, not pressed.', group: 'behaviour' },
+        content: { type: 'node', description: 'Your own element in its place: a search field, a switch, an avatar menu.', group: 'data' },
+        placement: { type: 'enum', values: ['start', 'center', 'end'], default: 'end', description: 'The zone it sits in when the layout says `tools`.', group: 'appearance' },
+        whenCollapsed: { type: 'enum', values: ['keep', 'panel', 'hide'], default: 'keep', description: 'In a folded bar: stay in the bar, become a row of the panel, or go away.', group: 'behaviour' },
+      },
+    },
+    layout: {
+      type: 'object',
+      description: 'What sits where: three zones, each a list of parts in order. Parts by name: `brand`, `links`, `actions`, `tools`, `tool:<id>`, `start`, `center`, `end`, `toggle`, `spacer`, `separator`; or any node; or `{ content, hideBelow, whenCollapsed }`. A zone left out keeps its default.',
+      group: 'appearance',
+      keys: {
+        start: { type: 'array', orString: true, description: 'Default `[brand, tools, start, links]`.', group: 'appearance' },
+        center: { type: 'array', orString: true, description: 'Default `[tools, center]`.', group: 'appearance' },
+        end: { type: 'array', orString: true, description: 'Default `[tools, actions, end, toggle]`.', group: 'appearance' },
+      },
+    },
+    secondary: { type: 'node', description: 'A second row under the bar: tabs, a breadcrumb, filters.', group: 'data' },
     align: { type: 'enum', values: ['start', 'center', 'end'], default: 'start', description: 'Where the links sit in the bar.', group: 'appearance', control: true },
     variant: { type: 'enum', values: ['solid', 'glass', 'floating', 'plain'], default: 'solid', description: 'A surface with a hairline; a translucent blur; a rounded pill that floats clear of the edges; no surface at all.', group: 'appearance', control: true },
     indicator: { type: 'enum', values: ['pill', 'underline', 'none'], default: 'pill', description: 'How the current link is marked. The marker slides between links, and follows the pointer.', group: 'appearance', control: true },

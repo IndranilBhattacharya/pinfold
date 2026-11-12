@@ -64,12 +64,79 @@
     .pinfold-navbar[data-variant='glass'], .pinfold-navbar[data-variant='floating'] .pinfold-navbar__inner { background-color: var(--pinfold-color-surface); }
   }
 
+  /* ---- zones: start, center, end; each holds its parts in the order the layout names them ---- */
+  .pinfold-navbar__zone { display: flex; align-items: center; gap: 0.5rem; min-inline-size: 0; }
+  .pinfold-navbar__zone[data-zone='start'] { flex: 0 1 auto; }
+  .pinfold-navbar__zone[data-zone='center'] { flex: 1 1 0; justify-content: center; }
+  .pinfold-navbar__zone[data-zone='end'] { flex: 0 1 auto; justify-content: flex-end; }
+  /* The zone that holds the links takes the room, so "More" can measure what fits. */
+  .pinfold-navbar__zone[data-grow] { flex: 1 1 0; }
+  .pinfold-navbar__zone[data-zone='start'][data-grow] ~ .pinfold-navbar__zone[data-zone='center'][data-empty] { flex: 0 0 0; }
+  .pinfold-navbar__zone[data-zone='end'][data-grow] { justify-content: flex-end; }
+  .pinfold-navbar__spacer { flex: 1 1 auto; }
+  .pinfold-navbar__separator { flex: none; inline-size: var(--pinfold-border-width); block-size: 1.25rem; margin-inline: 0.25rem; background-color: var(--pinfold-color-border); }
+
+  /* ---- tools: icon buttons, links and dropdowns, anywhere in the bar ---- */
+  .pinfold-navbar__tools { display: flex; align-items: center; gap: 0.125rem; flex: none; }
+  .pinfold-navbar__tool {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    flex: none;
+    min-inline-size: 2.125rem;
+    block-size: 2.125rem;
+    padding: 0;
+    font: inherit;
+    font-weight: var(--pinfold-weight-medium);
+    color: var(--pinfold-color-text-muted);
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-nav-radius);
+    cursor: pointer;
+  }
+  span.pinfold-navbar__tool { block-size: auto; min-inline-size: 0; color: inherit; cursor: auto; }
+  .pinfold-navbar__tool[data-labelled] { padding-inline: 0.625rem; }
+  .pinfold-navbar[data-variant='floating'] .pinfold-navbar__tool { border-radius: var(--pinfold-radius-full); }
+  .pinfold-navbar__tool > .pinfold-navbar__icon > svg { inline-size: 1.125rem; block-size: 1.125rem; }
+  :is(button, a).pinfold-navbar__tool:hover,
+  .pinfold-navbar__tool[aria-expanded='true'] { color: var(--pinfold-color-text); background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); }
+  .pinfold-navbar__tool[data-active] { color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text)); background-color: color-mix(in oklab, var(--pinfold-nav-solid) 13%, transparent); }
+  .pinfold-navbar__tool[aria-disabled='true'] { color: var(--pinfold-color-text-disabled); cursor: not-allowed; }
+  .pinfold-navbar[data-animate] .pinfold-navbar__tool { transition: color var(--pinfold-duration-fast) var(--pinfold-ease-out), background-color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-navbar .pinfold-navbar__tool:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-navbar__toolBadge {
+    position: absolute;
+    inset-block-start: 0.125rem;
+    inset-inline-end: 0.125rem;
+    display: grid;
+    place-items: center;
+    min-inline-size: 1rem;
+    block-size: 1rem;
+    padding-inline: 0.25rem;
+    font-size: 0.625rem;
+    font-weight: var(--pinfold-weight-semibold);
+    line-height: 1;
+    color: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    background-color: var(--pinfold-nav-solid);
+    border-radius: var(--pinfold-radius-full);
+    box-shadow: 0 0 0 2px var(--pinfold-color-surface);
+  }
+  .pinfold-navbar__toolBadge[data-dot] { inset-block-start: 0.375rem; inset-inline-end: 0.375rem; min-inline-size: 0.5rem; inline-size: 0.5rem; block-size: 0.5rem; padding: 0; }
+
+  /* A second row under the bar: tabs, a breadcrumb, filters. */
+  .pinfold-navbar__secondary { display: flex; align-items: center; box-sizing: border-box; max-inline-size: var(--pinfold-navbar-max-width, none); margin-inline: auto; padding-inline: var(--pinfold-nav-pad); min-inline-size: 0; }
+  .pinfold-navbar[data-variant='floating'] .pinfold-navbar__secondary { pointer-events: auto; }
+
   /* ---- regions ---- */
   .pinfold-navbar__brand { display: inline-flex; align-items: center; gap: 0.5rem; flex: none; font-size: 1.08em; font-weight: var(--pinfold-weight-semibold); letter-spacing: var(--pinfold-tracking-tight, normal); color: inherit; text-decoration: none; white-space: nowrap; border-radius: var(--pinfold-nav-radius); }
   .pinfold-navbar__brand > :where(svg, img) { inline-size: 1.5rem; block-size: 1.5rem; }
   .pinfold-navbar__start { display: flex; align-items: center; flex: none; min-inline-size: 0; }
   .pinfold-navbar__center { display: flex; flex: 1 1 auto; align-items: center; justify-content: center; min-inline-size: 0; }
-  .pinfold-navbar__end { display: flex; align-items: center; gap: 0.5rem; flex: none; margin-inline-start: auto; }
+  .pinfold-navbar__zone[data-zone='center'] > .pinfold-navbar__list { flex: 1 1 0; }
+  .pinfold-navbar__end { display: flex; align-items: center; gap: 0.5rem; flex: none; }
   .pinfold-navbar__actions { display: flex; align-items: center; gap: 0.5rem; }
 
   .pinfold-navbar__list { position: relative; display: flex; flex: 1 1 0; align-items: center; gap: 0.125rem; min-inline-size: 0; margin: 0; padding: 0; list-style: none; }
