@@ -37,6 +37,7 @@
     "./skeleton.css": "./dist/skeleton.css",
     "./badge.css": "./dist/badge.css",
     "./colorpicker.css": "./dist/colorpicker.css",
+    "./scrollarea.css": "./dist/scrollarea.css",
     "./navmenu.css": "./dist/navmenu.css",
     "./sidebar.css": "./dist/sidebar.css",
     "./resizable.css": "./dist/resizable.css",

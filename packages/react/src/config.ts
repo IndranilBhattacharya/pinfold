@@ -8,6 +8,7 @@ import type { KbdConfig } from './kbd/types';
 import type { SkeletonConfig } from './skeleton/types';
 import type { BadgeConfig } from './badge/types';
 import type { ColorPickerConfig } from './colorpicker/types';
+import type { ScrollAreaConfig } from './scrollarea/types';
 import type { NavMenuConfig } from './navmenu/types';
 import type { SidebarConfig } from './sidebar/types';
 import type { ResizableConfig } from './resizable/types';
@@ -55,6 +56,7 @@ export interface PinfoldComponentDefaults {
   skeleton?: Omit<SkeletonConfig, 'content' | 'loading'>;
   badge?: Omit<BadgeConfig, 'label' | 'count' | 'anchor'>;
   colorpicker?: Omit<ColorPickerConfig, 'label'>;
+  scrollarea?: Omit<ScrollAreaConfig, 'content' | 'label' | 'onReachStart' | 'onReachEnd' | 'onEdgesChange' | 'onScroll'>;
   navmenu?: Omit<NavMenuConfig, 'items' | 'label'>;
   sidebar?: Omit<SidebarConfig, 'items' | 'label'>;
   resizable?: Omit<ResizableConfig, 'label' | 'panels' | 'sizes' | 'onResize' | 'autoSaveId'>;

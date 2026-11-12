@@ -55,7 +55,8 @@
     "resizable",
     "sidebar",
     "navmenu",
-    "colorpicker"
+    "colorpicker",
+    "scrollarea"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -89,16 +90,6 @@
       "require": {
         "types": "./dist/accordion/index.d.cts",
         "default": "./dist/accordion/index.cjs"
-      }
-    },
-    "./accordion/lazy": {
-      "import": {
-        "types": "./dist/accordion/lazy.d.ts",
-        "default": "./dist/accordion/lazy.js"
-      },
-      "require": {
-        "types": "./dist/accordion/lazy.d.cts",
-        "default": "./dist/accordion/lazy.cjs"
       }
     },
     "./button": {
@@ -531,6 +522,26 @@
         "default": "./dist/colorpicker/index.cjs"
       }
     },
+    "./scrollarea": {
+      "import": {
+        "types": "./dist/scrollarea/index.d.ts",
+        "default": "./dist/scrollarea/index.js"
+      },
+      "require": {
+        "types": "./dist/scrollarea/index.d.cts",
+        "default": "./dist/scrollarea/index.cjs"
+      }
+    },
+    "./accordion/lazy": {
+      "import": {
+        "types": "./dist/accordion/lazy.d.ts",
+        "default": "./dist/accordion/lazy.js"
+      },
+      "require": {
+        "types": "./dist/accordion/lazy.d.cts",
+        "default": "./dist/accordion/lazy.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -669,6 +680,9 @@
       ],
       "colorpicker": [
         "./dist/colorpicker/index.d.cts"
+      ],
+      "scrollarea": [
+        "./dist/scrollarea/index.d.cts"
       ]
     }
   },
@@ -718,6 +732,7 @@
     "sidebar",
     "navmenu",
     "colorpicker",
+    "scrollarea",
     "registry",
     "schema",
     "llms.txt",

@@ -37,6 +37,7 @@ export * from './table.logic';
 export * from './grid.logic';
 export * from './content.logic';
 export * from './layout.logic';
+export * from './scroll.logic';
 export { __DEV__, warnOnce, resetWarnings } from './dev';
 export type {
   PinfoldSize,

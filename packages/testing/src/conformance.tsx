@@ -142,6 +142,110 @@ export function describePinfoldConformance(options: ConformanceOptions): void {
       });
     }
 
+    // A preset is module-scope and used many times; a hook is called in many components. Every
+    // use must be its own instance: no shared ids, no cross-wired ARIA, no shared radio names,
+    // and nothing left on the document after it unmounts.
+    it('keeps every instance separate: unique ids, references that stay inside their instance', () => {
+      const Twin = preset ? preset.define({}) : null;
+      const one = (i: number) => (Twin ? <Twin {...preset!.props} /> : render({}));
+      const { container } = rtlRender(
+        <>
+          <div data-instance="a">{one(0)}</div>
+          <div data-instance="b">{one(1)}</div>
+          <div data-instance="c">{one(2)}</div>
+        </>,
+      );
+      const doc = container.ownerDocument;
+      const ids = Array.from(doc.querySelectorAll('[id]')).map((el) => el.id).filter(Boolean);
+      const repeated = ids.filter((id, i) => ids.indexOf(id) !== i);
+      expect(repeated, 'ids repeated across instances').toEqual([]);
+
+      const home = (el: Element) => el.closest('[data-instance]')?.getAttribute('data-instance') ?? null;
+      const crossed: string[] = [];
+      for (const attr of ['aria-controls', 'aria-labelledby', 'aria-describedby', 'aria-activedescendant', 'aria-owns', 'aria-errormessage', 'for', 'list', 'form']) {
+        for (const el of Array.from(doc.querySelectorAll(`[${attr}]`))) {
+          const from = home(el);
+          if (!from) continue;
+          for (const id of (el.getAttribute(attr) ?? '').split(/\s+/).filter(Boolean)) {
+            const target = doc.getElementById(id);
+            // A reference may point at something not rendered yet (a closed popup); it must never reach a sibling.
+            if (target && home(target) && home(target) !== from) crossed.push(`${attr}="${id}" from ${from} reaches ${home(target)}`);
+          }
+        }
+      }
+      expect(crossed, 'references that leave their instance').toEqual([]);
+
+      // Native radios group by name across the whole form: generated names must differ per instance.
+      const names = new Map<string, Set<string | null>>();
+      for (const radio of Array.from(doc.querySelectorAll<HTMLInputElement>('input[type="radio"][name]'))) {
+        if (!names.has(radio.name)) names.set(radio.name, new Set());
+        names.get(radio.name)!.add(home(radio));
+      }
+      expect([...names].filter(([, homes]) => homes.size > 1).map(([n]) => n), 'radio names shared by instances').toEqual([]);
+    });
+
+    it('leaves nothing behind on unmount: no listeners on the window or document, no stray nodes', () => {
+      const targets: Array<[string, EventTarget]> = [['window', window], ['document', document], ['body', document.body], ['html', document.documentElement]];
+      const live = new Map<string, number>();
+      const restore: Array<() => void> = [];
+      const ids = new WeakMap<object, number>();
+      let next = 0;
+      const idOf = (fn: unknown) => {
+        if (typeof fn !== 'function' && (typeof fn !== 'object' || fn === null)) return 'none';
+        if (!ids.has(fn as object)) ids.set(fn as object, ++next);
+        return String(ids.get(fn as object));
+      };
+      const captureOf = (o: unknown) => (typeof o === 'boolean' ? o : !!(o as AddEventListenerOptions | undefined)?.capture);
+      for (const [label, target] of targets) {
+        const add = target.addEventListener;
+        const remove = target.removeEventListener;
+        target.addEventListener = function (this: EventTarget, type: string, fn: any, o?: any) {
+          // `once` listeners remove themselves; a signal removes them on abort.
+          if (!(o && typeof o === 'object' && (o.once || o.signal))) {
+            const key = `${label}:${type}:${captureOf(o)}:${idOf(fn)}`;
+            // The platform ignores a second identical registration.
+            if (!live.has(key)) live.set(key, 1);
+          }
+          return add.call(this, type, fn, o);
+        } as typeof add;
+        target.removeEventListener = function (this: EventTarget, type: string, fn: any, o?: any) {
+          live.delete(`${label}:${type}:${captureOf(o)}:${idOf(fn)}`);
+          return remove.call(this, type, fn, o);
+        } as typeof remove;
+        restore.push(() => {
+          target.addEventListener = add;
+          target.removeEventListener = remove;
+        });
+      }
+      const bodyBefore = document.body.childElementCount;
+      try {
+        const Twin = preset ? preset.define({}) : null;
+        const { unmount, container } = rtlRender(
+          <>
+            {Twin ? <Twin {...preset!.props} /> : render({})}
+            {Twin ? <Twin {...preset!.props} /> : render({})}
+          </>,
+        );
+        // Wake the lazy listeners: focus, point, press and type on everything interactive.
+        for (const el of Array.from(container.querySelectorAll<HTMLElement>('button, input, [tabindex], [role="button"], [role="tab"], [role="combobox"], a[href]')).slice(0, 12)) {
+          fireEvent.pointerEnter(el);
+          fireEvent.mouseEnter(el);
+          fireEvent.focus(el);
+          fireEvent.pointerDown(el);
+          fireEvent.mouseDown(el);
+          fireEvent.keyDown(el, { key: 'ArrowDown' });
+          fireEvent.click(el);
+        }
+        unmount();
+        // React itself listens on its root container (removed with it) and once on the document for selection changes.
+        const left = [...live.keys()].filter((key) => !/:selectionchange:/.test(key)).map((key) => key.replace(/:\d+$/, ''));
+        expect(left, 'listeners still attached after unmount').toEqual([]);
+        expect(document.body.childElementCount - bodyBefore, 'nodes left in the body').toBeLessThanOrEqual(1);
+      } finally {
+        restore.forEach((fn) => fn());
+      }
+    });
+
     if (meta) {
       it('keeps meta, defaults and the DOM in sync for every reflected option', () => {
         const kebabKey = (k: string) => k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());

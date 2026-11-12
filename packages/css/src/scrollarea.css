@@ -1,0 +1,114 @@
+/* Pinfold — scroll area. The root frames a viewport that scrolls. Each edge that hides content
+   says so: `fade` masks the content itself (works over any background), `shadow`, `glow` and `line`
+   lay a strip over the edge. The view sets data-overflow-top/-bottom/-start/-end on the root. */
+
+@layer pinfold.components {
+  .pinfold-scrollarea {
+    --pinfold-sa-depth: var(--pinfold-scrollarea-indicator-size, 2rem);
+    --pinfold-sa-tone: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    min-block-size: 0;
+    max-inline-size: 100%;
+    inline-size: var(--pinfold-scrollarea-width, auto);
+    block-size: var(--pinfold-scrollarea-height, auto);
+    max-block-size: var(--pinfold-scrollarea-max-height, none);
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+  }
+  .pinfold-scrollarea__viewport {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    max-inline-size: var(--pinfold-scrollarea-max-width, 100%);
+    padding: var(--pinfold-scrollarea-padding, 0);
+    overflow: hidden auto;
+    overscroll-behavior: contain;
+    border-radius: inherit;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--pinfold-color-text) 24%, transparent) transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pinfold-scrollarea[data-orientation='horizontal'] > .pinfold-scrollarea__viewport { overflow: auto hidden; }
+  .pinfold-scrollarea[data-orientation='both'] > .pinfold-scrollarea__viewport { overflow: auto; }
+  .pinfold-scrollarea[data-orientation='horizontal'] .pinfold-scrollarea__content,
+  .pinfold-scrollarea[data-orientation='both'] .pinfold-scrollarea__content { inline-size: max-content; min-inline-size: 100%; }
+  .pinfold-scrollarea__viewport:focus-visible { outline: var(--pinfold-focus-width) solid var(--pinfold-color-ring); outline-offset: calc(var(--pinfold-focus-width) * -1); }
+
+  .pinfold-scrollarea[data-scrollbar='auto'] > .pinfold-scrollarea__viewport { scrollbar-width: auto; }
+  .pinfold-scrollarea[data-scrollbar='hidden'] > .pinfold-scrollarea__viewport { scrollbar-width: none; }
+  .pinfold-scrollarea[data-scrollbar='hover'] > .pinfold-scrollarea__viewport { scrollbar-color: transparent transparent; transition: scrollbar-color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-scrollarea[data-scrollbar='hover']:hover > .pinfold-scrollarea__viewport,
+  .pinfold-scrollarea[data-scrollbar='hover'] > .pinfold-scrollarea__viewport:focus-visible { scrollbar-color: color-mix(in oklab, var(--pinfold-color-text) 28%, transparent) transparent; }
+
+  /* fade: the content itself dissolves toward an edge that hides more. Two masks, intersected. */
+  .pinfold-scrollarea[data-indicator='fade'] > .pinfold-scrollarea__viewport {
+    --pinfold-sa-t: 0px;
+    --pinfold-sa-b: 0px;
+    --pinfold-sa-s: 0px;
+    --pinfold-sa-e: 0px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--pinfold-sa-t), black calc(100% - var(--pinfold-sa-b)), transparent), linear-gradient(to right, transparent, black var(--pinfold-sa-s), black calc(100% - var(--pinfold-sa-e)), transparent);
+    mask-image: linear-gradient(to bottom, transparent, black var(--pinfold-sa-t), black calc(100% - var(--pinfold-sa-b)), transparent), linear-gradient(to right, transparent, black var(--pinfold-sa-s), black calc(100% - var(--pinfold-sa-e)), transparent);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+  .pinfold-scrollarea[data-indicator='fade'][data-overflow-top] > .pinfold-scrollarea__viewport { --pinfold-sa-t: var(--pinfold-sa-depth); }
+  .pinfold-scrollarea[data-indicator='fade'][data-overflow-bottom] > .pinfold-scrollarea__viewport { --pinfold-sa-b: var(--pinfold-sa-depth); }
+  .pinfold-scrollarea[data-indicator='fade'][data-overflow-start] > .pinfold-scrollarea__viewport { --pinfold-sa-s: var(--pinfold-sa-depth); }
+  .pinfold-scrollarea[data-indicator='fade'][data-overflow-end] > .pinfold-scrollarea__viewport { --pinfold-sa-e: var(--pinfold-sa-depth); }
+  [dir='rtl'] .pinfold-scrollarea[data-indicator='fade'] > .pinfold-scrollarea__viewport { -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--pinfold-sa-t), black calc(100% - var(--pinfold-sa-b)), transparent), linear-gradient(to left, transparent, black var(--pinfold-sa-s), black calc(100% - var(--pinfold-sa-e)), transparent); mask-image: linear-gradient(to bottom, transparent, black var(--pinfold-sa-t), black calc(100% - var(--pinfold-sa-b)), transparent), linear-gradient(to left, transparent, black var(--pinfold-sa-s), black calc(100% - var(--pinfold-sa-e)), transparent); }
+
+  /* shadow, glow, line: a strip over each edge, shown while that edge hides content. */
+  .pinfold-scrollarea__indicator {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .pinfold-scrollarea[data-animate] > .pinfold-scrollarea__indicator { transition: opacity var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-scrollarea__indicator[data-side='top'] { inset: 0 0 auto; block-size: var(--pinfold-sa-depth); border-start-start-radius: inherit; border-start-end-radius: inherit; --pinfold-sa-to: to bottom; }
+  .pinfold-scrollarea__indicator[data-side='bottom'] { inset: auto 0 0; block-size: var(--pinfold-sa-depth); border-end-start-radius: inherit; border-end-end-radius: inherit; --pinfold-sa-to: to top; }
+  .pinfold-scrollarea__indicator[data-side='start'] { inset-block: 0; inset-inline-start: 0; inline-size: var(--pinfold-sa-depth); border-start-start-radius: inherit; border-end-start-radius: inherit; --pinfold-sa-to: to right; }
+  .pinfold-scrollarea__indicator[data-side='end'] { inset-block: 0; inset-inline-end: 0; inline-size: var(--pinfold-sa-depth); border-start-end-radius: inherit; border-end-end-radius: inherit; --pinfold-sa-to: to left; }
+  [dir='rtl'] .pinfold-scrollarea__indicator[data-side='start'] { --pinfold-sa-to: to left; }
+  [dir='rtl'] .pinfold-scrollarea__indicator[data-side='end'] { --pinfold-sa-to: to right; }
+  .pinfold-scrollarea[data-overflow-top] > .pinfold-scrollarea__indicator[data-side='top'],
+  .pinfold-scrollarea[data-overflow-bottom] > .pinfold-scrollarea__indicator[data-side='bottom'],
+  .pinfold-scrollarea[data-overflow-start] > .pinfold-scrollarea__indicator[data-side='start'],
+  .pinfold-scrollarea[data-overflow-end] > .pinfold-scrollarea__indicator[data-side='end'] { opacity: 1; }
+  .pinfold-scrollarea[data-orientation='vertical'] > .pinfold-scrollarea__indicator:is([data-side='start'], [data-side='end']),
+  .pinfold-scrollarea[data-orientation='horizontal'] > .pinfold-scrollarea__indicator:is([data-side='top'], [data-side='bottom']) { display: none; }
+
+  .pinfold-scrollarea[data-indicator='shadow'] { --pinfold-sa-depth: var(--pinfold-scrollarea-indicator-size, 1rem); }
+  .pinfold-scrollarea[data-indicator='shadow'] > .pinfold-scrollarea__indicator {
+    background: radial-gradient(farthest-side at var(--pinfold-sa-at, 50% 0), color-mix(in oklab, var(--pinfold-shadow-color, var(--pinfold-color-text)) 46%, transparent), transparent);
+  }
+  .pinfold-scrollarea[data-indicator='shadow'] > .pinfold-scrollarea__indicator[data-side='bottom'] { --pinfold-sa-at: 50% 100%; }
+  .pinfold-scrollarea[data-indicator='shadow'] > .pinfold-scrollarea__indicator[data-side='start'] { --pinfold-sa-at: 0 50%; }
+  .pinfold-scrollarea[data-indicator='shadow'] > .pinfold-scrollarea__indicator[data-side='end'] { --pinfold-sa-at: 100% 50%; }
+  [dir='rtl'] .pinfold-scrollarea[data-indicator='shadow'] > .pinfold-scrollarea__indicator[data-side='start'] { --pinfold-sa-at: 100% 50%; }
+  [dir='rtl'] .pinfold-scrollarea[data-indicator='shadow'] > .pinfold-scrollarea__indicator[data-side='end'] { --pinfold-sa-at: 0 50%; }
+
+  .pinfold-scrollarea[data-indicator='glow'] > .pinfold-scrollarea__indicator {
+    background: linear-gradient(var(--pinfold-sa-to), color-mix(in oklab, var(--pinfold-sa-tone) 30%, transparent), transparent);
+    box-shadow: inset 0 0 0 0 transparent;
+  }
+  .pinfold-scrollarea[data-indicator='glow'] > .pinfold-scrollarea__indicator::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(var(--pinfold-sa-to), color-mix(in oklab, var(--pinfold-sa-tone) 70%, transparent), transparent 2px);
+  }
+
+  .pinfold-scrollarea[data-indicator='line'] { --pinfold-sa-depth: var(--pinfold-scrollarea-indicator-size, 2px); }
+  .pinfold-scrollarea[data-indicator='line'] > .pinfold-scrollarea__indicator { background: var(--pinfold-sa-tone); border-radius: var(--pinfold-radius-full); }
+  .pinfold-scrollarea[data-indicator='line'] > .pinfold-scrollarea__indicator:is([data-side='top'], [data-side='bottom']) { inset-inline: 0.5rem; }
+  .pinfold-scrollarea[data-indicator='line'] > .pinfold-scrollarea__indicator:is([data-side='start'], [data-side='end']) { inset-block: 0.5rem; }
+
+  @media (forced-colors: active) {
+    .pinfold-scrollarea[data-indicator='fade'] > .pinfold-scrollarea__viewport { -webkit-mask-image: none; mask-image: none; }
+    .pinfold-scrollarea__indicator { forced-color-adjust: none; background: CanvasText; block-size: 2px; }
+    .pinfold-scrollarea__indicator:is([data-side='start'], [data-side='end']) { block-size: auto; inline-size: 2px; }
+  }
+}

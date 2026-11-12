@@ -1,0 +1,26 @@
+/** Every config key of the scroll area. Tag and preset props with these names are config; the rest go to the root
+ * element. `config-keys.test.ts` keeps this equal to the meta. */
+export const SCROLLAREA_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
+  'content',
+  'label',
+  'orientation',
+  'indicator',
+  'indicatorSize',
+  'scrollbar',
+  'stickToEnd',
+  'reachThreshold',
+  'onReachStart',
+  'onReachEnd',
+  'onEdgesChange',
+  'onScroll',
+  'dimensions',
+  'radius',
+  'tone',
+  'unstyled',
+  'className',
+  'style',
+  'classNames',
+  'styles',
+  'slotProps',
+  'render',
+]);

@@ -55,6 +55,7 @@ const BUDGETS = [
   ['packages/react/dist/skeleton/index.js', 4.5], // shares the provider, which now carries the app's router
   ['packages/react/dist/badge/index.js', 5],
   ['packages/react/dist/colorpicker/index.js', 7],
+  ['packages/react/dist/scrollarea/index.js', 6],
   ['packages/react/dist/navmenu/index.js', 7],
   ['packages/react/dist/sidebar/index.js', 6],
   ['packages/react/dist/resizable/index.js', 6],
@@ -100,6 +101,7 @@ const BUDGETS = [
   ['packages/css/dist/skeleton.css', 1],
   ['packages/css/dist/badge.css', 2],
   ['packages/css/dist/colorpicker.css', 2.5],
+  ['packages/css/dist/scrollarea.css', 2],
   ['packages/css/dist/navmenu.css', 2.5],
   ['packages/css/dist/sidebar.css', 2.5],
   ['packages/css/dist/resizable.css', 2],

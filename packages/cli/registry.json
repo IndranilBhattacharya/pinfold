@@ -580,6 +580,22 @@
       "variants": [],
       "hook": "useColorPicker",
       "snippet": "<BrandColor label=\"Brand colour\" value={color} onChange={setColor} />"
+    },
+    {
+      "name": "scrollarea",
+      "import": "@pinfold/react/scrollarea",
+      "styles": "@pinfold/css/scrollarea.css",
+      "status": "experimental",
+      "description": "A scrolling region whose edges show where more content is; follows new content like a chat.",
+      "variants": [
+        "fade",
+        "shadow",
+        "glow",
+        "line",
+        "none"
+      ],
+      "hook": "useScrollArea",
+      "snippet": "<Scroll label=\"Changelog\">{entries}</Scroll>"
     }
   ],
   "planned": [
