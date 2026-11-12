@@ -84,8 +84,10 @@
 
   /* Time fields in the calendar's footer, with a Done button. */
   .pinfold-datepicker__times { display: flex; flex: 1 1 auto; flex-wrap: wrap; align-items: end; gap: 0.5rem 0.75rem; }
-  .pinfold-datepicker__time { display: grid; gap: 0.25rem; font-size: 0.85em; color: var(--pinfold-color-text-muted); }
-  .pinfold-datepicker__timeInput {
+  .pinfold-datepicker__time,
+  .pinfold-datepicker__timeZone { display: grid; gap: 0.25rem; font-size: 0.85em; color: var(--pinfold-color-text-muted); }
+  .pinfold-datepicker__timeInput,
+  .pinfold-datepicker__timeZoneSelect {
     block-size: 2rem;
     padding-inline: 0.5rem;
     font: inherit;
@@ -96,7 +98,9 @@
     border: var(--pinfold-border-width) solid var(--pinfold-fld-edge, var(--pinfold-color-border));
     border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
   }
-  .pinfold-datepicker__timeInput:focus-visible { outline: none; border-color: var(--pinfold-color-accent); box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-datepicker__timeZone { flex: 1 1 100%; inline-size: 0; min-inline-size: 100%; }
+  .pinfold-datepicker__timeZoneSelect { inline-size: 100%; min-inline-size: 0; }
+  :is(.pinfold-datepicker__timeInput, .pinfold-datepicker__timeZoneSelect):focus-visible { outline: none; border-color: var(--pinfold-color-accent); box-shadow: var(--pinfold-focus-ring); }
   .pinfold-datepicker__done {
     margin-inline-start: auto;
     block-size: 2rem;

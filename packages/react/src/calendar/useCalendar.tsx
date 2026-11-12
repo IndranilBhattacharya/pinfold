@@ -33,7 +33,7 @@ import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { ITEM, renderSlot, slotProps } from '../slots';
 import { CHEVRON_ICON } from '../nav-icons';
-import type { CalendarApi, CalendarComponent, CalendarConfig, CalendarPreset, CalendarRange, CalendarRootProps, CalendarSlot, CalendarState } from './types';
+import type { CalendarApi, CalendarGranularity, CalendarComponent, CalendarConfig, CalendarPreset, CalendarRange, CalendarRootProps, CalendarSlot, CalendarState } from './types';
 
 const subscribe = () => () => {};
 /** False on the server and during hydration, so today is never baked into server HTML. */
@@ -62,9 +62,16 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
   const base = useId();
   const mode = config.mode ?? 'single';
   const granularity = config.granularity ?? 'day';
-  const days = granularity === 'day';
+  // What the grid shows. It starts on what is picked (days), and the caption's month and year open a
+  // month grid and a year grid in place, so a far date is three presses away, not sixty.
+  const [zoom, setZoom] = React.useState<CalendarGranularity | null>(null);
+  const RANK = { day: 0, month: 1, year: 2 } as const;
+  const view: CalendarGranularity = zoom && RANK[zoom] > RANK[granularity] ? zoom : granularity;
+  const drilling = view !== granularity;
+  const days = view === 'day';
   // A month or a year is named by its first day.
   const unit = (d: IsoDate) => (granularity === 'month' ? monthStart(d) : granularity === 'year' ? yearStart(d) : d);
+  const viewUnit = (d: IsoDate) => (view === 'month' ? monthStart(d) : view === 'year' ? yearStart(d) : d);
   const mounted = useMounted();
   // Today only after mount: the server's day may not be the reader's.
   const today = mounted ? todayIso() : '';
@@ -92,9 +99,18 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
 
   const count = days ? config.months ?? 1 : 1;
   const weekStart = config.weekStart ?? localeWeekStart(config.locale);
-  const state: CalendarState = { mode, size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, month, granularity };
+  const state: CalendarState = { mode, size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, month, granularity, view };
   const labels = config.labels ?? {};
-  const own = config.isDateDisabled;
+  const blockedDays = React.useMemo(() => new Set((config.disabledDates ?? []).filter((d): d is IsoDate => typeof d === 'string')), [config.disabledDates]);
+  const blockedSpans = (config.disabledDates ?? []).filter((d): d is CalendarRange => typeof d === 'object' && d !== null);
+  const blockedWeekdays = config.disabledWeekdays;
+  const rule = config.isDateDisabled;
+  const hasRule = !!rule || blockedDays.size > 0 || blockedSpans.length > 0 || !!blockedWeekdays?.length;
+  // Every way a day can be ruled out, as one test: your function, listed days and spans, weekdays.
+  const own = hasRule
+    ? (d: IsoDate, context: { mode: 'single' | 'range' | 'multiple'; start: IsoDate | null }): boolean =>
+        blockedDays.has(d) || blockedSpans.some((r) => d >= r.start && d <= r.end) || (granularity === 'day' && !!blockedWeekdays?.includes(weekday(d))) || !!rule?.(d, context)
+    : undefined;
   const dayContext = { mode, start: pending };
   const baseAllowed = (d: IsoDate) => dateAllowed(d, config.min, config.max, own ? (x) => own(x, dayContext) : undefined);
   // While a range is being picked, its end must respect min/max days and not jump a day that cannot be chosen.
@@ -104,7 +120,7 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
         ? rangeEndRule(pending, { minDays: config.minDays, maxDays: config.maxDays, allowed: baseAllowed, spanDisabled: config.allowDisabledInRange })
         : null,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pending, mode, days, config.minDays, config.maxDays, config.allowDisabledInRange, config.min, config.max, own],
+    [pending, mode, days, config.minDays, config.maxDays, config.allowDisabledInRange, config.min, config.max, rule, blockedDays, config.disabledWeekdays],
   );
   const allowed = (d: IsoDate): boolean => {
     if (granularity === 'month') return (!config.min || d >= monthStart(config.min)) && (!config.max || d <= config.max) && !own?.(d, dayContext);
@@ -182,14 +198,44 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
   };
 
   // The page the arrows turn: a month (days), a year (months), twelve years (years).
-  const step = granularity === 'day' ? 1 : granularity === 'month' ? 12 : 144;
+  const step = view === 'day' ? 1 : view === 'month' ? 12 : 144;
   const last = addMonths(month, count - 1);
-  const pageOf = (d: IsoDate) => (granularity === 'day' ? monthStart(d) : granularity === 'month' ? yearStart(d) : isoDate(yearPage(yearOf(d))[0], 1, 1));
+  const pageOf = (d: IsoDate) => (view === 'day' ? monthStart(d) : view === 'month' ? yearStart(d) : isoDate(yearPage(yearOf(d))[0], 1, 1));
+  // A month or year cell while zoomed out: it can be opened when any of its days can be chosen.
+  const reachable = (d: IsoDate) => {
+    const end = addDays(addMonths(d, view === 'month' ? 1 : 12), -1);
+    return (!config.min || end >= config.min) && (!config.max || d <= config.max);
+  };
+  const zoomTo = (next: CalendarGranularity, focus: IsoDate) => {
+    setZoom(RANK[next] > RANK[granularity] ? next : null);
+    const target = next === 'month' ? monthStart(focus) : next === 'year' ? yearStart(focus) : focus;
+    setFocused(next === granularity ? unit(focus) : target);
+    moved.current = true;
+  };
+  /** A month or year chosen while zoomed out: show it, one level closer. */
+  const openCell = (d: IsoDate) => {
+    if (!reachable(d)) return;
+    // A year keeps the month that was showing.
+    let next = view === 'year' ? isoDate(yearOf(d), parseIso(month)!.month, 1) : d;
+    if (config.min && next < monthStart(config.min)) next = monthStart(config.min);
+    if (config.max && next > config.max) next = monthStart(config.max);
+    setMonth(next);
+    const closer: CalendarGranularity = view === 'year' && granularity === 'day' ? 'month' : granularity;
+    const keep = chosen[0] && monthStart(chosen[0]) === monthStart(next) ? chosen[0] : next;
+    zoomTo(closer, closer === 'day' ? keep : next);
+  };
   const pageStart = pageOf(month);
   const onKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      pick(focused);
+      if (drilling) openCell(viewUnit(focused));
+      else pick(focused);
+      return;
+    }
+    if (event.key === 'Escape' && drilling) {
+      // Back to where the zoom started, without choosing anything.
+      event.stopPropagation();
+      zoomTo(granularity, chosen[0] && monthStart(chosen[0]) === month ? chosen[0] : month);
       return;
     }
     if (event.key === 'Escape' && pending) {
@@ -201,15 +247,16 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
     if (days) target = calendarKeyTarget(focused, event.key, { shift: event.shiftKey, rtl: ctx.dir === 'rtl', weekStart });
     else {
       // Months and years sit three to a row.
-      const by = granularity === 'month' ? 1 : 12;
+      const by = view === 'month' ? 1 : 12;
       const flip = ctx.dir === 'rtl' ? -1 : 1;
       const moves: Record<string, number> = { ArrowRight: by * flip, ArrowLeft: -by * flip, ArrowDown: by * 3, ArrowUp: -by * 3, PageDown: by * 12, PageUp: -by * 12 };
       target = event.key in moves ? addMonths(focused, moves[event.key]) : event.key === 'Home' ? pageOf(focused) : event.key === 'End' ? addMonths(pageOf(focused), by * 11) : null;
     }
     if (!target) return;
     event.preventDefault();
-    if (config.min && target < unit(config.min)) target = unit(config.min);
-    if (config.max && target > config.max) target = unit(config.max);
+    const snap = drilling ? viewUnit : unit;
+    if (config.min && target < snap(config.min)) target = snap(config.min);
+    if (config.max && target > config.max) target = snap(config.max);
     moved.current = true;
     setFocused(target);
     if (pending) setHover(target);
@@ -226,7 +273,8 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
         'aria-label': config.label ?? 'Calendar',
         'data-mode': mode,
         'data-granularity': granularity,
-        'data-caption': config.captionLayout ?? 'label',
+        'data-view': view,
+        'data-caption': config.captionLayout ?? 'buttons',
         'data-size': state.size,
         'data-tone': state.tone,
         'data-months': String(count),
@@ -248,23 +296,52 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
     const canPrev = !config.min || addMonths(pageStart, -1) >= pageOf(config.min);
     const canNext = !config.max || addMonths(pageStart, step * (days ? count : 1)) <= config.max;
     const pageYears = yearPage(yearOf(month));
-    const titleText = days ? monthsShown.map((m) => fmt.title.format(utc(m))).join(' – ') : granularity === 'month' ? fmt.year.format(utc(month)) : `${pageYears[0]} – ${pageYears[11]}`;
-    const dropdown = (config.captionLayout ?? 'label') === 'dropdown';
+    const titleText = days ? monthsShown.map((m) => fmt.title.format(utc(m))).join(' – ') : view === 'month' ? fmt.year.format(utc(month)) : `${pageYears[0]} – ${pageYears[11]}`;
+    const caption = config.captionLayout ?? 'buttons';
+    const dropdown = caption === 'dropdown';
+    const zoomable = caption === 'buttons';
+    // The caption as buttons: the month opens the months of its year, the year opens the years.
+    const captionButtons = (m: IsoDate) =>
+      view === 'year' ? (
+        titleText
+      ) : (
+        <>
+          {days
+            ? slot('monthButton', fmt.monthName.format(utc(m)), 'button', {
+                type: 'button',
+                'aria-label': `${fmt.monthName.format(utc(m))}: ${labels.chooseMonth ?? 'choose a month'}`,
+                onClick: () => {
+                  if (m !== month) setMonth(m);
+                  zoomTo('month', m);
+                },
+              })
+            : null}
+          {days ? ' ' : null}
+          {slot('yearButton', fmt.year.format(utc(m)), 'button', {
+            type: 'button',
+            'aria-label': `${fmt.year.format(utc(m))}: ${labels.chooseYear ?? 'choose a year'}`,
+            onClick: () => {
+              if (m !== month) setMonth(m);
+              zoomTo('year', m);
+            },
+          })}
+        </>
+      );
     const minMonth = config.min ? monthStart(config.min) : '';
     const header = slot(
       'header',
       <>
         {slot('previous', CHEVRON_ICON, 'button', {
           type: 'button',
-          'aria-label': labels.previous ?? (days ? 'Previous month' : granularity === 'month' ? 'Previous year' : 'Previous years'),
+          'aria-label': labels.previous ?? (days ? 'Previous month' : view === 'month' ? 'Previous year' : 'Previous years'),
           'aria-disabled': !canPrev || undefined,
           'data-flip': '',
           onClick: () => canPrev && setMonth(addMonths(month, -step)),
         })}
-        {slot('title', titleText, 'div', { id: `${base}-title`, 'aria-live': 'polite' })}
+        {slot('title', zoomable && !(days && count > 1) ? captionButtons(month) : titleText, 'div', { id: `${base}-title`, 'aria-live': 'polite', 'data-zoomable': dataAttr(zoomable) })}
         {dropdown ? (
           <span className={cls('pinfold-calendar__jump')}>
-            {granularity === 'day'
+            {view === 'day'
               ? slot(
                   'monthSelect',
                   yearMonths(yearOf(month)).map((m) => (
@@ -276,7 +353,7 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
                   { 'aria-label': labels.month ?? 'Month', value: month, onChange: (e: React.ChangeEvent<HTMLSelectElement>) => setMonth(e.target.value) },
                 )
               : null}
-            {granularity !== 'year'
+            {view !== 'year'
               ? slot(
                   'yearSelect',
                   years.map((y) => (
@@ -302,19 +379,20 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
         ) : null}
         {slot('next', CHEVRON_ICON, 'button', {
           type: 'button',
-          'aria-label': labels.next ?? (days ? 'Next month' : granularity === 'month' ? 'Next year' : 'Next years'),
+          'aria-label': labels.next ?? (days ? 'Next month' : view === 'month' ? 'Next year' : 'Next years'),
           'aria-disabled': !canNext || undefined,
           onClick: () => canNext && setMonth(addMonths(month, step)),
         })}
       </>,
       'div',
     );
-    const visibleCells = days ? null : granularity === 'month' ? yearMonths(yearOf(month)) : pageYears.map((y) => isoDate(y, 1, 1));
+    const visibleCells = days ? null : view === 'month' ? yearMonths(yearOf(month)) : pageYears.map((y) => isoDate(y, 1, 1));
     // The focused cell is the tab stop; when it is not on the page, the first cell is.
     const stop = days ? (monthsShown.some((m) => monthStart(focused) === m) ? focused : month) : visibleCells!.includes(focused) ? focused : visibleCells![0];
     const cellProps = (d: IsoDate, label: string, extra: PropsBag = {}) => {
-      const ok = allowed(d);
-      const selected = range ? d >= range.start && d <= range.end : chosen.includes(d);
+      // Zoomed out, a cell opens its month or year: it is "chosen" when it holds the chosen day.
+      const ok = drilling ? reachable(d) : allowed(d);
+      const selected = drilling ? chosen.some((c) => viewUnit(c) === d) : range ? d >= range.start && d <= range.end : chosen.includes(d);
       return {
         type: 'button',
         tabIndex: d === stop ? 0 : -1,
@@ -322,11 +400,11 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
         'aria-disabled': !ok || undefined,
         'data-date': d,
         'data-selected': dataAttr(selected),
-        'data-range-start': dataAttr(!!range && d === range.start),
-        'data-range-end': dataAttr(!!range && d === range.end),
-        'data-in-range': dataAttr(!!range && d > range.start && d < range.end),
-        onClick: () => pick(d),
-        onPointerEnter: () => pending && setHover(d),
+        'data-range-start': dataAttr(!drilling && !!range && d === range.start),
+        'data-range-end': dataAttr(!drilling && !!range && d === range.end),
+        'data-in-range': dataAttr(!drilling && !!range && d > range.start && d < range.end),
+        onClick: () => (drilling ? openCell(d) : pick(d)),
+        onPointerEnter: () => pending && !drilling && setHover(d),
         onFocus: () => setFocused(d),
         ...extra,
         selected,
@@ -337,18 +415,18 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
     const pickerGrid = () => {
       const cells = visibleCells!;
       const rows = [cells.slice(0, 3), cells.slice(3, 6), cells.slice(6, 9), cells.slice(9, 12)];
-      const thisUnit = today ? unit(today) : '';
+      const thisUnit = today ? viewUnit(today) : '';
       return slot(
         'grid',
         <tbody>
           {rows.map((row) => (
             <tr key={row[0]}>
               {row.map((d) => {
-                const label = granularity === 'month' ? fmt.title.format(utc(d)) : fmt.year.format(utc(d));
+                const label = view === 'month' ? fmt.title.format(utc(d)) : fmt.year.format(utc(d));
                 const p = cellProps(d, label, { 'aria-current': d === thisUnit ? 'date' : undefined });
                 return (
                   <td key={d} role="gridcell" aria-selected={p.selected || undefined}>
-                    {slot('cell', granularity === 'month' ? fmt.monthShort.format(utc(d)) : fmt.year.format(utc(d)), 'button', {
+                    {slot('cell', view === 'month' ? fmt.monthShort.format(utc(d)) : fmt.year.format(utc(d)), 'button', {
                       [ITEM]: { date: d, outside: false, disabled: !p.ok, selected: p.selected, today: d === thisUnit, rangeStart: !!range && d === range.start, rangeEnd: !!range && d === range.end },
                       ...strip(p),
                     })}
@@ -359,7 +437,7 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
           ))}
         </tbody>,
         'table',
-        { role: 'grid', 'aria-labelledby': `${base}-title`, 'aria-multiselectable': mode !== 'single' || undefined },
+        { role: 'grid', 'aria-labelledby': `${base}-title`, 'aria-multiselectable': (mode !== 'single' && !drilling) || undefined },
       );
     };
     const weekdays = monthGrid(month, weekStart)[0];
@@ -369,8 +447,8 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
       return (
         <div key={m} className={cls('pinfold-calendar__month')}>
           {count > 1 ? (
-            <div id={titleId} className={cls('pinfold-calendar__caption')}>
-              {fmt.title.format(utc(m))}
+            <div id={titleId} className={cls('pinfold-calendar__caption')} data-zoomable={dataAttr(zoomable)}>
+              {zoomable ? captionButtons(m) : fmt.title.format(utc(m))}
             </div>
           ) : null}
           {slot(
@@ -452,6 +530,7 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
                 type: 'button',
                 onClick: () => {
                   const t = unit(todayIso());
+                  setZoom(null);
                   setMonth(t);
                   setFocused(t);
                   if (mode === 'single' && allowed(t)) commit(t);
@@ -468,6 +547,8 @@ export function useCalendar(input: CalendarConfig): CalendarComponent {
 
   const api: CalendarApi = {
     month,
+    view,
+    setView: (next) => zoomTo(next, month),
     setMonth: (d) => setMonth(d),
     focus: () => grid.current?.querySelector<HTMLElement>('[tabindex="0"]')?.focus(),
     getRootProps,

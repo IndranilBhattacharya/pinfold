@@ -3,7 +3,7 @@ import { RADIUS_PROP } from './meta-shared';
 import { FIELD_ARIA, fieldProps } from './field.meta';
 import { CALENDAR_PICK_PROPS } from './calendar.meta';
 
-const SLOTS = ['root', 'label', 'control', 'input', 'clear', 'trigger', 'popup', 'time', 'timeInput', 'done', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'control', 'input', 'clear', 'trigger', 'popup', 'time', 'timeInput', 'timeZone', 'timeZoneSelect', 'done', 'description', 'error'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -34,6 +34,14 @@ export const datepickerMeta: ComponentMeta = {
     time: { type: 'boolean', default: false, description: 'A time with the day: values become "2026-11-09T14:30" (a wall time, no zone); the popup shows time fields and a Done button.', group: 'behaviour', control: true },
     timeStep: { type: 'number', default: 1, description: 'Minutes between the times offered.', group: 'behaviour' },
     hourCycle: { type: 'enum', values: [12, 24], description: '12 or 24 hours. Default the locale\'s.', group: 'appearance' },
+    minTime: { type: 'string', description: 'With `time`: the earliest time of day, "09:00".', group: 'behaviour' },
+    maxTime: { type: 'string', description: 'With `time`: the latest time of day, "18:00".', group: 'behaviour' },
+    timeZone: { type: 'string', description: 'With `time`: the IANA zone the date and time are shown and chosen in ("Asia/Kolkata"), controlled. Default the reader\'s own.', group: 'data' },
+    defaultTimeZone: { type: 'string', description: 'The zone at first, when people can change it.', group: 'data' },
+    onTimeZoneChange: { type: 'function', description: '`(timeZone) => void`.', group: 'events' },
+    showTimeZone: { type: 'boolean', default: false, description: 'With `time`: a list in the popup to choose the zone.', group: 'appearance', control: true },
+    timeZones: { type: 'string[]', description: 'The zones that list offers. Default every zone the browser knows.', group: 'data' },
+    valueFormat: { type: 'enum', values: ['wall', 'utc', 'offset'], default: 'wall', description: 'With `time`: how the value is stored and handed to `onChange`. `wall`: "2026-11-09T14:30", what the clock shows. `utc`: the instant, "2026-11-09T09:00:00.000Z". `offset`: the clock with its offset, "2026-11-09T14:30:00+05:30". A value in any form is read.', group: 'behaviour', control: true, silent: true },
     locale: { type: 'string', description: 'A BCP 47 locale for the shown date, the typing order and the calendar. Default the browser\'s.', group: 'data' },
     weekStart: { type: 'number', description: '0 Sunday … 6 Saturday. Default the locale\'s.', group: 'behaviour' },
     formatOptions: { type: 'object', description: '`Intl.DateTimeFormat` options for the shown date. Default `{ dateStyle: "medium" }`.', group: 'appearance' },
@@ -53,6 +61,7 @@ export const datepickerMeta: ComponentMeta = {
         startTime: { type: 'string', description: 'Default "Start time".', group: 'data' },
         endTime: { type: 'string', description: 'Default "End time".', group: 'data' },
         done: { type: 'string', description: 'Default "Done".', group: 'data' },
+        timeZone: { type: 'string', description: 'The zone list. Default "Time zone".', group: 'data' },
       },
     },
     open: { type: 'boolean', description: 'The calendar, controlled.', group: 'behaviour' },

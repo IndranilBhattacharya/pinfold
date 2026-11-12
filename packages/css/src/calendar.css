@@ -31,6 +31,34 @@
 
   .pinfold-calendar__header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
   .pinfold-calendar__title { margin: 0; font-size: 1em; font-weight: var(--pinfold-weight-semibold); text-align: center; }
+  /* The caption as buttons: the month opens the months, the year opens the years. */
+  .pinfold-calendar__title[data-zoomable],
+  .pinfold-calendar__caption[data-zoomable] { display: flex; justify-content: center; gap: 0.125rem; }
+  .pinfold-calendar__monthButton,
+  .pinfold-calendar__yearButton {
+    padding: 0.25rem 0.5rem;
+    font: inherit;
+    font-weight: var(--pinfold-weight-semibold);
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    cursor: pointer;
+  }
+  .pinfold-calendar__yearButton { color: var(--pinfold-color-text-muted); }
+  .pinfold-calendar[data-view='month'] .pinfold-calendar__yearButton { color: inherit; }
+  :is(.pinfold-calendar__monthButton, .pinfold-calendar__yearButton):hover { color: var(--pinfold-color-text); background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); }
+  :is(.pinfold-calendar__monthButton, .pinfold-calendar__yearButton):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-calendar[data-animate] :is(.pinfold-calendar__monthButton, .pinfold-calendar__yearButton) { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  /* Zooming between days, months and years: the grid settles in. */
+  .pinfold-calendar[data-animate]:not([data-view='day']) .pinfold-calendar__grid { animation: pinfold-calendar-zoom var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  @keyframes pinfold-calendar-zoom {
+    from { opacity: 0; transform: scale(0.96); }
+  }
+  /* Several months: the arrows sit on the captions' line instead of a row of their own. */
+  .pinfold-calendar:not([data-months='1']) .pinfold-calendar__header { position: relative; z-index: 1; block-size: 0; overflow: visible; align-items: flex-start; pointer-events: none; }
+  .pinfold-calendar:not([data-months='1']) .pinfold-calendar__header > button { pointer-events: auto; }
+  .pinfold-calendar:not([data-months='1'])[data-presets] .pinfold-calendar__header { block-size: auto; }
   /* Several months: each has its caption; the header's title stays as the spoken live region. */
   .pinfold-calendar:not([data-months='1']) .pinfold-calendar__title { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .pinfold-calendar__previous,

@@ -23,8 +23,9 @@ library default.
 | `mode` | `'single' \| 'range' \| 'multiple'` | `'single'` |
 | `value`, `defaultValue`, `onChange` | a day, `{ start, end }`, or days, by mode | none |
 | `min`, `max`, `isDateDisabled` | days that can be chosen; `(date, { mode, start }) => boolean` (`start`: a range's first pick, so the end can depend on it) | all |
+| `disabledDates`, `disabledWeekdays` | the same as data: days and `{ start, end }` spans (holidays, booked nights); weekdays 0 Sunday to 6 Saturday (`[0, 6]` for weekends). All of these apply together and may change at any time (a start date from another field as `min`) | none |
 | `granularity` | `'day' \| 'month' \| 'year'`: what is picked (a month or a year is its first day) | `'day'` |
-| `captionLayout`, `yearRange` | `'label' \| 'dropdown'`: month and year dropdowns to jump far; the years offered | `'label'`, `min`/`max` years or 100 back, 20 ahead |
+| `captionLayout`, `yearRange` | `'buttons' \| 'dropdown' \| 'label'`. `buttons`: the caption's month opens a grid of months and its year a grid of years, in place, so a day, a month and a year are all chosen in one calendar (Escape goes back). `dropdown`: two selects. `label`: text and arrows. The years offered | `'buttons'`, `min`/`max` years or 100 back, 20 ahead |
 | `presets` | quick picks beside the months: names (`'today'`, `'yesterday'`, `'last7'`, `'last30'`, `'last90'`, `'next7'`, `'next30'`, `'thisWeek'`, `'lastWeek'`, `'thisMonth'`, `'lastMonth'`, `'thisYear'`, `'lastYear'`) or `{ label, value }` | none |
 | `minDays`, `maxDays`, `allowDisabledInRange`, `onRangeStart` | a range's length; whether it may cover blocked days (off: the end cannot pass the nearest one); the first pick | none, none, `false` |
 | `showWeekNumbers`, `dayContent` | ISO week numbers; `(date) => node` under a day's number (a price, a dot) | `false`, none |
@@ -45,7 +46,12 @@ Inactive (`inactiveCalendarOptions`): `showOutsideDays` with more than one month
 
 Month and year pickers are grids of twelve buttons, three to a row: arrows move one (or a row), PageUp and PageDown a page, Home and End the page's ends.
 
+## Controller
+`useCalendar(config)` adds `month`, `setMonth(date)`, `view` (`'day' | 'month' | 'year'`), `setView(view)` (never closer than
+`granularity`) and `focus()`.
+
 ## Accessibility
+- Caption buttons are named "November: choose a month" and "2026: choose a year"; zoomed out, arrows move by month or year, Enter opens, Escape returns to the days.
 - A `group` named by `label`; each month is a `grid` labelled by its heading, a polite live
   region, so turning the month is read. Weekday headers are short with the full name in `abbr`.
 - One tab stop, the focused day. Arrows move a day or a week (left and right follow the reading

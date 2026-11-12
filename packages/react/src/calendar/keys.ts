@@ -11,6 +11,8 @@ export const CALENDAR_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'isDateDisabled',
   'granularity',
   'captionLayout',
+  'disabledDates',
+  'disabledWeekdays',
   'yearRange',
   'showWeekNumbers',
   'dayContent',

@@ -1,12 +1,14 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
-const SLOTS = ['root', 'header', 'title', 'monthSelect', 'yearSelect', 'previous', 'next', 'body', 'presets', 'preset', 'months', 'grid', 'weekday', 'weekNumber', 'day', 'dayContent', 'cell', 'footer', 'today'] as const;
+const SLOTS = ['root', 'header', 'title', 'monthButton', 'yearButton', 'monthSelect', 'yearSelect', 'previous', 'next', 'body', 'presets', 'preset', 'months', 'grid', 'weekday', 'weekNumber', 'day', 'dayContent', 'cell', 'footer', 'today'] as const;
 
 /** Picking options the calendar and the date picker share. */
 export const CALENDAR_PICK_PROPS: Record<string, PropMeta> = {
   granularity: { type: 'enum', values: ['day', 'month', 'year'], default: 'day', description: 'Pick a day, a month (its first day, "2026-11-01") or a year ("2026-01-01").', group: 'behaviour', control: true },
-  captionLayout: { type: 'enum', values: ['label', 'dropdown'], default: 'label', description: 'The header: the month as text with arrows, or month and year dropdowns to jump far.', group: 'appearance', control: true },
+  captionLayout: { type: 'enum', values: ['buttons', 'dropdown', 'label'], default: 'buttons', description: 'The header. `buttons`: the month and the year open a grid of months and of years in place, so a day, a month and a year are chosen in one calendar. `dropdown`: two selects. `label`: text and arrows.', group: 'appearance', control: true },
+  disabledDates: { type: 'array', orString: true, description: 'Days that cannot be chosen, as data: days and `{ start, end }` spans (holidays, booked nights).', group: 'behaviour', items: { start: { type: 'string', required: true, description: 'First day of the span.', group: 'data' }, end: { type: 'string', required: true, description: 'Last day of the span.', group: 'data' } } },
+  disabledWeekdays: { type: 'array', description: 'Weekdays that cannot be chosen: 0 Sunday to 6 Saturday (`[0, 6]` for weekends).', group: 'behaviour' },
   yearRange: { type: 'array', description: 'Years the year dropdown offers, `[from, to]`. Default `min`/`max` years, else 100 back and 20 ahead.', group: 'behaviour' },
   showWeekNumbers: { type: 'boolean', default: false, description: 'ISO week numbers before each week.', group: 'appearance', control: true },
   dayContent: { type: 'function', description: '`(date) => node`: something under a day\'s number, a price or an event dot.', group: 'appearance' },
@@ -67,6 +69,8 @@ export const calendarMeta: ComponentMeta = {
         year: { type: 'string', description: 'The year dropdown. Default "Year".', group: 'data' },
         week: { type: 'string', description: 'The week number column. Default "Wk".', group: 'data' },
         presets: { type: 'string', description: 'The preset list. Default "Presets".', group: 'data' },
+        chooseMonth: { type: 'string', description: 'After the month on its caption button. Default "choose a month".', group: 'data' },
+        chooseYear: { type: 'string', description: 'After the year on its caption button. Default "choose a year".', group: 'data' },
       },
     },
     radius: RADIUS_PROP,

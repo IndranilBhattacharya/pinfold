@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, foldText, inactiveDatePickerOptions, isoDate, mergeProps, orderRange, parseIso, parseTime, parseTypedDate, splitDateTime, warnOnce, type IsoDate, type PropsBag, radiusProps } from '@pinfold/core';
+import { cn, dataAttr, dateBlocked, isTimeZone, localTimeZone, timeZoneLabel, timeZones, valueToWall, wallToValue, convertWallTime, dimensionVars, foldText, inactiveDatePickerOptions, isoDate, mergeProps, orderRange, parseIso, parseTime, parseTypedDate, splitDateTime, warnOnce, type IsoDate, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -83,7 +83,9 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
   const withTime = !!config.time && granularity === 'day';
   // Times chosen before a day is: the next pick takes them.
   const [draftTime, setDraftTime] = React.useState<{ start: string; end: string }>({ start: '', end: '' });
-  const [value, setValue] = useControllableState<unknown>({ value: config.value === undefined ? undefined : config.value ?? null, defaultValue: config.defaultValue ?? null });
+  // What is stored (and handed to onChange) may be an instant; inside, everything is the wall time a clock in `zone` shows.
+  const [stored, setStored] = useControllableState<unknown>({ value: config.value === undefined ? undefined : config.value ?? null, defaultValue: config.defaultValue ?? null });
+  const [zoneChoice, setZoneChoice] = useControllableState<string>({ value: config.timeZone, defaultValue: config.defaultTimeZone ?? '' });
   const [isOpen, setOpenState] = useControllableState<boolean>({ value: config.open, defaultValue: config.defaultOpen ?? false });
   const [text, setText] = React.useState<string | null>(null);
   const [typedError, setTypedError] = React.useState<string | null>(null);
@@ -92,6 +94,13 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
   const popup = React.useRef<HTMLDivElement | null>(null);
   const fromKeys = React.useRef(false);
   const mounted = useMounted();
+  // The reader's own zone is only known in their browser: until mounted, UTC (as the server renders it).
+  const zone = isTimeZone(zoneChoice) ? zoneChoice : mounted ? localTimeZone() : 'UTC';
+  const valueFormat = config.valueFormat ?? 'wall';
+  const zoned = withTime;
+  const mapValue = (v: unknown, each: (x: string) => string): unknown =>
+    typeof v === 'string' ? each(v) : v && typeof v === 'object' ? { start: each((v as CalendarRange).start), end: each((v as CalendarRange).end) } : v;
+  const value = zoned ? mapValue(stored, (x) => (typeof x === 'string' ? valueToWall(x, zone) : x)) : stored;
   const disabled = !!config.disabled;
   const open = isOpen && !disabled;
 
@@ -132,18 +141,26 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
     setOpenState(next);
     config.onOpenChange?.(next);
   };
-  const commit = (next: unknown) => {
-    setValue(next);
+  const commit = (next: unknown, inZone = zone) => {
+    const out = zoned ? mapValue(next, (x) => (typeof x === 'string' ? wallToValue(x, inZone, valueFormat) : x)) : next;
+    setStored(out);
     setText(null);
     setTypedError(null);
-    (config.onChange as ((v: unknown) => void) | undefined)?.(next);
+    (config.onChange as ((v: unknown) => void) | undefined)?.(out);
+  };
+  const setZone = (next: string) => {
+    if (next === zone) return;
+    setZoneChoice(next);
+    config.onTimeZoneChange?.(next);
+    // An instant stays the same moment: only its offset form is rewritten. A wall time stays what the clock shows.
+    if (valueFormat === 'offset' && value) commit(mapValue(value, (x) => convertWallTime(x, zone, next)), next);
   };
   // Typed text becomes a value when it reads as one, else it stays with a message.
   const settle = () => {
     if (text === null) return;
     const t = text.trim();
     if (!t) return commit(null);
-    const day = (d: IsoDate) => (!config.min || d >= (granularity === 'day' ? config.min : config.min.slice(0, granularity === 'month' ? 7 : 4))) && (!config.max || d <= config.max) && !config.isDateDisabled?.(d, { mode: range ? 'range' : 'single', start: null });
+    const day = (d: IsoDate) => (!config.min || d >= (granularity === 'day' ? config.min : config.min.slice(0, granularity === 'month' ? 7 : 4))) && (!config.max || d <= config.max) && !config.isDateDisabled?.(d, { mode: range ? 'range' : 'single', start: null }) && !dateBlocked(d, config.disabledDates, granularity === 'day' ? config.disabledWeekdays : undefined);
     const one = (part: string): string | null => {
       if (granularity !== 'day') {
         const d = parseTypedPeriod(part, granularity, config.locale);
@@ -194,6 +211,7 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
         'data-tone': state.tone,
         'data-open': dataAttr(open),
         'data-filled': dataAttr(!!value),
+        'data-time-zone': zoned && (config.showTimeZone || config.timeZone) ? zone : undefined,
         'data-invalid': dataAttr(invalid),
         'data-disabled': dataAttr(disabled),
         'data-animate': dataAttr(!ctx.disableAnimation),
@@ -216,7 +234,7 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
     const describedBy = [field.describedBy, typedError && !field.message ? field.errorId : undefined].filter(Boolean).join(' ') || undefined;
     const openLabel = config.labels?.open ?? (range ? 'Choose dates' : 'Choose a date');
     const canClear = !!config.clearable && !!value && !disabled;
-    const hiddenValue = !value ? '' : range ? `${(value as CalendarRange).start}/${(value as CalendarRange).end}` : (value as string);
+    const hiddenValue = !stored ? '' : range ? `${(stored as CalendarRange).start}/${(stored as CalendarRange).end}` : (stored as string);
     const dayOf = (v: unknown) => (valid(v) ? splitDateTime(v as string).date : null);
     // A day without a time reads as midnight, as the field shows it.
     const timeOf = (v: unknown, which: 'start' | 'end') => (valid(v) ? splitDateTime(v as string).time.slice(0, 5) || '00:00' : draftTime[which] || '');
@@ -228,6 +246,9 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
       textRef.current?.focus();
     };
     const setTime = (which: 'start' | 'end', t: string) => {
+      // Held inside the allowed hours.
+      if (t && config.minTime && t < config.minTime) t = config.minTime;
+      if (t && config.maxTime && t > config.maxTime) t = config.maxTime;
       setDraftTime((x) => ({ ...x, [which]: t }));
       if (!t) return;
       if (range) {
@@ -242,6 +263,8 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
           {slot('timeInput', null, 'input', {
             type: 'time',
             step: (config.timeStep ?? 1) * 60,
+            min: config.minTime,
+            max: config.maxTime,
             value: timeOf(range ? current?.[which] : value, which),
             onChange: (e: React.ChangeEvent<HTMLInputElement>) => setTime(which, e.target.value),
           })}
@@ -258,6 +281,25 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
         ) : (
           timeField('start', config.labels?.time ?? 'Time')
         )}
+        {config.showTimeZone
+          ? slot(
+              'timeZone',
+              <>
+                <span>{config.labels?.timeZone ?? 'Time zone'}</span>
+                {slot(
+                  'timeZoneSelect',
+                  [...new Set([zone, ...(config.timeZones ?? timeZones())])].map((z) => (
+                    <option key={z} value={z}>
+                      {timeZoneLabel(z)}
+                    </option>
+                  )),
+                  'select',
+                  { value: zone, onChange: (e: React.ChangeEvent<HTMLSelectElement>) => setZone(e.target.value) },
+                )}
+              </>,
+              'label',
+            )
+          : null}
         {slot('done', config.labels?.done ?? 'Done', 'button', { type: 'button', onClick: done })}
       </div>
     ) : undefined;
@@ -276,6 +318,8 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
           min: config.min,
           max: config.max,
           isDateDisabled: config.isDateDisabled,
+          disabledDates: config.disabledDates,
+          disabledWeekdays: config.disabledWeekdays,
           granularity,
           captionLayout: config.captionLayout,
           yearRange: config.yearRange,

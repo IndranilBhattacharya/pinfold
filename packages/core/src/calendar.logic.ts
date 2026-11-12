@@ -93,6 +93,14 @@ export function dateAllowed(date: IsoDate, min?: IsoDate, max?: IsoDate, disable
 }
 
 /** A range from two picks, in order. */
+/** A day ruled out by data: a listed day, a listed span, or its weekday (0 Sunday … 6 Saturday). */
+export function dateBlocked(date: IsoDate, dates?: ReadonlyArray<IsoDate | { start: IsoDate; end: IsoDate }>, weekdays?: readonly number[]): boolean {
+  if (weekdays && weekdays.length && weekdays.includes(weekday(date))) return true;
+  if (!dates) return false;
+  for (const d of dates) if (typeof d === 'string' ? d === date : date >= d.start && date <= d.end) return true;
+  return false;
+}
+
 export function orderRange(a: IsoDate, b: IsoDate): { start: IsoDate; end: IsoDate } {
   return a <= b ? { start: a, end: b } : { start: b, end: a };
 }
@@ -305,6 +313,12 @@ export function inactiveDatePickerOptions(config: CalendarRules & { time?: unkno
   const out = inactiveCalendarOptions(config);
   delete out.weekStart;
   if ((config.granularity ?? 'day') !== 'day') out.time = "a time goes with a day (`granularity: 'day'`).";
-  if (!config.time) out.hourCycle = 'only with `time`.';
+  if (!config.time) {
+    const why = 'only with `time`.';
+    Object.assign(out, { hourCycle: why, timeStep: why, minTime: why, maxTime: why, timeZone: why, defaultTimeZone: why, onTimeZoneChange: why, showTimeZone: why, timeZones: why, valueFormat: why });
+  } else if (!(config as { showTimeZone?: boolean }).showTimeZone) {
+    const why = 'only with `showTimeZone`.';
+    Object.assign(out, { timeZones: why, defaultTimeZone: why, onTimeZoneChange: why });
+  }
   return out;
 }

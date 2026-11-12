@@ -1,11 +1,11 @@
 import type * as React from 'react';
-import type { IsoDate, Length, OverlayPlacement, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
+import type { DateValueFormat, IsoDate, Length, OverlayPlacement, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { FieldConfig } from '../field';
 import type { SlotOverrides } from '../types';
 import type { CalendarDateContext, CalendarGranularity, CalendarPreset, CalendarRange } from '../calendar/types';
 
-export type DatePickerSlot = 'root' | 'label' | 'control' | 'input' | 'clear' | 'trigger' | 'popup' | 'time' | 'timeInput' | 'done' | 'description' | 'error';
+export type DatePickerSlot = 'root' | 'label' | 'control' | 'input' | 'clear' | 'trigger' | 'popup' | 'time' | 'timeInput' | 'timeZone' | 'timeZoneSelect' | 'done' | 'description' | 'error';
 
 /** Passed to slot `render` overrides. */
 export interface DatePickerState {
@@ -39,6 +39,8 @@ export interface DatePickerLabels {
   endTime?: string;
   /** Closes the popup when a time is shown. @default 'Done' */
   done?: string;
+  /** The zone list. @default 'Time zone' */
+  timeZone?: string;
 }
 
 interface DatePickerShared extends FieldConfig, SlotOverrides<DatePickerSlot, DatePickerState> {
@@ -48,8 +50,12 @@ interface DatePickerShared extends FieldConfig, SlotOverrides<DatePickerSlot, Da
   isDateDisabled?: (date: IsoDate, context: CalendarDateContext) => boolean;
   /** Pick a day, a month or a year. @default 'day' */
   granularity?: CalendarGranularity;
-  /** The calendar's header: the month with arrows, or month and year dropdowns. @default 'label' */
-  captionLayout?: 'label' | 'dropdown';
+  /** The calendar's header: month and year buttons that open month and year grids, two dropdowns, or plain text. @default 'buttons' */
+  captionLayout?: 'buttons' | 'dropdown' | 'label';
+  /** Days that cannot be chosen, as data: days and `{ start, end }` spans. */
+  disabledDates?: ReadonlyArray<IsoDate | CalendarRange>;
+  /** Weekdays that cannot be chosen: 0 Sunday … 6 Saturday. */
+  disabledWeekdays?: readonly number[];
   /** Years the year dropdown offers, `[from, to]`. */
   yearRange?: readonly [number, number];
   /** ISO week numbers in the calendar. @default false */
@@ -72,6 +78,29 @@ interface DatePickerShared extends FieldConfig, SlotOverrides<DatePickerSlot, Da
   timeStep?: number;
   /** 12 or 24 hours. Default the locale's. */
   hourCycle?: 12 | 24;
+  /** With `time`: the earliest time of day, "09:00". */
+  minTime?: string;
+  /** With `time`: the latest time of day, "18:00". */
+  maxTime?: string;
+  /**
+   * With `time`: the zone the date and time are shown and chosen in ("Asia/Kolkata"), controlled.
+   * Default the reader's own zone.
+   */
+  timeZone?: string;
+  /** The zone at first, when people can change it. */
+  defaultTimeZone?: string;
+  /** People chose another zone. */
+  onTimeZoneChange?: (timeZone: string) => void;
+  /** With `time`: a list in the popup to choose the zone. @default false */
+  showTimeZone?: boolean;
+  /** The zones that list offers. Default every zone the browser knows. */
+  timeZones?: readonly string[];
+  /**
+   * With `time`: how the value is stored and handed to `onChange`. `'wall'`: "2026-11-09T14:30", what
+   * the clock shows, no zone. `'utc'`: the instant, "2026-11-09T09:00:00.000Z". `'offset'`: the clock
+   * with its offset, "2026-11-09T14:30:00+05:30". A value in any of these forms is read. @default 'wall'
+   */
+  valueFormat?: DateValueFormat;
   /** A BCP 47 locale for the shown date, typing order and the calendar. Default the browser's. */
   locale?: string;
   /** 0 Sunday … 6 Saturday. Default the locale's. */

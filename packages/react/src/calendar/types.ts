@@ -7,6 +7,8 @@ export type CalendarSlot =
   | 'root'
   | 'header'
   | 'title'
+  | 'monthButton'
+  | 'yearButton'
   | 'monthSelect'
   | 'yearSelect'
   | 'previous'
@@ -59,6 +61,10 @@ export interface CalendarLabels {
   week?: string;
   /** The preset list. @default 'Presets' */
   presets?: string;
+  /** After the month's name on the caption button. @default 'choose a month' */
+  chooseMonth?: string;
+  /** After the year on the caption button. @default 'choose a year' */
+  chooseYear?: string;
 }
 
 /** Passed to slot `render` overrides. */
@@ -69,6 +75,8 @@ export interface CalendarState {
   /** The first visible month (its first day). */
   month: IsoDate;
   granularity: CalendarGranularity;
+  /** What the grid shows right now: days, or the months or years the caption opened. */
+  view: CalendarGranularity;
 }
 
 /** One day of the grid and its state. `render` overrides of the repeating parts get it as `item`. */
@@ -81,12 +89,20 @@ interface CalendarShared extends SlotOverrides<CalendarSlot, CalendarState, Cale
   min?: IsoDate;
   /** The latest day that can be chosen. */
   max?: IsoDate;
-  /** Days that cannot be chosen: `(date) => boolean`, e.g. weekends. */
+  /** Days that cannot be chosen: `(date) => boolean`. Runs with `disabledDates` and `disabledWeekdays`. */
   isDateDisabled?: (date: IsoDate, context: CalendarDateContext) => boolean;
+  /** Days that cannot be chosen, as data: days and `{ start, end }` spans (holidays, booked nights). */
+  disabledDates?: ReadonlyArray<IsoDate | CalendarRange>;
+  /** Weekdays that cannot be chosen: 0 Sunday … 6 Saturday (`[0, 6]` for weekends). */
+  disabledWeekdays?: readonly number[];
   /** Pick a day, a month or a year. @default 'day' */
   granularity?: CalendarGranularity;
-  /** The header: the month as text with arrows, or month and year dropdowns to jump far. @default 'label' */
-  captionLayout?: 'label' | 'dropdown';
+  /**
+   * The header. `'buttons'`: the month and the year are buttons that open a grid of months and of
+   * years in place, so a day, a month and a year are all chosen in one calendar. `'dropdown'`: two
+   * selects. `'label'`: plain text and arrows. @default 'buttons'
+   */
+  captionLayout?: 'buttons' | 'dropdown' | 'label';
   /** Years the year dropdown (and the year grid) offers. Default `min`/`max` years, else 100 back and 20 ahead. */
   yearRange?: readonly [number, number];
   /** ISO week numbers before each week. @default false */
@@ -169,6 +185,10 @@ export type CalendarTagProps = CalendarConfig & Omit<CalendarRootProps, keyof Ca
 export interface CalendarApi {
   /** The first visible month. */
   month: IsoDate;
+  /** What the grid shows: days, or the months or years the caption opened. */
+  view: CalendarGranularity;
+  /** Zoom out to months or years, or back in (never closer than `granularity`). */
+  setView: (view: CalendarGranularity) => void;
   /** Show the month a day is in. */
   setMonth: (date: IsoDate) => void;
   /** Focus the focused day (the chosen one, else today). */
