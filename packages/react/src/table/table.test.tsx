@@ -27,7 +27,7 @@ describe('Table', () => {
     const onSortChange = vi.fn();
     render(<Table label="People" rows={people} columns={[{ key: 'name', sortable: true }]} onSortChange={onSortChange} />);
     const header = screen.getByRole('columnheader', { name: 'Name' });
-    const button = within(header).getByRole('button');
+    const button = within(header).getAllByRole('button')[0];
     expect(header.getAttribute('aria-sort')).toBe('none');
     fireEvent.click(button);
     expect(header.getAttribute('aria-sort')).toBe('ascending');

@@ -6,7 +6,12 @@ import {
   cn,
   dataAttr,
   dimensionVars,
+  distinctValues,
+  filterIsBlank,
+  filterMatcher,
   filterRowIndices,
+  flattenTree,
+  foldText,
   getPath,
   groupRowIndices,
   headerFromKey,
@@ -22,7 +27,9 @@ import {
   sortRowIndices,
   toCsv,
   toText,
+  treeOrder,
   warnOnce,
+  watchScrollEdges,
   type GridColumnRule,
   type GridFilter,
   type GridFilterOp,
@@ -38,8 +45,9 @@ import { ITEM, renderSlot, slotProps } from '../slots';
 import { VISUALLY_HIDDEN } from '../a11y';
 import { Pagination } from '../pagination/Pagination';
 import { CellEditor, FilterControl, PausedInput } from './parts';
+import { ColumnMenu, ColumnsPanel, ICON } from './menu';
 import { useVirtualRows } from './virtual';
-import type { TableApi, TableColumn, TableColumnState, TableComponent, TableConfig, TableItemContext, TableResolvedColumn, TableRootProps, TableSlot, TableState } from './types';
+import type { TableApi, TableCellContext, TableColumn, TableColumnState, TableComponent, TableConfig, TableItemContext, TableResolvedColumn, TableRootProps, TableRowContext, TableSlot, TableState } from './types';
 
 type Row = Record<string, unknown>;
 type Col = TableResolvedColumn<Row>;
@@ -48,7 +56,10 @@ type Entry = { kind: 'row'; index: number; pos: number } | { kind: 'detail'; ind
 const EMPTY: readonly Row[] = [];
 const ROW_HEIGHT = { compact: 36, normal: 44, relaxed: 52 } as const;
 /** In a fixed layout, a column with no width gets one that suits its type; text shares the rest. */
-const TYPE_WIDTH: Record<string, number | undefined> = { number: 120, date: 210, boolean: 100, enum: 150 };
+const TYPE_WIDTH: Record<string, number | undefined> = { number: 120, date: 170, boolean: 100, enum: 150 };
+/** Lead (utility) columns and their widths. */
+const LEAD_WIDTH = { handle: 36, select: 44, expand: 40 } as const;
+type Lead = keyof typeof LEAD_WIDTH;
 const icon = (d: string) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" focusable="false" aria-hidden="true">
     <path d={d} />
@@ -79,7 +90,12 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
   const config = ctx.defaults.table ? mergeConfig<TableConfig<Row>>(ctx.defaults.table as TableConfig<Row>, own) : own;
   const base = useId();
   const source = config.dataSource;
-  const rows = config.rows ?? EMPTY;
+  // Rows under rows: flattened once per data change (the reader may be a new function each render).
+  const subRows = React.useRef(config.getSubRows);
+  subRows.current = config.getSubRows;
+  const nested = !!config.getSubRows && !source;
+  const tree = React.useMemo(() => (nested ? flattenTree(config.rows ?? EMPTY, (row) => subRows.current?.(row)) : null), [nested, config.rows]);
+  const rows = tree ? tree.rows : config.rows ?? EMPTY;
   const L = config.labels ?? {};
   const scroller = React.useRef<HTMLDivElement | null>(null);
   const thead = React.useRef<HTMLTableSectionElement | null>(null);
@@ -99,6 +115,12 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
   const [rowHeights, setRowHeights] = React.useState<Record<string, number>>({});
   const [detailHeights, setDetailHeights] = React.useState<Record<string, number>>({});
   const [collapsed, setCollapsed] = React.useState<readonly string[]>([]);
+  const [groupKey, setGroupKeyState] = useControllableState<string | null>({ value: config.groupBy === undefined ? undefined : (config.groupBy as string | null), defaultValue: (config.defaultGroupBy as string | undefined) ?? null });
+  const [menuKey, setMenuKey] = React.useState<string | null>(null);
+  const [columnsOpen, setColumnsOpen] = React.useState(false);
+  const [rowDrag, setRowDrag] = React.useState<{ from: number; over: number; after: boolean } | null>(null);
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const columnsButton = React.useRef<HTMLButtonElement | null>(null);
   const [editing, setEditing] = React.useState<{ rowKey: string; key: string } | null>(null);
   const [editError, setEditError] = React.useState<string | null>(null);
   const [focus, setFocus] = React.useState<{ r: number; c: number }>({ r: -1, c: 0 });
@@ -157,6 +179,14 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     blocks.current.clear();
     refresh();
   }, [query, source]);
+  // Unmounted: nothing may answer into a table that is gone.
+  React.useEffect(
+    () => () => {
+      for (const c of pending.current.values()) c.abort();
+      pending.current.clear();
+    },
+    [],
+  );
 
   // ---- columns ----
   const sample = React.useMemo(() => {
@@ -183,7 +213,25 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     colState.order,
     pins,
   );
-  const rules: GridColumnRule<Row>[] = React.useMemo(() => resolved.map((c) => ({ key: c.key, type: c.type, value: c.read, compare: c.compare, filterFn: c.filterFn, searchable: c.searchable })), [resolved]);
+  const rules: GridColumnRule<Row>[] = React.useMemo(
+    () =>
+      resolved.map((c) => {
+        let filterFn = c.filterFn;
+        if (!filterFn && c.filterKey) {
+          // A value list keyed by identity: lists compare that identity, conditions the value as usual.
+          const id = c.filterKey;
+          filterFn = (row, f) => {
+            const v = c.read(row);
+            if (f.op !== 'in' && f.op !== 'notIn') return filterMatcher(f, c.type)(v);
+            const list = (Array.isArray(f.value) ? f.value : [f.value]).map(toText);
+            const has = v === null || v === undefined || v === '' ? list.includes('') : list.includes(id(v, row));
+            return f.op === 'in' ? has : !has;
+          };
+        }
+        return { key: c.key, type: c.type, value: c.read, compare: c.compare, filterFn, searchable: c.searchable };
+      }),
+    [resolved],
+  );
   const sortable = (c: Col) => c.sortable ?? !!config.sortable;
   const filterable = (c: Col) => c.filterable ?? !!config.filterable;
   const resizable = (c: Col) => c.resizable ?? !!config.resizableColumns;
@@ -208,8 +256,17 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
   const virtual = !!(config.virtual || source);
   const keyOf = (row: Row | undefined, i: number): string =>
     !row ? `#${i}` : typeof config.rowKey === 'function' ? config.rowKey(row, i) : config.rowKey ? toText(getPath(row, config.rowKey)) : row.id !== undefined ? toText(row.id) : String(i);
-  const groupCol = config.groupBy && !source ? resolved.find((c) => c.key === config.groupBy) : undefined;
-  const groupRead = groupCol?.read ?? (config.groupBy ? (r: Row) => getPath(r, config.groupBy as string) : null);
+  const groupBy = source || tree ? null : groupKey;
+  const groupCol = groupBy ? resolved.find((c) => c.key === groupBy) : undefined;
+  const groupRead = groupCol?.read ?? (groupBy ? (r: Row) => getPath(r, groupBy) : null);
+  const expandedSet = React.useMemo(() => new Set(expanded), [expanded]);
+  const hasDetail = !!(config.renderDetail || config.subTable);
+  // Tree rows on screen: parents of matches stay, children follow their parent, shut parents hide theirs.
+  const shown = React.useMemo(
+    () => (tree ? treeOrder(tree, ordered, (i) => expandedSet.has(keyOf(rows[i], i))) : ordered),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tree, ordered, expandedSet, rows],
+  );
   // Grouped rows: every filtered row is grouped (the groups follow the sort), then the grouped list is paged.
   const grouped = React.useMemo(() => (groupRead && !source ? groupRowIndices(rows, ordered, groupRead) : null), [groupRead, source, rows, ordered]);
   const all: Entry[] = React.useMemo(() => {
@@ -218,7 +275,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     let pos = 0;
     const push = (index: number) => {
       out.push({ kind: 'row', index, pos });
-      if (config.renderDetail && expanded.includes(keyOf(rows[index], index))) out.push({ kind: 'detail', index, pos });
+      if (hasDetail && expandedSet.has(keyOf(rows[index], index))) out.push({ kind: 'detail', index, pos });
       pos++;
     };
     if (grouped) {
@@ -226,10 +283,10 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
         out.push({ kind: 'group', group: g });
         if (!collapsed.includes(g.key)) for (const i of g.indices) push(i);
       }
-    } else for (const i of ordered) push(i);
+    } else for (const i of shown) push(i);
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [source, ordered, grouped, collapsed, expanded, config.renderDetail, rows]);
+  }, [source, shown, grouped, collapsed, expandedSet, hasDetail, rows]);
   const paged = pageSize > 0 && !virtual && config.total === undefined;
   // A page holds pageSize rows; group headers and detail panels ride along with their rows.
   const pageStarts = React.useMemo(() => {
@@ -249,7 +306,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
   const pageCount = pageSize > 0 ? Math.max(1, config.total !== undefined ? Math.ceil(config.total / pageSize) : pageStarts.length) : 1;
   const current = Math.min(Math.max(1, page), pageCount);
   const entries: Entry[] = paged ? all.slice(pageStarts[current - 1] ?? 0, pageStarts[current] ?? all.length) : all;
-  const onPage = paged ? entries.filter((e): e is Extract<Entry, { kind: 'row' }> => e.kind === 'row').map((e) => e.index) : ordered;
+  const onPage = paged ? entries.filter((e): e is Extract<Entry, { kind: 'row' }> => e.kind === 'row').map((e) => e.index) : shown;
   const count = source ? srcCount : entries.length;
   const entryAt = (i: number): Entry => (source ? { kind: 'remote', pos: i } : entries[i]);
   const rowOf = (e: Entry): Row | undefined => {
@@ -351,6 +408,13 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     setExpandedState(next);
     config.onExpandedChange?.(next);
   };
+  const toggleExpanded = (rowKey: string) => setExpanded(expandedSet.has(rowKey) ? expanded.filter((k) => k !== rowKey) : [...expanded, rowKey]);
+  const setGroupBy = (key: string | null) => {
+    setGroupKeyState(key);
+    config.onGroupByChange?.(key);
+    setCollapsed([]);
+    setPage(1);
+  };
   const setPage = (p: number) => {
     setPageState(p);
     if (p !== page) config.onPageChange?.(p);
@@ -363,7 +427,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
 
   // Selection: Shift picks the span from the last row picked.
   const selection = config.selection ?? 'none';
-  const visibleKeys = source ? [] : (paged ? onPage : ordered).map((i) => keyOf(rows[i], i));
+  const visibleKeys = source ? [] : (paged ? onPage : shown).map((i) => keyOf(rows[i], i));
   const boxState = !visibleKeys.length ? 'none' : visibleKeys.every((k) => selected.includes(k)) ? 'all' : visibleKeys.some((k) => selected.includes(k)) ? 'some' : 'none';
   React.useEffect(() => {
     if (headerBox.current) headerBox.current.indeterminate = boxState === 'some';
@@ -372,7 +436,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     if (selection === 'single') return setSelected(selected.includes(key) ? [] : [key]);
     if (span && anchor.current !== null && !source) {
       const [a, b] = anchor.current < pos ? [anchor.current, pos] : [pos, anchor.current];
-      const list = paged ? onPage : ordered;
+      const list = paged ? onPage : shown;
       const keys = list.slice(a, b + 1).map((i) => keyOf(rows[i], i));
       setSelected([...new Set([...selected, ...keys])]);
     } else setSelected(selected.includes(key) ? selected.filter((k) => k !== key) : [...selected, key]);
@@ -494,8 +558,19 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
 
   // ---- the grid's keyboard (interactive tables) ----
   const editableAny = resolved.some((c) => c.editable);
-  const grid = virtual || selection !== 'none' || !!config.onRowAction || !!config.renderDetail || editableAny || !!groupRead || !!config.reorderableColumns || !!config.resizableColumns;
-  const lead = (selection !== 'none' ? 1 : 0) + (config.renderDetail ? 1 : 0);
+  // Rows drag only while the view is the data's own order: no sort, filter, search, group or tree.
+  const canReorderRows = !!config.reorderableRows && !!config.onRowReorder && !source && !tree && !groupRead;
+  const orderIsData = !sorts.length && !search && !filters.some((f) => !filterIsBlank(f));
+  const grid = virtual || selection !== 'none' || !!config.onRowAction || hasDetail || !!tree || editableAny || !!groupRead || !!config.reorderableColumns || !!config.resizableColumns || canReorderRows;
+  const leads: Lead[] = [...(canReorderRows ? (['handle'] as const) : []), ...(selection !== 'none' ? (['select'] as const) : []), ...(hasDetail ? (['expand'] as const) : [])];
+  const leadAt = (name: Lead) => leads.indexOf(name);
+  const lead = leads.length;
+  const moveRow = (from: number, to: number) => {
+    if (from === to || !config.onRowReorder) return;
+    const next = moveItem(rows as Row[], from, to);
+    config.onRowReorder({ row: rows[from], rowKey: keyOf(rows[from], from), from, to, rows: next } as never);
+    setAnnounce(`${toText(columns[0]?.read(rows[from]))}: ${to + 1} of ${rows.length}`);
+  };
   const cellCount = lead + columns.length;
   React.useEffect(() => {
     if (!moveFocus.current) return;
@@ -552,12 +627,62 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
       else if (!row || e.kind === 'detail') used = false;
       else if (key === ' ' && selection !== 'none') toggleRow(rowKey, (e as { pos: number }).pos, event.shiftKey);
       else if ((key === 'Enter' || key === 'F2') && col && col.editable && config.onCellEdit) startEdit(row, col, rowKey);
-      else if (key === 'Enter' && config.renderDetail && c < lead) setExpanded(expanded.includes(rowKey) ? expanded.filter((k) => k !== rowKey) : [...expanded, rowKey]);
+      else if (key === 'Enter' && hasDetail && c === leadAt('expand')) toggleExpanded(rowKey);
+      else if (key === 'Enter' && tree && e.kind === 'row' && tree.children[e.index] > 0 && c === lead) toggleExpanded(rowKey);
       else if (key === 'Enter' && config.onRowAction) config.onRowAction(row, event);
       else if (mod && key.toLowerCase() === 'c' && col) void navigator.clipboard?.writeText(toText(col.read(row))).catch(() => undefined);
       else used = false;
     } else used = false;
     if (used) event.preventDefault();
+  };
+
+  // ---- edges that hide rows or columns: attributes on the scroller, no re-render ----
+  useIsomorphicLayoutEffect(() => {
+    const el = scroller.current;
+    if (!el || (config.scrollIndicator ?? 'shadow') === 'none') return;
+    return watchScrollEdges(el);
+  }, [config.scrollIndicator]);
+
+  // ---- column menus ----
+  const anySortable = resolved.some((c) => c.sortable ?? !!config.sortable);
+  const anyFilterable = resolved.some((c) => c.filterable ?? !!config.filterable);
+  const filterRowMode = config.filterMode === 'row';
+  const groupable = (c: Col) => !source && !tree && (c.groupable ?? !!config.groupable);
+  const menus = config.columnMenu ?? (anySortable || (anyFilterable && !filterRowMode) || resolved.some(groupable) || !!config.toolbar);
+  const headerOf = (key: string) => tableRef.current?.querySelector<HTMLElement>(`thead th[data-key="${typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(key) : key}"]`) ?? null;
+  const pinColumn = (key: string, pin: 'start' | 'end' | undefined) => setColState({ ...colState, pinned: { ...(colState.pinned ?? {}), [key]: pin } });
+  const showColumn = (key: string, on: boolean) => {
+    const next = new Set(hidden);
+    if (on) next.delete(key);
+    else next.add(key);
+    setColState({ ...colState, hidden: [...next] });
+  };
+  /** A filter in a few words, for its chip. */
+  const describeFilter = (f: GridFilter): string => {
+    const c = resolved.find((x) => x.key === f.key);
+    const show = (v: unknown) => {
+      if (v === '' || v === null || v === undefined) return L.blanks ?? '(Blanks)';
+      try {
+        const shownAs = c && typeof c.format !== 'function' ? formatters.get(c.key)?.(v, {}) : null;
+        return typeof shownAs === 'string' && shownAs ? shownAs : toText(v);
+      } catch {
+        return toText(v);
+      }
+    };
+    const op = f.op ?? (Array.isArray(f.value) ? 'in' : c?.type === 'text' || !c ? 'contains' : 'equals');
+    if (op === 'empty') return L.operators?.empty ?? 'is empty';
+    if (op === 'notEmpty') return L.operators?.notEmpty ?? 'is not empty';
+    if (op === 'between') {
+      const [a, b] = (f.value as unknown[]) ?? [];
+      return `${a === '' || a === undefined ? '…' : show(a)} – ${b === '' || b === undefined ? '…' : show(b)}`;
+    }
+    if (op === 'in' || op === 'notIn') {
+      const list = Array.isArray(f.value) ? f.value : [f.value];
+      const text = list.slice(0, 2).map(show).join(', ') + (list.length > 2 ? ` +${list.length - 2}` : '');
+      return op === 'notIn' ? `≠ ${text}` : text;
+    }
+    const sign: Record<string, string> = { gt: '> ', gte: '≥ ', lt: '< ', lte: '≤ ', notEquals: '≠ ', notContains: '≠ ', startsWith: '', endsWith: '', contains: '', equals: '' };
+    return `${sign[op] ?? ''}${show(f.value)}${op === 'startsWith' ? '…' : ''}`;
   };
 
   // ---- state for render overrides and the root ----
@@ -566,11 +691,15 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     mergeProps(
       {
         ...radiusProps(config.radius),
+        ref: rootRef,
         'data-variant': state.variant,
         'data-density': density,
         'data-size': state.size,
         'data-tone': state.tone,
         'data-striped': dataAttr(config.striped),
+        'data-lines': config.lines ?? 'rows',
+        'data-hoverable': dataAttr(config.hoverable !== false),
+        'data-scroll-indicator': config.scrollIndicator ?? 'shadow',
         'data-sticky': dataAttr(config.stickyHeader || virtual),
         'data-virtual': dataAttr(virtual),
         'data-grid': dataAttr(grid),
@@ -582,7 +711,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     );
 
   const exportCsv = () => {
-    const list = source ? [] : ordered;
+    const list = source ? [] : tree ? shown : ordered;
     return toCsv(rows, list, columns.map((c) => ({ header: c.title, value: c.read })));
   };
   const downloadCsv = (name?: string) => {
@@ -600,85 +729,104 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     const slot = (name: TableSlot, content: React.ReactNode, tag: string, own: PropsBag = {}) =>
       renderSlot(config, name, slotProps(config, name, { className: cls(`pinfold-table__${name}`), ...own }), state, content, (p, c) => React.createElement(tag, p, c));
     const vars = dimensionVars('table', config.dimensions);
+    const fixedLayout = virtual || !!config.resizableColumns || resolved.some((c) => (colState.pinned && c.key in colState.pinned ? colState.pinned[c.key] : c.pinned) || c.width !== undefined || colState.widths?.[c.key] !== undefined);
     const root = slotProps(
       config,
       'root',
-      getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-table', config.className), style: vars || config.style ? { ...vars, ...config.style } : undefined }, rootProps)),
+      getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-table', config.className), style: vars || config.style ? { ...vars, ...config.style } : undefined, 'data-fixed': dataAttr(fixedLayout) }, rootProps)),
     );
     const name = typeof config.label === 'string' ? config.label : 'Table';
     const tabFor = (r: number, c: number) => (grid ? (focus.r === r && focus.c === c ? 0 : -1) : undefined);
     const cellNav = (r: number, c: number) => (grid ? { 'data-r': r, 'data-c': c, tabIndex: tabFor(r, c), onFocus: () => (focus.r !== r || focus.c !== c) && setFocus({ r, c }) } : {});
 
     // Pinned columns stick: start ones after the utility columns, end ones from the end.
-    const widths = columns.map((c) => widthOf(c) ?? (pins[c.key] ? 160 : 0));
-    const offsets = pinOffsets(widths, columns.map((c) => pins[c.key]));
+    const fixed = virtual || !!config.resizableColumns || columns.some((c) => pins[c.key] || widthOf(c) !== undefined || typeof c.width === 'string');
+    // In a fixed layout every column has a basis: its width, else one that suits its type; text shares what is left.
+    const basis = (c: Col): number | undefined => widthOf(c) ?? (pins[c.key] ? 160 : TYPE_WIDTH[c.type]);
+    const widths = columns.map((c) => basis(c) ?? 0);
+    const offsets = pinOffsets(columns.map((c) => basis(c) ?? 160), columns.map((c) => pins[c.key]));
     const anyStart = columns.some((c) => pins[c.key] === 'start');
-    const leadWidth = (selection !== 'none' ? 44 : 0) + (config.renderDetail ? 40 : 0);
+    const leadWidth = leads.reduce((sum, name) => sum + LEAD_WIDTH[name], 0);
+    const leadOffset = (name: Lead) => leads.slice(0, leadAt(name)).reduce((sum, n) => sum + LEAD_WIDTH[n], 0);
     const stick = (c: Col, i: number): React.CSSProperties | undefined => {
       const pin = pins[c.key];
       if (!pin) return undefined;
       return pin === 'start' ? { insetInlineStart: offsets[i]! + leadWidth } : { insetInlineEnd: offsets[i]! };
     };
-    const fixed = virtual || !!config.resizableColumns || columns.some((c) => pins[c.key] || widthOf(c) !== undefined || typeof c.width === 'string');
     const known = widths.reduce((a, w) => a + w, 0) + leadWidth;
     const allKnown = columns.every((c) => widthOf(c) !== undefined);
-    const tableStyle: React.CSSProperties | undefined = fixed ? { tableLayout: 'fixed', inlineSize: allKnown ? known : '100%', minInlineSize: known + columns.filter((c) => widthOf(c) === undefined).length * 120 } : undefined;
+    const tableStyle: React.CSSProperties | undefined = fixed ? { tableLayout: 'fixed', inlineSize: allKnown ? known : '100%', minInlineSize: known + columns.filter((c) => basis(c) === undefined).length * 160 } : undefined;
     const lastPinStart = columns.reduce((at, c, i) => (pins[c.key] === 'start' ? i : at), -1);
     const firstPinEnd = columns.findIndex((c) => pins[c.key] === 'end');
     const pinAttrs = (c: Col, i: number) => ({ 'data-pinned': pins[c.key], 'data-pin-edge': dataAttr(i === lastPinStart || i === firstPinEnd), style: stick(c, i) });
-    const leadPin = anyStart ? { 'data-pinned': 'start' } : {};
+    // Utility columns stay with start-pinned columns.
+    const leadPin = (name: Lead) => (anyStart ? { 'data-pinned': 'start', style: { insetInlineStart: leadOffset(name) } } : {});
+    const leadCell = (name: Lead, tag: 'td' | 'th', r: number, content: React.ReactNode, extra: PropsBag = {}) =>
+      React.createElement(tag, { key: name, className: cn(cls('pinfold-table__lead'), name === 'select' ? cls('pinfold-table__select') : undefined), 'data-lead': name, ...(tag === 'th' ? { scope: 'col' } : {}), ...leadPin(name), ...(r >= -1 ? cellNav(r, leadAt(name)) : {}), ...extra }, content);
 
     // ---- toolbar ----
     const tb = config.toolbar === true ? { search: true, columns: true } : config.toolbar || null;
+    const active = filters.filter((f) => !filterIsBlank(f));
+    const chips =
+      tb && tb.chips !== false && active.length
+        ? slot(
+            'chips',
+            <>
+              {active.map((f) => {
+                const title = resolved.find((c) => c.key === f.key)?.title ?? f.key;
+                return (
+                  <span key={f.key} className={cls('pinfold-table__chip')}>
+                    <button type="button" className={cls('pinfold-table__chipText')} onClick={() => setMenuKey(f.key)} disabled={undefined} aria-label={`${title}: ${describeFilter(f)}`}>
+                      <b>{title}</b> {describeFilter(f)}
+                    </button>
+                    <button type="button" className={cls('pinfold-table__chipRemove')} aria-label={`${L.clearFilter ?? 'Clear filter'}: ${title}`} onClick={() => setFilter(f.key, undefined)}>
+                      {ICON.close}
+                    </button>
+                  </span>
+                );
+              })}
+              {active.length > 1 ? (
+                <button type="button" className={cls('pinfold-table__chipClear')} onClick={() => setFilters([])}>
+                  {L.clearFilters ?? 'Clear all'}
+                </button>
+              ) : null}
+            </>,
+            'div',
+            { role: 'group', 'aria-label': 'Filters' },
+          )
+        : null;
     const toolbar = tb
       ? slot(
           'toolbar',
           <>
-            {tb.search !== false
-              ? slot('search', null, PausedInput as unknown as string, {
+            {tb.search !== false ? (
+              <span className={cls('pinfold-table__searchBox')}>
+                {ICON.search}
+                {slot('search', null, PausedInput as unknown as string, {
                   type: 'search',
                   'aria-label': L.search ?? 'Search',
                   placeholder: L.search ?? 'Search',
                   value: search,
                   onCommit: setSearch,
-                })
-              : null}
+                })}
+              </span>
+            ) : null}
+            {selection !== 'none' && selected.length ? <span className={cls('pinfold-table__selectedCount')}>{L.selectedCount ? L.selectedCount(selected.length) : `${selected.length} selected`}</span> : null}
+            {tb.start}
             <span className={cls('pinfold-table__tools')}>
               {tb.columns !== false ? (
-                <details className={cls('pinfold-table__columns')}>
-                  <summary>{L.columns ?? 'Columns'}</summary>
-                  <div role="group" aria-label={L.columns ?? 'Columns'} className={cls('pinfold-table__columnsPanel')}>
-                    {resolved.map((c) => (
-                      <div key={c.key} className={cls('pinfold-table__columnRow')}>
-                        <label>
-                          <input
-                            type="checkbox"
-                            checked={!hidden.has(c.key)}
-                            disabled={c.hideable === false || (!hidden.has(c.key) && columns.length === 1)}
-                            onChange={(e) => {
-                              const next = new Set(hidden);
-                              if (e.target.checked) next.delete(c.key);
-                              else next.add(c.key);
-                              setColState({ ...colState, hidden: [...next] });
-                            }}
-                          />
-                          {c.title}
-                        </label>
-                        <select aria-label={`Pin ${c.title}`} value={pins[c.key] ?? ''} onChange={(e) => setColState({ ...colState, pinned: { ...(colState.pinned ?? {}), [c.key]: (e.target.value || undefined) as 'start' | 'end' | undefined } })}>
-                          <option value="">—</option>
-                          <option value="start">Pin start</option>
-                          <option value="end">Pin end</option>
-                        </select>
-                      </div>
-                    ))}
-                  </div>
-                </details>
-              ) : null}
-              {tb.export ? (
-                <button type="button" className={cls('pinfold-table__export')} onClick={() => downloadCsv()}>
-                  {L.export ?? 'Export CSV'}
+                <button ref={columnsButton} type="button" className={cls('pinfold-table__tool')} aria-haspopup="dialog" aria-expanded={columnsOpen} onClick={() => setColumnsOpen(!columnsOpen)}>
+                  {ICON.columns}
+                  <span>{L.columns ?? 'Columns'}</span>
                 </button>
               ) : null}
+              {tb.export ? (
+                <button type="button" className={cls('pinfold-table__tool')} onClick={() => downloadCsv()}>
+                  {ICON.download}
+                  <span>{L.export ?? 'Export CSV'}</span>
+                </button>
+              ) : null}
+              {tb.end}
             </span>
           </>,
           'div',
@@ -746,6 +894,23 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                     { type: 'button', tabIndex: grid ? -1 : undefined, 'data-direction': sort?.direction, onClick: press, draggable: config.reorderableColumns ? true : undefined },
                   )
                 : <span className={cls('pinfold-table__title')}>{label}</span>}
+              {menus
+                ? slot('menuButton', filter && !filterIsBlank(filter) ? ICON.funnel : ICON.more, 'button', {
+                    type: 'button',
+                    tabIndex: grid ? -1 : undefined,
+                    'aria-label': L.columnMenu ? L.columnMenu(c.title) : `${c.title} column`,
+                    'aria-haspopup': 'dialog',
+                    'aria-expanded': menuKey === c.key,
+                    'data-filtered': dataAttr(filter && !filterIsBlank(filter)),
+                    'data-open': dataAttr(menuKey === c.key),
+                    // Not a drag handle and not a sort press.
+                    draggable: false,
+                    onClick: (event: React.MouseEvent) => {
+                      event.stopPropagation();
+                      setMenuKey(menuKey === c.key ? null : c.key);
+                    },
+                  })
+                : null}
               {resizable(c)
                 ? slot('resizer', null, 'span', {
                     role: 'separator',
@@ -778,6 +943,8 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
               'data-key': c.key,
               'data-align': c.align === 'start' ? undefined : c.align,
               'data-sorted': sort ? '' : undefined,
+              'data-filtered': dataAttr(filter && !filterIsBlank(filter)),
+              'data-menu': dataAttr(menus),
               'aria-sort': sort ? sort.direction : sortable(c) ? 'none' : undefined,
               ...pinAttrs(c, i),
               ...cellNav(-1, ci),
@@ -787,10 +954,9 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
         </React.Fragment>
       );
     });
-    const filterRow = columns.some(filterable) ? (
+    const filterRow = filterRowMode && columns.some(filterable) ? (
       <tr className={cls('pinfold-table__filters')}>
-        {selection !== 'none' ? <td {...leadPin} className={cls('pinfold-table__select')} /> : null}
-        {config.renderDetail ? <td {...leadPin} className={cls('pinfold-table__expand')} /> : null}
+        {leads.map((name) => leadCell(name, 'td', -2, null))}
         {columns.map((c, i) => {
           const filter = filters.find((f) => f.key === c.key) ?? null;
           const label = L.filter ? L.filter(c.title) : `Filter ${c.title}`;
@@ -824,9 +990,12 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
       'head',
       <>
         <tr aria-rowindex={virtual ? 1 : undefined}>
-          {selection !== 'none' ? (
-            <th scope="col" className={cls('pinfold-table__select')} {...leadPin} {...cellNav(-1, 0)}>
-              {selection === 'multiple' && !source ? (
+          {leads.map((name) =>
+            leadCell(
+              name,
+              'th',
+              -1,
+              name === 'select' && selection === 'multiple' && !source ? (
                 <input
                   ref={headerBox}
                   type="checkbox"
@@ -837,15 +1006,10 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                   onChange={() => setSelected(boxState === 'all' ? selected.filter((k) => !visibleKeys.includes(k)) : [...new Set([...selected, ...visibleKeys])])}
                 />
               ) : (
-                <span style={VISUALLY_HIDDEN}>Select</span>
-              )}
-            </th>
-          ) : null}
-          {config.renderDetail ? (
-            <th scope="col" className={cls('pinfold-table__expand')} {...leadPin} {...cellNav(-1, selection !== 'none' ? 1 : 0)}>
-              <span style={VISUALLY_HIDDEN}>{L.expand ?? 'Show details'}</span>
-            </th>
-          ) : null}
+                <span style={VISUALLY_HIDDEN}>{name === 'select' ? 'Select' : name === 'expand' ? L.expand ?? 'Show details' : L.reorder ?? 'Drag to reorder'}</span>
+              ),
+            ),
+          )}
           {headerCells}
         </tr>
         {filterRow}
@@ -856,6 +1020,25 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
 
     // ---- body ----
     const span = cellCount;
+    const expandButton = (rowCtx: TableRowContext<Row>, rowKey: string, open: boolean, controls: string | undefined) =>
+      slot('expand', typeof config.expandIcon === 'function' ? config.expandIcon(rowCtx) : config.expandIcon ?? CHEVRON, 'button', {
+        type: 'button',
+        tabIndex: grid ? -1 : undefined,
+        'aria-label': L.expand ?? 'Show details',
+        'aria-expanded': open,
+        'aria-controls': open ? controls : undefined,
+        'data-open': dataAttr(open),
+        onClick: (event: React.MouseEvent) => {
+          event.stopPropagation();
+          toggleExpanded(rowKey);
+        },
+      });
+    // A table under a row: it wears this table's look unless its own config says otherwise.
+    const subConfig = (row: Row): React.ReactNode => {
+      const sub = config.subTable?.(row);
+      if (!sub) return null;
+      return <SubTable config={{ variant: 'plain', density, size: state.size, tone: state.tone, lines: config.lines, striped: config.striped, hideLabel: true, ...sub } as TableConfig<Row>} />;
+    };
     const drawRow = (e: Entry, r: number): React.ReactNode => {
       const height = virtual ? sizes.size(r) : undefined;
       if (e.kind === 'group') {
@@ -922,7 +1105,8 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                     if (detailHeights[rowKey] !== h) setDetailHeights((m) => ({ ...m, [rowKey]: h }));
                   }}
                 >
-                  {config.renderDetail!(row as Row)}
+                  {config.renderDetail?.(row as Row)}
+                  {subConfig(row as Row)}
                 </div>
               </td>,
               'tr',
@@ -943,7 +1127,10 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
         );
       }
       const on = selected.includes(rowKey);
-      const open = expanded.includes(rowKey);
+      const open = expandedSet.has(rowKey);
+      const depth = tree && e.kind === 'row' ? tree.depth[e.index] : 0;
+      const kids = tree && e.kind === 'row' ? tree.children[e.index] : 0;
+      const rowCtx: TableRowContext<Row> = { row, rowKey, rowIndex: e.pos, selected: on, expanded: open, depth, expandable: hasDetail || kids > 0 };
       const pos = e.pos;
       const action = config.onRowAction;
       const ownHeight = rowHeights[source ? `#${index}` : rowKey];
@@ -952,37 +1139,76 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
           {slot(
             'row',
             <>
-              {selection !== 'none' ? (
-                <td className={cls('pinfold-table__select')} {...leadPin} {...cellNav(r, 0)}>
-                  <input
-                    type={selection === 'single' ? 'radio' : 'checkbox'}
-                    name={selection === 'single' ? `${base}-row` : undefined}
-                    tabIndex={grid ? -1 : undefined}
-                    aria-label={L.selectRow ? L.selectRow(toText(columns[0]?.read(row))) : `Select ${toText(columns[0]?.read(row))}`}
-                    checked={on}
-                    onChange={() => undefined}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      toggleRow(rowKey, pos, event.shiftKey);
-                    }}
-                  />
-                </td>
-              ) : null}
-              {config.renderDetail ? (
-                <td className={cls('pinfold-table__expand')} {...leadPin} {...cellNav(r, selection !== 'none' ? 1 : 0)}>
-                  {slot('expand', CHEVRON, 'button', {
-                    type: 'button',
-                    tabIndex: grid ? -1 : undefined,
-                    'aria-label': L.expand ?? 'Show details',
-                    'aria-expanded': open,
-                    'aria-controls': open ? `${base}-detail-${rowKey}` : undefined,
-                    onClick: (event: React.MouseEvent) => {
-                      event.stopPropagation();
-                      setExpanded(open ? expanded.filter((k) => k !== rowKey) : [...expanded, rowKey]);
-                    },
-                  })}
-                </td>
-              ) : null}
+              {leads.map((leadName) =>
+                leadCell(
+                  leadName,
+                  'td',
+                  r,
+                  leadName === 'select' ? (
+                    <input
+                      type={selection === 'single' ? 'radio' : 'checkbox'}
+                      name={selection === 'single' ? `${base}-row` : undefined}
+                      tabIndex={grid ? -1 : undefined}
+                      aria-label={L.selectRow ? L.selectRow(toText(columns[0]?.read(row))) : `Select ${toText(columns[0]?.read(row))}`}
+                      checked={on}
+                      onChange={() => undefined}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        toggleRow(rowKey, pos, event.shiftKey);
+                      }}
+                    />
+                  ) : leadName === 'expand' ? (
+                    expandButton(rowCtx, rowKey, open, `${base}-detail-${rowKey}`)
+                  ) : (
+                    slot('handle', ICON.grip, 'button', {
+                      type: 'button',
+                      tabIndex: grid ? -1 : undefined,
+                      'aria-label': `${L.reorder ?? 'Drag to reorder'}: ${toText(columns[0]?.read(row))}`,
+                      'aria-disabled': orderIsData ? undefined : true,
+                      title: orderIsData ? undefined : 'Clear sorting and filters to reorder rows',
+                      onKeyDown: (event: React.KeyboardEvent) => {
+                        if (!orderIsData || !event.altKey || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown')) return;
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const to = index + (event.key === 'ArrowDown' ? 1 : -1);
+                        if (to < 0 || to >= rows.length) return;
+                        moveRow(index, to);
+                        setFocus({ r: r + (event.key === 'ArrowDown' ? 1 : -1), c: leadAt('handle') });
+                        moveFocus.current = true;
+                      },
+                      onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
+                        if (!orderIsData || event.button !== 0) return;
+                        event.preventDefault();
+                        const handle = event.currentTarget;
+                        handle.setPointerCapture?.(event.pointerId);
+                        let target: { over: number; after: boolean } | null = null;
+                        const move = (ev: PointerEvent) => {
+                          // The row under the pointer, read from the document: no listener per row.
+                          const tr = (document.elementFromPoint(ev.clientX, ev.clientY) as HTMLElement | null)?.closest<HTMLElement>('tr[data-index]');
+                          if (!tr || !tableRef.current?.contains(tr)) return;
+                          const box = tr.getBoundingClientRect();
+                          target = { over: Number(tr.dataset.index), after: ev.clientY > box.top + box.height / 2 };
+                          setRowDrag({ from: index, ...target });
+                        };
+                        const up = () => {
+                          handle.removeEventListener('pointermove', move);
+                          handle.removeEventListener('pointerup', up);
+                          handle.removeEventListener('pointercancel', up);
+                          setRowDrag(null);
+                          if (!target) return;
+                          let to = target.over + (target.after ? 1 : 0);
+                          if (index < to) to--;
+                          moveRow(index, to);
+                        };
+                        handle.addEventListener('pointermove', move);
+                        handle.addEventListener('pointerup', up);
+                        handle.addEventListener('pointercancel', up);
+                        setRowDrag({ from: index, over: index, after: false });
+                      },
+                    })
+                  ),
+                ),
+              )}
               {columns.map((c, i) => {
                 const value = c.read(row);
                 const formatted = formatters.get(c.key)!(value, row);
@@ -1013,8 +1239,19 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                       ) : null}
                     </>
                   );
-                } else content = c.cell ? c.cell({ row, value, formatted, rowKey, rowIndex: pos, column: c, selected: on, edit: () => startEdit(row, c, rowKey) }) : formatted;
+                }
+                const cellCtx: TableCellContext<Row> = { row, value, formatted, rowKey, rowIndex: pos, column: c, selected: on, edit: () => startEdit(row, c, rowKey), depth, expanded: open, toggleExpanded: () => toggleExpanded(rowKey) };
+                if (!isEditing) content = c.cell ? c.cell(cellCtx) : formatted;
+                // Tree rows: the first column indents by depth and carries the toggle.
+                if (tree && i === 0)
+                  content = (
+                    <span className={cls('pinfold-table__tree')} style={{ paddingInlineStart: `calc(${depth} * var(--pinfold-tbl-indent, 1.25rem))` }}>
+                      {kids > 0 ? expandButton(rowCtx, rowKey, open, undefined) : <span className={cls('pinfold-table__treeLeaf')} aria-hidden="true" />}
+                      <span className={cls('pinfold-table__treeText')}>{content}</span>
+                    </span>
+                  );
                 const extra = typeof c.className === 'function' ? c.className(row) : c.className;
+                const ownCell = config.cellProps?.(cellCtx);
                 return (
                   <React.Fragment key={c.key}>
                     {slot(
@@ -1046,30 +1283,41 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                         ) : null}
                       </>,
                       'td',
-                      {
-                        [ITEM]: { row, rowKey, rowIndex: pos, column: c, value, selected: on } satisfies TableItemContext<Row>,
-                        className: cn(cls('pinfold-table__cell'), extra),
-                        'data-col': c.key,
-                        'data-align': c.align === 'start' ? undefined : c.align,
-                        'data-editable': dataAttr(can),
-                        'data-editing': dataAttr(isEditing),
-                        ...pinAttrs(c, i),
-                        ...cellNav(r, lead + i),
-                        onDoubleClick: can ? () => startEdit(row, c, rowKey) : undefined,
-                      },
+                      mergeProps(
+                        {
+                          [ITEM]: { row, rowKey, rowIndex: pos, column: c, value, selected: on, expanded: open, depth } satisfies TableItemContext<Row>,
+                          className: cn(cls('pinfold-table__cell'), extra),
+                          'data-col': c.key,
+                          'data-align': c.align === 'start' ? undefined : c.align,
+                          'data-editable': dataAttr(can),
+                          'data-editing': dataAttr(isEditing),
+                          ...pinAttrs(c, i),
+                          ...cellNav(r, lead + i),
+                          ...(can ? { onDoubleClick: () => startEdit(row, c, rowKey) } : null),
+                          ...(config.onCellClick ? { onClick: (event: React.MouseEvent) => config.onCellClick!(cellCtx, event) } : null),
+                        },
+                        ownCell,
+                      ),
                     )}
                   </React.Fragment>
                 );
               })}
             </>,
             'tr',
-            {
-              [ITEM]: { row, rowKey, rowIndex: pos, selected: on, expanded: open } satisfies TableItemContext<Row>,
+            mergeProps({
+              [ITEM]: { row, rowKey, rowIndex: pos, selected: on, expanded: open, depth } satisfies TableItemContext<Row>,
               className: cn(cls('pinfold-table__row'), config.rowClassName?.(row, pos)),
               'aria-selected': selection === 'none' ? undefined : on,
               'aria-rowindex': virtual ? r + 2 : undefined,
+              'aria-level': tree ? depth + 1 : undefined,
+              'aria-expanded': tree && kids > 0 ? open : undefined,
+              'data-row-key': rowKey,
+              'data-index': index,
+              'data-depth': tree ? depth : undefined,
               'data-selected': dataAttr(on),
               'data-expanded': dataAttr(open),
+              'data-dragging': dataAttr(rowDrag?.from === index),
+              'data-drop': rowDrag && rowDrag.over === index && rowDrag.from !== index ? (rowDrag.after ? 'after' : 'before') : undefined,
               style: ownHeight || height ? { blockSize: ownHeight ?? height } : undefined,
               ...(action
                 ? {
@@ -1086,7 +1334,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                         },
                   }
                 : null),
-            },
+            }, config.rowProps?.(rowCtx)),
           )}
         </React.Fragment>
       );
@@ -1124,7 +1372,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
       slot(
         'totals',
         <tr>
-          {lead ? <td colSpan={lead} {...leadPin} /> : null}
+          {leads.map((leadName) => leadCell(leadName, 'td', -2, null))}
           {columns.map((c, i) => (
             <td key={c.key} className={cls('pinfold-table__cell')} data-align={c.align === 'start' ? undefined : c.align} {...pinAttrs(c, i)}>
               {total(c, ordered)}
@@ -1189,6 +1437,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     const content = (
       <>
         {toolbar}
+        {chips}
         {slot(
           'scroll',
           slot(
@@ -1197,10 +1446,11 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
               {slot('caption', config.label, 'caption', config.hideLabel ? { style: VISUALLY_HIDDEN } : {})}
               {fixed ? (
                 <colgroup>
-                  {selection !== 'none' ? <col style={{ inlineSize: 44 }} /> : null}
-                  {config.renderDetail ? <col style={{ inlineSize: 40 }} /> : null}
+                  {leads.map((leadName) => (
+                    <col key={leadName} style={{ inlineSize: LEAD_WIDTH[leadName] }} />
+                  ))}
                   {columns.map((c) => (
-                    <col key={c.key} style={{ inlineSize: px(widthOf(c) ?? (pins[c.key] ? 160 : typeof c.width === 'string' ? c.width : TYPE_WIDTH[c.type])) }} />
+                    <col key={c.key} style={{ inlineSize: px(widthOf(c) ?? (typeof c.width === 'string' ? c.width : basis(c))) }} />
                   ))}
                 </colgroup>
               ) : null}
@@ -1226,6 +1476,64 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
           { ref: scroller, tabIndex: grid ? undefined : 0, role: 'region', 'aria-label': name },
         )}
         {footer}
+        {menus
+          ? columns.map((c) => {
+              if (menuKey !== c.key) return null;
+              const filter = filters.find((f) => f.key === c.key) ?? null;
+              const at = sorts.findIndex((x) => x.key === c.key);
+              const canFilter = filterable(c) && !filterRowMode;
+              const setter = (value: unknown, op?: GridFilterOp) => setFilter(c.key, value, op);
+              const listed = Array.isArray(c.read(rows[0] ?? {}));
+              return (
+                <ColumnMenu
+                  key={c.key}
+                  title={c.title}
+                  type={c.type}
+                  cls={cls}
+                  labels={L}
+                  anchor={() => headerOf(c.key)}
+                  open
+                  onClose={() => setMenuKey(null)}
+                  sort={at >= 0 ? sorts[at].direction : null}
+                  onSort={sortable(c) ? (direction) => setSort(direction ? [{ key: c.key, direction }] : sorts.filter((x) => x.key !== c.key)) : undefined}
+                  pinned={pins[c.key]}
+                  onPin={c.pinnable === false ? undefined : (pin) => pinColumn(c.key, pin)}
+                  onHide={c.hideable === false || columns.length === 1 ? undefined : () => showColumn(c.key, false)}
+                  grouped={groupBy === c.key}
+                  onGroup={groupable(c) ? (onNow) => setGroupBy(onNow ? c.key : null) : undefined}
+                  filter={filter}
+                  setFilter={canFilter ? setter : undefined}
+                  custom={canFilter && c.filter ? c.filter({ column: c, filter, setFilter: setter }) : undefined}
+                  values={
+                    canFilter && !source
+                      ? () => distinctValues(rows, filterRowIndices(rows, { filters: filters.filter((f) => f.key !== c.key), logic: config.filterLogic, search, columns: rules }), c.read, c.type, c.filterKey)
+                      : undefined
+                  }
+                  renderValue={(d) => {
+                    const row = rows[d.index];
+                    const formatted = formatters.get(c.key)!(d.value, row);
+                    if (c.filterItem) return c.filterItem({ value: d.value, row, count: d.count, column: c, formatted });
+                    // A list value (tags) is one entry per tag; everything else reads exactly as its cell does.
+                    if (!c.cell || listed) return formatted;
+                    return c.cell({ row, value: d.value, formatted, rowKey: keyOf(row, d.index), rowIndex: d.index, column: c, selected: false, edit: () => undefined, depth: 0, expanded: false, toggleExpanded: () => undefined });
+                  }}
+                />
+              );
+            })
+          : null}
+        {tb && tb.columns !== false ? (
+          <ColumnsPanel
+            cls={cls}
+            labels={L}
+            anchor={() => columnsButton.current}
+            open={columnsOpen}
+            onClose={() => setColumnsOpen(false)}
+            columns={resolved.map((c) => ({ key: c.key, title: c.title, hidden: hidden.has(c.key), locked: c.hideable === false || (!hidden.has(c.key) && columns.length === 1), pinned: c.pinnable === false ? undefined : pins[c.key] }))}
+            onToggle={showColumn}
+            onPin={pinColumn}
+            onReset={() => setColState({})}
+          />
+        ) : null}
         <span role="status" style={VISUALLY_HIDDEN}>
           {announce}
         </span>
@@ -1242,6 +1550,13 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     search,
     selected,
     columnState: colState,
+    groupBy,
+    expanded,
+    setExpanded: (k) => setExpanded([...k]),
+    expandAll: () => setExpanded(source ? [] : rows.map((row, i) => keyOf(row, i)).filter((_, i) => hasDetail || (tree ? tree.children[i] > 0 : false))),
+    collapseAll: () => setExpanded([]),
+    setGroupBy,
+    openColumnMenu: setMenuKey,
     setSort: (s) => setSort(asSorts(s)),
     setFilters: (f) => setFilters(f),
     setFilter,
@@ -1255,4 +1570,9 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     render,
   };
   return usePinfoldComponent<TableApi, TableRootProps>('Table', api, (props) => render(props));
+}
+
+/** A table under a row: its own instance, state and ids. */
+function SubTable({ config }: { config: TableConfig<Row> }): React.ReactElement {
+  return useTable(config).render();
 }

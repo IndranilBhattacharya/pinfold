@@ -135,7 +135,8 @@ export function filterMatcher(f: GridFilter, type: GridColumnType): (value: unkn
   if (type === 'number' || type === 'date') {
     const conv = type === 'number' ? toNumber : toTime;
     // A date compares by day when the filter value is a day ("2026-11-09").
-    const day = type === 'date' && typeof f.value === 'string' && f.value.length === 10;
+    const isDay = (x: unknown) => typeof x === 'string' && x.length === 10;
+    const day = type === 'date' && (Array.isArray(f.value) ? f.value.some(isDay) : isDay(f.value));
     const norm = (v: unknown) => {
       const n = conv(v);
       return day && !Number.isNaN(n) ? Math.floor(n / 86400000) * 86400000 : n;
@@ -150,8 +151,12 @@ export function filterMatcher(f: GridFilter, type: GridColumnType): (value: unkn
       };
     }
     if (op === 'in' || op === 'notIn') {
-      const set = new Set((Array.isArray(f.value) ? f.value : [f.value]).map(conv));
-      return op === 'in' ? (v) => set.has(norm(v)) : (v) => !set.has(norm(v));
+      const list = Array.isArray(f.value) ? f.value : [f.value];
+      const set = new Set(list.filter((x) => !empty(x)).map(conv));
+      // A blank in the list stands for rows with no value ("(Blanks)" in a value list).
+      const blank = list.some(empty);
+      const has = (v: unknown) => (empty(v) ? blank : set.has(norm(v)));
+      return op === 'in' ? has : (v) => !has(v);
     }
     const target = conv(f.value);
     switch (op) {
@@ -175,7 +180,7 @@ export function filterMatcher(f: GridFilter, type: GridColumnType): (value: unkn
   }
   if (op === 'in' || op === 'notIn') {
     const set = new Set((Array.isArray(f.value) ? f.value : [f.value]).map((x) => foldText(toText(x))));
-    const has = (v: unknown) => (Array.isArray(v) ? v.some((x) => set.has(foldText(toText(x)))) : set.has(foldText(toText(v))));
+    const has = (v: unknown) => (empty(v) ? set.has('') : Array.isArray(v) ? v.some((x) => set.has(foldText(toText(x)))) : set.has(foldText(toText(v))));
     return op === 'in' ? has : (v) => !has(v);
   }
   const q = foldText(toText(f.value));
@@ -390,6 +395,123 @@ export function groupRowIndices<T>(rows: readonly T[], indices: readonly number[
     g.indices.push(i);
   }
   return [...groups.values()];
+}
+
+// ---------------------------------------------------------------------------------------------
+// Distinct values (a column's value list, as a spreadsheet's filter shows it)
+
+export interface GridDistinct {
+  /** The value as the `in` filter stores it: its text ('' for no value). */
+  key: string;
+  value: unknown;
+  /** How many of the given rows hold it. */
+  count: number;
+  /** The first row that holds it: draw the value the way its cell is drawn. */
+  index: number;
+}
+
+/**
+ * Every distinct value of one column over the given rows, with counts, sorted for its type (blanks
+ * last). A list value (tags) counts once per entry. `key` reads the identity of an object value;
+ * by default its text.
+ */
+export function distinctValues<T>(
+  rows: readonly T[],
+  indices: readonly number[],
+  read: (row: T) => unknown,
+  type: GridColumnType = 'text',
+  key: (value: unknown, row: T) => string = (v) => (type === 'date' && !empty(v) ? dayKey(v) : toText(v)),
+): GridDistinct[] {
+  const seen = new Map<string, GridDistinct>();
+  const add = (value: unknown, index: number) => {
+    const k = empty(value) ? '' : key(value, rows[index]);
+    const hit = seen.get(k);
+    if (hit) hit.count++;
+    else seen.set(k, { key: k, value: empty(value) ? null : value, count: 1, index });
+  };
+  for (const i of indices) {
+    const v = read(rows[i]);
+    if (Array.isArray(v) && v.length) for (const x of v) add(x, i);
+    else add(v, i);
+  }
+  const conv = type === 'number' ? toNumber : type === 'date' ? toTime : null;
+  return [...seen.values()].sort((a, b) => {
+    if (a.key === '' || b.key === '') return a.key === b.key ? 0 : a.key === '' ? 1 : -1;
+    if (type === 'boolean') return a.value === b.value ? 0 : a.value ? -1 : 1;
+    return conv ? conv(a.value) - conv(b.value) : compareText(a.key, b.key);
+  });
+}
+
+/** A date value as its day, "2026-11-09": what a value list groups dates by. */
+function dayKey(v: unknown): string {
+  if (typeof v === 'string' && ISO_DAY.test(v)) return v.slice(0, 10);
+  const t = toTime(v);
+  return Number.isNaN(t) ? toText(v) : new Date(t).toISOString().slice(0, 10);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Tree rows (rows under rows, to any depth)
+
+export interface GridTree<T> {
+  /** Every node, parents before their children. */
+  rows: T[];
+  /** Each node's parent position, -1 at the top. */
+  parent: number[];
+  depth: number[];
+  /** How many children each node has. */
+  children: number[];
+}
+
+/** Flatten nested rows depth-first. A cycle or a runaway depth stops at 32 levels. */
+export function flattenTree<T>(roots: readonly T[], getSubRows: (row: T) => readonly T[] | null | undefined): GridTree<T> {
+  const out: GridTree<T> = { rows: [], parent: [], depth: [], children: [] };
+  const walk = (list: readonly T[], parent: number, depth: number) => {
+    for (const row of list) {
+      const at = out.rows.length;
+      const kids = depth < 32 ? getSubRows(row) ?? [] : [];
+      out.rows.push(row);
+      out.parent.push(parent);
+      out.depth.push(depth);
+      out.children.push(kids.length);
+      if (kids.length) walk(kids, at, depth + 1);
+    }
+  };
+  walk(roots, -1, 0);
+  return out;
+}
+
+/**
+ * The tree's rows on screen, in order. `kept` are the positions that pass the filters, already
+ * sorted: a parent stays when it or anything under it passes, children follow their parent in the
+ * sorted order, and only open parents show theirs. `open(position)` says whether a node is expanded.
+ */
+export function treeOrder(tree: Pick<GridTree<unknown>, 'parent'>, kept: readonly number[], open: (position: number) => boolean): number[] {
+  const n = tree.parent.length;
+  const rank = new Int32Array(n).fill(-1);
+  kept.forEach((p, i) => (rank[p] = i));
+  // Keep every ancestor of a kept row.
+  const stay = new Uint8Array(n);
+  for (const p of kept) for (let a = p; a !== -1 && !stay[a]; a = tree.parent[a]) stay[a] = 1;
+  const kids = new Map<number, number[]>();
+  for (let i = 0; i < n; i++) {
+    if (!stay[i]) continue;
+    const list = kids.get(tree.parent[i]);
+    if (list) list.push(i);
+    else kids.set(tree.parent[i], [i]);
+  }
+  // Rows that pass sort by their rank; ancestors kept only for a descendant keep their data order after them.
+  const order = (a: number, b: number) => (rank[a] === -1 || rank[b] === -1 ? (rank[a] === rank[b] ? a - b : rank[a] === -1 ? 1 : -1) : rank[a] - rank[b]);
+  const out: number[] = [];
+  const emit = (parent: number) => {
+    const list = kids.get(parent);
+    if (!list) return;
+    for (const i of list.sort(order)) {
+      out.push(i);
+      if (open(i)) emit(i);
+    }
+  };
+  emit(-1);
+  return out;
 }
 
 // ---------------------------------------------------------------------------------------------

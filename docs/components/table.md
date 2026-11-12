@@ -40,34 +40,39 @@ and `cell`, `value`, `compare` get the row's type. Precedence: use-site props, t
 | `rows`, `columns`, `rowKey` | your data; keys, paths or column objects (below); a key or `(row) => string` | every key; `id`, else the position |
 | `dataSource` | `{ rowCount, getRows({ start, end, sort, filters, search, signal }), blockSize }`: blocks load as they scroll into view, stale requests are aborted, a few hundred blocks are kept; `getRows` may return `{ rows, rowCount }` | none, `blockSize` `100` |
 | `sortable`, `sort`, `defaultSort`, `onSortChange`, `multiSort`, `manualSort` | every column sorts; one `{ key, direction }` or several; a press cycles ascending, descending, off; Shift adds a key (numbered in the header) | `false`, none, `true`, `false` |
-| `filterable`, `filters`, `defaultFilters`, `onFiltersChange`, `filterLogic`, `manualFilter` | a filter row by type (text, number and date ranges, yes or no, a value list); `[{ key, op, value }]` with ops `contains notContains equals notEquals startsWith endsWith lt lte gt gte between in notIn empty notEmpty`; `'and' \| 'or'` | `false`, none, `'and'`, `false` |
+| `filterable`, `filterMode`, `filters`, `defaultFilters`, `onFiltersChange`, `filterLogic`, `manualFilter` | every column filters by its type: from its header menu (`'menu'`: a condition and a searchable list of its values with counts, drawn as its cells draw them) or in a row of controls under the headers (`'row'`); `[{ key, op, value }]` | `false`, `'menu'`, `'and'` |
+| `columnMenu` | a menu on each header: sort, pin to the start or end, hide, group, filter | on when columns sort, filter or group, or there is a toolbar |
 | `search`, `defaultSearch`, `onSearchChange` | quick search: every word somewhere in the searchable columns (accents and case ignored) | `''` |
-| `toolbar` | `true` or `{ search, columns, export }`: the quick search, a columns menu (show, hide, pin), a CSV download (a string names the file) | none |
+| `toolbar` | `true` or `{ search, columns, export, chips, start, end }`: the quick search, a panel to show, hide and pin columns, a CSV download (a string names the file), the active filters as chips with a remove button each, and your own controls before and after the built-in ones | none |
 | `pageSize`, `pageSizes`, `onPageSizeChange`, `page`, `defaultPage`, `onPageChange`, `total` | pages with Pagination and the range ("1–25 of 240"); sizes to pick; `total` for server pages | no pages |
 | `virtual`, `rowHeight` | only the rows in view are drawn (needs a height) | `false`, by density 36 / 44 / 52 |
 | `resizableColumns`, `reorderableColumns`, `resizableRows` | drag column edges (double-click fits, Alt + arrows), drag headers (Ctrl or Cmd + Shift + arrows), drag row bottoms | `false` |
 | `columnState`, `defaultColumnState`, `onColumnStateChange`, `autoSaveId` | `{ order, widths, hidden, pinned }`; remembered with the sort and filters under an id | none |
 | `selection`, `selected`, `defaultSelected`, `onSelectionChange` | `'none' \| 'single' \| 'multiple'`; Shift + click picks a span | `'none'` |
-| `renderDetail`, `expanded`, `defaultExpanded`, `onExpandedChange` | `(row) => node`: a panel under the row | none |
-| `groupBy` | a column key: every filtered row grouped by its value; a folding row per group with its count and the columns' totals; the grouped list is paged | none |
+| `renderDetail`, `subTable`, `getSubRows`, `expandIcon`, `expanded`, `defaultExpanded`, `onExpandedChange` | a row opens: your panel (`(row) => node`), a table of its own (`(row) => table config`, which can open tables to any depth and wears this table's look), or its rows underneath (`(row) => rows`, to any depth; they sort and filter with their parents and a parent stays while a child matches). The icon is a node or `({ row, expanded, depth, expandable }) => node` | none; a chevron that turns |
+| `groupBy`, `defaultGroupBy`, `onGroupByChange`, `groupable` | a column key: every filtered row grouped by its value; a folding row per group with its count and the columns' totals; the grouped list is paged | none |
+| `reorderableRows`, `onRowReorder` | rows drag by a handle (Alt + arrow up or down on it); `({ row, rowKey, from, to, rows })` hands back `rows` in the new order. Paused while the rows are sorted, filtered or searched | `false` |
 | `onCellEdit` | `({ row, rowKey, key, value, previous }) => void \| false \| Promise`: save it; `false` or a rejection keeps the editor | none |
-| `onRowAction`, `rowClassName` | `(row, event)`: click or Enter on a row's cell; `(row, index) => class` | none |
+| `onRowAction`, `onCellClick`, `rowClassName`, `rowProps`, `cellProps` | `(row, event)`: click or Enter on a row's cell; `(cell, event)`; `(row, index) => class`; `(row context) => props` and `(cell context) => props` for the element itself: handlers (they chain with the table's), `data-*`, a ref, drag-and-drop attributes | none |
 | `loading`, `emptyText` | shimmering rows while there are none, busy | `false`, `'Nothing to show'` |
-| `labels` | `{ selectAll, selectRow(text), search, columns, export, filter(header), expand, resize, pageSize, notSaved, range(from, to, total) }` | English |
+| `labels` | `{ selectAll, selectRow(text), search, columns, export, filter(header), expand, resize, pageSize, notSaved, range(from, to, total), columnMenu(header), sortAscending, sortDescending, pinStart, pinEnd, unpin, hideColumn, groupBy, ungroup, clearFilter, clearFilters, operators, searchValues, selectAllValues, blanks, selectedCount(n), ... }` | English |
 | `variant`, `density`, `striped`, `stickyHeader` | `'card' \| 'plain' \| 'outline'`; `'compact' \| 'normal' \| 'relaxed'`; the head (and filter row) stick; always in a virtual table | `'card'`, `'normal'`, `false`, `false` |
+| `lines`, `hoverable`, `scrollIndicator` | `'rows' \| 'grid' \| 'none'`; rows tint under the pointer; how an edge shows that it hides rows or columns: `'shadow' \| 'fade' \| 'none'` | `'rows'`, `true`, `'shadow'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone`, `dimensions` | `maxHeight`, `height` of the body | `'md'`, `'primary'` (provider) |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root toolbar search caption scroll table head header sort resizer filters filter body row cell select expand detail group editor empty loading totals footer`; rows, cells, headers, filters, details and group rows pass `item` (`{ row, rowKey, rowIndex, column, value, selected, expanded, group }`) | |
+| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root toolbar search caption scroll table head header sort resizer filters filter menuButton chips body row cell select expand handle detail group editor empty loading totals footer`; rows, cells, headers, filters, details and group rows pass `item` (`{ row, rowKey, rowIndex, column, value, selected, expanded, group }`) | |
 
 ### A column
 | Key | What it does | Default |
 |---|---|---|
 | `key` | the value's path (`'customer.name'`), or any id when `value` reads it | required |
 | `header` | a node or `({ column, sort, filter }) => node` | the key made readable |
-| `value`, `cell` | `(row) => value` (computed columns); `({ row, value, formatted, rowKey, rowIndex, column, selected, edit }) => node` | the path; the formatted value |
+| `value`, `cell` | `(row) => value` (computed columns); `({ row, value, formatted, rowKey, rowIndex, column, selected, edit, depth, expanded, toggleExpanded }) => node` | the path; the formatted value |
 | `type`, `format`, `options` | `'text' \| 'number' \| 'date' \| 'boolean' \| 'enum'`; `Intl` options or `(value, row) => node`; an enum's values | from the values |
 | `sortable`, `compare` | this column sorts; your own ascending order | the table's |
 | `filterable`, `filterFn`, `filter`, `searchable` | this column filters; `(row, filter) => boolean`; `({ column, filter, setFilter }) => node`; in the quick search | the table's, `true` |
+| `filterKey`, `filterItem` | the identity of a value in the menu's list (`(user) => user.id`, so two people with one name stay two entries; lists then match by that identity); how a value reads there, `({ value, row, count, column, formatted }) => node` | its text; exactly as its cell is drawn |
+| `pinnable`, `groupable` | can be pinned from its menu; its menu offers grouping | `true`, the table's |
 | `width`, `minWidth`, `maxWidth`, `resizable` | px or any CSS width; resize bounds | auto (by type in a fixed layout), `64` |
 | `pinned`, `hidden`, `hideable`, `align` | `'start' \| 'end'`; starts hidden; can be hidden; `'start' \| 'center' \| 'end'` | none, `false`, `true`, end for numbers |
 | `editable`, `editor`, `validate` | `true` or `(row) => boolean`; `'text' \| 'number' \| 'date' \| 'select' \| 'checkbox'` or your component; `(value, row) => message` | by type |
@@ -76,6 +81,43 @@ and `cell`, `value`, `compare` get the row's type. Precedence: use-site props, t
 Controller: `visibleRows`, `filteredRows`, `sort`, `filters`, `search`, `selected`, `columnState`,
 `setSort`, `setFilters`, `setFilter(key, value, op)`, `setSearch`, `setSelected`, `setColumnState`,
 `exportCsv()`, `downloadCsv(name)`, `scrollToRow(index)`.
+
+## The column menu
+Pointing at (or focusing) a header shows its menu button; a column that filters keeps it, filled with the tone.
+- **Sort** ascending or descending (pressing the active one clears it).
+- **Pin** to the start or end, **hide**, and **group by** the column (`groupable`).
+- **Filter by condition**: the operators of the column's type (contains, starts with, between, is empty...).
+- **Filter by values**: every distinct value among the rows the *other* filters let through, with counts, blanks last,
+  a search box over eight values, and "Select all" (mixed while some are ticked). A value is drawn exactly as the
+  column's `cell` draws it (an avatar and a name stay an avatar and a name); `filterItem` overrides it. Ticking
+  everything clears the filter. A list value (tags) is one entry per tag.
+- `column.filter` replaces the built-in controls with your own.
+
+`labels` translates every string in it. `Table.openColumnMenu(key)` opens one from code.
+
+## Rows under rows, tables under rows
+```tsx
+<Grid label="Files" rows={folders} getSubRows={(row) => row.children} columns={['name', 'size']} />
+
+<Grid label="Customers" rows={customers} columns={['name', 'plan']}
+  subTable={(customer) => ({ label: 'Orders', rows: customer.orders, columns: ['id', 'total'],
+    subTable: (order) => ({ label: 'Items', rows: order.items }) })} />
+```
+Tree rows indent their first column and carry `aria-level`; `Table.expandAll()` and `collapseAll()` open and close
+everything. A sub-table is a table of its own (state, ids, events, any config) and inherits density, size, tone and lines.
+
+## Dragging rows
+`reorderableRows` + `onRowReorder` is built in: a handle column, a line where the row will land, Alt + arrows from
+the keyboard, an announcement. For a drag-and-drop library, hand it the row element: the `row` render override gets the
+row's props and its data, and `rowProps` adds attributes and handlers to the table's own row.
+```tsx
+// dnd-kit
+function SortableRow({ id, children, ...props }) {
+  const { setNodeRef, attributes, listeners, transform, transition } = useSortable({ id });
+  return <tr {...props} ref={setNodeRef} style={{ ...props.style, transform: CSS.Transform.toString(transform), transition }} {...attributes} {...listeners}>{children}</tr>;
+}
+<Grid label="Queue" rows={queue} rowKey="id" render={{ row: ({ props, children, item }) => <SortableRow id={item.rowKey} {...props}>{children}</SortableRow> }} />
+```
 
 ## How it scales
 - Rows are never copied: filtering is one pass over row positions; sorting turns each key into

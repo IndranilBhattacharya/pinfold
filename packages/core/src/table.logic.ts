@@ -56,7 +56,13 @@ interface TableRules {
   filterable?: boolean;
   columns?: ReadonlyArray<unknown>;
   renderDetail?: unknown;
-  groupBy?: string;
+  subTable?: unknown;
+  getSubRows?: unknown;
+  groupBy?: string | null;
+  filterMode?: string;
+  reorderableRows?: boolean;
+  onRowReorder?: unknown;
+  toolbar?: unknown;
 }
 
 /** Options with no visible effect in the current config. */
@@ -76,15 +82,24 @@ export function inactiveTableOptions(config: TableRules): Record<string, string>
     const why = 'no column sorts (`sortable`).';
     Object.assign(out, { multiSort: why });
   }
-  if (!config.filterable && !cols.some((c) => c.filterable)) out.filterLogic = 'no filter row (`filterable`); set `filters` for filters of your own.';
-  if (!virtual) out.rowHeight = 'only for a virtual table (rows size to their content otherwise).';
-  if (!config.renderDetail) {
-    const why = 'only used with `renderDetail`.';
-    Object.assign(out, { expanded: why, defaultExpanded: why, onExpandedChange: why });
+  if (!config.filterable && !cols.some((c) => c.filterable)) {
+    out.filterLogic = 'no column filters (`filterable`); set `filters` for filters of your own.';
+    out.filterMode = 'no column filters (`filterable`).';
   }
+  if (!virtual) out.rowHeight = 'only for a virtual table (rows size to their content otherwise).';
+  if (!config.renderDetail && !config.subTable && !config.getSubRows) {
+    const why = 'no row opens (`renderDetail`, `subTable` or `getSubRows`).';
+    Object.assign(out, { expanded: why, defaultExpanded: why, onExpandedChange: why, expandIcon: why });
+  }
+  if (config.getSubRows) {
+    const why = 'tree rows keep their own order of parents and children.';
+    Object.assign(out, { groupBy: why, defaultGroupBy: why, groupable: why, reorderableRows: why });
+  }
+  if (config.reorderableRows && !config.onRowReorder) out.reorderableRows = 'needs `onRowReorder` to save the new order.';
+  if (!config.reorderableRows) out.onRowReorder = 'only used with `reorderableRows`.';
   if (config.dataSource) {
     const why = 'a data source sorts, filters and groups on your server.';
-    Object.assign(out, { groupBy: why, manualSort: why, manualFilter: why, rows: 'the rows come from `dataSource`.' });
+    Object.assign(out, { groupBy: why, defaultGroupBy: why, groupable: why, manualSort: why, manualFilter: why, rows: 'the rows come from `dataSource`.', getSubRows: 'a data source sends flat blocks of rows.', reorderableRows: 'the order is your server\'s.' });
   }
   return out;
 }

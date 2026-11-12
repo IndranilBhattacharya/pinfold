@@ -80,6 +80,8 @@ export interface PropMeta {
   orLength?: boolean;
   /** An `array` whose rows may also be strings (`items={['Board', 'List']}`); a `string[]` that also takes one string or `null`; a `string` that also takes `null` (none open). */
   orString?: boolean;
+  /** An `object` that is also a switch: `true` for its defaults, `false` for off (a table's `toolbar`). */
+  orBoolean?: boolean;
   default?: unknown;
   /** What an unset option resolves to when it has no fixed default (e.g. `theme radius`). */
   auto?: string;
@@ -209,6 +211,7 @@ function checkType(prop: PropMeta, v: unknown): string | null {
     case 'object':
       // `null` is "none" for any object (a table's sort, a range). `orString`: also a string or strings.
       if (v === null) return null;
+      if (prop.orBoolean && typeof v === 'boolean') return null;
       if (prop.orString && (typeof v === 'string' || (Array.isArray(v) && v.every((x) => typeof x === 'string')))) return null;
       return isObject(v) ? null : `must be an object, got ${describe(v)}.`;
     case 'enum':
@@ -295,6 +298,7 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
         return { ...base, type: 'array', items: p.items ? { ...shape(p.items), additionalProperties: true } : {} };
       case 'object':
         if (p.orString) return { ...base, anyOf: [{ type: 'object' }, { type: ['string', 'null'] }, { type: 'array', items: { type: 'string' } }] };
+        if (p.orBoolean) return { ...base, anyOf: [{ type: 'object' }, { type: 'boolean' }] };
         return p.keys ? { ...base, ...shape(p.keys) } : { ...base, type: 'object' };
       // Functions and nodes cannot be expressed in JSON; JSON config simply omits them.
       case 'function':

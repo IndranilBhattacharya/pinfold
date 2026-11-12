@@ -18,11 +18,14 @@ export type TableSlot =
   | 'resizer'
   | 'filters'
   | 'filter'
+  | 'menuButton'
+  | 'chips'
   | 'body'
   | 'row'
   | 'cell'
   | 'select'
   | 'expand'
+  | 'handle'
   | 'detail'
   | 'group'
   | 'editor'
@@ -59,6 +62,50 @@ export interface TableCellContext<T> {
   selected: boolean;
   /** Open this cell's editor (an editable column). */
   edit: () => void;
+  /** Tree rows: how deep this row is (0 at the top). */
+  depth: number;
+  /** The row is open: its detail, its sub-table or its rows underneath. */
+  expanded: boolean;
+  /** Open or close the row. */
+  toggleExpanded: () => void;
+}
+
+/** What `rowProps`, `expandIcon` and row-level callbacks get. */
+export interface TableRowContext<T> {
+  row: T;
+  rowKey: string;
+  /** Position in the current order (after filters and sorting), from 0. */
+  rowIndex: number;
+  selected: boolean;
+  expanded: boolean;
+  /** Tree rows: how deep this row is (0 at the top). */
+  depth: number;
+  /** The row has something to open: a detail, a sub-table or rows underneath. */
+  expandable: boolean;
+}
+
+/** A row dropped in a new place, for `onRowReorder`. */
+export interface TableRowMove<T> {
+  row: T;
+  rowKey: string;
+  /** Where it was and where it lands, as positions in `rows`. */
+  from: number;
+  to: number;
+  /** `rows` in the new order: hand it straight to your state. */
+  rows: T[];
+}
+
+/** One distinct value in a column's filter list. */
+export interface TableFilterValueContext<T> {
+  /** The value ('' never: blanks have their own row). */
+  value: unknown;
+  /** A row that holds it. */
+  row: T;
+  /** How many rows hold it (among the rows the other filters let through). */
+  count: number;
+  column: TableResolvedColumn<T>;
+  /** The value formatted for its type. */
+  formatted: React.ReactNode;
 }
 
 /** What a header renderer gets. */
@@ -114,8 +161,20 @@ export interface TableColumn<T> {
   filterable?: boolean;
   /** Your own filter rule: `(row, filter) => boolean`. */
   filterFn?: (row: T, filter: GridFilter) => boolean;
-  /** Your own filter control in the filter row. */
+  /** Your own filter control, in the column menu or the filter row. */
   filter?: (ctx: TableFilterContext<T>) => React.ReactNode;
+  /**
+   * The identity of a value in the column menu's value list. Default the value's text; give the id of
+   * an object value (`(user) => user.id`) so two people with one name stay two entries. When set, give
+   * `filterFn` too, or filter on a `value` that returns the same id.
+   */
+  filterKey?: (value: unknown, row: T) => string;
+  /** How a value reads in the column menu's value list. Default: exactly as its cell is drawn. */
+  filterItem?: (ctx: TableFilterValueContext<T>) => React.ReactNode;
+  /** Can be pinned from the column menu and the columns panel. @default true */
+  pinnable?: boolean;
+  /** Can group the rows from the column menu. Default the table's `groupable`. */
+  groupable?: boolean;
   /** Searched by the quick search. @default true */
   searchable?: boolean;
   /** A number is px; a string is any CSS width. */
@@ -197,6 +256,12 @@ export interface TableToolbar {
   columns?: boolean;
   /** A button that downloads the rows as CSV; a string names the file. @default false */
   export?: boolean | string;
+  /** The active filters as chips under the tools, each with a remove button. @default true */
+  chips?: boolean;
+  /** Your own controls before the built-in tools (after the search). */
+  start?: React.ReactNode;
+  /** Your own controls after the built-in tools. */
+  end?: React.ReactNode;
 }
 
 /** Text read and shown, for translation. */
@@ -221,6 +286,60 @@ export interface TableLabels {
   pageSize?: string;
   /** A cell edit was refused. @default 'Not saved' */
   notSaved?: string;
+  /** Each column's menu button and panel. Default "<header> column". */
+  columnMenu?: (header: string) => string;
+  /** @default 'Sort' */
+  sort?: string;
+  /** Default "Sort A to Z" (numbers and dates: "Sort low to high"). */
+  sortAscending?: string;
+  /** Default "Sort Z to A" (numbers and dates: "Sort high to low"). */
+  sortDescending?: string;
+  /** @default 'Pin to the start' */
+  pinStart?: string;
+  /** @default 'Pin to the end' */
+  pinEnd?: string;
+  /** @default 'Unpin' */
+  unpin?: string;
+  /** @default 'Hide column' */
+  hideColumn?: string;
+  /** @default 'Group by this column' */
+  groupBy?: string;
+  /** @default 'Stop grouping' */
+  ungroup?: string;
+  /** @default 'Clear filter' */
+  clearFilter?: string;
+  /** @default 'Clear all' */
+  clearFilters?: string;
+  /** @default 'condition' */
+  condition?: string;
+  /** @default 'Value' */
+  value?: string;
+  /** @default 'to' */
+  to?: string;
+  /** Names of the filter conditions ("contains", "between"...). */
+  operators?: Partial<Record<GridFilterOp, string>>;
+  /** @default 'Values' */
+  values?: string;
+  /** @default 'Search values' */
+  searchValues?: string;
+  /** @default 'Select all' */
+  selectAllValues?: string;
+  /** @default 'Select all results' */
+  selectResults?: string;
+  /** @default '(Blanks)' */
+  blanks?: string;
+  /** @default 'No values match' */
+  noValues?: string;
+  /** Values past the list's limit. Default "<n> more: search to narrow". */
+  moreValues?: (count: number) => string;
+  /** @default 'Search columns' */
+  searchColumns?: string;
+  /** @default 'Reset columns' */
+  resetColumns?: string;
+  /** @default 'Drag to reorder' */
+  reorder?: string;
+  /** Rows chosen, in the toolbar. Default "<n> selected". */
+  selectedCount?: (count: number) => string;
   /** "1–25 of 1,204". */
   range?: (from: number, to: number, total: number) => string;
 }
@@ -246,6 +365,8 @@ export interface TableItemContext<T = unknown> {
   value?: unknown;
   selected?: boolean;
   expanded?: boolean;
+  /** Tree rows: how deep the row is. */
+  depth?: number;
   /** Group rows: the shared value and the rows under it. */
   group?: { key: string; value: unknown; count: number; collapsed: boolean };
 }
@@ -288,8 +409,15 @@ export interface TableConfig<T extends object = Record<string, unknown>> extends
   /** Rows come sorted from your server: the table only shows the sort. @default false */
   manualSort?: boolean;
 
-  /** A filter row under the headers, every column filtering by its type (a column's `filterable` wins). @default false */
+  /** Every column filters by its type (a column's `filterable` wins): from its menu, or in a filter row. @default false */
   filterable?: boolean;
+  /**
+   * Where a column filters. `'menu'`: its header menu, with a condition and a searchable list of its
+   * values drawn as its cells draw them. `'row'`: a row of controls under the headers. @default 'menu'
+   */
+  filterMode?: 'menu' | 'row';
+  /** A menu on each header: sort, pin, hide, group, filter. Default: on when anything in it applies (sorting, filtering, grouping, a toolbar). */
+  columnMenu?: boolean;
   /** The filters, controlled. */
   filters?: readonly GridFilter[];
   defaultFilters?: readonly GridFilter[];
@@ -344,12 +472,31 @@ export interface TableConfig<T extends object = Record<string, unknown>> extends
 
   /** A row opens a panel under it: your component. */
   renderDetail?: (row: T) => React.ReactNode;
+  /**
+   * A row opens a table under it: return that table's config (it can open tables of its own, to any
+   * depth). The sub-table inherits this table's look.
+   */
+  subTable?: (row: T) => TableConfig<any> | null | undefined;
+  /** Rows under rows, to any depth: a row's children. They sort and filter with their parents (a parent stays while a child matches). */
+  getSubRows?: (row: T) => readonly T[] | null | undefined;
+  /** The icon that opens a row: a node, or a function of the row's state. Default a chevron that turns. */
+  expandIcon?: React.ReactNode | ((ctx: TableRowContext<T>) => React.ReactNode);
   expanded?: readonly string[];
   defaultExpanded?: readonly string[];
   onExpandedChange?: (keys: string[]) => void;
 
-  /** Rows grouped by a column's value, a header row per group with its totals. */
-  groupBy?: TablePath<T> | (string & {});
+  /** Rows grouped by a column's value, a header row per group with its totals. `null` for none. */
+  groupBy?: TablePath<T> | (string & {}) | null;
+  defaultGroupBy?: TablePath<T> | (string & {});
+  /** People chose a group (or none) from a column menu. */
+  onGroupByChange?: (key: string | null) => void;
+  /** Column menus offer "Group by this column" (a column's `groupable` wins). @default false */
+  groupable?: boolean;
+
+  /** Rows drag to a new place by a handle (also Alt + arrow up or down on the handle). Needs `onRowReorder`. @default false */
+  reorderableRows?: boolean;
+  /** A row was dropped in a new place: save `move.rows`. */
+  onRowReorder?: (move: TableRowMove<T>) => void;
 
   /** A cell was edited: save it to your rows. Return `false` (or reject) to keep the editor open. */
   onCellEdit?: (edit: TableCellEdit<T>) => void | boolean | Promise<void | boolean>;
@@ -358,6 +505,12 @@ export interface TableConfig<T extends object = Record<string, unknown>> extends
   onRowAction?: (row: T, event: React.SyntheticEvent) => void;
   /** A class for a row, from its data. */
   rowClassName?: (row: T, index: number) => string | undefined;
+  /** Any props for a row's element, from its data: handlers (`onDoubleClick`, `onContextMenu`), `data-*`, a `ref`, drag-and-drop attributes. Handlers chain with the table's own. */
+  rowProps?: (ctx: TableRowContext<T>) => PropsBag | undefined;
+  /** Any props for a cell's element, from its data. */
+  cellProps?: (ctx: TableCellContext<T>) => PropsBag | undefined;
+  /** A cell was pressed. */
+  onCellClick?: (ctx: TableCellContext<T>, event: React.MouseEvent) => void;
 
   /** Rows are being fetched: shimmering rows while there are none, the table busy. @default false */
   loading?: boolean;
@@ -370,6 +523,12 @@ export interface TableConfig<T extends object = Record<string, unknown>> extends
   density?: TableDensity;
   /** @default false */
   striped?: boolean;
+  /** Lines between rows, around every cell, or none. @default 'rows' */
+  lines?: 'rows' | 'grid' | 'none';
+  /** Rows tint under the pointer. @default true */
+  hoverable?: boolean;
+  /** How the scrolling edges show hidden rows or columns: a fade over them, a shadow, or nothing. @default 'shadow' */
+  scrollIndicator?: 'shadow' | 'fade' | 'none';
   /** The header stays while the body scrolls (with a height). @default false */
   stickyHeader?: boolean;
   /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
@@ -398,6 +557,16 @@ export interface TableApi {
   search: string;
   selected: readonly string[];
   columnState: TableColumnState;
+  /** The column the rows are grouped by, if any. */
+  groupBy: string | null;
+  expanded: readonly string[];
+  setExpanded: (keys: readonly string[]) => void;
+  /** Open every row that can open, or close them all. */
+  expandAll: () => void;
+  collapseAll: () => void;
+  setGroupBy: (key: string | null) => void;
+  /** Open one column's menu (`null` closes it). */
+  openColumnMenu: (key: string | null) => void;
   setSort: (sort: TableSort | readonly TableSort[] | null) => void;
   setFilters: (filters: readonly GridFilter[]) => void;
   /** Set or clear (`undefined`) one column's filter. */

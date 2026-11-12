@@ -29,9 +29,9 @@ describe('table logic', () => {
     expect(selectionState([], ['1'])).toBe('none');
     expect(headerFromKey('invoiceId')).toBe('Invoice id');
     expect(headerFromKey('due_date')).toBe('Due date');
-    expect(Object.keys(inactiveTableOptions({}))).toEqual(['selected', 'defaultSelected', 'onSelectionChange', 'page', 'defaultPage', 'onPageChange', 'total', 'pageSizes', 'onPageSizeChange', 'multiSort', 'filterLogic', 'rowHeight', 'expanded', 'defaultExpanded', 'onExpandedChange']);
-    expect(inactiveTableOptions({ selection: 'multiple', pageSize: 10, sortable: true, filterable: true, virtual: false, renderDetail: () => null })).toEqual({ rowHeight: 'only for a virtual table (rows size to their content otherwise).' });
+    expect(Object.keys(inactiveTableOptions({}))).toEqual(['selected', 'defaultSelected', 'onSelectionChange', 'page', 'defaultPage', 'onPageChange', 'total', 'pageSizes', 'onPageSizeChange', 'multiSort', 'filterLogic', 'filterMode', 'rowHeight', 'expanded', 'defaultExpanded', 'onExpandedChange', 'expandIcon', 'onRowReorder']);
+    expect(inactiveTableOptions({ selection: 'multiple', pageSize: 10, sortable: true, filterable: true, virtual: false, renderDetail: () => null })).toEqual({ rowHeight: 'only for a virtual table (rows size to their content otherwise).', onRowReorder: 'only used with `reorderableRows`.' });
     expect(inactiveTableOptions({ virtual: true, pageSize: 10, sortable: true, filterable: true, renderDetail: () => null }).page).toBe('a virtual table scrolls instead of paging.');
-    expect(Object.keys(inactiveTableOptions({ dataSource: {}, sortable: true, filterable: true, renderDetail: () => null, selection: 'single' }))).toEqual(['page', 'defaultPage', 'onPageChange', 'total', 'pageSizes', 'onPageSizeChange', 'groupBy', 'manualSort', 'manualFilter', 'rows']);
+    expect(Object.keys(inactiveTableOptions({ dataSource: {}, sortable: true, filterable: true, renderDetail: () => null, selection: 'single' }))).toEqual(['page', 'defaultPage', 'onPageChange', 'total', 'pageSizes', 'onPageSizeChange', 'onRowReorder', 'groupBy', 'defaultGroupBy', 'groupable', 'manualSort', 'manualFilter', 'rows', 'getSubRows', 'reorderableRows']);
   });
 });

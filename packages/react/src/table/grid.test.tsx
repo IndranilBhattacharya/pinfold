@@ -27,8 +27,8 @@ describe('Table as a data grid', () => {
   it('sorts by several keys with Shift; the order is numbered and announced', () => {
     const onSortChange = vi.fn();
     render(<Table label="Orders" rows={orders} sortable columns={['customer.name', 'total']} onSortChange={onSortChange} />);
-    fireEvent.click(within(screen.getByRole('columnheader', { name: /Total/ })).getByRole('button'));
-    fireEvent.click(within(screen.getByRole('columnheader', { name: /Customer name/ })).getByRole('button'), { shiftKey: true });
+    fireEvent.click(within(screen.getByRole('columnheader', { name: /Total/ })).getAllByRole('button')[0]);
+    fireEvent.click(within(screen.getByRole('columnheader', { name: /Customer name/ })).getAllByRole('button')[0], { shiftKey: true });
     expect(onSortChange).toHaveBeenLastCalledWith([
       { key: 'total', direction: 'ascending' },
       { key: 'customer.name', direction: 'ascending' },
@@ -41,7 +41,7 @@ describe('Table as a data grid', () => {
   it('the filter row filters by type: text, number range, a value list, yes or no', async () => {
     vi.useFakeTimers();
     const onFiltersChange = vi.fn();
-    render(<Table label="Orders" rows={orders} filterable columns={['customer.name', 'total', 'paid', { key: 'status', type: 'enum' }]} onFiltersChange={onFiltersChange} />);
+    render(<Table label="Orders" rows={orders} filterable filterMode="row" columns={['customer.name', 'total', 'paid', { key: 'status', type: 'enum' }]} onFiltersChange={onFiltersChange} />);
     fireEvent.change(screen.getByRole('searchbox', { name: 'Filter Customer name' }), { target: { value: 'emi' } });
     await act(async () => {
       await vi.advanceTimersByTimeAsync(250);
@@ -79,9 +79,10 @@ describe('Table as a data grid', () => {
     });
     expect(names()).toEqual(['Bo']);
     expect(api!.exportCsv()).toBe('Id,Customer name,Customer city\r\no3,Bo,Paris');
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
     fireEvent.click(screen.getByRole('checkbox', { name: 'Customer city' }));
     expect(screen.queryByRole('columnheader', { name: 'Customer city' })).toBeNull();
-    fireEvent.change(screen.getByRole('combobox', { name: 'Pin Id' }), { target: { value: 'start' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Pin to the start: Id' }));
     expect(screen.getByRole('columnheader', { name: 'Id' }).getAttribute('data-pinned')).toBe('start');
     vi.useRealTimers();
   });
@@ -201,7 +202,7 @@ describe('Table as a data grid', () => {
     expect(getRows.mock.calls[0][0]).toMatchObject({ start: 0, end: 50, sort: [], filters: [], search: '' });
     expect(screen.getByRole('grid').getAttribute('aria-rowcount')).toBe('1000000001');
     expect(await screen.findByText('Event 3')).toBeTruthy();
-    fireEvent.click(within(screen.getByRole('columnheader', { name: /Name/ })).getByRole('button'));
+    fireEvent.click(within(screen.getByRole('columnheader', { name: /Name/ })).getAllByRole('button')[0]);
     await act(async () => {
       await Promise.resolve();
     });
@@ -224,7 +225,7 @@ describe('Table as a data grid', () => {
   it('remembers column state, sort and filters under autoSaveId', () => {
     localStorage.removeItem('pinfold-table:orders');
     const { unmount } = render(<Table label="Orders" rows={orders} sortable autoSaveId="orders" columns={['customer.name', 'total']} />);
-    fireEvent.click(within(screen.getByRole('columnheader', { name: /Total/ })).getByRole('button'));
+    fireEvent.click(within(screen.getByRole('columnheader', { name: /Total/ })).getAllByRole('button')[0]);
     unmount();
     expect(JSON.parse(localStorage.getItem('pinfold-table:orders')!).sort).toEqual([{ key: 'total', direction: 'ascending' }]);
     render(<Table label="Orders" rows={orders} sortable autoSaveId="orders" columns={['customer.name', 'total']} />);

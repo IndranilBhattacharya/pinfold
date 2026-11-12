@@ -1,6 +1,7 @@
 /* Pinfold — table. A card on the control tokens (packs reach it) around a real table: a quiet
-   header, hairline rows, a hover tint, chosen rows tinted with the tone, numbers in tabular
-   figures. The scroll area takes wide tables; the header can stick while the body scrolls. */
+   header whose tools appear when pointed at, hairline rows, a hover tint, chosen rows tinted with
+   the tone, numbers in tabular figures. The scroll area takes wide and tall tables and marks the
+   edges that hide something; pinned columns throw a shadow only while something is under them. */
 
 @layer pinfold.components {
   .pinfold-table {
@@ -8,9 +9,16 @@
     --pinfold-tbl-pad-x: 1rem;
     --pinfold-tbl-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
     --pinfold-tbl-edge: var(--pinfold-control-edge, var(--pinfold-color-border));
+    --pinfold-tbl-line: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent);
+    --pinfold-tbl-surface: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    --pinfold-tbl-head: color-mix(in oklab, var(--pinfold-color-text) 3.5%, var(--pinfold-tbl-surface));
+    --pinfold-tbl-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    --pinfold-tbl-shade: color-mix(in oklab, var(--pinfold-shadow-color, var(--pinfold-color-text)) 30%, transparent);
+    position: relative;
     display: flex;
     flex-direction: column;
     min-inline-size: 0;
+    max-inline-size: 100%;
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-text-sm);
     color: var(--pinfold-color-text);
@@ -21,39 +29,84 @@
   .pinfold-table[data-size='lg'] { font-size: var(--pinfold-text-md); }
   .pinfold-table[data-variant='card'] {
     overflow: hidden;
-    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-color: var(--pinfold-tbl-surface);
     background-image: var(--pinfold-texture);
     border: var(--pinfold-border-width) solid var(--pinfold-tbl-edge);
-    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) + 0.375rem);
+    border-radius: calc(var(--pinfold-tbl-radius) + 0.375rem);
     box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-sm));
     backdrop-filter: var(--pinfold-backdrop);
   }
-  .pinfold-table[data-variant='outline'] { border: var(--pinfold-border-width) solid var(--pinfold-tbl-edge); border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) + 0.25rem); overflow: hidden; }
+  .pinfold-table[data-variant='outline'] { border: var(--pinfold-border-width) solid var(--pinfold-tbl-edge); border-radius: calc(var(--pinfold-tbl-radius) + 0.25rem); overflow: hidden; }
+  .pinfold-table[data-variant='plain'] { --pinfold-tbl-surface: var(--pinfold-color-bg, var(--pinfold-color-surface)); }
 
-  .pinfold-table__scroll { overflow: auto; block-size: var(--pinfold-table-height, auto); max-block-size: var(--pinfold-table-max-height, none); outline: none; overscroll-behavior: contain; }
+  /* ---- the scroll area and its edges ---- */
+  .pinfold-table__scroll {
+    position: relative;
+    overflow: auto;
+    block-size: var(--pinfold-table-height, auto);
+    max-block-size: var(--pinfold-table-max-height, none);
+    outline: none;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--pinfold-color-text) 22%, transparent) transparent;
+  }
   .pinfold-table__scroll:focus-visible { box-shadow: inset 0 0 0 2px var(--pinfold-color-ring, var(--pinfold-color-accent)); }
+  /* shadow: laid inside the scroller, under the rows; one layer per edge that hides something. */
+  .pinfold-table[data-scroll-indicator='shadow'] > .pinfold-table__scroll {
+    --pinfold-tbl-s: 0 0 0 0 transparent;
+    --pinfold-tbl-e: 0 0 0 0 transparent;
+    --pinfold-tbl-b: 0 0 0 0 transparent;
+    box-shadow: inset var(--pinfold-tbl-s), inset var(--pinfold-tbl-e), inset var(--pinfold-tbl-b);
+  }
+  .pinfold-table[data-scroll-indicator='shadow'] > .pinfold-table__scroll[data-overflow-start] { --pinfold-tbl-s: 0.75rem 0 0.75rem -0.75rem var(--pinfold-tbl-shade); }
+  .pinfold-table[data-scroll-indicator='shadow'] > .pinfold-table__scroll[data-overflow-end] { --pinfold-tbl-e: -0.75rem 0 0.75rem -0.75rem var(--pinfold-tbl-shade); }
+  .pinfold-table[data-scroll-indicator='shadow'] > .pinfold-table__scroll[data-overflow-bottom] { --pinfold-tbl-b: 0 -0.75rem 0.75rem -0.75rem var(--pinfold-tbl-shade); }
+  [dir='rtl'] .pinfold-table[data-scroll-indicator='shadow'] > .pinfold-table__scroll[data-overflow-start] { --pinfold-tbl-s: -0.75rem 0 0.75rem -0.75rem var(--pinfold-tbl-shade); }
+  [dir='rtl'] .pinfold-table[data-scroll-indicator='shadow'] > .pinfold-table__scroll[data-overflow-end] { --pinfold-tbl-e: 0.75rem 0 0.75rem -0.75rem var(--pinfold-tbl-shade); }
+  .pinfold-table[data-scroll-indicator='shadow'] > .pinfold-table__scroll[data-overflow-top] .pinfold-table__head { box-shadow: 0 0.5rem 0.625rem -0.5rem var(--pinfold-tbl-shade); }
+  /* fade: the rows themselves dissolve toward an edge that hides more. */
+  .pinfold-table[data-scroll-indicator='fade'] > .pinfold-table__scroll {
+    --pinfold-tbl-fs: 0px;
+    --pinfold-tbl-fe: 0px;
+    --pinfold-tbl-fb: 0px;
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--pinfold-tbl-fb)), transparent), linear-gradient(to right, transparent, black var(--pinfold-tbl-fs), black calc(100% - var(--pinfold-tbl-fe)), transparent);
+    mask-image: linear-gradient(to bottom, black calc(100% - var(--pinfold-tbl-fb)), transparent), linear-gradient(to right, transparent, black var(--pinfold-tbl-fs), black calc(100% - var(--pinfold-tbl-fe)), transparent);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+  .pinfold-table[data-scroll-indicator='fade'] > .pinfold-table__scroll[data-overflow-start] { --pinfold-tbl-fs: 2rem; }
+  .pinfold-table[data-scroll-indicator='fade'] > .pinfold-table__scroll[data-overflow-end] { --pinfold-tbl-fe: 2rem; }
+  .pinfold-table[data-scroll-indicator='fade'] > .pinfold-table__scroll[data-overflow-bottom] { --pinfold-tbl-fb: 2rem; }
+  [dir='rtl'] .pinfold-table[data-scroll-indicator='fade'] > .pinfold-table__scroll { -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--pinfold-tbl-fb)), transparent), linear-gradient(to left, transparent, black var(--pinfold-tbl-fs), black calc(100% - var(--pinfold-tbl-fe)), transparent); mask-image: linear-gradient(to bottom, black calc(100% - var(--pinfold-tbl-fb)), transparent), linear-gradient(to left, transparent, black var(--pinfold-tbl-fs), black calc(100% - var(--pinfold-tbl-fe)), transparent); }
+
   .pinfold-table__table { inline-size: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
-  .pinfold-table__caption { padding: var(--pinfold-tbl-pad-y) var(--pinfold-tbl-pad-x) 0.25rem; font-weight: var(--pinfold-weight-semibold); text-align: start; caption-side: top; }
+  .pinfold-table__caption { padding: 0.875rem var(--pinfold-tbl-pad-x) 0.625rem; font-size: 1.05em; font-weight: var(--pinfold-weight-semibold); letter-spacing: var(--pinfold-tracking-tight, normal); text-align: start; caption-side: top; }
+
+  /* ---- head ---- */
   .pinfold-table__header,
-  .pinfold-table__head .pinfold-table__select,
-  .pinfold-table__head .pinfold-table__expand {
-    padding: calc(var(--pinfold-tbl-pad-y) * 0.8) var(--pinfold-tbl-pad-x);
-    font-size: 0.8em;
-    font-weight: var(--pinfold-weight-semibold);
-    letter-spacing: 0.03em;
+  .pinfold-table__head .pinfold-table__lead {
+    block-size: 2.5rem;
+    padding: 0 var(--pinfold-tbl-pad-x);
+    font-size: 0.86em;
+    font-weight: var(--pinfold-weight-medium);
     color: var(--pinfold-color-text-muted);
     text-align: start;
     white-space: nowrap;
-    background-color: color-mix(in oklab, var(--pinfold-color-text) 4%, transparent);
-    border-block-end: var(--pinfold-border-width) solid var(--pinfold-tbl-edge);
+    background-color: var(--pinfold-tbl-head);
+    border-block: var(--pinfold-border-width) solid var(--pinfold-tbl-line);
   }
+  .pinfold-table[data-density='compact'] :is(.pinfold-table__header, .pinfold-table__head .pinfold-table__lead) { block-size: 2rem; }
+  .pinfold-table[data-density='relaxed'] :is(.pinfold-table__header, .pinfold-table__head .pinfold-table__lead) { block-size: 2.875rem; }
+  .pinfold-table__header { position: relative; }
+  /* A header with a menu keeps room for its button, so titles never jump when it appears. */
+  .pinfold-table__header[data-menu] { padding-inline-end: calc(var(--pinfold-tbl-pad-x) * 0.5 + 1.5rem); }
   /* The whole head sticks (headers and the filter row together). */
   .pinfold-table[data-sticky] .pinfold-table__head { position: sticky; inset-block-start: 0; z-index: 2; }
-  .pinfold-table[data-sticky] .pinfold-table__head th { background-color: var(--pinfold-control-surface, var(--pinfold-color-surface)); background-image: linear-gradient(color-mix(in oklab, var(--pinfold-color-text) 4%, transparent), color-mix(in oklab, var(--pinfold-color-text) 4%, transparent)); }
   .pinfold-table__sort {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
+    vertical-align: middle;
     margin: -0.25rem -0.375rem;
     padding: 0.25rem 0.375rem;
     font: inherit;
@@ -65,10 +118,13 @@
     cursor: pointer;
   }
   .pinfold-table__sortIcon { display: inline-grid; place-items: center; }
-  .pinfold-table__sortIcon > svg { inline-size: 0.875rem; block-size: 0.875rem; opacity: 0.4; }
-  .pinfold-table__sort:hover { color: var(--pinfold-color-text); background-color: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent); }
-  .pinfold-table__sort[data-direction] { color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text)); }
-  .pinfold-table__sort[data-direction] .pinfold-table__sortIcon > svg { opacity: 1; }
+  .pinfold-table__sortIcon > svg { inline-size: 0.875rem; block-size: 0.875rem; opacity: 0; }
+  .pinfold-table__header:hover .pinfold-table__sortIcon > svg,
+  .pinfold-table__sort:focus-visible .pinfold-table__sortIcon > svg { opacity: 0.45; }
+  .pinfold-table__sort:hover { color: var(--pinfold-color-text); }
+  .pinfold-table__sort[data-direction] { color: var(--pinfold-color-text); }
+  .pinfold-table__sort[data-direction] .pinfold-table__sortIcon > svg { opacity: 1; color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text)); }
+  .pinfold-table[data-animate] .pinfold-table__sortIcon > svg { transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out); }
   .pinfold-table__sortIndex {
     display: inline-grid;
     place-items: center;
@@ -81,32 +137,78 @@
     background-color: var(--pinfold-tbl-solid);
     border-radius: var(--pinfold-radius-full);
   }
-  .pinfold-table__title { overflow: hidden; text-overflow: ellipsis; }
+  /* Set widths (a fixed layout): a long title shortens instead of pushing its column. */
+  .pinfold-table[data-fixed] .pinfold-table__sort { max-inline-size: 100%; }
+  .pinfold-table[data-fixed] .pinfold-table__title { overflow: hidden; text-overflow: ellipsis; }
   .pinfold-table__sort:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  [data-align='end'] > .pinfold-table__sort { flex-direction: row-reverse; }
 
+  /* The menu button: there when the header is pointed at or focused, and whenever the column filters. */
+  .pinfold-table__menuButton {
+    position: absolute;
+    inset-block-start: calc(50% - 0.75rem);
+    inset-inline-end: calc(var(--pinfold-tbl-pad-x) * 0.4);
+    display: inline-grid;
+    place-items: center;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    padding: 0;
+    color: var(--pinfold-color-text-muted);
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-radius-sm);
+    opacity: 0;
+    cursor: pointer;
+  }
+  .pinfold-table__menuButton > svg { inline-size: 0.9375rem; block-size: 0.9375rem; }
+  .pinfold-table__header:hover > .pinfold-table__menuButton,
+  .pinfold-table__header:focus-within > .pinfold-table__menuButton,
+  .pinfold-table__header:focus-visible > .pinfold-table__menuButton,
+  .pinfold-table__menuButton:is([data-open], [data-filtered]) { opacity: 1; }
+  .pinfold-table__menuButton:hover,
+  .pinfold-table__menuButton[data-open] { color: var(--pinfold-color-text); background-color: color-mix(in oklab, var(--pinfold-color-text) 9%, transparent); }
+  .pinfold-table__menuButton[data-filtered] { color: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast)); background-color: var(--pinfold-tbl-solid); }
+  .pinfold-table__menuButton:focus-visible { outline: none; opacity: 1; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-table[data-animate] .pinfold-table__menuButton { transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out), background-color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  @media (hover: none) {
+    .pinfold-table__menuButton { opacity: 0.7; }
+    .pinfold-table__sortIcon > svg { opacity: 0.45; }
+  }
+
+  /* ---- body ---- */
   .pinfold-table__cell,
-  .pinfold-table__body .pinfold-table__select,
-  .pinfold-table__body .pinfold-table__expand,
+  .pinfold-table__body .pinfold-table__lead,
   .pinfold-table__empty {
     padding: var(--pinfold-tbl-pad-y) var(--pinfold-tbl-pad-x);
     vertical-align: middle;
-    border-block-end: var(--pinfold-border-width) solid color-mix(in oklab, var(--pinfold-color-text) 8%, transparent);
+    border-block-end: var(--pinfold-border-width) solid var(--pinfold-tbl-line);
   }
   .pinfold-table__body tr:last-child > td { border-block-end: 0; }
-  .pinfold-table__header { position: relative; }
   .pinfold-table__cell { position: relative; }
   :is(.pinfold-table__header, .pinfold-table__cell)[data-align='end'] { text-align: end; }
   :is(.pinfold-table__header, .pinfold-table__cell)[data-align='center'] { text-align: center; }
-  .pinfold-table__select { inline-size: 1%; padding-inline-end: 0; }
-  .pinfold-table__select input { inline-size: 1rem; block-size: 1rem; margin: 0; accent-color: var(--pinfold-tbl-solid); vertical-align: middle; cursor: pointer; }
-  .pinfold-table[data-striped] .pinfold-table__row:nth-child(even) { background-color: color-mix(in oklab, var(--pinfold-color-text) 3%, transparent); }
-  .pinfold-table__row:hover { background-color: color-mix(in oklab, var(--pinfold-color-text) 5%, transparent); }
-  .pinfold-table__row[data-selected],
-  .pinfold-table[data-striped] .pinfold-table__row[data-selected] { background-color: color-mix(in oklab, var(--pinfold-tbl-solid) 11%, transparent); }
+  .pinfold-table[data-lines='none'] :is(.pinfold-table__cell, .pinfold-table__body .pinfold-table__lead) { border-block-end-color: transparent; }
+  .pinfold-table[data-lines='grid'] :is(.pinfold-table__cell, .pinfold-table__header, .pinfold-table__lead) { border-inline-end: var(--pinfold-border-width) solid var(--pinfold-tbl-line); }
+  .pinfold-table[data-lines='grid'] tr > :last-child { border-inline-end: 0; }
+
+  /* Utility columns: drag handle, selection box, expander. Fixed, centred, no stray padding. */
+  .pinfold-table .pinfold-table__lead { inline-size: 2.5rem; padding-inline: 0; text-align: center; line-height: 0; }
+  .pinfold-table .pinfold-table__lead[data-lead='select'] { inline-size: 2.75rem; }
+  .pinfold-table .pinfold-table__lead[data-lead='handle'] { inline-size: 2.25rem; }
+  .pinfold-table__lead input { inline-size: 1rem; block-size: 1rem; margin: 0; accent-color: var(--pinfold-tbl-solid); vertical-align: middle; cursor: pointer; }
+
+  .pinfold-table[data-striped] .pinfold-table__row:nth-child(even) { background-color: color-mix(in oklab, var(--pinfold-color-text) 2.5%, transparent); }
+  .pinfold-table[data-hoverable] .pinfold-table__row:hover { background-color: color-mix(in oklab, var(--pinfold-color-text) 4.5%, transparent); }
+  .pinfold-table .pinfold-table__row[data-selected],
+  .pinfold-table[data-striped] .pinfold-table__row[data-selected] { background-color: color-mix(in oklab, var(--pinfold-tbl-solid) 10%, transparent); }
+  .pinfold-table[data-hoverable] .pinfold-table__row[data-selected]:hover { background-color: color-mix(in oklab, var(--pinfold-tbl-solid) 14%, transparent); }
+  /* A chosen row carries a bar of the tone on its leading edge. */
+  .pinfold-table__row[data-selected] > :first-child { box-shadow: inset 2px 0 0 var(--pinfold-tbl-solid); }
+  [dir='rtl'] .pinfold-table__row[data-selected] > :first-child { box-shadow: inset -2px 0 0 var(--pinfold-tbl-solid); }
   .pinfold-table__row[data-action] { cursor: pointer; }
   .pinfold-table__row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--pinfold-color-ring, var(--pinfold-color-accent)); }
   .pinfold-table[data-animate] .pinfold-table__row { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
-  .pinfold-table__empty { padding-block: 2.5rem; color: var(--pinfold-color-text-muted); text-align: center; }
+  .pinfold-table__empty { padding-block: 3rem; color: var(--pinfold-color-text-muted); text-align: center; }
   .pinfold-table__loading {
     display: block;
     block-size: 0.75em;
@@ -117,74 +219,195 @@
   @keyframes pinfold-table-shimmer {
     to { background-position: -150% 0; }
   }
-  .pinfold-table__footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem 1rem; padding: 0.5rem 0.75rem; border-block-start: var(--pinfold-border-width) solid var(--pinfold-tbl-edge); }
-  .pinfold-table[data-variant='plain'] .pinfold-table__footer { padding-inline: 0; }
 
-/* Toolbar: the quick search, the columns menu, export. */
-  .pinfold-table__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.625rem 0.75rem; border-block-end: var(--pinfold-border-width) solid var(--pinfold-tbl-edge); }
-  .pinfold-table[data-variant='plain'] .pinfold-table__toolbar { padding-inline: 0; }
+  /* ---- small buttons inside rows: expander, drag handle ---- */
+  .pinfold-table__expand,
+  .pinfold-table__handle {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    inline-size: 1.625rem;
+    block-size: 1.625rem;
+    padding: 0;
+    line-height: 0;
+    color: var(--pinfold-color-text-muted);
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-radius-sm);
+    cursor: pointer;
+  }
+  .pinfold-table__expand > svg,
+  .pinfold-table__handle > svg { inline-size: 1rem; block-size: 1rem; }
+  .pinfold-table[data-animate] .pinfold-table__expand > svg { transition: transform var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-table__expand[data-open] > svg { transform: rotate(90deg); }
+  [dir='rtl'] .pinfold-table__expand:not([data-open]) > svg { transform: scaleX(-1); }
+  :is(.pinfold-table__expand, .pinfold-table__handle):hover { color: var(--pinfold-color-text); background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); }
+  :is(.pinfold-table__expand, .pinfold-table__handle):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-table__handle { cursor: grab; touch-action: none; opacity: 0.55; }
+  .pinfold-table__row:hover .pinfold-table__handle,
+  .pinfold-table__handle:focus-visible { opacity: 1; }
+  .pinfold-table__handle[aria-disabled='true'] { cursor: not-allowed; opacity: 0.25; }
+  .pinfold-table__row[data-dragging] { opacity: 0.45; }
+  .pinfold-table__row[data-drop='before'] > td { box-shadow: inset 0 2px 0 var(--pinfold-tbl-solid); }
+  .pinfold-table__row[data-drop='after'] > td { box-shadow: inset 0 -2px 0 var(--pinfold-tbl-solid); }
+
+  /* Tree rows: the first column indents by depth and carries the toggle. */
+  .pinfold-table__tree { display: flex; align-items: center; gap: 0.375rem; min-inline-size: 0; }
+  .pinfold-table__treeLeaf { flex: none; inline-size: 1.625rem; }
+  .pinfold-table__treeText { min-inline-size: 0; }
+
+  /* Details under a row: your panel, or a table of its own. */
+  .pinfold-table__detail > td { padding: 0; background-color: color-mix(in oklab, var(--pinfold-color-text) 2.5%, transparent); border-block-end: var(--pinfold-border-width) solid var(--pinfold-tbl-line); box-shadow: inset 2px 0 0 color-mix(in oklab, var(--pinfold-tbl-solid) 55%, transparent); }
+  [dir='rtl'] .pinfold-table__detail > td { box-shadow: inset -2px 0 0 color-mix(in oklab, var(--pinfold-tbl-solid) 55%, transparent); }
+  .pinfold-table__detailBody { padding: 0.875rem var(--pinfold-tbl-pad-x) 0.875rem calc(var(--pinfold-tbl-pad-x) + 1.5rem); }
+  .pinfold-table__detailBody > .pinfold-table { --pinfold-tbl-surface: transparent; --pinfold-tbl-head: transparent; }
+  .pinfold-table__detailBody > .pinfold-table :is(.pinfold-table__header, .pinfold-table__head .pinfold-table__lead) { border-block-start: 0; }
+
+  /* Groups: a folding row with its count and totals. */
+  .pinfold-table__group > td { font-weight: var(--pinfold-weight-semibold); background-color: color-mix(in oklab, var(--pinfold-color-text) 3.5%, transparent); }
+  .pinfold-table__groupToggle { display: inline-flex; align-items: center; gap: 0.5rem; margin: -0.25rem; padding: 0.25rem; font: inherit; color: inherit; background: transparent; border: 0; border-radius: var(--pinfold-radius-sm); cursor: pointer; }
+  .pinfold-table__groupToggle > svg { inline-size: 1rem; block-size: 1rem; color: var(--pinfold-color-text-muted); }
+  .pinfold-table[data-animate] .pinfold-table__groupToggle > svg { transition: transform var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-table__groupToggle[aria-expanded='true'] > svg { transform: rotate(90deg); }
+  .pinfold-table__groupCount { padding: 0.0625rem 0.45rem; font-size: 0.78em; font-weight: var(--pinfold-weight-medium); color: var(--pinfold-color-text-muted); background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); border-radius: var(--pinfold-radius-full); }
+  .pinfold-table__groupToggle:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+
+  /* ---- toolbar, chips, footer ---- */
+  .pinfold-table__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; padding: 0.75rem var(--pinfold-tbl-pad-x); }
+  .pinfold-table[data-variant='plain'] :is(.pinfold-table__toolbar, .pinfold-table__chips, .pinfold-table__footer) { padding-inline: 0; }
+  .pinfold-table__searchBox { position: relative; display: flex; flex: 1 1 14rem; max-inline-size: 20rem; }
+  .pinfold-table__searchBox > svg { position: absolute; inset-block-start: calc(50% - 0.5rem); inset-inline-start: 0.625rem; inline-size: 1rem; block-size: 1rem; color: var(--pinfold-color-text-muted); pointer-events: none; }
+  .pinfold-table__searchBox > .pinfold-table__search { inline-size: 100%; padding-inline-start: 2.125rem; }
   .pinfold-table__search,
   .pinfold-table__filterInput,
   .pinfold-table__editorInput,
-  .pinfold-table__pageSize select,
-  .pinfold-table__columnRow select {
+  .pinfold-table__pageSize select {
     box-sizing: border-box;
-    block-size: 2rem;
+    block-size: 2.125rem;
+    min-inline-size: 0;
     padding-inline: 0.625rem;
     font: inherit;
     font-weight: var(--pinfold-weight-normal);
     letter-spacing: normal;
     color: var(--pinfold-color-text);
-    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 4%, var(--pinfold-tbl-surface));
     border: var(--pinfold-border-width) solid var(--pinfold-fld-edge, var(--pinfold-color-border));
-    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    border-radius: var(--pinfold-tbl-radius);
   }
-  .pinfold-table__search { flex: 1 1 14rem; max-inline-size: 22rem; }
-  :is(.pinfold-table__search, .pinfold-table__filterInput, .pinfold-table__editorInput, .pinfold-table__pageSize select, .pinfold-table__columnRow select):focus-visible { outline: none; border-color: var(--pinfold-tbl-solid); box-shadow: var(--pinfold-focus-ring); }
-  .pinfold-table__tools { display: flex; gap: 0.5rem; margin-inline-start: auto; }
-  .pinfold-table__columns { position: relative; }
-  .pinfold-table__columns > summary,
-  .pinfold-table__export {
+  .pinfold-table__search::placeholder,
+  .pinfold-table__filterInput::placeholder { color: var(--pinfold-color-text-subtle, var(--pinfold-color-text-muted)); }
+  :is(.pinfold-table__search, .pinfold-table__filterInput, .pinfold-table__editorInput, .pinfold-table__pageSize select):hover { border-color: var(--pinfold-color-border-strong, var(--pinfold-color-border)); }
+  :is(.pinfold-table__search, .pinfold-table__filterInput, .pinfold-table__editorInput, .pinfold-table__pageSize select):focus-visible { outline: none; border-color: var(--pinfold-tbl-solid); box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-table__selectedCount { font-weight: var(--pinfold-weight-medium); color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text)); }
+  .pinfold-table__tools { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-inline-start: auto; }
+  .pinfold-table__tool {
     display: inline-flex;
     align-items: center;
-    block-size: 2rem;
+    gap: 0.4rem;
+    block-size: 2.125rem;
     padding-inline: 0.75rem;
     font: inherit;
     font-weight: var(--pinfold-weight-medium);
     color: var(--pinfold-color-text);
-    list-style: none;
-    background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent);
-    border: 0;
-    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    background-color: transparent;
+    border: var(--pinfold-border-width) solid var(--pinfold-tbl-edge);
+    border-radius: var(--pinfold-tbl-radius);
     cursor: pointer;
   }
-  .pinfold-table__columns > summary::-webkit-details-marker { display: none; }
-  .pinfold-table__columns > summary:hover,
-  .pinfold-table__export:hover { background-color: color-mix(in oklab, var(--pinfold-color-text) 10%, transparent); }
-  .pinfold-table__columns > summary:focus-visible,
-  .pinfold-table__export:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
-  .pinfold-table__columnsPanel {
-    position: absolute;
-    inset-inline-end: 0;
-    inset-block-start: calc(100% + 0.375rem);
+  .pinfold-table__tool > svg { inline-size: 1rem; block-size: 1rem; color: var(--pinfold-color-text-muted); }
+  .pinfold-table__tool:hover,
+  .pinfold-table__tool[aria-expanded='true'] { background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
+  .pinfold-table__tool:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-table[data-animate] .pinfold-table__tool { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+
+  .pinfold-table__chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; padding: 0 var(--pinfold-tbl-pad-x) 0.75rem; }
+  .pinfold-table__chip { display: inline-flex; align-items: stretch; max-inline-size: 100%; font-size: 0.92em; color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 78%, var(--pinfold-color-text)); background-color: color-mix(in oklab, var(--pinfold-tbl-solid) 12%, transparent); border-radius: var(--pinfold-radius-full); }
+  .pinfold-table__chipText { min-inline-size: 0; padding: 0.1875rem 0.25rem 0.1875rem 0.625rem; overflow: hidden; font: inherit; color: inherit; text-overflow: ellipsis; white-space: nowrap; background: transparent; border: 0; border-radius: var(--pinfold-radius-full); cursor: pointer; }
+  .pinfold-table__chipText > b { font-weight: var(--pinfold-weight-semibold); }
+  .pinfold-table__chipRemove { display: inline-grid; place-items: center; inline-size: 1.5rem; padding: 0; color: inherit; background: transparent; border: 0; border-radius: var(--pinfold-radius-full); cursor: pointer; }
+  .pinfold-table__chipRemove > svg { inline-size: 0.75rem; block-size: 0.75rem; }
+  .pinfold-table__chipRemove:hover { background-color: color-mix(in oklab, var(--pinfold-tbl-solid) 20%, transparent); }
+  .pinfold-table__chipClear { padding: 0.1875rem 0.5rem; font: inherit; font-size: 0.92em; color: var(--pinfold-color-text-muted); background: transparent; border: 0; border-radius: var(--pinfold-radius-full); cursor: pointer; }
+  .pinfold-table__chipClear:hover { color: var(--pinfold-color-text); }
+  :is(.pinfold-table__chipText, .pinfold-table__chipRemove, .pinfold-table__chipClear):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+
+  .pinfold-table__footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem 1rem; padding: 0.625rem var(--pinfold-tbl-pad-x); border-block-start: var(--pinfold-border-width) solid var(--pinfold-tbl-line); }
+  .pinfold-table__info { margin-inline-end: auto; color: var(--pinfold-color-text-muted); font-variant-numeric: tabular-nums; }
+  .pinfold-table__pageSize { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--pinfold-color-text-muted); }
+  .pinfold-table__pageSize select { block-size: 1.875rem; padding-inline: 0.375rem; }
+
+  /* ---- floating panels: a column's menu, the columns panel ---- */
+  .pinfold-table__menu {
     z-index: var(--pinfold-z-dropdown);
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 0.25rem;
-    min-inline-size: 16rem;
-    max-block-size: 20rem;
-    overflow: auto;
-    padding: 0.5rem;
-    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
-    border: var(--pinfold-border-width) solid var(--pinfold-tbl-edge);
+    box-sizing: border-box;
+    inline-size: 17rem;
+    max-inline-size: calc(100vw - 1rem);
+    max-block-size: min(32rem, calc(100vh - 1rem));
+    padding: 0.375rem;
+    overflow: hidden;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-text-sm);
+    color: var(--pinfold-color-text);
+    background-color: var(--pinfold-color-surface-raised, var(--pinfold-color-surface));
+    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
     border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) + 0.25rem);
     box-shadow: var(--pinfold-shadow-lg);
   }
-  .pinfold-table__columnRow { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-  .pinfold-table__columnRow label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-  .pinfold-table__columnRow input { accent-color: var(--pinfold-tbl-solid); }
-  .pinfold-table__columnRow select { block-size: 1.75rem; padding-inline: 0.375rem; font-size: 0.85em; }
+  .pinfold-table[data-animate] .pinfold-table__menu { animation: pinfold-table-menu var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  @keyframes pinfold-table-menu {
+    from { opacity: 0; transform: translateY(-0.25rem) scale(0.98); }
+  }
+  .pinfold-table__menuGroup { display: grid; padding-block-end: 0.25rem; border-block-end: var(--pinfold-border-width) solid var(--pinfold-tbl-line); }
+  .pinfold-table__menuItem {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    inline-size: 100%;
+    padding: 0.4375rem 0.5rem;
+    font: inherit;
+    color: inherit;
+    text-align: start;
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-tbl-radius);
+    cursor: pointer;
+  }
+  .pinfold-table__menuIcon { display: inline-grid; color: var(--pinfold-color-text-muted); }
+  .pinfold-table__menuIcon > svg { inline-size: 1rem; block-size: 1rem; }
+  .pinfold-table__menuItem:hover { background-color: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent); }
+  .pinfold-table__menuItem[data-active],
+  .pinfold-table__menuItem[data-active] .pinfold-table__menuIcon { color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text)); }
+  .pinfold-table__menuItem[data-active] { background-color: color-mix(in oklab, var(--pinfold-tbl-solid) 11%, transparent); }
+  .pinfold-table__menuItem:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-table__menuFilter { display: flex; flex-direction: column; gap: 0.375rem; min-block-size: 0; padding: 0.25rem; }
+  .pinfold-table__menuFilter > .pinfold-table__filterInput,
+  .pinfold-table__menu > .pinfold-table__filterInput { inline-size: 100%; flex: none; }
+  .pinfold-table__menuCondition { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+  .pinfold-table__menuCondition > * { flex: 1 1 6rem; }
+  .pinfold-table__menuValues { display: grid; align-content: start; min-block-size: 0; max-block-size: 14rem; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .pinfold-table__menuValue { display: flex; align-items: center; gap: 0.5rem; min-inline-size: 0; padding: 0.3125rem 0.375rem; border-radius: var(--pinfold-tbl-radius); cursor: pointer; }
+  .pinfold-table__menuValue > label { display: flex; flex: 1 1 auto; align-items: center; gap: 0.5rem; min-inline-size: 0; cursor: pointer; }
+  .pinfold-table__menuValue:hover { background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
+  .pinfold-table__menuValue[data-all] { font-weight: var(--pinfold-weight-medium); border-block-end: var(--pinfold-border-width) solid var(--pinfold-tbl-line); border-end-start-radius: 0; border-end-end-radius: 0; }
+  .pinfold-table__menuValue input { flex: none; inline-size: 1rem; block-size: 1rem; margin: 0; accent-color: var(--pinfold-tbl-solid); cursor: pointer; }
+  /* A value reads as its cell does, but is not itself a control here. */
+  .pinfold-table__menuValueText { flex: 1 1 auto; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+  .pinfold-table__menuCount { flex: none; font-size: 0.82em; color: var(--pinfold-color-text-muted); font-variant-numeric: tabular-nums; }
+  .pinfold-table__menuNone { margin: 0; padding: 0.5rem 0.375rem; color: var(--pinfold-color-text-muted); }
+  .pinfold-table__menuClear { align-self: flex-start; padding: 0.3125rem 0.5rem; font: inherit; font-weight: var(--pinfold-weight-medium); color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text)); background: transparent; border: 0; border-radius: var(--pinfold-tbl-radius); cursor: pointer; }
+  .pinfold-table__menuClear:hover { background-color: color-mix(in oklab, var(--pinfold-tbl-solid) 11%, transparent); }
+  .pinfold-table__menuClear:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-table__menuPin { display: inline-grid; place-items: center; flex: none; inline-size: 1.5rem; block-size: 1.5rem; padding: 0; color: var(--pinfold-color-text-muted); background: transparent; border: 0; border-radius: var(--pinfold-radius-sm); opacity: 0.5; cursor: pointer; }
+  .pinfold-table__menuPin > svg { inline-size: 0.875rem; block-size: 0.875rem; transform: rotate(45deg); }
+  .pinfold-table__menuPin[data-side='end'] > svg { transform: rotate(-45deg); }
+  .pinfold-table__menuPin:hover { opacity: 1; background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); }
+  .pinfold-table__menuPin[aria-pressed='true'] { opacity: 1; color: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast)); background-color: var(--pinfold-tbl-solid); }
+  .pinfold-table__menuPin:focus-visible { outline: none; opacity: 1; box-shadow: var(--pinfold-focus-ring); }
 
-  /* Column resizing: a grab strip on the header's end edge. */
+  /* ---- columns: resize, reorder, pin ---- */
   .pinfold-table__resizer {
     position: absolute;
     inset-block: 0;
@@ -194,54 +417,40 @@
     cursor: col-resize;
     touch-action: none;
   }
-  .pinfold-table__resizer::after { content: ''; position: absolute; inset-block: 25%; inset-inline-start: calc(50% - 1px); inline-size: 2px; border-radius: 1px; background: transparent; }
-  .pinfold-table__header:hover .pinfold-table__resizer::after { background: color-mix(in oklab, var(--pinfold-color-text) 22%, transparent); }
+  .pinfold-table__resizer::after { content: ''; position: absolute; inset-block: 28%; inset-inline-start: calc(50% - 0.5px); inline-size: 1px; border-radius: 1px; background: color-mix(in oklab, var(--pinfold-color-text) 14%, transparent); }
   .pinfold-table__resizer:hover::after,
-  .pinfold-table__resizer:focus-visible::after { inset-block: 0; background: var(--pinfold-tbl-solid); }
+  .pinfold-table__resizer:focus-visible::after { inset-block: 0; inline-size: 2px; inset-inline-start: calc(50% - 1px); background: var(--pinfold-tbl-solid); }
   .pinfold-table__resizer:focus-visible { outline: none; }
-  /* Reordering: a bar where the column will land. */
   .pinfold-table__header[draggable='true'] { cursor: grab; }
   .pinfold-table__header[data-drop='before'] { box-shadow: inset 2px 0 0 var(--pinfold-tbl-solid); }
   .pinfold-table__header[data-drop='after'] { box-shadow: inset -2px 0 0 var(--pinfold-tbl-solid); }
   [dir='rtl'] .pinfold-table__header[data-drop='before'] { box-shadow: inset -2px 0 0 var(--pinfold-tbl-solid); }
   [dir='rtl'] .pinfold-table__header[data-drop='after'] { box-shadow: inset 2px 0 0 var(--pinfold-tbl-solid); }
 
-  /* Pinned columns stay while the rest scrolls sideways; a shadow marks the edge. */
-  .pinfold-table [data-pinned] { position: sticky; z-index: 1; background-color: var(--pinfold-control-surface, var(--pinfold-color-surface)); }
-  .pinfold-table__head [data-pinned] { z-index: 3; }
-  .pinfold-table__select[data-pinned] { inset-inline-start: 0; }
-  .pinfold-table__expand[data-pinned] { inset-inline-start: 0; }
-  .pinfold-table__select[data-pinned] + .pinfold-table__expand[data-pinned] { inset-inline-start: 44px; }
-  .pinfold-table [data-pinned='start'][data-pin-edge] { box-shadow: 6px 0 8px -6px color-mix(in oklab, var(--pinfold-color-text) 22%, transparent); }
-  .pinfold-table [data-pinned='end'][data-pin-edge] { box-shadow: -6px 0 8px -6px color-mix(in oklab, var(--pinfold-color-text) 22%, transparent); }
-  .pinfold-table__row[data-selected] > [data-pinned] { background-image: linear-gradient(color-mix(in oklab, var(--pinfold-tbl-solid) 11%, transparent), color-mix(in oklab, var(--pinfold-tbl-solid) 11%, transparent)); }
+  /* Pinned columns stay while the rest scrolls sideways. Opaque, so nothing shows through; the edge
+     throws a shadow only while columns are actually under it. */
+  .pinfold-table [data-pinned] { position: sticky; z-index: 1; background-color: var(--pinfold-tbl-surface); }
+  .pinfold-table__head [data-pinned] { z-index: 3; background-color: var(--pinfold-tbl-head); }
+  .pinfold-table[data-hoverable] .pinfold-table__row:hover > [data-pinned] { background-image: linear-gradient(color-mix(in oklab, var(--pinfold-color-text) 4.5%, transparent), color-mix(in oklab, var(--pinfold-color-text) 4.5%, transparent)); }
+  .pinfold-table .pinfold-table__row[data-selected] > [data-pinned] { background-image: linear-gradient(color-mix(in oklab, var(--pinfold-tbl-solid) 10%, transparent), color-mix(in oklab, var(--pinfold-tbl-solid) 10%, transparent)); }
+  .pinfold-table [data-pinned][data-pin-edge]::after { content: ''; position: absolute; inset-block: 0; inline-size: 0.75rem; pointer-events: none; opacity: 0; }
+  .pinfold-table[data-animate] [data-pinned][data-pin-edge]::after { transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-table [data-pinned='start'][data-pin-edge] { border-inline-end: var(--pinfold-border-width) solid var(--pinfold-tbl-line); }
+  .pinfold-table [data-pinned='end'][data-pin-edge] { border-inline-start: var(--pinfold-border-width) solid var(--pinfold-tbl-line); }
+  .pinfold-table [data-pinned='start'][data-pin-edge]::after { inset-inline-start: 100%; background: linear-gradient(to right, var(--pinfold-tbl-shade), transparent); }
+  .pinfold-table [data-pinned='end'][data-pin-edge]::after { inset-inline-end: 100%; background: linear-gradient(to left, var(--pinfold-tbl-shade), transparent); }
+  [dir='rtl'] .pinfold-table [data-pinned='start'][data-pin-edge]::after { background: linear-gradient(to left, var(--pinfold-tbl-shade), transparent); }
+  [dir='rtl'] .pinfold-table [data-pinned='end'][data-pin-edge]::after { background: linear-gradient(to right, var(--pinfold-tbl-shade), transparent); }
+  .pinfold-table__scroll[data-overflow-start] [data-pinned='start'][data-pin-edge]::after,
+  .pinfold-table__scroll[data-overflow-end] [data-pinned='end'][data-pin-edge]::after { opacity: 0.6; }
+  /* With a pinned edge the scroller's own side shadow would sit under the pinned column: the edge takes over. */
 
-  /* The filter row. */
-  .pinfold-table__filters > td { padding: 0.375rem calc(var(--pinfold-tbl-pad-x) * 0.6); background-color: color-mix(in oklab, var(--pinfold-color-text) 2.5%, transparent); border-block-end: var(--pinfold-border-width) solid var(--pinfold-tbl-edge); }
-  .pinfold-table[data-sticky] .pinfold-table__filters > td { background-color: var(--pinfold-control-surface, var(--pinfold-color-surface)); }
-  .pinfold-table__filterInput { inline-size: 100%; min-inline-size: 4rem; block-size: 1.875rem; font-size: 0.92em; }
-  .pinfold-table__range { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; }
+  /* ---- the filter row ---- */
+  .pinfold-table__filters > td { padding: 0.375rem calc(var(--pinfold-tbl-pad-x) * 0.5); background-color: var(--pinfold-tbl-head); border-block-end: var(--pinfold-border-width) solid var(--pinfold-tbl-line); }
+  .pinfold-table__filters .pinfold-table__filterInput { inline-size: 100%; block-size: 1.875rem; padding-inline: 0.5rem; font-size: 0.92em; }
+  .pinfold-table__range { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.25rem; }
 
-  /* Groups: a folding row with its count and totals. */
-  .pinfold-table__group > td { font-weight: var(--pinfold-weight-semibold); background-color: color-mix(in oklab, var(--pinfold-color-text) 4%, transparent); }
-  .pinfold-table__groupToggle { display: inline-flex; align-items: center; gap: 0.375rem; margin: -0.25rem; padding: 0.25rem; font: inherit; color: inherit; background: transparent; border: 0; border-radius: var(--pinfold-radius-sm); cursor: pointer; }
-  .pinfold-table__groupToggle > svg { inline-size: 0.875rem; block-size: 0.875rem; transition: transform var(--pinfold-duration-fast) var(--pinfold-ease-out); }
-  .pinfold-table__groupToggle[aria-expanded='true'] > svg { transform: rotate(90deg); }
-  .pinfold-table__groupCount { padding: 0 0.4rem; font-size: 0.78em; font-weight: var(--pinfold-weight-medium); color: var(--pinfold-color-text-muted); background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); border-radius: var(--pinfold-radius-full); }
-  .pinfold-table__groupToggle:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
-
-  /* Details under a row. */
-  .pinfold-table .pinfold-table__expand { inline-size: 40px; padding-inline: 0.25rem; text-align: center; }
-  .pinfold-table__expand > button { display: inline-grid; place-items: center; inline-size: 1.75rem; block-size: 1.75rem; padding: 0; color: var(--pinfold-color-text-muted); background: transparent; border: 0; border-radius: var(--pinfold-radius-sm); cursor: pointer; }
-  .pinfold-table__expand > button > svg { inline-size: 1rem; block-size: 1rem; transition: transform var(--pinfold-duration-fast) var(--pinfold-ease-out); }
-  .pinfold-table__expand > button[aria-expanded='true'] > svg { transform: rotate(90deg); }
-  [dir='rtl'] .pinfold-table__expand > button:not([aria-expanded='true']) > svg { transform: scaleX(-1); }
-  .pinfold-table__expand > button:hover { color: var(--pinfold-color-text); background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); }
-  .pinfold-table__expand > button:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
-  .pinfold-table__detail > td { padding: 0; background-color: color-mix(in oklab, var(--pinfold-color-text) 2.5%, transparent); border-block-end: var(--pinfold-border-width) solid color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); }
-  .pinfold-table__detailBody { padding: 1rem var(--pinfold-tbl-pad-x) 1rem calc(var(--pinfold-tbl-pad-x) + 2.75rem); }
-
-  /* Editing in place. */
+  /* ---- editing in place ---- */
   .pinfold-table__cell[data-editable] { cursor: text; }
   .pinfold-table__cell[data-editing] { padding-block: 0.25rem; }
   .pinfold-table__editorInput { inline-size: 100%; block-size: 2rem; border-color: var(--pinfold-tbl-solid); }
@@ -249,7 +458,7 @@
   .pinfold-table__editError { position: absolute; inset-inline-start: var(--pinfold-tbl-pad-x); inset-block-start: calc(100% - 0.25rem); z-index: 4; padding: 0.25rem 0.5rem; font-size: 0.8em; color: var(--pinfold-color-status-contrast, var(--pinfold-color-surface)); background-color: var(--pinfold-color-danger); border-radius: var(--pinfold-radius-sm); white-space: nowrap; }
 
   /* A grid: one focused cell. */
-  .pinfold-table[data-grid] :is(.pinfold-table__cell, .pinfold-table__header, .pinfold-table__select, .pinfold-table__expand):focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--pinfold-color-ring, var(--pinfold-color-accent)); }
+  .pinfold-table[data-grid] :is(.pinfold-table__cell, .pinfold-table__header, .pinfold-table__lead):focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--pinfold-color-ring, var(--pinfold-color-accent)); }
 
   /* Row resizing: a grab strip on the row's bottom edge. */
   .pinfold-table__rowResizer { position: absolute; inset-inline: 0; inset-block-end: -0.25rem; z-index: 2; block-size: 0.5rem; cursor: row-resize; touch-action: none; }
@@ -260,14 +469,18 @@
   .pinfold-table__spacer > td { padding: 0; border: 0; }
   .pinfold-table__pending .pinfold-table__loading { inline-size: 70%; }
 
-  /* Totals and the footer. */
-  .pinfold-table__totals td { font-weight: var(--pinfold-weight-semibold); border-block-start: var(--pinfold-border-width) solid var(--pinfold-tbl-edge); border-block-end: 0; background-color: color-mix(in oklab, var(--pinfold-color-text) 3%, transparent); }
-  .pinfold-table[data-sticky] .pinfold-table__totals td { position: sticky; inset-block-end: 0; z-index: 1; background-color: var(--pinfold-control-surface, var(--pinfold-color-surface)); }
-  .pinfold-table__info { margin-inline-end: auto; color: var(--pinfold-color-text-muted); font-variant-numeric: tabular-nums; }
-  .pinfold-table__pageSize { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--pinfold-color-text-muted); }
-  .pinfold-table__pageSize select { block-size: 1.875rem; padding-inline: 0.375rem; }
+  /* ---- totals ---- */
+  .pinfold-table__totals td { font-weight: var(--pinfold-weight-semibold); border-block-start: var(--pinfold-border-width) solid var(--pinfold-tbl-line); border-block-end: 0; background-color: var(--pinfold-tbl-head); }
+  .pinfold-table[data-sticky] .pinfold-table__totals td { position: sticky; inset-block-end: 0; z-index: 1; }
+
+  @media (pointer: coarse) {
+    .pinfold-table__menuButton, .pinfold-table__expand, .pinfold-table__handle { inline-size: 2rem; block-size: 2rem; }
+    .pinfold-table__menuButton { inset-block-start: calc(50% - 1rem); }
+  }
 
   @media (forced-colors: active) {
     .pinfold-table__row[data-selected] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+    .pinfold-table__menu { border-color: CanvasText; }
+    .pinfold-table__scroll { -webkit-mask-image: none; mask-image: none; }
   }
 }
