@@ -35,6 +35,8 @@ export interface SidebarState {
   /** The current entry's key. */
   value: string | undefined;
   collapsed: boolean;
+  /** A folded rail that is open for now, because it is pointed at or focused (`expandOnHover`). */
+  peeking: boolean;
 }
 
 export interface SidebarDimensions {
@@ -78,6 +80,15 @@ export interface SidebarConfig extends SlotOverrides<SidebarSlot, SidebarState, 
   /** @default false */
   defaultCollapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
+  /** A folded rail opens while it is pointed at or holds the focus, over the page, and folds back on leaving. @default false */
+  expandOnHover?: boolean;
+  /**
+   * How `value` finds the current entry. `'exact'`: the entry whose key is the value. `'prefix'`: the deepest entry
+   * whose `href` starts the value, so "/projects/atlas/issues" marks "/projects/atlas". @default 'exact'
+   */
+  match?: 'exact' | 'prefix';
+  /** The frame: a panel with a hairline, a floating card clear of the edges, or nothing behind the entries. @default 'panel' */
+  surface?: 'panel' | 'floating' | 'transparent';
   /** Above the entries: a logo, a team switcher. */
   header?: React.ReactNode;
   /** Under the entries: the account, help. */
@@ -110,6 +121,8 @@ export interface SidebarApi {
   expanded: string[];
   setExpanded: (keys: string[]) => void;
   collapsed: boolean;
+  /** A folded rail that is open for now (`expandOnHover`). */
+  peeking: boolean;
   setCollapsed: (collapsed: boolean) => void;
   getRootProps: (props?: PropsBag) => PropsBag;
   render: (props?: SidebarRootProps) => React.ReactElement;

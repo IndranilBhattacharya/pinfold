@@ -34,6 +34,9 @@ Precedence: use-site props, the preset, `defaults.sidebar`, the provider, the li
 | `collapsed`, `defaultCollapsed`, `onCollapsedChange` | the rail | `false` |
 | `header`, `footer` | nodes above and under the entries | none |
 | `labels` | `{ collapse, expand }` | English |
+| `expandOnHover` | a folded rail opens while it is pointed at or holds the focus, over the page (the page does not move), and folds back on leaving; the toggle still pins it open | `false` |
+| `match` | how `value` finds the current entry: `'exact'`, or `'prefix'`: the deepest entry whose `href` starts the path, so `/projects/atlas/issues/4` marks `/projects/atlas` and opens its section | `'exact'` |
+| `surface` | the frame: `'panel'` (a hairline), `'floating'` (a card clear of the edges), `'transparent'` | `'panel'` |
 | `variant` | `soft` tint, `plain` edge bar, `solid` fill | `'soft'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone`, `dimensions` | `width` | `'md'`, `'primary'`, `16rem` |

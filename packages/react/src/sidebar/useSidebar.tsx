@@ -19,6 +19,32 @@ const PANEL_ICON = (
 const toItem = (item: SidebarItem | string): SidebarItem => (typeof item === 'string' ? { label: item } : item);
 
 /**
+ * The entry `value` names. `'prefix'`: the deepest entry whose href starts the value, so
+ * "/projects/atlas/issues" marks "/projects/atlas"; an exact key always wins.
+ */
+function currentKey(items: ReadonlyArray<SidebarItem | string>, value: string | undefined, match: 'exact' | 'prefix' | undefined): string | undefined {
+  if (value === undefined || (match ?? 'exact') === 'exact') return value;
+  let best: string | undefined;
+  let length = -1;
+  const walk = (list: ReadonlyArray<SidebarItem | string>) => {
+    for (const raw of list) {
+      const item = toItem(raw);
+      const key = sidebarKey(raw);
+      if (key === value) {
+        best = key;
+        length = Infinity;
+      } else if (item.href && item.href !== '/' && (value.startsWith(item.href + '/') || value.startsWith(item.href + '?') || value.startsWith(item.href + '#')) && item.href.length > length) {
+        best = key;
+        length = item.href.length;
+      }
+      if (item.items) walk(item.items);
+    }
+  };
+  walk(items);
+  return best ?? value;
+}
+
+/**
  * App navigation down the side: links, buttons and sections that open, under group headings, with
  * a header and a footer, folding into a rail of icons. As a hook that hands back a component.
  *
@@ -35,10 +61,10 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
   const [value, setValueState] = useControllableState<string | undefined>({ value: config.value, defaultValue: config.defaultValue });
   const [expanded, setExpandedState] = useControllableState<readonly string[]>({
     value: config.expanded,
-    defaultValue: config.defaultExpanded ?? sidebarTrail(items, config.value ?? config.defaultValue),
+    defaultValue: config.defaultExpanded ?? sidebarTrail(items, currentKey(items, config.value ?? config.defaultValue, config.match)),
     onChange: (keys) => config.onExpandedChange?.([...keys]),
   });
-  const [collapsed, setCollapsedState] = useControllableState<boolean>({ value: config.collapsed, defaultValue: config.defaultCollapsed ?? false, onChange: config.onCollapsedChange });
+  const [collapsedState, setCollapsedState] = useControllableState<boolean>({ value: config.collapsed, defaultValue: config.defaultCollapsed ?? false, onChange: config.onCollapsedChange });
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ sidebarMeta, validateConfig }) => {
@@ -48,9 +74,23 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
     });
   }
 
+  // A rail that opens while pointed at or focused: it floats over the page and folds back on leaving.
+  const [peek, setPeek] = React.useState(false);
+  const peekTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  React.useEffect(() => () => clearTimeout(peekTimer.current), []);
+  const folded = !!config.collapsed || (config.collapsed === undefined && collapsedState);
+  const peeking = folded && !!config.expandOnHover && peek;
+  const collapsed = folded && !peeking;
+  const setPeekSoon = (next: boolean) => {
+    clearTimeout(peekTimer.current);
+    // A short wait both ways: brushing past the rail does not open it, crossing a gap does not close it.
+    peekTimer.current = setTimeout(() => setPeek(next), next ? 90 : 220);
+  };
+  // With `match: 'prefix'` the deepest entry whose href starts the current path is the current one: "/projects/atlas/issues" marks "/projects/atlas".
+  const current = React.useMemo(() => currentKey(items, value, config.match), [items, value, config.match]);
   // A current entry inside a closed section still marks the section.
-  const trail = sidebarTrail(items, value);
-  const state: SidebarState = { variant: config.variant ?? 'soft', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, value, collapsed };
+  const trail = sidebarTrail(items, current);
+  const state: SidebarState = { variant: config.variant ?? 'soft', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, value: current, collapsed, peeking };
   const setExpanded = (keys: string[]) => setExpandedState(keys);
   const toggleSection = (key: string) => setExpanded(expanded.includes(key) ? expanded.filter((k) => k !== key) : [...expanded, key]);
 
@@ -61,6 +101,19 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
         'aria-label': config.label,
         'data-variant': state.variant,
         'data-collapsed': dataAttr(collapsed),
+        'data-folded': dataAttr(folded),
+        'data-peeking': dataAttr(peeking),
+        'data-surface': config.surface ?? 'panel',
+        ...(config.expandOnHover && folded
+          ? {
+              onPointerEnter: (event: React.PointerEvent) => event.pointerType !== 'touch' && setPeekSoon(true),
+              onPointerLeave: () => setPeekSoon(false),
+              onFocus: () => setPeekSoon(true),
+              onBlur: (event: React.FocusEvent) => {
+                if (!event.currentTarget.contains(event.relatedTarget as Node)) setPeekSoon(false);
+              },
+            }
+          : null),
         'data-size': state.size,
         'data-tone': state.tone,
         'data-animate': dataAttr(!ctx.disableAnimation),
@@ -85,7 +138,7 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
       const key = sidebarKey(raw);
       const section = !!item.items?.length;
       const open = section && expanded.includes(key) && !collapsed;
-      const current = !section && key === value;
+      const isCurrent = !section && key === current;
       const subId = `${base}-${path}`;
       const text = <span className={cls('pinfold-sidebar__text')}>{item.label}</span>;
       // In a rail the icon stands for the entry: the first letter when there is none.
@@ -119,8 +172,8 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
       const common = {
         className: cls('pinfold-sidebar__link'),
         title: collapsed && depth === 0 ? item.label : undefined,
-        'aria-current': current ? 'page' : undefined,
-        'data-current': dataAttr(current),
+        'aria-current': isCurrent ? 'page' : undefined,
+        'data-current': dataAttr(isCurrent),
         'data-holds-current': dataAttr(section && trail.includes(key)),
         'data-depth': depth,
         onClick,
@@ -153,7 +206,7 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
             : null}
         </>,
         'li',
-        { [ITEM]: { ...item, key, depth, current, open: section ? open : undefined }, 'data-disabled': dataAttr(item.disabled) },
+        { [ITEM]: { ...item, key, depth, current: isCurrent, open: section ? open : undefined }, 'data-disabled': dataAttr(item.disabled) },
       );
     };
 
@@ -165,7 +218,7 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
       if (found) found.entries.push([raw, i]);
       else groups.push({ name, entries: [[raw, i]] });
     });
-    const toggleLabel = collapsed ? (config.labels?.expand ?? 'Expand sidebar') : (config.labels?.collapse ?? 'Collapse sidebar');
+    const toggleLabel = folded ? (config.labels?.expand ?? 'Expand sidebar') : (config.labels?.collapse ?? 'Collapse sidebar');
 
     const content = (
       <>
@@ -203,7 +256,16 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
                 <span className={cls('pinfold-sidebar__text')}>{toggleLabel}</span>
               </>,
               'button',
-              { type: 'button', 'aria-expanded': !collapsed, title: collapsed ? toggleLabel : undefined, onClick: () => setCollapsedState(!collapsed) },
+              {
+                type: 'button',
+                'aria-expanded': !folded,
+                title: collapsed ? toggleLabel : undefined,
+                onClick: () => {
+                  clearTimeout(peekTimer.current);
+                  setPeek(false);
+                  setCollapsedState(!folded);
+                },
+              },
             )
           : null}
       </>
@@ -216,7 +278,8 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
     setValue: (key) => setValueState(key),
     expanded: [...expanded],
     setExpanded,
-    collapsed,
+    collapsed: folded,
+    peeking,
     setCollapsed: (c) => setCollapsedState(c),
     getRootProps,
     render,

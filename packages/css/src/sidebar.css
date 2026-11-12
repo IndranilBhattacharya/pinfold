@@ -29,7 +29,19 @@
     backdrop-filter: var(--pinfold-backdrop);
   }
   .pinfold-sidebar[data-collapsed] { inline-size: calc(var(--pinfold-sb-row) + 1rem + var(--pinfold-border-width)); }
-  .pinfold-sidebar[data-animate] { transition: inline-size var(--pinfold-duration-slow) var(--pinfold-ease-out); }
+  .pinfold-sidebar[data-animate] { transition: inline-size var(--pinfold-duration-slow) var(--pinfold-ease-out), margin var(--pinfold-duration-slow) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  /* A rail that is open for now: full width again, but the margin gives the extra back, so the page beside it
+     does not move and the sidebar lies over it. */
+  .pinfold-sidebar[data-peeking] { position: relative; z-index: var(--pinfold-z-overlay); margin-inline-end: calc(var(--pinfold-sb-row) + 1rem + var(--pinfold-border-width) - var(--pinfold-sidebar-width, 16rem)); box-shadow: var(--pinfold-shadow-xl); }
+  /* The frame. */
+  .pinfold-sidebar[data-surface='transparent'] { background: none; border-inline-end-color: transparent; backdrop-filter: none; }
+  .pinfold-sidebar[data-surface='floating'] {
+    margin: 0.5rem;
+    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) + 0.5rem);
+    box-shadow: var(--pinfold-shadow-md);
+  }
+  .pinfold-sidebar[data-surface='floating'][data-peeking] { margin-inline-end: calc(0.5rem + var(--pinfold-sb-row) + 1rem + var(--pinfold-border-width) - var(--pinfold-sidebar-width, 16rem)); box-shadow: var(--pinfold-shadow-xl); }
 
   .pinfold-sidebar__header, .pinfold-sidebar__footer { flex-shrink: 0; min-inline-size: 0; padding: 0.25rem; }
   .pinfold-sidebar__footer { border-block-start: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border)); padding-block-start: 0.5rem; }
