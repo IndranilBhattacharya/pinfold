@@ -23,7 +23,8 @@
 
   .pinfold-appshell__navbar { grid-area: navbar; display: flex; align-items: center; min-inline-size: 0; z-index: var(--pinfold-z-sticky); background-color: var(--pinfold-color-bg); }
   .pinfold-appshell__navbar > :not(.pinfold-appshell__trigger) { flex: 1 1 auto; min-inline-size: 0; }
-  .pinfold-appshell[data-navbar-position='sticky'] > .pinfold-appshell__navbar { position: sticky; inset-block-start: 0; }
+  /* Only a page that scrolls needs the bar stuck: a shell that scrolls inside already holds it in place. */
+  .pinfold-appshell[data-navbar-position='sticky'][data-scroll='page'] > .pinfold-appshell__navbar { position: sticky; inset-block-start: 0; }
   .pinfold-appshell[data-dividers] > .pinfold-appshell__navbar { border-block-end: var(--pinfold-border-width) solid var(--pinfold-shell-line); }
 
   .pinfold-appshell__sidebar {

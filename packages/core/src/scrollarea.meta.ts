@@ -25,7 +25,7 @@ export const scrollareaMeta: ComponentMeta = {
     indicator: { type: 'enum', values: ['fade', 'shadow', 'glow', 'line', 'none'], default: 'fade', description: 'How an edge shows that it hides content: the content fades out, a shadow or a tone glow lies over it, or a thin line.', group: 'appearance', control: true },
     indicatorSize: { type: 'length', description: 'How deep the fade, shadow or glow reaches. Default 2rem (a line: 2px).', group: 'appearance' },
     scrollbar: { type: 'enum', values: ['auto', 'thin', 'hover', 'hidden'], default: 'thin', description: 'The scrollbar: the browser\'s, a thin one, one that shows while pointing at the area, or none (still scrollable).', group: 'appearance', control: true },
-    stickToEnd: { type: 'boolean', default: false, description: 'A chat or a log: stay at the end as content arrives, unless the reader scrolled away.', group: 'behaviour', control: true, silent: true },
+    stickToEnd: { type: 'boolean', default: false, description: 'A chat or a log: stay at the end as content arrives, unless the reader scrolled away.', group: 'behaviour', control: true },
     reachThreshold: { type: 'number', default: 48, description: 'How close (px) to an end counts as reaching it.', group: 'behaviour' },
     onReachStart: { type: 'function', description: 'Scrolled to the start: load older content.', group: 'events' },
     onReachEnd: { type: 'function', description: 'Scrolled to the end: load more.', group: 'events' },
