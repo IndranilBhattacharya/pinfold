@@ -3,7 +3,10 @@
    disableAnimation), and the reset stops it under reduced motion.
 
    `shimmer` paints one band of light across the whole page: every shape shares it through
-   `background-attachment: fixed`, so a layout reads as one surface loading, not many blinking boxes. */
+   `background-attachment: fixed`, so a layout reads as one surface loading, not many blinking boxes.
+
+   A layout node writes its own measurements as private variables (--pinfold-skel-w, -h, -r, -g,
+   -ratio, -cols) that every shape resets, so a group's width never leaks into its children. */
 
 @layer pinfold.components {
   .pinfold-skeleton,
@@ -11,21 +14,33 @@
     --pinfold-skel-line: var(--pinfold-skeleton-height, 1rem);
     --pinfold-skel-gap: var(--pinfold-skeleton-gap, 0.625rem);
     --pinfold-skel-circle: 2.5rem;
+    --pinfold-skel-pill: 2.25rem;
     --pinfold-skel-fill: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent);
     --pinfold-skel-light: color-mix(in oklab, var(--pinfold-color-text) 11%, transparent);
 
     max-inline-size: 100%;
   }
   .pinfold-skeleton { display: block; }
+  .pinfold-skeleton__shape {
+    --pinfold-skel-w: initial;
+    --pinfold-skel-h: initial;
+    --pinfold-skel-r: initial;
+    --pinfold-skel-g: initial;
+    --pinfold-skel-ratio: initial;
+    --pinfold-skel-cols: initial;
+    --pinfold-skeleton-width: initial;
+  }
   :is(.pinfold-skeleton, .pinfold-skeleton__shape)[data-size='sm'] {
     --pinfold-skel-line: var(--pinfold-skeleton-height, 0.75rem);
     --pinfold-skel-gap: var(--pinfold-skeleton-gap, 0.5rem);
     --pinfold-skel-circle: 2rem;
+    --pinfold-skel-pill: 1.75rem;
   }
   :is(.pinfold-skeleton, .pinfold-skeleton__shape)[data-size='lg'] {
     --pinfold-skel-line: var(--pinfold-skeleton-height, 1.25rem);
     --pinfold-skel-gap: var(--pinfold-skeleton-gap, 0.75rem);
     --pinfold-skel-circle: 3.5rem;
+    --pinfold-skel-pill: 2.75rem;
   }
 
   .pinfold-skeleton[data-loading],
@@ -33,39 +48,83 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: var(--pinfold-skel-gap);
+    gap: var(--pinfold-skel-g, var(--pinfold-skel-gap));
     box-sizing: border-box;
     min-inline-size: 0;
-    inline-size: var(--pinfold-skeleton-width, 100%);
+    inline-size: var(--pinfold-skel-w, var(--pinfold-skeleton-width, 100%));
   }
-  /* A row: fixed shapes keep their size, everything else shares what is left. */
+  .pinfold-skeleton[data-layout] { gap: var(--pinfold-skeleton-gap, 1rem); }
+
+  /* Groups: a row, a stack, a grid. In a row, shapes with a size keep it; the rest share the room. */
   [data-loading][data-direction='row'],
   .pinfold-skeleton__shape[data-direction='row'] {
     flex-direction: row;
     align-items: center;
-    gap: var(--pinfold-skeleton-gap, 0.875rem);
+    gap: var(--pinfold-skel-g, var(--pinfold-skeleton-gap, 0.875rem));
   }
+  .pinfold-skeleton__shape[data-direction='grid'] {
+    display: grid;
+    grid-template-columns: repeat(var(--pinfold-skel-cols, 2), minmax(0, 1fr));
+    gap: var(--pinfold-skel-g, 1rem);
+  }
+  .pinfold-skeleton__shape[data-align='start'] { align-items: flex-start; }
+  .pinfold-skeleton__shape[data-align='center'] { align-items: center; }
+  .pinfold-skeleton__shape[data-align='end'] { align-items: flex-end; }
+  .pinfold-skeleton__shape[data-align='stretch'] { align-items: stretch; }
+  .pinfold-skeleton__shape[data-direction='column'][data-align='center'] > :is([data-kind='text'], [data-kind='line']) { align-items: center; }
   [data-direction='row'] > .pinfold-skeleton__shape { flex: 1 1 0; }
-  [data-direction='row'] > .pinfold-skeleton__shape[data-variant='circle'] { flex: 0 0 auto; }
+  [data-direction='row'] > .pinfold-skeleton__shape:is([data-variant='circle'], [data-variant='square'], [data-kind='space']) { flex: 0 0 auto; }
+  [data-direction='row'] > .pinfold-skeleton__shape:is([data-variant='pill'], [data-fixed]) { flex: 0 1 auto; }
+  .pinfold-skeleton__shape[data-direction='column'][data-align='center'] > [data-direction='row'] { justify-content: center; }
+  [data-direction='row'] > .pinfold-skeleton__shape[data-grow] { flex: 1 1 0; }
+  .pinfold-skeleton__shape[data-kind='space'] {
+    flex: 0 0 auto;
+    inline-size: var(--pinfold-skel-w, 0px);
+    block-size: var(--pinfold-skel-w, 0px);
+  }
+  .pinfold-skeleton__shape[data-kind='space'][data-grow] { block-size: 0; }
+  /* frame: a group drawn as a card, so a card or a table placeholder keeps its outline. */
+  .pinfold-skeleton__shape[data-frame] {
+    padding: var(--pinfold-space-4);
+    border: var(--pinfold-border-width) solid var(--pinfold-color-border);
+    border-radius: calc(var(--pinfold-control-radius-unit, 0.25rem) * 3 * var(--pinfold-radius-scale, 1));
+    background: var(--pinfold-control-surface, var(--pinfold-color-surface));
+  }
 
   .pinfold-skeleton__line {
     display: block;
-    block-size: var(--pinfold-skel-line);
+    block-size: var(--pinfold-skel-h, var(--pinfold-skel-line));
     max-inline-size: 100%;
-    border-radius: var(--pinfold-skeleton-radius, var(--pinfold-radius-sm));
+    border-radius: var(--pinfold-skel-r, var(--pinfold-skeleton-radius, var(--pinfold-radius-sm)));
     background-color: var(--pinfold-skel-fill);
     background-image: var(--pinfold-texture);
   }
   [data-variant='rect'] > .pinfold-skeleton__line {
-    block-size: var(--pinfold-skeleton-height, 6rem);
-    border-radius: var(--pinfold-skeleton-radius, var(--pinfold-radius-md));
+    block-size: var(--pinfold-skel-h, var(--pinfold-skeleton-height, 6rem));
+    border-radius: var(--pinfold-skel-r, var(--pinfold-skeleton-radius, var(--pinfold-radius-md)));
   }
-  :is(.pinfold-skeleton[data-loading], .pinfold-skeleton__shape)[data-variant='circle'] {
-    inline-size: var(--pinfold-skeleton-width, var(--pinfold-skel-circle));
+  :is(.pinfold-skeleton[data-loading], .pinfold-skeleton__shape):is([data-variant='circle'], [data-variant='square']) {
+    inline-size: var(--pinfold-skel-w, var(--pinfold-skeleton-width, var(--pinfold-skel-circle)));
   }
   [data-variant='circle'] > .pinfold-skeleton__line {
-    block-size: var(--pinfold-skeleton-height, var(--pinfold-skeleton-width, var(--pinfold-skel-circle)));
-    border-radius: var(--pinfold-skeleton-radius, var(--pinfold-control-round, 50%));
+    block-size: var(--pinfold-skel-h, var(--pinfold-skeleton-height, var(--pinfold-skel-w, var(--pinfold-skeleton-width, var(--pinfold-skel-circle)))));
+    border-radius: var(--pinfold-skel-r, var(--pinfold-skeleton-radius, var(--pinfold-control-round, 50%)));
+  }
+  [data-variant='square'] > .pinfold-skeleton__line {
+    block-size: var(--pinfold-skel-h, var(--pinfold-skeleton-height, var(--pinfold-skel-w, var(--pinfold-skeleton-width, var(--pinfold-skel-circle)))));
+    border-radius: var(--pinfold-skel-r, var(--pinfold-skeleton-radius, var(--pinfold-radius-md)));
+  }
+  :is(.pinfold-skeleton[data-loading], .pinfold-skeleton__shape)[data-variant='pill'] {
+    inline-size: var(--pinfold-skel-w, var(--pinfold-skeleton-width, 6rem));
+  }
+  [data-variant='pill'] > .pinfold-skeleton__line {
+    block-size: var(--pinfold-skel-h, var(--pinfold-skeleton-height, var(--pinfold-skel-pill)));
+    border-radius: var(--pinfold-skel-r, var(--pinfold-skeleton-radius, var(--pinfold-control-round, var(--pinfold-radius-full))));
+  }
+  /* An aspect ratio replaces the height of a block, square or circle. */
+  [data-ratio]:is([data-variant='rect'], [data-variant='square'], [data-variant='circle']) > .pinfold-skeleton__line {
+    block-size: auto;
+    aspect-ratio: var(--pinfold-skel-ratio, 1);
   }
 
   .pinfold-skeleton[data-animate][data-animation='shimmer'] .pinfold-skeleton__line {
@@ -102,8 +161,10 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
   }
+  [dir='rtl'] .pinfold-skeleton[data-animate][data-animation='wave'] .pinfold-skeleton__line { animation-direction: reverse; }
 
   @media (forced-colors: active) {
     .pinfold-skeleton__line { background: GrayText; }
+    .pinfold-skeleton__shape[data-frame] { border-color: CanvasText; }
   }
 }

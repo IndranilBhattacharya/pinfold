@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
-const SLOTS = ['root', 'label', 'value', 'track', 'indicator'] as const;
+const SLOTS = ['root', 'label', 'value', 'track', 'indicator', 'buffer', 'segment', 'description', 'start', 'end'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -13,7 +13,7 @@ const len = (description: string): PropMeta => ({ type: 'length', description, g
 export const progressMeta: ComponentMeta = {
   name: 'progress',
   displayName: 'Progress',
-  description: 'How far a task has got (a bar or a ring, determinate or indeterminate), or a measurement within a range (a meter).',
+  description: 'How far a task has got (a bar, a ring or a gauge; solid, striped or segmented; determinate or indeterminate), or a measurement within a range (a meter).',
   pattern: 'https://www.w3.org/TR/wai-aria-1.2/#progressbar',
   importPath: '@pinfold/react/progress',
   slots: SLOTS,
@@ -21,9 +21,22 @@ export const progressMeta: ComponentMeta = {
     value: { type: 'number', description: 'The current value. Leave it unset for an indeterminate progress (work started, length unknown).', group: 'data' },
     min: { type: 'number', default: 0, description: 'The start of the range.', group: 'data' },
     max: { type: 'number', default: 100, description: 'The end of the range.', group: 'data' },
-    label: { type: 'node', description: 'What is progressing ("Uploading report.pdf"). Also the accessible name.', group: 'data' },
+    buffer: { type: 'number', description: 'A secondary value ahead of `value` (what has loaded while `value` is what has played), drawn lighter behind the indicator.', group: 'data' },
+    label: { type: 'node', description: 'What is progressing ("Uploading report.pdf"), or a function of the state. Also the accessible name.', group: 'data' },
+    description: { type: 'node', description: 'A line under the progress ("3 of 12 files"), or a function of the state. Linked with `aria-describedby`.', group: 'data' },
+    startContent: { type: 'node', description: 'A node before the bar or ring (an icon), or a function of the state.', group: 'data' },
+    endContent: { type: 'node', description: 'A node after the bar or ring (a cancel button), or a function of the state.', group: 'data' },
     hideLabel: { type: 'boolean', default: false, description: 'Keep the label for screen readers only.', group: 'appearance', control: true },
     showValue: { type: 'boolean', default: true, description: 'Show the value text ("42%") next to the label, or inside a ring.', group: 'appearance', control: true },
+    valuePosition: {
+      type: 'enum',
+      values: ['auto', 'top', 'bottom', 'end', 'inside'],
+      default: 'auto',
+      description: 'Where the value text goes: above the bar, below it, at its end, or inside the fill (inside a ring or gauge, it is the centre). `auto`: above a bar, inside a ring or gauge.',
+      group: 'appearance',
+      control: true,
+    },
+    valueLabel: { type: 'node', description: 'The visible value, a node or `(state) => node` ("1.2 of 4 GB" with an icon). Screen readers still hear `formatValue`.', group: 'appearance' },
     formatValue: { type: 'function', description: 'The value text, shown and read: `(value, { min, max, percent }) => string`. Default: a whole percentage ("42%"), the same on server and client.', group: 'appearance' },
     kind: {
       type: 'enum',
@@ -34,7 +47,25 @@ export const progressMeta: ComponentMeta = {
       control: true,
       silent: true,
     },
-    shape: { type: 'enum', values: ['bar', 'circle'], default: 'bar', description: 'A horizontal bar or a ring.', group: 'appearance', control: true },
+    shape: { type: 'enum', values: ['bar', 'circle', 'semicircle'], default: 'bar', description: 'A horizontal bar, a ring, or a half ring (a gauge).', group: 'appearance', control: true },
+    variant: {
+      type: 'enum',
+      values: ['solid', 'striped', 'segmented'],
+      default: 'solid',
+      description: '`solid`; `striped`, moving stripes on a bar; `segmented`, the bar or ring cut into `segments` equal steps.',
+      group: 'appearance',
+      control: true,
+    },
+    segments: { type: 'number', default: 5, description: 'How many steps a segmented progress has (2 to 48).', group: 'appearance' },
+    tones: {
+      type: 'array',
+      description: 'Tone by value: `[{ at: 70, tone: \'warning\' }, { at: 90, tone: \'danger\' }]`. From `at` (in value units) up, the progress takes that tone; below every step, `tone`.',
+      group: 'appearance',
+      items: {
+        at: { type: 'number', description: 'The value from which the tone applies.', group: 'appearance', required: true },
+        tone: { type: 'enum', values: ['primary', 'neutral', 'success', 'warning', 'danger', 'info'], description: 'The tone.', group: 'appearance', required: true },
+      },
+    },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Bar thickness or ring size. Precedence: this config, `defaults.progress`, the provider, then md.', group: 'appearance', control: true },
     tone: {
@@ -51,6 +82,7 @@ export const progressMeta: ComponentMeta = {
       group: 'appearance',
       keys: { thickness: len('Bar height or ring stroke.'), size: len('Ring diameter.'), width: len('Bar length (default: full width).') },
     },
+    onComplete: { type: 'function', description: 'Called once each time the value reaches `max` from below (not when it starts there).', group: 'events' },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the roles and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },
     style: { type: 'object', description: 'Inline style on the root.', group: 'appearance' },
@@ -63,14 +95,18 @@ export const progressMeta: ComponentMeta = {
   aria: [
     '`role="progressbar"` (or `role="meter"`) with `aria-valuemin`, `aria-valuemax`, `aria-valuenow` and `aria-valuetext` (the formatted value).',
     'Indeterminate: no `aria-valuenow`, so it is read as busy rather than as 0%.',
+    'A `description` is linked with `aria-describedby`; the visible value (and a custom `valueLabel`) is `aria-hidden`, since `aria-valuetext` already carries it.',
     'Named by its label through `aria-labelledby`; `hideLabel` keeps the name and hides the text. Without a label it warns in development.',
     'Not a live region: updates are read when the user reaches it. The indeterminate motion stops under reduced motion and with the provider\'s `disableAnimation`.',
   ],
   dataAttributes: [
     { name: 'data-kind', on: 'root', values: '"progress" | "meter"' },
-    { name: 'data-shape', on: 'root', values: '"bar" | "circle"' },
+    { name: 'data-shape', on: 'root', values: '"bar" | "circle" | "semicircle"' },
+    { name: 'data-variant', on: 'root', values: '"solid" | "striped" | "segmented"' },
+    { name: 'data-value-position', on: 'root', values: 'the resolved position: "top" | "bottom" | "end" | "inside"' },
+    { name: 'data-complete', on: 'root', values: 'present at `max`' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },
-    { name: 'data-tone', on: 'root', values: 'the resolved tone' },
+    { name: 'data-tone', on: 'root', values: 'the resolved tone (after `tones`)' },
     { name: 'data-indeterminate', on: 'root', values: 'present without a value' },
   ],
   cssVariables: ['--pinfold-progress-thickness', '--pinfold-progress-size', '--pinfold-progress-width'],
@@ -79,6 +115,7 @@ export const progressMeta: ComponentMeta = {
       title: 'Presets',
       code: "import { defineProgress } from '@pinfold/react/progress';\n\nexport const Upload = defineProgress();\nexport const Disk = defineProgress({ kind: 'meter', tone: 'warning', formatValue: (v, { max }) => `${v} of ${max} GB` });\n\n<Upload label=\"Uploading report.pdf\" value={progress} />\n<Disk label=\"Storage\" value={42} max={64} />",
     },
+    { title: 'Varieties', code: "export const Steps = defineProgress({ variant: 'segmented', segments: 4, valuePosition: 'end' });\nexport const Gauge = defineProgress({ kind: 'meter', shape: 'semicircle', tones: [{ at: 70, tone: 'warning' }, { at: 90, tone: 'danger' }] });\nexport const Player = defineProgress({ showValue: false, size: 'sm' });\n\n<Steps label=\"Setup\" value={2} max={4} formatValue={(v, { max }) => `Step ${v} of ${max}`} />\n<Gauge label=\"CPU\" value={cpu} />\n<Player label=\"Playback\" value={played} buffer={loaded} onComplete={next} />" },
     { title: 'Indeterminate ring', code: "const Busy = defineProgress({ shape: 'circle', hideLabel: true });\n<Busy label=\"Loading results\" />" },
   ],
 };

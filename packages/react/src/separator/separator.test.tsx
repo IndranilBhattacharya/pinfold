@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { describePinfoldConformance } from '@pinfold/testing';
 import { separatorMeta } from '@pinfold/core/meta';
+import { inactiveSeparatorOptions } from '@pinfold/core';
 import { Separator } from './Separator';
 import { useSeparator } from './useSeparator';
 import { defineSeparator } from './define';
@@ -26,9 +27,41 @@ describe('Separator', () => {
     expect(container.querySelectorAll('.pinfold-separator__line[aria-hidden="true"]')).toHaveLength(2);
   });
 
-  it('drops the label on a vertical separator', () => {
-    const { container } = render(<Separator label="or" orientation="vertical" />);
-    expect(container.querySelector('.pinfold-separator__label')).toBeNull();
+  it('labels a vertical separator too, with a line either side', () => {
+    const { container } = render(<Separator label="or" orientation="vertical" decorative={false} />);
+    const root = container.firstElementChild!;
+    expect(root.getAttribute('role')).toBe('none');
+    expect(root.hasAttribute('aria-orientation')).toBe(false);
+    expect(root.hasAttribute('data-labelled')).toBe(true);
+    expect(container.querySelector('.pinfold-separator__label')!.textContent).toBe('or');
+    expect(container.querySelectorAll('.pinfold-separator__line')).toHaveLength(2);
+  });
+
+  it('reflects contrast and thickness, with normal and thin by default', () => {
+    const { container, rerender } = render(<Separator />);
+    const root = () => container.firstElementChild!;
+    expect([root().getAttribute('data-contrast'), root().getAttribute('data-thickness'), root().getAttribute('data-variant')]).toEqual(['normal', 'thin', 'solid']);
+    rerender(<Separator contrast="strong" thickness="thick" variant="gradient" orientation="vertical" />);
+    expect([root().getAttribute('data-contrast'), root().getAttribute('data-thickness'), root().getAttribute('data-variant'), root().getAttribute('data-orientation')]).toEqual([
+      'strong',
+      'thick',
+      'gradient',
+      'vertical',
+    ]);
+    rerender(<Separator contrast="subtle" unstyled />);
+    expect(root().getAttribute('data-contrast')).toBe('subtle');
+    expect(root().className).toBe('');
+  });
+
+  it('takes any node as its label', () => {
+    const { container } = render(<Separator label={<><svg data-icon="" /> Featured</>} labelPosition="end" />);
+    expect(container.querySelector('.pinfold-separator__label svg')).toBeTruthy();
+    expect(container.firstElementChild!.getAttribute('data-label-position')).toBe('end');
+  });
+
+  it('names thickness inactive when an exact thickness is set', () => {
+    expect(inactiveSeparatorOptions({ dimensions: { thickness: 3 } })).toHaveProperty('thickness');
+    expect(inactiveSeparatorOptions({ label: 'or', orientation: 'vertical' })).not.toHaveProperty('label');
   });
 
   it('maps dimensions onto its variables', () => {

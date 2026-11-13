@@ -4,7 +4,9 @@ import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
 export type SpinnerSlot = 'root';
-export type SpinnerVariant = 'ring' | 'arc' | 'dots' | 'bars' | 'pulse' | 'orbit';
+export type SpinnerVariant = 'ring' | 'arc' | 'dots' | 'bars' | 'pulse' | 'orbit' | 'dual' | 'track';
+export type SpinnerSpeed = 'slow' | 'normal' | 'fast';
+export type SpinnerThickness = 'thin' | 'normal' | 'thick';
 /** A colour role, or `current` to follow the surrounding text colour. */
 export type SpinnerTone = PinfoldTone | 'current';
 
@@ -13,6 +15,8 @@ export interface SpinnerState {
   variant: SpinnerVariant;
   size: PinfoldSize;
   tone: SpinnerTone;
+  speed: SpinnerSpeed;
+  thickness: SpinnerThickness;
   /** `label: ''`: no role, hidden from assistive tech. */
   decorative: boolean;
 }
@@ -34,10 +38,21 @@ export interface SpinnerConfig extends SlotOverrides<SpinnerSlot, SpinnerState> 
    */
   label?: string;
   /**
-   * The animation.
+   * The animation: `ring`, `arc` (a comet), `dots`, `bars` (an equaliser), `pulse`, `orbit`,
+   * `dual` (two counter-turning rings) or `track` (an arc that grows and shrinks on a visible track).
    * @default 'ring'
    */
   variant?: SpinnerVariant;
+  /**
+   * Pace of the cycle. `dimensions.duration` sets an exact one.
+   * @default 'normal'
+   */
+  speed?: SpinnerSpeed;
+  /**
+   * Stroke weight of `ring`, `arc`, `dual`, `track` and `orbit`. `dimensions.thickness` sets an exact one.
+   * @default 'normal'
+   */
+  thickness?: SpinnerThickness;
   /** @default 'md' */
   size?: PinfoldSize;
   /** @default 'primary' */

@@ -1,12 +1,9 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { SPINNER_PARTS, cn, dataAttr, dimensionVars, inactiveSpinnerOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { renderSlot, slotProps } from '../slots';
 import type { SpinnerApi, SpinnerComponent, SpinnerConfig, SpinnerRootProps, SpinnerState } from './types';
-
-/** Moving parts per variant (the rest are drawn by the root alone). */
-const PARTS: Record<SpinnerState['variant'], number> = { ring: 0, arc: 0, dots: 3, bars: 4, pulse: 2, orbit: 1 };
 
 /**
  * An indeterminate loading indicator, as a hook that hands back a component.
@@ -24,11 +21,20 @@ export function useSpinner(input: SpinnerConfig = {}): SpinnerComponent {
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ spinnerMeta, validateConfig }) => {
       for (const problem of validateConfig(spinnerMeta, input)) warnOnce(true, problem.message);
+      const inactive = inactiveSpinnerOptions(config);
+      for (const key in inactive) warnOnce((input as Record<string, unknown>)[key] !== undefined, `Spinner: \`${key}\` has no visible effect here. ${inactive[key]}`);
     });
   }
 
   const label = config.label ?? 'Loading';
-  const state: SpinnerState = { variant: config.variant ?? 'ring', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, decorative: label === '' };
+  const state: SpinnerState = {
+    variant: config.variant ?? 'ring',
+    size: config.size ?? ctx.size,
+    tone: config.tone ?? ctx.tone,
+    speed: config.speed ?? 'normal',
+    thickness: config.thickness ?? 'normal',
+    decorative: label === '',
+  };
 
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
@@ -39,6 +45,8 @@ export function useSpinner(input: SpinnerConfig = {}): SpinnerComponent {
         'data-variant': state.variant,
         'data-size': state.size,
         'data-tone': state.tone,
+        'data-speed': state.speed,
+        'data-thickness': state.thickness,
         // Opts out of the reset's reduced-motion kill: it slows down instead of freezing.
         'data-motion': 'essential',
         'data-unstyled': dataAttr(config.unstyled),
@@ -61,11 +69,18 @@ export function useSpinner(input: SpinnerConfig = {}): SpinnerComponent {
         ),
       ),
     );
-    // Moving parts for the variants that need them (dots, bars, pulse, orbit); decorative.
-    const count = PARTS[state.variant];
-    const parts = count
-      ? Array.from({ length: count }, (_, i) => <span key={i} className={config.unstyled ? undefined : 'pinfold-spinner__part'} />)
-      : null;
+    // Moving parts for the variants that need them; decorative. `track` draws its arc as an SVG
+    // stroke, the one shape CSS borders cannot give: round caps on an arc that grows and shrinks.
+    const count = SPINNER_PARTS[state.variant] ?? 0;
+    const part = config.unstyled ? undefined : 'pinfold-spinner__part';
+    const parts =
+      state.variant === 'track' ? (
+        <svg className={part} aria-hidden="true" focusable="false">
+          <circle cx="50%" cy="50%" r="50%" pathLength={100} />
+        </svg>
+      ) : count ? (
+        Array.from({ length: count }, (_, i) => <span key={i} className={part} />)
+      ) : null;
     return renderSlot(config, 'root', root, state, parts, (p, c) => <span {...p}>{c}</span>) as React.ReactElement;
   };
 

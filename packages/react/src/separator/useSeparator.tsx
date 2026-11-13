@@ -28,10 +28,9 @@ export function useSeparator(input: SeparatorConfig = {}): SeparatorComponent {
   }
 
   const orientation = config.orientation ?? 'horizontal';
-  // A vertical line has no room for a label.
-  const labelled = config.label != null && config.label !== false && config.label !== '' && orientation === 'horizontal';
+  const labelled = config.label != null && config.label !== false && config.label !== '';
   const decorative = config.decorative ?? true;
-  const state: SeparatorState = { orientation, variant: config.variant ?? 'solid', labelled };
+  const state: SeparatorState = { orientation, variant: config.variant ?? 'solid', contrast: config.contrast ?? 'normal', thickness: config.thickness ?? 'thin', labelled };
 
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
@@ -41,6 +40,8 @@ export function useSeparator(input: SeparatorConfig = {}): SeparatorComponent {
         'aria-orientation': !decorative && !labelled && orientation === 'vertical' ? 'vertical' : undefined,
         'data-orientation': orientation,
         'data-variant': state.variant,
+        'data-contrast': state.contrast,
+        'data-thickness': state.thickness,
         'data-label-position': config.labelPosition ?? 'center',
         'data-spacing': config.spacing ?? 'none',
         'data-labelled': labelled ? '' : undefined,

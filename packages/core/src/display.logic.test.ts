@@ -45,16 +45,16 @@ describe('kbd logic', () => {
 });
 
 describe('separator and skeleton logic', () => {
-  it('separator: labelPosition needs a label; vertical separators take none', () => {
+  it('separator: labelPosition needs a label; a label makes decorative moot', () => {
     expect(Object.keys(inactiveSeparatorOptions({}))).toEqual(['labelPosition']);
     expect(Object.keys(inactiveSeparatorOptions({ label: 'or' }))).toEqual(['decorative']);
-    expect(Object.keys(inactiveSeparatorOptions({ label: 'or', orientation: 'vertical' }))).toEqual(['label']);
+    expect(Object.keys(inactiveSeparatorOptions({ label: 'or', orientation: 'vertical' }))).toEqual(['decorative']);
   });
 
   it('skeleton: lines only for text, nothing animates once loaded; the last line is shorter', () => {
-    expect(Object.keys(inactiveSkeletonOptions({ variant: 'circle' }))).toEqual(['direction', 'lines']);
-    expect(Object.keys(inactiveSkeletonOptions({ items: [] }))).toEqual(['variant', 'lines']);
-    expect(Object.keys(inactiveSkeletonOptions({ loading: false })).sort()).toEqual(['animation', 'direction', 'lines']);
+    expect(Object.keys(inactiveSkeletonOptions({ variant: 'circle' }))).toEqual(['direction', 'lines', 'lastLine', 'rows', 'columns']);
+    expect(Object.keys(inactiveSkeletonOptions({ items: [] }))).toEqual(['variant', 'lines', 'lastLine', 'rows', 'columns']);
+    expect(Object.keys(inactiveSkeletonOptions({ loading: false })).sort()).toEqual(['animation', 'columns', 'direction', 'lines', 'rows']);
     expect(skeletonLineWidths(3)).toEqual(['100%', '100%', '62%']);
     expect(skeletonLineWidths(1)).toEqual(['100%']);
   });
@@ -124,7 +124,7 @@ describe('progress logic', () => {
   });
 
   it('lists the value options as inactive while indeterminate', () => {
-    expect(Object.keys(inactiveProgressOptions({}))).toEqual(['showValue', 'formatValue']);
-    expect(inactiveProgressOptions({ value: 3 })).toEqual({});
+    expect(Object.keys(inactiveProgressOptions({}))).toEqual(['showValue', 'formatValue', 'segments', 'valuePosition']);
+    expect(inactiveProgressOptions({ value: 3, variant: 'segmented' })).toEqual({});
   });
 });

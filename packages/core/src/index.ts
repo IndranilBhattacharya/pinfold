@@ -19,6 +19,7 @@ export { radiusProps, type RadiusOption } from './radius';
 export * from './accordion.logic';
 export * from './button.logic';
 export * from './kbd.logic';
+export * from './spinner.logic';
 export * from './separator.logic';
 export * from './skeleton.logic';
 export * from './badge.logic';

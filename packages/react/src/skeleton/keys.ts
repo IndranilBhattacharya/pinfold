@@ -3,6 +3,13 @@
 export const SKELETON_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'variant',
   'lines',
+  'lastLine',
+  'ratio',
+  'preset',
+  'count',
+  'rows',
+  'columns',
+  'layout',
   'items',
   'direction',
   'animation',

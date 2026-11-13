@@ -4,4 +4,4 @@
 export { Separator, useSeparator } from './client';
 export { Separator as default } from './client';
 export { defineSeparator, type DefinedSeparator, type SeparatorPresetProps } from './define';
-export type { SeparatorApi, SeparatorComponent, SeparatorConfig, SeparatorRootProps, SeparatorTagProps, SeparatorSlot, SeparatorState, SeparatorOrientation, SeparatorVariant, SeparatorSpacing, SeparatorDimensions } from './types';
+export type { SeparatorApi, SeparatorComponent, SeparatorConfig, SeparatorContrast, SeparatorThickness, SeparatorRootProps, SeparatorTagProps, SeparatorSlot, SeparatorState, SeparatorOrientation, SeparatorVariant, SeparatorSpacing, SeparatorDimensions } from './types';

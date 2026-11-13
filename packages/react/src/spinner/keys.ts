@@ -2,6 +2,8 @@
  * element. `config-keys.test.ts` keeps this equal to the meta. */
 export const SPINNER_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'variant',
+  'speed',
+  'thickness',
   'size',
   'tone',
   'label',

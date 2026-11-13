@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { describePinfoldConformance } from '@pinfold/testing';
 import { spinnerMeta } from '@pinfold/core/meta';
+import { inactiveSpinnerOptions } from '@pinfold/core';
 import { Spinner } from './Spinner';
 import { useSpinner } from './useSpinner';
 import { defineSpinner } from './define';
@@ -32,7 +33,35 @@ describe('Spinner', () => {
 
   it('renders the moving parts each variant needs', () => {
     const parts = (variant: string) => render(<Spinner variant={variant as never} />).container.querySelectorAll('.pinfold-spinner__part').length;
-    expect([parts('ring'), parts('arc'), parts('dots'), parts('bars'), parts('pulse'), parts('orbit')]).toEqual([0, 0, 3, 4, 2, 1]);
+    expect([parts('ring'), parts('arc'), parts('dots'), parts('bars'), parts('pulse'), parts('orbit'), parts('dual'), parts('track')]).toEqual([0, 0, 3, 4, 2, 1, 1, 1]);
+  });
+
+  it('track strokes one decorative SVG circle; the parts never reach assistive tech', () => {
+    const { container } = render(<Spinner variant="track" />);
+    const svg = container.querySelector('svg.pinfold-spinner__part')!;
+    expect(svg.getAttribute('aria-hidden')).toBe('true');
+    expect(svg.querySelector('circle')!.getAttribute('pathLength')).toBe('100');
+    expect(screen.getByRole('status', { name: 'Loading' }).textContent).toBe('');
+  });
+
+  it('reflects speed and thickness, with normal defaults', () => {
+    const { container, rerender } = render(<Spinner />);
+    const root = () => container.firstElementChild!;
+    expect([root().getAttribute('data-speed'), root().getAttribute('data-thickness')]).toEqual(['normal', 'normal']);
+    rerender(<Spinner variant="dual" speed="fast" thickness="thick" />);
+    expect([root().getAttribute('data-variant'), root().getAttribute('data-speed'), root().getAttribute('data-thickness')]).toEqual(['dual', 'fast', 'thick']);
+    // Unstyled keeps the state, drops the classes.
+    rerender(<Spinner variant="track" speed="slow" unstyled />);
+    expect(root().getAttribute('data-speed')).toBe('slow');
+    expect(root().querySelector('.pinfold-spinner__part')).toBeNull();
+  });
+
+  it('names thickness inactive on the variants without a stroke', () => {
+    expect(inactiveSpinnerOptions({ variant: 'dots' })).toHaveProperty('thickness');
+    expect(inactiveSpinnerOptions({ variant: 'bars' })).toHaveProperty('thickness');
+    expect(inactiveSpinnerOptions({ variant: 'pulse' })).toHaveProperty('thickness');
+    for (const variant of ['ring', 'arc', 'dual', 'track', 'orbit']) expect(inactiveSpinnerOptions({ variant })).toEqual({});
+    expect(inactiveSpinnerOptions({})).toEqual({});
   });
 
   it('maps dimensions onto its variables', () => {

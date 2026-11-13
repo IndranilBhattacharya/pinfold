@@ -44,7 +44,7 @@ function Invalid() {
   // @ts-expect-error keys are strings
   useKbd({ keys: [1, 2] });
   // @ts-expect-error not a skeleton shape
-  useSkeleton({ variant: 'square' });
+  useSkeleton({ variant: 'triangle' });
   // @ts-expect-error lines is a number
   useSkeleton({ lines: '3' });
   // @ts-expect-error a separator has no tone

@@ -4,4 +4,4 @@
 export { Progress, useProgress } from './client';
 export { Progress as default } from './client';
 export { defineProgress, type DefinedProgress, type ProgressPresetProps } from './define';
-export type { ProgressApi, ProgressComponent, ProgressConfig, ProgressRootProps, ProgressTagProps, ProgressSlot, ProgressState, ProgressKind, ProgressShape, ProgressDimensions } from './types';
+export type { ProgressApi, ProgressComponent, ProgressConfig, ProgressContent, ProgressSegmentItem, ProgressToneStep, ProgressValuePosition, ProgressVariant, ProgressRootProps, ProgressTagProps, ProgressSlot, ProgressState, ProgressKind, ProgressShape, ProgressDimensions } from './types';

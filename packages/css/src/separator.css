@@ -1,9 +1,11 @@
 /* Pinfold — separator. The line colour and thickness are the theme's border tokens, so style
-   packs restyle it (brutalist: a 2px rule in the text colour). */
+   packs restyle it (brutalist: a 2px rule in the text colour). `data-contrast` picks how much it
+   stands out, `data-thickness` its weight; `dimensions.thickness` wins over both presets. */
 
 @layer pinfold.components {
   .pinfold-separator {
-    --pinfold-sep-thick: var(--pinfold-separator-thickness, var(--pinfold-border-width));
+    --pinfold-sep-weight: var(--pinfold-border-width);
+    --pinfold-sep-thick: var(--pinfold-separator-thickness, var(--pinfold-sep-weight));
     --pinfold-sep-space: var(--pinfold-separator-spacing, 0px);
     --pinfold-sep-color: var(--pinfold-color-border);
 
@@ -22,6 +24,19 @@
   .pinfold-separator[data-spacing='md'] { --pinfold-sep-space: var(--pinfold-separator-spacing, var(--pinfold-space-4)); }
   .pinfold-separator[data-spacing='lg'] { --pinfold-sep-space: var(--pinfold-separator-spacing, var(--pinfold-space-6)); }
 
+  .pinfold-separator[data-thickness='medium'] { --pinfold-sep-weight: calc(var(--pinfold-border-width) * 2); }
+  .pinfold-separator[data-thickness='thick'] { --pinfold-sep-weight: calc(var(--pinfold-border-width) * 4); }
+
+  /* Contrast: the line and its label move together. */
+  .pinfold-separator[data-contrast='subtle'] {
+    --pinfold-sep-color: color-mix(in oklab, var(--pinfold-color-border) 55%, transparent);
+    color: var(--pinfold-color-text-subtle, var(--pinfold-color-text-muted));
+  }
+  .pinfold-separator[data-contrast='strong'] {
+    --pinfold-sep-color: color-mix(in oklab, var(--pinfold-color-border-strong) 72%, var(--pinfold-color-text));
+    color: var(--pinfold-color-text);
+  }
+
   .pinfold-separator[data-orientation='horizontal'] {
     inline-size: var(--pinfold-separator-length, 100%);
     max-inline-size: 100%;
@@ -30,6 +45,7 @@
   .pinfold-separator[data-orientation='vertical'] {
     flex-direction: column;
     align-self: stretch;
+    gap: var(--pinfold-space-2);
     block-size: var(--pinfold-separator-length, auto);
     min-block-size: 1em;
     margin-inline: var(--pinfold-sep-space);
@@ -38,6 +54,7 @@
   .pinfold-separator__line {
     flex: 1 1 0;
     min-inline-size: 0;
+    min-block-size: 0;
     border: 0 var(--pinfold-sep-color);
   }
   .pinfold-separator[data-orientation='horizontal'] .pinfold-separator__line {
@@ -51,20 +68,50 @@
   .pinfold-separator[data-variant='dashed'] .pinfold-separator__line { border-style: dashed; }
   .pinfold-separator[data-variant='dotted'] .pinfold-separator__line { border-style: dotted; }
 
+  /* gradient: a filled line that fades out at its ends, and away from a label. */
+  .pinfold-separator[data-variant='gradient'] .pinfold-separator__line {
+    --pinfold-sep-fade: linear-gradient(var(--pinfold-sep-dir, 90deg), transparent, var(--pinfold-sep-color) 35%, var(--pinfold-sep-color) 65%, transparent);
+    border: 0;
+    border-radius: var(--pinfold-radius-full);
+    background: var(--pinfold-sep-fade);
+  }
+  .pinfold-separator[data-variant='gradient'][data-orientation='horizontal'] .pinfold-separator__line { block-size: var(--pinfold-sep-thick); }
+  .pinfold-separator[data-variant='gradient'][data-orientation='vertical'] .pinfold-separator__line {
+    --pinfold-sep-dir: 180deg;
+    inline-size: var(--pinfold-sep-thick);
+  }
+  .pinfold-separator[data-variant='gradient'][data-labelled] .pinfold-separator__line:first-child {
+    --pinfold-sep-fade: linear-gradient(var(--pinfold-sep-dir, 90deg), transparent, var(--pinfold-sep-color) 70%);
+  }
+  .pinfold-separator[data-variant='gradient'][data-labelled] .pinfold-separator__line:last-child {
+    --pinfold-sep-fade: linear-gradient(var(--pinfold-sep-dir, 90deg), var(--pinfold-sep-color) 30%, transparent);
+  }
+  /* Right to left: the first line sits on the right, so its fade runs the other way. */
+  [dir='rtl'] .pinfold-separator[data-variant='gradient'][data-orientation='horizontal'] .pinfold-separator__line { --pinfold-sep-dir: 270deg; }
+
   /* A label at the start or end: the line before or after it is a short lead-in. */
   .pinfold-separator[data-label-position='start'] .pinfold-separator__line:first-child,
   .pinfold-separator[data-label-position='end'] .pinfold-separator__line:last-child {
     flex: 0 0 var(--pinfold-space-4);
   }
+  .pinfold-separator[data-orientation='vertical'][data-label-position='start'] .pinfold-separator__line:first-child,
+  .pinfold-separator[data-orientation='vertical'][data-label-position='end'] .pinfold-separator__line:last-child {
+    flex-basis: var(--pinfold-space-2);
+  }
   .pinfold-separator__label {
+    display: inline-flex;
     flex-shrink: 1;
+    align-items: center;
+    gap: var(--pinfold-space-1);
     min-inline-size: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .pinfold-separator__label > svg { inline-size: 1.15em; block-size: 1.15em; flex-shrink: 0; }
 
   @media (forced-colors: active) {
     .pinfold-separator { --pinfold-sep-color: CanvasText; }
+    .pinfold-separator[data-variant='gradient'] .pinfold-separator__line { forced-color-adjust: none; }
   }
 }

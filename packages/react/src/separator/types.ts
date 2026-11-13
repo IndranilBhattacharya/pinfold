@@ -5,13 +5,17 @@ import type { SlotOverrides } from '../types';
 
 export type SeparatorSlot = 'root' | 'line' | 'label';
 export type SeparatorOrientation = 'horizontal' | 'vertical';
-export type SeparatorVariant = 'solid' | 'dashed' | 'dotted';
+export type SeparatorVariant = 'solid' | 'dashed' | 'dotted' | 'gradient';
+export type SeparatorContrast = 'subtle' | 'normal' | 'strong';
+export type SeparatorThickness = 'thin' | 'medium' | 'thick';
 export type SeparatorSpacing = 'none' | 'sm' | 'md' | 'lg';
 
 /** Passed to slot `render` overrides. */
 export interface SeparatorState {
   orientation: SeparatorOrientation;
   variant: SeparatorVariant;
+  contrast: SeparatorContrast;
+  thickness: SeparatorThickness;
   labelled: boolean;
 }
 
@@ -26,12 +30,25 @@ export interface SeparatorDimensions {
  *   <Or />
  */
 export interface SeparatorConfig extends SlotOverrides<SeparatorSlot, SeparatorState> {
-  /** Text in the line, e.g. "or". */
+  /** Text in the line, e.g. "or", or any node. Horizontal and vertical. */
   label?: React.ReactNode;
   /** @default 'horizontal' */
   orientation?: SeparatorOrientation;
-  /** @default 'solid' */
+  /**
+   * Line style. `gradient` fades out towards the ends (and away from a label).
+   * @default 'solid'
+   */
   variant?: SeparatorVariant;
+  /**
+   * How much the line and its label stand out.
+   * @default 'normal'
+   */
+  contrast?: SeparatorContrast;
+  /**
+   * Line weight: the theme border width, twice it, or four times it. `dimensions.thickness` sets an exact one.
+   * @default 'thin'
+   */
+  thickness?: SeparatorThickness;
   /** @default 'center' */
   labelPosition?: 'start' | 'center' | 'end';
   /** @default 'none' */

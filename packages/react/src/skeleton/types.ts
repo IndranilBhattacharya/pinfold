@@ -1,10 +1,11 @@
 import type * as React from 'react';
-import type { Length, PinfoldSize, PropsBag } from '@pinfold/core';
+import type { Length, PinfoldSize, PropsBag, SkeletonNode, SkeletonPresetName } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
-export type SkeletonSlot = 'root' | 'line';
-export type SkeletonVariant = 'text' | 'rect' | 'circle';
+export type SkeletonSlot = 'root' | 'line' | 'shape';
+export type SkeletonVariant = 'text' | 'rect' | 'circle' | 'pill' | 'square';
+export type { SkeletonNode, SkeletonPresetName };
 export type SkeletonAnimation = 'shimmer' | 'wave' | 'pulse' | 'stagger' | 'none';
 export type SkeletonDirection = 'column' | 'row';
 
@@ -36,12 +37,32 @@ export interface SkeletonDimensions {
  *   const Paragraph = defineSkeleton({ lines: 3 });
  *   <Paragraph loading={!data} content={<p>{data?.bio}</p>} />
  */
-export interface SkeletonConfig extends SlotOverrides<SkeletonSlot, SkeletonState> {
+export interface SkeletonConfig extends SlotOverrides<SkeletonSlot, SkeletonState, SkeletonNode | SkeletonShape> {
   /** @default 'text' */
   variant?: SkeletonVariant;
   /** @default 1 */
   lines?: number;
-  /** A layout from one config: `[{ variant: 'circle' }, { lines: 2 }]`. */
+  /**
+   * Width of the last of several text lines.
+   * @default '62%'
+   */
+  lastLine?: Length;
+  /** Aspect ratio of a rect, square or circle (`'16/9'` or `1.78`); replaces the height. */
+  ratio?: number | string;
+  /** A ready-made layout. Tune it with `rows`, `columns` and `count`. */
+  preset?: SkeletonPresetName;
+  /** Copies of the preset or layout, laid out in `columns`. Default 1. */
+  count?: number;
+  /** Rows inside a preset: text lines, list items, table rows, form fields, sidebar entries, tabs. */
+  rows?: number;
+  /** Columns of a preset: table columns, dashboard tiles, or the grid of `count` copies. */
+  columns?: number;
+  /**
+   * Any layout as data. Each node has one shape key and any options:
+   * `[{ row: [{ circle: 40 }, { stack: [{ line: '60%' }, { line: '40%' }] }] }, { rect: 160 }]`.
+   */
+  layout?: readonly SkeletonNode[];
+  /** The earlier layout form: `[{ variant: 'circle' }, { lines: 2 }]`. `layout` is shorter and does more. */
   items?: readonly SkeletonShape[];
   /** @default 'column' */
   direction?: SkeletonDirection;
@@ -54,7 +75,7 @@ export interface SkeletonConfig extends SlotOverrides<SkeletonSlot, SkeletonStat
    * @default true
    */
   loading?: boolean;
-  /** The real content, shown when `loading` is false. */
+  /** The real content, shown when `loading` is false. On the tag, `children` work too. */
   content?: React.ReactNode;
   /**
    * Announced while loading (visually hidden). Empty: silent, the root is still `aria-busy`.
@@ -68,7 +89,7 @@ export interface SkeletonConfig extends SlotOverrides<SkeletonSlot, SkeletonStat
   style?: React.CSSProperties;
 }
 
-export type SkeletonRootProps = Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'content'> & { [key: `data-${string}`]: unknown };
+export type SkeletonRootProps = Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'content'> & { children?: React.ReactNode } & { [key: `data-${string}`]: unknown };
 export type SkeletonTagProps = SkeletonConfig & Omit<SkeletonRootProps, keyof SkeletonConfig>;
 
 export interface SkeletonApi {

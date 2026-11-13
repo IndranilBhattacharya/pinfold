@@ -1,18 +1,20 @@
-/* Pinfold — spinner. Six CSS-only animations; no icons, no SVG, no JS timers.
-   `data-size` / `data-tone` / `data-variant` carry the resolved config; `tone: 'current'`
-   follows the surrounding text colour. Style packs reach it through the control tokens:
-   --pinfold-control-glow (glass), --pinfold-control-round (brutalist) and the border width. */
+/* Pinfold — spinner. Eight CSS-only animations; no icons, no JS timers. `track` strokes one SVG
+   circle (round caps on an arc that grows and shrinks); the rest are borders and spans.
+   `data-size` / `data-tone` / `data-variant` / `data-speed` / `data-thickness` carry the resolved
+   config; `tone: 'current'` follows the surrounding text colour. Style packs reach it through the
+   control tokens: --pinfold-control-glow (glass), --pinfold-control-round (brutalist) and the border width. */
 
 @layer pinfold.components {
   .pinfold-spinner {
     --pinfold-spn-base: 1.5rem;
     --pinfold-spn-size: var(--pinfold-spinner-size, var(--pinfold-spn-base));
-    --pinfold-spn-thick: var(
-      --pinfold-spinner-thickness,
-      max(calc(var(--pinfold-border-width) * 1.5), calc(var(--pinfold-spn-size) / 9))
-    );
-    --pinfold-spn-speed: var(--pinfold-spinner-duration, 0.8s);
+    /* Stroke weight as a share of the diameter, with a floor so small spinners stay crisp. */
+    --pinfold-spn-weight: max(calc(var(--pinfold-border-width) * 1.5), calc(var(--pinfold-spn-size) / 9));
+    --pinfold-spn-thick: var(--pinfold-spinner-thickness, var(--pinfold-spn-weight));
+    --pinfold-spn-rate: 1;
+    --pinfold-spn-speed: var(--pinfold-spinner-duration, calc(0.8s * var(--pinfold-spn-rate)));
     --pinfold-spn-round: var(--pinfold-control-round, 50%);
+    --pinfold-spn-track: color-mix(in oklab, currentColor 20%, transparent);
 
     position: relative;
     display: inline-flex;
@@ -30,9 +32,14 @@
   .pinfold-spinner[data-size='lg'] { --pinfold-spn-base: 2.25rem; }
   .pinfold-spinner[data-tone='current'] { color: inherit; }
 
-  /* ring: a rotating arc on a faint track */
+  .pinfold-spinner[data-thickness='thin'] { --pinfold-spn-weight: max(var(--pinfold-border-width), calc(var(--pinfold-spn-size) / 14)); }
+  .pinfold-spinner[data-thickness='thick'] { --pinfold-spn-weight: max(calc(var(--pinfold-border-width) * 2), calc(var(--pinfold-spn-size) / 6)); }
+  .pinfold-spinner[data-speed='slow'] { --pinfold-spn-rate: 1.6; }
+  .pinfold-spinner[data-speed='fast'] { --pinfold-spn-rate: 0.6; }
+
+  /* ring: a turning arc on a faint track */
   .pinfold-spinner[data-variant='ring'] {
-    border: var(--pinfold-spn-thick) solid color-mix(in oklab, currentColor 22%, transparent);
+    border: var(--pinfold-spn-thick) solid var(--pinfold-spn-track);
     border-block-start-color: currentColor;
     border-radius: var(--pinfold-spn-round);
     animation: pinfold-spinner-spin var(--pinfold-spn-speed) linear infinite;
@@ -42,14 +49,55 @@
   .pinfold-spinner[data-variant='arc'] {
     border-radius: 50%;
     background: conic-gradient(from 0turn, transparent 15%, currentColor);
-    mask: radial-gradient(farthest-side, transparent calc(100% - var(--pinfold-spn-thick)), currentColor calc(100% - var(--pinfold-spn-thick) + 1px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - var(--pinfold-spn-thick)), black calc(100% - var(--pinfold-spn-thick) + 1px));
     animation: pinfold-spinner-spin calc(var(--pinfold-spn-speed) * 1.25) linear infinite;
   }
 
-  /* dots: three dots that rise in turn */
+  /* dual: two facing arcs outside, a lighter pair inside turning the other way */
+  .pinfold-spinner[data-variant='dual'] {
+    --pinfold-spn-dual: calc(var(--pinfold-spn-thick) * 0.85);
+    border: var(--pinfold-spn-dual) solid transparent;
+    border-block-color: currentColor;
+    border-radius: var(--pinfold-spn-round);
+    animation: pinfold-spinner-spin calc(var(--pinfold-spn-speed) * 1.5) linear infinite;
+  }
+  .pinfold-spinner[data-variant='dual'] .pinfold-spinner__part {
+    position: absolute;
+    inset: max(calc(var(--pinfold-spn-dual) * 0.8), calc(var(--pinfold-spn-size) / 10));
+    border: calc(var(--pinfold-spn-dual) * 0.8) solid transparent;
+    border-inline-color: color-mix(in oklab, currentColor 55%, transparent);
+    border-radius: var(--pinfold-spn-round);
+    /* Twice the root's turn, backwards: it reads as turning against it at the same pace. */
+    animation: pinfold-spinner-spin-back calc(var(--pinfold-spn-speed) * 0.75) linear infinite;
+  }
+
+  /* track: an arc that grows and shrinks as it turns, on a visible track; round caps */
+  .pinfold-spinner[data-variant='track'] {
+    border: var(--pinfold-spn-thick) solid var(--pinfold-spn-track);
+    border-radius: 50%;
+  }
+  .pinfold-spinner[data-variant='track'] .pinfold-spinner__part {
+    position: absolute;
+    /* The stroke's centre line sits on the track's. */
+    inset: calc(var(--pinfold-spn-thick) / -2);
+    inline-size: calc(100% + var(--pinfold-spn-thick));
+    block-size: calc(100% + var(--pinfold-spn-thick));
+    overflow: visible;
+    animation: pinfold-spinner-spin calc(var(--pinfold-spn-speed) * 2.4) linear infinite;
+  }
+  .pinfold-spinner[data-variant='track'] circle {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--pinfold-spn-thick);
+    stroke-linecap: round;
+    stroke-dasharray: 1 200;
+    animation: pinfold-spinner-dash calc(var(--pinfold-spn-speed) * 1.8) var(--pinfold-ease-in-out) infinite;
+  }
+
+  /* dots: three dots that rise and brighten in turn */
   .pinfold-spinner[data-variant='dots'] .pinfold-spinner__part {
-    inline-size: 26%;
-    block-size: 26%;
+    inline-size: 24%;
+    block-size: 24%;
     border-radius: var(--pinfold-spn-round);
     background: currentColor;
     animation: pinfold-spinner-dot calc(var(--pinfold-spn-speed) * 1.5) var(--pinfold-ease-in-out) infinite both;
@@ -70,15 +118,21 @@
   .pinfold-spinner[data-variant='bars'] .pinfold-spinner__part:nth-child(3) { animation-delay: calc(var(--pinfold-spn-speed) * 0.36); }
   .pinfold-spinner[data-variant='bars'] .pinfold-spinner__part:nth-child(4) { animation-delay: calc(var(--pinfold-spn-speed) * 0.54); }
 
-  /* pulse: two ripples that grow and fade */
+  /* pulse: a breathing dot that sends out a ripple */
   .pinfold-spinner[data-variant='pulse'] .pinfold-spinner__part {
     position: absolute;
-    inset: 0;
     border-radius: var(--pinfold-spn-round);
-    background: currentColor;
-    animation: pinfold-spinner-pulse calc(var(--pinfold-spn-speed) * 2) var(--pinfold-ease-out) infinite both;
   }
-  .pinfold-spinner[data-variant='pulse'] .pinfold-spinner__part:nth-child(2) { animation-delay: var(--pinfold-spn-speed); }
+  .pinfold-spinner[data-variant='pulse'] .pinfold-spinner__part:first-child {
+    inset: 28%;
+    background: currentColor;
+    animation: pinfold-spinner-breathe calc(var(--pinfold-spn-speed) * 2) var(--pinfold-ease-in-out) infinite both;
+  }
+  .pinfold-spinner[data-variant='pulse'] .pinfold-spinner__part:nth-child(2) {
+    inset: 0;
+    border: max(calc(var(--pinfold-border-width) * 1.5), calc(var(--pinfold-spn-size) / 12)) solid currentColor;
+    animation: pinfold-spinner-ripple calc(var(--pinfold-spn-speed) * 2) linear infinite both;
+  }
 
   /* orbit: a dot circling a faint track */
   .pinfold-spinner[data-variant='orbit'] {
@@ -106,28 +160,43 @@
   @keyframes pinfold-spinner-spin {
     to { transform: rotate(1turn); }
   }
+  @keyframes pinfold-spinner-spin-back {
+    to { transform: rotate(-2turn); }
+  }
+  @keyframes pinfold-spinner-dash {
+    0% { stroke-dasharray: 1 200; stroke-dashoffset: 0; }
+    50% { stroke-dasharray: 64 200; stroke-dashoffset: -14; }
+    100% { stroke-dasharray: 64 200; stroke-dashoffset: -99; }
+  }
   @keyframes pinfold-spinner-dot {
-    0%, 80%, 100% { transform: scale(0.55); opacity: 0.45; }
-    40% { transform: scale(1); opacity: 1; }
+    0%, 80%, 100% { transform: translateY(0) scale(0.7); opacity: 0.35; }
+    40% { transform: translateY(-45%) scale(1); opacity: 1; }
   }
   @keyframes pinfold-spinner-bar {
     0%, 100% { transform: scaleY(0.35); opacity: 0.6; }
     50% { transform: scaleY(1); opacity: 1; }
   }
-  @keyframes pinfold-spinner-pulse {
-    0% { transform: scale(0.1); opacity: 0.9; }
+  @keyframes pinfold-spinner-breathe {
+    0%, 100% { transform: scale(0.8); opacity: 0.75; }
+    50% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes pinfold-spinner-ripple {
+    0% { transform: scale(0.45); opacity: 0.85; }
+    40% { transform: scale(0.75); opacity: 0.6; }
     100% { transform: scale(1); opacity: 0; }
   }
 
   /* Opted out of the reset's motion kill (`data-motion="essential"`): slower, never frozen. */
   @media (prefers-reduced-motion: reduce) {
     .pinfold-spinner {
-      --pinfold-spn-speed: var(--pinfold-spinner-duration, 2s);
+      --pinfold-spn-speed: var(--pinfold-spinner-duration, calc(2s * var(--pinfold-spn-rate)));
     }
   }
 
+  /* System colours: draw every part, track included, in the text colour. */
   @media (forced-colors: active) {
     .pinfold-spinner {
+      forced-color-adjust: none;
       color: CanvasText;
       filter: none;
     }

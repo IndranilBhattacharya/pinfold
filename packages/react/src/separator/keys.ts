@@ -4,6 +4,8 @@ export const SEPARATOR_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'label',
   'orientation',
   'variant',
+  'contrast',
+  'thickness',
   'labelPosition',
   'spacing',
   'decorative',

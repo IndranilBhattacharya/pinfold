@@ -1,15 +1,19 @@
 /* Pinfold — progress and meter. Colour from the shared tone tokens (--pinfold-tone-*) selected
-   by the root's `data-tone`; style packs reach it through the control tokens (surface, glow).
-   The indeterminate motion runs only with `data-animate` and stops under reduced motion. */
+   by the root's `data-tone` (already resolved through `tones`); style packs reach it through the
+   control tokens (surface, glow). Motion (the indeterminate sweep, the stripes, value changes) runs
+   only with `data-animate` and stops under reduced motion. */
 
 @layer pinfold.components {
   .pinfold-progress {
     --pinfold-prg-fill: var(--pinfold-tone-solid, var(--pinfold-color-accent));
-    --pinfold-prg-track: color-mix(in oklab, var(--pinfold-prg-fill) 18%, var(--pinfold-control-surface, var(--pinfold-color-bg-subtle)));
+    --pinfold-prg-track: color-mix(in oklab, var(--pinfold-prg-fill) 16%, var(--pinfold-control-surface, var(--pinfold-color-bg-subtle)));
+    --pinfold-prg-buffer: color-mix(in oklab, var(--pinfold-prg-fill) 38%, var(--pinfold-control-surface, var(--pinfold-color-bg-subtle)));
+    --pinfold-prg-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
     --pinfold-prg-thick: var(--pinfold-progress-thickness, 0.5rem);
-    --pinfold-prg-size: var(--pinfold-progress-size, 3rem);
+    --pinfold-prg-size: var(--pinfold-progress-size, 3.25rem);
     /* Ring stroke in viewBox units (36 across): thicker on small rings so they stay legible. */
-    --pinfold-prg-stroke: 3.5;
+    --pinfold-prg-stroke: 3.25;
+    --pinfold-prg-gap: 3px;
 
     display: flex;
     flex-direction: column;
@@ -24,63 +28,172 @@
   }
   .pinfold-progress[data-size='sm'] {
     --pinfold-prg-thick: var(--pinfold-progress-thickness, 0.25rem);
-    --pinfold-prg-size: var(--pinfold-progress-size, 2rem);
-    --pinfold-prg-stroke: 4.5;
+    --pinfold-prg-size: var(--pinfold-progress-size, 2.25rem);
+    --pinfold-prg-stroke: 4;
+    --pinfold-prg-gap: 2px;
+    font-size: var(--pinfold-text-xs);
   }
   .pinfold-progress[data-size='lg'] {
     --pinfold-prg-thick: var(--pinfold-progress-thickness, 0.875rem);
-    --pinfold-prg-size: var(--pinfold-progress-size, 4.5rem);
-    --pinfold-prg-stroke: 3;
+    --pinfold-prg-size: var(--pinfold-progress-size, 4.75rem);
+    --pinfold-prg-stroke: 2.75;
+    --pinfold-prg-gap: 4px;
   }
 
-  .pinfold-progress__header {
+  .pinfold-progress__header,
+  .pinfold-progress__footer {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: var(--pinfold-space-3);
     min-inline-size: 0;
   }
+  .pinfold-progress__body {
+    display: flex;
+    align-items: center;
+    gap: var(--pinfold-space-3);
+    min-inline-size: 0;
+  }
+  .pinfold-progress__body > .pinfold-progress__track { flex: 1 1 auto; min-inline-size: 0; }
+  .pinfold-progress__start,
+  .pinfold-progress__end {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    color: var(--pinfold-color-text-muted);
+  }
+  .pinfold-progress__start > svg,
+  .pinfold-progress__end > svg { inline-size: 1.125em; block-size: 1.125em; }
   .pinfold-progress__label { min-inline-size: 0; overflow-wrap: anywhere; font-weight: var(--pinfold-weight-medium); }
+  .pinfold-progress__description {
+    min-inline-size: 0;
+    color: var(--pinfold-color-text-muted);
+    font-size: var(--pinfold-text-xs);
+  }
   .pinfold-progress__value {
     flex-shrink: 0;
     color: var(--pinfold-color-text-muted);
     font-variant-numeric: tabular-nums;
+    font-weight: var(--pinfold-weight-medium);
   }
+  .pinfold-progress[data-complete] .pinfold-progress__value { color: var(--pinfold-tone-text, var(--pinfold-color-accent)); }
 
   /* Bar */
   .pinfold-progress[data-shape='bar'] .pinfold-progress__track {
     position: relative;
-    display: block;
+    display: flex;
     block-size: var(--pinfold-prg-thick);
     overflow: hidden;
     background: var(--pinfold-prg-track);
     border-radius: var(--pinfold-radius-full);
   }
-  .pinfold-progress[data-shape='bar'] .pinfold-progress__indicator {
+  .pinfold-progress[data-shape='bar'] .pinfold-progress__indicator,
+  .pinfold-progress[data-shape='bar'] .pinfold-progress__buffer {
     display: block;
+    flex-shrink: 0;
     block-size: 100%;
-    background-color: var(--pinfold-prg-fill);
-    background-image: var(--pinfold-texture), linear-gradient(90deg, color-mix(in oklab, var(--pinfold-prg-fill) 70%, var(--pinfold-color-surface)), var(--pinfold-prg-fill));
     border-radius: inherit;
+  }
+  .pinfold-progress[data-shape='bar'] .pinfold-progress__buffer {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    background: var(--pinfold-prg-buffer);
+  }
+  .pinfold-progress[data-shape='bar'] .pinfold-progress__indicator {
+    position: relative;
+    background-color: var(--pinfold-prg-fill);
+    background-image: var(--pinfold-texture), linear-gradient(90deg, color-mix(in oklab, var(--pinfold-prg-fill) 72%, var(--pinfold-color-surface)), var(--pinfold-prg-fill));
     filter: var(--pinfold-control-glow, none);
   }
-  .pinfold-progress[data-animate][data-shape='bar']:not([data-indeterminate]) .pinfold-progress__indicator {
+  .pinfold-progress[data-animate][data-shape='bar']:not([data-indeterminate]) :is(.pinfold-progress__indicator, .pinfold-progress__buffer) {
     transition: inline-size var(--pinfold-duration-slow) var(--pinfold-ease);
   }
-  .pinfold-progress[data-shape='bar'][data-indeterminate] .pinfold-progress__indicator {
-    inline-size: 40%;
-  }
-  .pinfold-progress[data-animate][data-shape='bar'][data-indeterminate] .pinfold-progress__indicator {
-    animation: pinfold-progress-slide 1.4s ease-in-out infinite;
+  .pinfold-progress[data-shape='bar'][data-indeterminate]:not([data-variant='segmented']) .pinfold-progress__indicator { inline-size: 40%; }
+  .pinfold-progress[data-animate][data-shape='bar'][data-indeterminate]:not([data-variant]) .pinfold-progress__indicator,
+  .pinfold-progress[data-animate][data-shape='bar'][data-indeterminate][data-variant='solid'] .pinfold-progress__indicator {
+    animation: pinfold-progress-slide 1.4s var(--pinfold-ease-in-out) infinite;
   }
 
-  /* Ring */
-  .pinfold-progress[data-shape='circle'] {
+  /* Value inside the bar: the bar grows to hold it; written on the fill, or just past a short one. */
+  .pinfold-progress[data-shape='bar'][data-value-position='inside'] { --pinfold-prg-thick: var(--pinfold-progress-thickness, 1.125rem); }
+  .pinfold-progress[data-shape='bar'][data-value-position='inside'][data-size='lg'] { --pinfold-prg-thick: var(--pinfold-progress-thickness, 1.375rem); }
+  .pinfold-progress__track > .pinfold-progress__value {
+    position: absolute;
+    inset-block: 0;
+    display: flex;
+    align-items: center;
+    padding-inline: var(--pinfold-space-2);
+    font-size: var(--pinfold-text-xs);
+    line-height: 1;
+  }
+  .pinfold-progress__track > .pinfold-progress__value[data-fit='fill'] {
+    inset-inline-end: calc(100% - var(--pinfold-prg-value));
+    color: var(--pinfold-prg-on);
+  }
+  .pinfold-progress__track > .pinfold-progress__value[data-fit='track'] {
+    inset-inline-start: var(--pinfold-prg-value);
+    color: var(--pinfold-color-text-muted);
+  }
+
+  /* Striped: diagonal bands of the on-colour that travel along the fill. */
+  .pinfold-progress[data-shape='bar'][data-variant='striped'] .pinfold-progress__indicator {
+    background-image: repeating-linear-gradient(
+        -45deg,
+        color-mix(in oklab, var(--pinfold-prg-on) 24%, transparent) 0 0.5rem,
+        transparent 0.5rem 1rem
+      ),
+      linear-gradient(90deg, color-mix(in oklab, var(--pinfold-prg-fill) 82%, var(--pinfold-color-surface)), var(--pinfold-prg-fill));
+    background-size: 1.414rem 100%, auto;
+  }
+  .pinfold-progress[data-shape='bar'][data-variant='striped'][data-indeterminate] .pinfold-progress__indicator { inline-size: 100%; }
+  .pinfold-progress[data-animate][data-shape='bar'][data-variant='striped'] .pinfold-progress__indicator {
+    animation: pinfold-progress-stripes 0.9s linear infinite;
+  }
+
+  /* Segmented: equal steps with a gap, each filled in turn. */
+  .pinfold-progress[data-shape='bar'][data-variant='segmented'] .pinfold-progress__track {
+    gap: var(--pinfold-prg-gap);
+    overflow: visible;
+    background: none;
+  }
+  .pinfold-progress__segment {
+    display: flex;
+    flex: 1 1 0;
+    min-inline-size: 0;
+    overflow: hidden;
+    background: var(--pinfold-prg-track);
+    border-radius: var(--pinfold-radius-xs);
+  }
+  .pinfold-progress__segment:first-child { border-start-start-radius: var(--pinfold-radius-full); border-end-start-radius: var(--pinfold-radius-full); }
+  .pinfold-progress__segment:last-child { border-start-end-radius: var(--pinfold-radius-full); border-end-end-radius: var(--pinfold-radius-full); }
+  .pinfold-progress[data-shape='bar'][data-variant='segmented'] .pinfold-progress__indicator { background-image: var(--pinfold-texture); }
+  .pinfold-progress[data-shape='bar'][data-variant='segmented'][data-indeterminate] .pinfold-progress__indicator { inline-size: 100%; opacity: 0.25; }
+  .pinfold-progress[data-animate][data-variant='segmented'][data-indeterminate] .pinfold-progress__indicator {
+    animation: pinfold-progress-step 1.6s var(--pinfold-ease-in-out) infinite both;
+    animation-delay: calc(var(--pinfold-prg-i, 0) * 120ms);
+  }
+
+  /* Ring and gauge */
+  .pinfold-progress:is([data-shape='circle'], [data-shape='semicircle']) {
     inline-size: auto;
     flex-direction: row;
     align-items: center;
     gap: var(--pinfold-space-3);
   }
+  .pinfold-progress[data-shape='semicircle'] {
+    flex-direction: column;
+    gap: var(--pinfold-space-2);
+    text-align: center;
+  }
+  .pinfold-progress__caption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-inline-size: 0;
+  }
+  .pinfold-progress[data-shape='semicircle'] .pinfold-progress__caption { align-items: center; }
+  .pinfold-progress__caption > .pinfold-progress__value { font-size: var(--pinfold-text-xs); }
   .pinfold-progress__figure {
     position: relative;
     display: inline-grid;
@@ -89,58 +202,94 @@
     inline-size: var(--pinfold-prg-size);
     block-size: var(--pinfold-prg-size);
   }
+  .pinfold-progress[data-shape='semicircle'] .pinfold-progress__figure {
+    inline-size: calc(var(--pinfold-prg-size) * 1.5);
+    block-size: calc(var(--pinfold-prg-size) * 1.5 * 20 / 36);
+  }
   .pinfold-progress__ring {
     grid-area: 1 / 1;
     inline-size: 100%;
     block-size: 100%;
-    /* Starts at 12 o'clock. */
-    transform: rotate(-90deg);
     overflow: visible;
   }
+  /* A ring starts at 12 o'clock; a gauge is drawn left to right as it is. */
+  .pinfold-progress[data-shape='circle'] .pinfold-progress__ring { transform: rotate(-90deg); }
   .pinfold-progress__figure > .pinfold-progress__value {
     grid-area: 1 / 1;
-    font-size: calc(var(--pinfold-prg-size) * 0.26);
+    font-size: max(0.625rem, calc(var(--pinfold-prg-size) * 0.24));
+    font-weight: var(--pinfold-weight-semibold);
+    letter-spacing: var(--pinfold-tracking-tight);
+    line-height: 1;
     color: var(--pinfold-color-text);
   }
-  .pinfold-progress[data-shape='circle'] .pinfold-progress__track,
-  .pinfold-progress[data-shape='circle'] .pinfold-progress__indicator {
+  .pinfold-progress[data-shape='semicircle'] .pinfold-progress__figure > .pinfold-progress__value {
+    align-self: end;
+    font-size: calc(var(--pinfold-prg-size) * 0.3);
+  }
+  .pinfold-progress:is([data-shape='circle'], [data-shape='semicircle']) :is(.pinfold-progress__track, .pinfold-progress__indicator, .pinfold-progress__buffer, .pinfold-progress__segment) {
     fill: none;
     stroke-width: var(--pinfold-prg-stroke);
-  }
-  .pinfold-progress[data-shape='circle'] .pinfold-progress__track { stroke: var(--pinfold-prg-track); }
-  .pinfold-progress[data-shape='circle'] .pinfold-progress__indicator {
-    stroke: var(--pinfold-prg-fill);
     stroke-linecap: round;
+  }
+  .pinfold-progress:is([data-shape='circle'], [data-shape='semicircle']) :is(.pinfold-progress__track, .pinfold-progress__segment) { stroke: var(--pinfold-prg-track); }
+  .pinfold-progress:is([data-shape='circle'], [data-shape='semicircle']) .pinfold-progress__buffer { stroke: var(--pinfold-prg-buffer); }
+  .pinfold-progress:is([data-shape='circle'], [data-shape='semicircle']) .pinfold-progress__indicator {
+    stroke: var(--pinfold-prg-fill);
     filter: var(--pinfold-control-glow, none);
   }
-  .pinfold-progress[data-animate][data-shape='circle']:not([data-indeterminate]) .pinfold-progress__indicator {
-    transition: stroke-dashoffset var(--pinfold-duration-md) var(--pinfold-ease-out);
+  .pinfold-progress[data-variant='segmented']:is([data-shape='circle'], [data-shape='semicircle']) :is(.pinfold-progress__indicator, .pinfold-progress__segment) { stroke-linecap: butt; }
+  .pinfold-progress[data-variant='segmented']:is([data-shape='circle'], [data-shape='semicircle'])[data-indeterminate] .pinfold-progress__indicator { opacity: 0.25; }
+  .pinfold-progress[data-animate]:is([data-shape='circle'], [data-shape='semicircle']):not([data-indeterminate]) :is(.pinfold-progress__indicator, .pinfold-progress__buffer) {
+    transition: stroke-dashoffset var(--pinfold-duration-md) var(--pinfold-ease-out), stroke-dasharray var(--pinfold-duration-md) var(--pinfold-ease-out);
   }
-  .pinfold-progress[data-animate][data-shape='circle'][data-indeterminate] .pinfold-progress__ring {
+  .pinfold-progress[data-animate][data-shape='circle'][data-indeterminate]:not([data-variant='segmented']) .pinfold-progress__ring {
     animation: pinfold-progress-spin 1s linear infinite;
+  }
+  .pinfold-progress[data-shape='semicircle'][data-indeterminate]:not([data-variant='segmented']) .pinfold-progress__indicator {
+    stroke-dasharray: 28 100;
+    stroke-dashoffset: 28;
+  }
+  .pinfold-progress[data-animate][data-shape='semicircle'][data-indeterminate]:not([data-variant='segmented']) .pinfold-progress__indicator {
+    animation: pinfold-progress-sweep 1.5s var(--pinfold-ease-in-out) infinite alternate;
   }
 
   @keyframes pinfold-progress-slide {
     from { transform: translateX(-100%); }
     to { transform: translateX(250%); }
   }
-  @keyframes pinfold-progress-spin {
-    from { transform: rotate(-90deg); }
-    to { transform: rotate(270deg); }
-  }
   @keyframes pinfold-progress-slide-rtl {
     from { transform: translateX(100%); }
     to { transform: translateX(-250%); }
   }
-  /* Right to left: the bar fills from the right, so the sweep runs the other way. */
+  @keyframes pinfold-progress-stripes {
+    to { background-position: 1.414rem 0, 0 0; }
+  }
+  @keyframes pinfold-progress-step {
+    0%, 100% { opacity: 0.25; }
+    40% { opacity: 1; }
+  }
+  @keyframes pinfold-progress-spin {
+    from { transform: rotate(-90deg); }
+    to { transform: rotate(270deg); }
+  }
+  @keyframes pinfold-progress-sweep {
+    from { stroke-dashoffset: 28; }
+    to { stroke-dashoffset: -72; }
+  }
+  /* Right to left: the bar fills from the right, so the sweep and the stripes run the other way. */
   [dir='rtl'] .pinfold-progress[data-animate][data-shape='bar'][data-indeterminate] .pinfold-progress__indicator { animation-name: pinfold-progress-slide-rtl; }
+  [dir='rtl'] .pinfold-progress[data-animate][data-shape='bar'][data-variant='striped'] .pinfold-progress__indicator { animation-name: pinfold-progress-stripes; animation-direction: reverse; }
+  [dir='rtl'] .pinfold-progress[data-animate][data-variant='segmented'][data-indeterminate] .pinfold-progress__indicator { animation-name: pinfold-progress-step; }
 
   @media (forced-colors: active) {
-    .pinfold-progress__track { border: 1px solid CanvasText; }
-    .pinfold-progress[data-shape='bar'] .pinfold-progress__indicator { forced-color-adjust: none; background: Highlight; }
-    .pinfold-progress[data-shape='circle'] .pinfold-progress__indicator { stroke: Highlight; }
+    .pinfold-progress__track,
+    .pinfold-progress__segment { border: 1px solid CanvasText; }
+    .pinfold-progress:is([data-shape='circle'], [data-shape='semicircle']) .pinfold-progress__track { border: 0; stroke: GrayText; }
+    .pinfold-progress[data-shape='bar'] :is(.pinfold-progress__indicator, .pinfold-progress__buffer) { forced-color-adjust: none; background: Highlight; }
+    .pinfold-progress[data-shape='bar'] .pinfold-progress__buffer { opacity: 0.4; }
+    .pinfold-progress:is([data-shape='circle'], [data-shape='semicircle']) .pinfold-progress__indicator { stroke: Highlight; }
   }
 
   /* An explicit radius squares the bar off (none) or rounds it (full); unset stays a pill. */
-  .pinfold-progress[data-pinfold-radius][data-shape='bar'] .pinfold-progress__track { border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) * 0.25); }
+  .pinfold-progress[data-pinfold-radius][data-shape='bar'] :is(.pinfold-progress__track, .pinfold-progress__segment) { border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) * 0.25); }
 }
