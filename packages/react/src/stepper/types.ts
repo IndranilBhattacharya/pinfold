@@ -3,8 +3,9 @@ import type { PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
-export type StepperSlot = 'root' | 'list' | 'step' | 'button' | 'indicator' | 'connector' | 'text' | 'label' | 'description' | 'panel' | 'actions';
-export type StepperVariant = 'circle' | 'dot' | 'bar';
+export type StepperSlot = 'root' | 'summary' | 'list' | 'step' | 'button' | 'indicator' | 'connector' | 'text' | 'label' | 'description' | 'panel' | 'actions';
+export type StepperVariant = 'circle' | 'dot' | 'bar' | 'text';
+export type StepperStatus = 'complete' | 'current' | 'upcoming' | 'error';
 
 /** One step. */
 export interface StepperItem {
@@ -12,8 +13,8 @@ export interface StepperItem {
   label: React.ReactNode;
   /** A line under it. */
   description?: React.ReactNode;
-  /** In the circle instead of the number. */
-  icon?: React.ReactNode;
+  /** In the mark instead of the number (and instead of the check and error marks): a node, or `(step) => node` to change it with the step's `status`. */
+  icon?: React.ReactNode | ((step: StepperItemContext) => React.ReactNode);
   /** What the step shows while it is current: a form, a summary. */
   content?: React.ReactNode;
   /** Marked "Optional". */
@@ -36,6 +37,8 @@ export interface StepperLabels {
   optional?: string;
   /** Spoken after each step name. Default "done", "current", "not started", "error". */
   status?: Partial<Record<'complete' | 'current' | 'upcoming' | 'error', string>>;
+  /** The summary on a narrow box. Default "Step 2 of 5". */
+  progress?: (step: number, total: number) => string;
 }
 
 /** Passed to slot `render` overrides. */
@@ -58,7 +61,7 @@ export interface StepperState {
  *   ]} onNext={validate} onComplete={placeOrder} doneContent={<Receipt />} />
  */
 /** One step as you wrote it (strings become `{ label }`), its position and status. `render` overrides of the repeating parts get it as `item`. */
-export type StepperItemContext = StepperItem & { index: number; status: string };
+export type StepperItemContext = StepperItem & { index: number; status: StepperStatus };
 
 export interface StepperConfig extends SlotOverrides<StepperSlot, StepperState, StepperItemContext> {
   /** One step each; a string is a step with that name. */
@@ -75,6 +78,14 @@ export interface StepperConfig extends SlotOverrides<StepperSlot, StepperState, 
   onNext?: (step: number) => boolean | void | Promise<boolean | void>;
   /** Finish was pressed on the last step (after `onNext`). A promise shows Finish as loading. */
   onComplete?: () => void | Promise<void>;
+  /** Before any move (Back, Next, Finish, a click on a step, `goTo`): return `false`, or a promise of it, to stay. A promise shows the pressed button as loading. */
+  beforeChange?: (from: number, to: number) => boolean | void | Promise<boolean | void>;
+  /** Your mark per status for every step: `{ complete: <Check />, error: <X /> }`. A step's own `icon` wins. */
+  icons?: Partial<Record<StepperStatus, React.ReactNode>>;
+  /** The line between marks stops short of them (`gap`) or touches them (`joined`). @default 'gap' */
+  connector?: 'gap' | 'joined';
+  /** A horizontal stepper on a narrow box (under 30rem) shows "Step 2 of 5" and the current name over its marks. @default true */
+  responsive?: boolean;
   /** @default true */
   linear?: boolean;
   /** @default true */
@@ -82,7 +93,7 @@ export interface StepperConfig extends SlotOverrides<StepperSlot, StepperState, 
   /** Shown in the panel once every step is done. */
   doneContent?: React.ReactNode;
   labels?: StepperLabels;
-  /** @default 'circle' */
+  /** `circle`, `dot`, `bar` (a segment per step) or `text` (numbers and names in a row). @default 'circle' */
   variant?: StepperVariant;
   /** @default 'horizontal' */
   orientation?: 'horizontal' | 'vertical';
@@ -112,8 +123,10 @@ export interface StepperApi {
   isLast: boolean;
   /** Every step is done. */
   isComplete: boolean;
-  /** Go to a step (any, unlike a click: the app decides). */
+  /** Go to a step (any, unlike a click: the app decides). Skips `beforeChange`. */
   setValue: (step: number) => void;
+  /** Go to a step through `beforeChange` (resolves once it has moved or stayed). */
+  goTo: (step: number) => void | Promise<void>;
   /** The next step, without `onNext`. */
   next: () => void;
   previous: () => void;

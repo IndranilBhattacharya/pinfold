@@ -47,6 +47,7 @@
     gap: 0.25rem;
     min-inline-size: 0;
     overflow: auto hidden;
+    scroll-padding-inline: 2.5rem;
     scrollbar-width: none;
     -webkit-mask-image: linear-gradient(to right, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent);
     mask-image: linear-gradient(to right, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent);
@@ -54,8 +55,45 @@
   .pinfold-tabs[data-full-width] .pinfold-tabs__list { flex-grow: 1; }
   .pinfold-tabs__list::-webkit-scrollbar { display: none; }
   /* Where there is more to scroll to, that edge fades. */
-  [data-overflow-start] > .pinfold-tabs__list { --pinfold-tab-fs: 2rem; }
-  [data-overflow-end] > .pinfold-tabs__list { --pinfold-tab-fe: 2rem; }
+  :is([data-overflow-start], [data-overflow-top]) > .pinfold-tabs__list { --pinfold-tab-fs: 2rem; }
+  :is([data-overflow-end], [data-overflow-bottom]) > .pinfold-tabs__list { --pinfold-tab-fe: 2rem; }
+
+  /* Scroll buttons: only on a side that hides tabs. */
+  .pinfold-tabs__scrollButton {
+    position: absolute;
+    z-index: 3;
+    inset-block-start: 50%;
+    display: none;
+    flex-shrink: 0;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: calc(var(--pinfold-tab-h) - 0.5rem);
+    block-size: calc(var(--pinfold-tab-h) - 0.5rem);
+    margin: 0;
+    padding: 0;
+    color: var(--pinfold-color-text-muted);
+    background: var(--pinfold-tab-surface);
+    border: 0;
+    border-radius: var(--pinfold-radius-full);
+    box-shadow: 0 0 0 var(--pinfold-border-width) var(--pinfold-tab-edge), var(--pinfold-shadow-xs);
+    cursor: pointer;
+  }
+  .pinfold-tabs__scrollButton > svg { inline-size: var(--pinfold-control-icon); block-size: var(--pinfold-control-icon); }
+  .pinfold-tabs__scrollButton[data-scroll='back'] > svg { transform: scaleX(-1); }
+  [dir='rtl'] .pinfold-tabs__scrollButton[data-scroll='back'] > svg { transform: none; }
+  [dir='rtl'] .pinfold-tabs__scrollButton[data-scroll='forward'] > svg { transform: scaleX(-1); }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__scrollButton[data-scroll='back'] > svg { transform: rotate(-90deg); }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__scrollButton[data-scroll='forward'] > svg { transform: rotate(90deg); }
+  /* Over the faded edge, so the row keeps its width. */
+  .pinfold-tabs__scrollButton[data-scroll='back'] { inset-inline-start: 0.125rem; translate: 0 -50%; }
+  .pinfold-tabs__scrollButton[data-scroll='forward'] { inset-inline-end: 0.125rem; translate: 0 -50%; }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__scrollButton { inset-inline: 50% auto; translate: -50% 0; }
+  [dir='rtl'] .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__scrollButton { translate: 50% 0; }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__scrollButton[data-scroll='back'] { inset-block: 0.125rem auto; }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__scrollButton[data-scroll='forward'] { inset-block: auto 0.125rem; }
+  .pinfold-tabs__scrollButton:hover { color: var(--pinfold-color-text); }
+  :is([data-overflow-start], [data-overflow-top]) > .pinfold-tabs__scrollButton[data-scroll='back'],
+  :is([data-overflow-end], [data-overflow-bottom]) > .pinfold-tabs__scrollButton[data-scroll='forward'] { display: inline-grid; }
   [dir='rtl'] .pinfold-tabs__list { -webkit-mask-image: linear-gradient(to left, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); mask-image: linear-gradient(to left, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); }
   .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__list { flex-direction: column; overflow: hidden auto; -webkit-mask-image: linear-gradient(transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); mask-image: linear-gradient(transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); }
 
@@ -215,10 +253,12 @@
   [dir='rtl'] .pinfold-tabs[data-variant='enclosed'][data-placement='start'] .pinfold-tabs__indicator { border-right-color: var(--pinfold-tab-edge); border-left-color: transparent; border-radius: 0 var(--pinfold-tab-radius) var(--pinfold-tab-radius) 0; box-shadow: inset -2px 0 0 var(--pinfold-tab-solid); }
   [dir='rtl'] .pinfold-tabs[data-variant='enclosed'][data-placement='end'] .pinfold-tabs__indicator { border-left-color: var(--pinfold-tab-edge); border-right-color: transparent; border-radius: var(--pinfold-tab-radius) 0 0 var(--pinfold-tab-radius); box-shadow: inset 2px 0 0 var(--pinfold-tab-solid); }
   .pinfold-tabs[data-variant='enclosed'] .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { background: var(--pinfold-color-surface); box-shadow: inset 0 2px 0 var(--pinfold-tab-solid); }
-  .pinfold-tabs[data-variant='enclosed'] .pinfold-tabs__panel {
+  .pinfold-tabs[data-variant='enclosed'][data-panel-variant='plain'] .pinfold-tabs__header { box-shadow: inset 0 calc(var(--pinfold-border-width) * -1) 0 var(--pinfold-tab-edge); }
+  .pinfold-tabs[data-variant='enclosed'][data-panel-variant='plain'] .pinfold-tabs__panel { padding-block-start: var(--pinfold-space-4); }
+  /* panelVariant card: the panel on a card (enclosed: the folder tabs open onto it). */
+  .pinfold-tabs[data-panel-variant='card'] .pinfold-tabs__panel {
     position: relative;
     align-self: stretch;
-    margin-block-start: calc(var(--pinfold-border-width) * -1);
     padding: var(--pinfold-space-4) var(--pinfold-space-5, 1.25rem);
     background-color: var(--pinfold-color-surface);
     background-image: var(--pinfold-texture);
@@ -227,16 +267,18 @@
     box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-sm));
     backdrop-filter: var(--pinfold-backdrop);
   }
-  .pinfold-tabs[data-variant='enclosed'][data-placement='bottom'] .pinfold-tabs__panel { margin-block: 0 calc(var(--pinfold-border-width) * -1); }
-  .pinfold-tabs[data-variant='enclosed'][data-placement='start'] .pinfold-tabs__panel { margin-block-start: 0; margin-inline-start: calc(var(--pinfold-border-width) * -1); }
-  .pinfold-tabs[data-variant='enclosed'][data-placement='end'] .pinfold-tabs__panel { margin-block-start: 0; margin-inline-end: calc(var(--pinfold-border-width) * -1); }
+  .pinfold-tabs[data-variant='enclosed'][data-panel-variant='card'] .pinfold-tabs__panel { margin-block-start: calc(var(--pinfold-border-width) * -1); }
+  .pinfold-tabs[data-variant='enclosed'][data-panel-variant='card'][data-placement='bottom'] .pinfold-tabs__panel { margin-block: 0 calc(var(--pinfold-border-width) * -1); }
+  .pinfold-tabs[data-variant='enclosed'][data-panel-variant='card'][data-placement='start'] .pinfold-tabs__panel { margin-block-start: 0; margin-inline-start: calc(var(--pinfold-border-width) * -1); }
+  .pinfold-tabs[data-variant='enclosed'][data-panel-variant='card'][data-placement='end'] .pinfold-tabs__panel { margin-block-start: 0; margin-inline-end: calc(var(--pinfold-border-width) * -1); }
 
   .pinfold-tabs__panel {
     flex: 1 1 auto;
     min-inline-size: 0;
     border-radius: var(--pinfold-radius-sm);
   }
-  .pinfold-tabs__panel:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-tabs__panel:focus-visible,
+  .pinfold-tabs__scrollButton:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
   /* After a change (never on load), the new panel slides in from the side the selection moved to. */
   .pinfold-tabs[data-animate][data-direction] > .pinfold-tabs__panel:not([hidden]) { animation: pinfold-tabs-in var(--pinfold-duration-slow) var(--pinfold-ease-out); }
   .pinfold-tabs[data-direction='back'] { --pinfold-tab-from: -0.75rem; }

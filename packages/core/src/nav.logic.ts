@@ -92,12 +92,16 @@ export function stepStatus(index: number, current: number): StepStatus {
 }
 
 /** Options with no visible effect in the current config. */
-export function inactiveTabsOptions(config: { placement?: string; onAdd?: unknown; onClose?: unknown; onReorder?: unknown }): Record<string, string> {
+export function inactiveTabsOptions(config: { placement?: string; onAdd?: unknown; onClose?: unknown; onReorder?: unknown; mode?: string; keepMounted?: boolean }): Record<string, string> {
   const out: Record<string, string> = {};
   if (config.placement === 'start' || config.placement === 'end') out.fullWidth = 'a column of tabs already fills its side.';
   if (!config.onAdd) out.addLabel = 'only used with `onAdd`.';
   if (!config.onClose) out.closeLabel = 'only used with `onClose`.';
   if (!config.onReorder) out.reorderLabel = 'only used with `onReorder`.';
+  if (config.mode === 'nav') {
+    const why = 'navigation tabs have no panels.';
+    Object.assign(out, { keepMounted: why, lazy: why, panelVariant: why, renderPanel: why, activation: 'navigation tabs are links: each is a tab stop.' });
+  } else if (config.keepMounted) out.lazy = '`keepMounted` already mounts every panel.';
   return out;
 }
 
@@ -128,7 +132,7 @@ export function inactiveBreadcrumbOptions(config: { maxItems?: number; items?: u
   return out;
 }
 
-export function inactivePaginationOptions(config: { showControls?: boolean; compact?: boolean; count?: number; total?: number; hasNext?: boolean; pageSizes?: readonly number[] }): Record<string, string> {
+export function inactivePaginationOptions(config: { showControls?: boolean; compact?: boolean; count?: number; total?: number; hasNext?: boolean; hasPrevious?: boolean; showPages?: boolean; pageSizes?: readonly number[] }): Record<string, string> {
   const out: Record<string, string> = {};
   const unknown = config.count === undefined && config.total === undefined;
   if (config.showControls === false) out.showEdges = 'the first and last buttons sit with the previous and next ones.';
@@ -141,7 +145,16 @@ export function inactivePaginationOptions(config: { showControls?: boolean; comp
   if (unknown) {
     const why = 'the page count is unknown (`hasNext`): only previous and next show.';
     Object.assign(out, { showControls: why, siblings: why, boundaries: why, showEdges: why, compact: why });
-  } else if (config.hasNext !== undefined) out.hasNext = 'only used when neither `count` nor `total` is known.';
+  } else {
+    const why = 'only used when neither `count` nor `total` is known.';
+    if (config.hasNext !== undefined) out.hasNext = why;
+    if (config.hasPrevious !== undefined) out.hasPrevious = why;
+    if (config.showPages === false) {
+      const pagesOff = 'there are no numbered pages (`showPages: false`).';
+      Object.assign(out, { siblings: pagesOff, boundaries: pagesOff, renderItem: pagesOff, compact: pagesOff, showControls: 'a simple pager always has previous and next.' });
+    }
+  }
+  if (config.showControls === false && config.showPages !== false && !unknown) out.showControlLabels = 'there are no previous and next buttons.';
   return out;
 }
 
@@ -150,7 +163,12 @@ export function inactiveStepperOptions(config: { variant?: string; orientation?:
   if (config.variant === 'bar') {
     out.orientation = 'a bar is always a row.';
     out.labelPlacement = 'a bar always has its names under it.';
-  } else if (config.orientation === 'vertical') out.labelPlacement = 'a vertical stepper always has its names beside the marks.';
+    out.icons = 'a bar has no marks.';
+    out.connector = 'bar segments have no line between them.';
+  } else if (config.orientation === 'vertical') {
+    out.labelPlacement = 'a vertical stepper always has its names beside the marks.';
+    out.responsive = 'only a horizontal stepper collapses to "Step 2 of 5".';
+  } else if (config.variant === 'text') out.labelPlacement = 'a text stepper always has its names beside the numbers.';
   if (!config.onChange) out.linear = 'only used with `onChange`: without it no step is a button.';
   const panels = Array.isArray(config.items) && config.items.some((item) => typeof item === 'object' && item !== null && 'content' in item);
   if (!panels) {

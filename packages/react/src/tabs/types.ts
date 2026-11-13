@@ -3,7 +3,7 @@ import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@
 import type { PinfoldComponent } from '../component';
 import type { NoInfer, SlotOverrides } from '../types';
 
-export type TabsSlot = 'root' | 'header' | 'list' | 'tab' | 'indicator' | 'icon' | 'endContent' | 'close' | 'add' | 'panel';
+export type TabsSlot = 'root' | 'header' | 'list' | 'tab' | 'indicator' | 'icon' | 'endContent' | 'close' | 'add' | 'scrollButton' | 'panel';
 export type TabsVariant = 'segmented' | 'underline' | 'pills' | 'soft' | 'enclosed';
 export type TabsPlacement = 'top' | 'bottom' | 'start' | 'end';
 
@@ -84,6 +84,18 @@ export interface TabsConfig<Id extends string = string> extends SlotOverrides<Ta
   fullWidth?: boolean;
   /** @default false */
   keepMounted?: boolean;
+  /** Mount a panel the first time its tab is selected, then keep it (its state survives a switch). @default false */
+  lazy?: boolean;
+  /** `tabs`: a tab list with panels. `nav`: the tabs are links in a `<nav>` (the current one `aria-current="page"`), no panels: route tabs. @default 'tabs' */
+  mode?: 'tabs' | 'nav';
+  /** The panel's frame: `plain` (no frame, your layout), `card` (on a card), or `auto` (a card for `enclosed`, else plain). @default 'auto' */
+  panelVariant?: 'auto' | 'plain' | 'card';
+  /** Arrow buttons at the ends of a row of tabs that overflows (for pointers; keys move focus along the row). @default true */
+  scrollButtons?: boolean;
+  /** Draw the inside of each tab yourself: `(item) => node` (the tab keeps its element, role and keys). */
+  renderTab?: (item: TabsItemContext) => React.ReactNode;
+  /** The panel content for a tab: `(item) => node`, instead of each item's `content`. */
+  renderPanel?: (item: TabsItemContext) => React.ReactNode;
   /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
   radius?: RadiusOption;
   /** @default 'md' */

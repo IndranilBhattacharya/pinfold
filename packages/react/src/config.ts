@@ -68,7 +68,7 @@ export interface PinfoldComponentDefaults {
   resizable?: Omit<ResizableConfig, 'label' | 'panels' | 'sizes' | 'onResize' | 'autoSaveId'>;
   carousel?: Omit<CarouselConfig, 'label' | 'slides' | 'index' | 'defaultIndex' | 'onIndexChange'>;
   empty?: Omit<EmptyConfig, 'title' | 'description' | 'media' | 'actions'>;
-  timeline?: Omit<TimelineConfig, 'label' | 'items'>;
+  timeline?: Omit<TimelineConfig, 'label' | 'items' | 'onOpenChange' | 'onItemClick'>;
   rating?: Omit<RatingConfig, 'label' | 'value' | 'defaultValue' | 'onChange' | 'name' | 'disabled'>;
   table?: Omit<TableConfig, 'label' | 'rows' | 'columns' | 'rowKey' | 'sort' | 'defaultSort' | 'onSortChange' | 'selected' | 'defaultSelected' | 'onSelectionChange' | 'page' | 'defaultPage' | 'onPageChange' | 'total' | 'onRowAction' | 'loading'>;
   datepicker?: Omit<DatePickerConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'isDateDisabled' | 'open' | 'defaultOpen' | 'onOpenChange' | 'placeholder'>;
@@ -77,8 +77,8 @@ export interface PinfoldComponentDefaults {
   tags?: Omit<TagsConfig, 'label' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'onRemove'>;
   combobox?: Omit<ComboboxConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'inputValue' | 'defaultInputValue' | 'onInputChange' | 'placeholder' | 'loading' | 'open' | 'defaultOpen' | 'onOpenChange'>;
   select?: Omit<SelectConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'placeholder' | 'open' | 'defaultOpen' | 'onOpenChange'>;
-  stepper?: Omit<StepperConfig, 'items' | 'value' | 'defaultValue' | 'onChange'>;
-  pagination?: Omit<PaginationConfig, 'count' | 'page' | 'defaultPage' | 'onChange'>;
+  stepper?: Omit<StepperConfig, 'items' | 'value' | 'defaultValue' | 'onChange' | 'beforeChange'>;
+  pagination?: Omit<PaginationConfig, 'count' | 'page' | 'defaultPage' | 'onChange' | 'hasPrevious' | 'onPageSizeChange'>;
   breadcrumb?: Omit<BreadcrumbConfig, 'items' | 'onChange'>;
   tabs?: Omit<TabsConfig, 'label' | 'items' | 'value' | 'defaultValue' | 'onChange'>;
   otp?: Omit<OtpConfig, 'label' | 'value' | 'defaultValue' | 'onChange' | 'onComplete'>;

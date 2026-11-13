@@ -9,6 +9,10 @@ export type PaginationRadius = 'sm' | 'md' | 'full';
 
 /** Text read and shown, for translation. */
 export interface PaginationLabels {
+  /** Shown beside the chevron with `showControlLabels`. @default 'Previous' */
+  previousText?: string;
+  /** Shown beside the chevron with `showControlLabels`. @default 'Next' */
+  nextText?: string;
   /** @default 'Previous page' */
   previous?: string;
   /** @default 'Next page' */
@@ -56,13 +60,21 @@ export interface PaginationState {
  *   <Pages total={data.total} page={query.page} pageSize={query.size} loading={isFetching}
  *     onChange={(page, { pageSize }) => setQuery({ page, size: pageSize })} />
  */
-export interface PaginationConfig extends SlotOverrides<PaginationSlot, PaginationState> {
+/** A page button as `renderItem` and the `item` slot's `render` get it. */
+export interface PaginationItemContext {
+  page: number;
+  current: boolean;
+}
+
+export interface PaginationConfig extends SlotOverrides<PaginationSlot, PaginationState, PaginationItemContext> {
   /** How many pages there are. Or give `total` (items) and the page size. */
   count?: number;
   /** How many items there are; with `pageSize` it gives the page count and the "21–40 of 532" summary. */
   total?: number;
   /** The total is unknown (a cursor-paged API): whether there is a page after this one. */
   hasNext?: boolean;
+  /** The total is unknown: whether there is a page before this one (by default, any page after the first). */
+  hasPrevious?: boolean;
   /** The current page (from 1), controlled. */
   page?: number;
   /** @default 1 */
@@ -75,6 +87,10 @@ export interface PaginationConfig extends SlotOverrides<PaginationSlot, Paginati
   pageSizes?: readonly number[];
   /** A page or the page size changed: `(page, { pageSize, offset, reason, event })`. */
   onChange?: (page: number, details: PaginationChange) => void;
+  /** The page size changed (before `onChange`, which also reports it). */
+  onPageSizeChange?: (pageSize: number, event?: React.SyntheticEvent) => void;
+  /** The inside of each page button: `({ page, current }) => node`. The button keeps its label and behaviour. */
+  renderItem?: (item: PaginationItemContext) => React.ReactNode;
   /** Every page is a real link (crawlable, opens in a new tab), routed by the provider's `navigate`. Without it, pages are buttons. */
   getHref?: (page: number) => string;
   /** @default 'Pagination' */
@@ -87,6 +103,10 @@ export interface PaginationConfig extends SlotOverrides<PaginationSlot, Paginati
   showControls?: boolean;
   /** @default false */
   showEdges?: boolean;
+  /** Numbered pages. `false`: only previous and next (a simple pager), with the summary if `showInfo`. @default true */
+  showPages?: boolean;
+  /** "Previous" and "Next" written beside the chevrons. @default false */
+  showControlLabels?: boolean;
   /** @default false */
   showInfo?: boolean;
   /** @default false */

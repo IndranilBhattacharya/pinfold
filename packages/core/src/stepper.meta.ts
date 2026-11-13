@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
-const SLOTS = ['root', 'list', 'step', 'button', 'indicator', 'connector', 'text', 'label', 'description', 'panel', 'actions'] as const;
+const SLOTS = ['root', 'summary', 'list', 'step', 'button', 'indicator', 'connector', 'text', 'label', 'description', 'panel', 'actions'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -28,7 +28,7 @@ export const stepperMeta: ComponentMeta = {
       items: {
         label: { type: 'node', required: true, description: 'The step name.', group: 'data' },
         description: { type: 'node', description: 'A line under it.', group: 'data' },
-        icon: { type: 'node', description: 'In the circle instead of the number.', group: 'data' },
+        icon: { type: 'node', description: 'In the mark instead of the number (and the check and error marks): a node, or `(step) => node` to change it with the step\'s `status`.', group: 'data' },
         content: { type: 'node', description: 'What the step shows while it is current: a form, a summary. With it, Back and Next show.', group: 'data' },
         optional: { type: 'boolean', description: 'Marked "Optional".', group: 'data' },
         error: { type: 'boolean', description: 'Something needs fixing here: the danger tone and an error mark, read as "error".', group: 'data' },
@@ -41,6 +41,10 @@ export const stepperMeta: ComponentMeta = {
     onChange: { type: 'function', description: '`(step, event) => void` after Back, Next or a click on a step. With it, steps are buttons: done ones, or any with `linear: false`.', group: 'events' },
     onNext: { type: 'function', description: '`(step) => boolean | Promise<boolean>`: before Next leaves a step. `false` stays (an invalid form); a promise shows Next as loading.', group: 'events' },
     onComplete: { type: 'function', description: '`() => void | Promise`: Finish on the last step (after `onNext`). A promise shows Finish as loading.', group: 'events' },
+    beforeChange: { type: 'function', description: '`(from, to) => boolean | Promise<boolean>`: before any move (Back, Next, Finish, a click on a step, `goTo`). `false` stays; a promise shows the pressed button as loading.', group: 'events' },
+    icons: { type: 'object', description: 'Your mark per status for every step: `{ complete, current, upcoming, error }` (nodes). A step\'s own `icon` wins.', group: 'data' },
+    connector: { type: 'enum', values: ['gap', 'joined'], default: 'gap', description: 'The line between marks stops a little short of them, or touches them.', group: 'appearance', control: true },
+    responsive: { type: 'boolean', default: true, description: 'A horizontal stepper on a narrow box (under 30rem) shows "Step 2 of 5" and the current name over its marks; the list is still read in full.', group: 'appearance', control: true },
     linear: { type: 'boolean', default: true, description: 'Only done steps can be clicked. `false`: any step (a non-linear wizard).', group: 'behaviour', control: true, silent: true },
     showActions: { type: 'boolean', default: true, description: 'Back and Next (Finish on the last step) under the content. Off: drive it with the controller.', group: 'appearance', control: true },
     doneContent: { type: 'node', description: 'Shown in the panel once every step is done.', group: 'data' },
@@ -54,9 +58,10 @@ export const stepperMeta: ComponentMeta = {
         finish: { type: 'string', description: 'Default "Finish".', group: 'data' },
         optional: { type: 'string', description: 'Default "Optional".', group: 'data' },
         status: { type: 'object', description: 'Spoken after each step name: `{ complete, current, upcoming, error }`. Default "done", "current", "not started", "error".', group: 'data' },
+        progress: { type: 'function', description: '`(step, total) => string`: the summary on a narrow box. Default "Step 2 of 5".', group: 'data' },
       },
     },
-    variant: { type: 'enum', values: ['circle', 'dot', 'bar'], default: 'circle', description: '`circle`: numbered circles, a check when done. `dot`: small dots. `bar`: a segment per step.', group: 'appearance', control: true },
+    variant: { type: 'enum', values: ['circle', 'dot', 'bar', 'text'], default: 'circle', description: '`circle`: numbered circles, a check when done. `dot`: small dots. `bar`: a segment per step. `text`: numbers and names in a row, joined by short lines.', group: 'appearance', control: true },
     orientation: { type: 'enum', values: ['horizontal', 'vertical'], default: 'horizontal', description: 'A row, or a column with each step\'s content opening under it.', group: 'appearance', control: true },
     labelPlacement: { type: 'enum', values: ['bottom', 'end'], default: 'bottom', description: 'Step names under the marks, or beside them (the line runs between steps).', group: 'appearance', control: true },
     radius: RADIUS_PROP,
@@ -88,7 +93,8 @@ export const stepperMeta: ComponentMeta = {
     'With `linear` (the default), steps not yet reached are never buttons, so the order of the task is kept.',
   ],
   dataAttributes: [
-    { name: 'data-variant', on: 'root', values: '"circle" | "dot" | "bar"' },
+    { name: 'data-variant', on: 'root', values: '"circle" | "dot" | "bar" | "text"' },
+    { name: 'data-connector', on: 'root', values: '"gap" | "joined"' },
     { name: 'data-orientation', on: 'root', values: '"horizontal" | "vertical"' },
     { name: 'data-label-placement', on: 'root', values: '"bottom" | "end"' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },

@@ -5,7 +5,7 @@ import { useSlidingIndicator } from '../indicator';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { followLink } from '../link';
 import { VISUALLY_HIDDEN } from '../a11y';
 import { CHEVRON_DOWN_ICON, CHEVRON_ICON, CHEVRONS_ICON, MORE_ICON } from '../nav-icons';
@@ -47,9 +47,11 @@ export function usePagination(input: PaginationConfig): PaginationComponent {
   const state: PaginationState = { variant: config.variant ?? 'soft', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, page, count, pageSize: size, loading };
   const labels = config.labels ?? {};
   const { offset, from, to } = pageWindow(page, size, config.total);
-  const atStart = page <= 1;
+  // A cursor-paged list may know where it is only from the API: `hasPrevious` / `hasNext`.
+  const atStart = count === undefined && config.hasPrevious !== undefined ? !config.hasPrevious : page <= 1;
   const atEnd = count === undefined ? !config.hasNext : page >= count;
-  const pages = known && !compact;
+  const simple = known && config.showPages === false;
+  const pages = known && !compact && !simple;
   useSlidingIndicator(list, pages, '[data-current-cell]', 0, '--pinfold-pgn-i', `${page}/${count}/${size}`);
 
   const change = (next: number, details: PaginationChange) => {
@@ -72,6 +74,7 @@ export function usePagination(input: PaginationConfig): PaginationComponent {
     // The first item on screen stays on screen.
     const target = pageAt(offset, next);
     setPageSize(next);
+    config.onPageSizeChange?.(next, event);
     change(target, { pageSize: next, offset: (target - 1) * next, reason: 'pageSize', event });
   };
 
@@ -82,6 +85,7 @@ export function usePagination(input: PaginationConfig): PaginationComponent {
         'aria-busy': loading || undefined,
         'data-variant': state.variant,
         'data-radius': config.radius ?? 'md',
+        'data-control-labels': dataAttr(config.showControlLabels),
         'data-size': state.size,
         'data-tone': state.tone,
         'data-disabled': dataAttr(config.disabled),
@@ -128,12 +132,29 @@ export function usePagination(input: PaginationConfig): PaginationComponent {
         : count !== undefined
           ? `Page ${page} of ${count}`
           : `Page ${page}`;
-    const controls = config.showControls !== false;
+    const controls = config.showControls !== false || simple;
+    // Previous and next: a chevron, and the word with `showControlLabels`.
+    const arrow = (text: string, flip: boolean) =>
+      config.showControlLabels ? (
+        flip ? (
+          <>
+            {CHEVRON_ICON}
+            <span className={config.unstyled ? undefined : 'pinfold-pagination__word'}>{text}</span>
+          </>
+        ) : (
+          <>
+            <span className={config.unstyled ? undefined : 'pinfold-pagination__word'}>{text}</span>
+            {CHEVRON_ICON}
+          </>
+        )
+      ) : (
+        CHEVRON_ICON
+      );
     const edges = known && !!config.showEdges && controls;
     const cells: React.ReactNode[] = [];
     if (pages) cells.push(<li key="cursor" aria-hidden="true" className={config.unstyled ? undefined : 'pinfold-pagination__cursor'} />);
     if (edges) cells.push(li('first', control('first', 1, CHEVRONS_ICON, { 'aria-label': labels.first ?? 'First page', 'data-flip': '' }, atStart)));
-    if (controls || !pages) cells.push(li('previous', control('previous', page - 1, CHEVRON_ICON, { 'aria-label': labels.previous ?? 'Previous page', 'data-flip': '' }, atStart)));
+    if (controls || !pages) cells.push(li('previous', control('previous', page - 1, arrow(labels.previousText ?? 'Previous', true), { 'aria-label': labels.previous ?? 'Previous page', 'data-flip': '' }, atStart)));
     if (pages) {
       for (const entry of paginationRange(page, count ?? 0, config.siblings ?? 1, config.boundaries ?? 1)) {
         if (typeof entry === 'string') {
@@ -144,7 +165,8 @@ export function usePagination(input: PaginationConfig): PaginationComponent {
         cells.push(
           li(
             entry,
-            control('item', entry, entry, {
+            control('item', entry, config.renderItem ? config.renderItem({ page: entry, current }) : entry, {
+              [ITEM]: { page: entry, current },
               'aria-label': labels.page ? labels.page(entry) : `Page ${entry}`,
               'aria-current': current ? 'page' : undefined,
               'data-current': dataAttr(current),
@@ -153,7 +175,7 @@ export function usePagination(input: PaginationConfig): PaginationComponent {
           ),
         );
       }
-    } else {
+    } else if (!simple) {
       // Compact, or the total unknown: where you are, as text.
       const shown = count === undefined ? (labels.page ? labels.page(page) : `Page ${page}`) : `${page} / ${count}`;
       cells.push(
@@ -175,7 +197,7 @@ export function usePagination(input: PaginationConfig): PaginationComponent {
         ),
       );
     }
-    if (controls || !pages) cells.push(li('next', control('next', page + 1, CHEVRON_ICON, { 'aria-label': labels.next ?? 'Next page' }, atEnd)));
+    if (controls || !pages) cells.push(li('next', control('next', page + 1, arrow(labels.nextText ?? 'Next', false), { 'aria-label': labels.next ?? 'Next page' }, atEnd)));
     if (edges) cells.push(li('last', control('last', count ?? 1, CHEVRONS_ICON, { 'aria-label': labels.last ?? 'Last page' }, atEnd)));
 
     const sizes = config.pageSizes?.length ? [...new Set([...config.pageSizes, size])].sort((a, b) => a - b) : null;
@@ -252,7 +274,9 @@ export function usePagination(input: PaginationConfig): PaginationComponent {
     next: () => {
       if (!atEnd) setRaw(clamp(page + 1));
     },
-    previous: () => setRaw(clamp(page - 1)),
+    previous: () => {
+      if (!atStart) setRaw(clamp(page - 1));
+    },
     slice: (all) => all.slice(offset, offset + size),
     getRootProps,
     render,

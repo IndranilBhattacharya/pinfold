@@ -1,100 +1,314 @@
-/* Pinfold — timeline. Markers joined by a line; text beside them (or alternating sides), or under
-   them in a row. dot: small tone dots with a halo. icon: icons in tinted circles. card: each event on
-   a card on the control tokens (packs reach it). A pending event's marker breathes. */
+/* Pinfold — timeline. Each event is a small grid: a marker column, the text beside it (or the
+   other side of the line too). The marker and the line share that column and are both centred in
+   it, so the line is always exactly on the marker's centre, whatever its size, in every layout and
+   in right-to-left text. The line belongs to the event above it and reaches the next marker (joined)
+   or stops short of both (gap). A marker sits on the text's first line: --pinfold-tl-head is the
+   height of that first row, --pinfold-tl-off the space above the marker inside it.
+   dot: small dots. icon: icons in tinted circles. card: each event on a card on the control tokens. */
 
 @layer pinfold.components {
   .pinfold-timeline {
-    --pinfold-tl-mark: 0.75rem;
-    --pinfold-tl-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
-    --pinfold-tl-line: color-mix(in oklab, var(--pinfold-color-text) 14%, transparent);
+    --pinfold-tl-fs: var(--pinfold-text-sm);
+    --pinfold-tl-row: calc(var(--pinfold-tl-fs) * 1.5);
+    --pinfold-tl-mark-base: 0.75rem;
+    --pinfold-tl-mark: var(--pinfold-timeline-marker-size, var(--pinfold-tl-mark-base));
+    --pinfold-tl-line-w: var(--pinfold-timeline-line-width, 2px);
+    --pinfold-tl-space-base: 1.5rem;
+    --pinfold-tl-space: var(--pinfold-timeline-gap, var(--pinfold-tl-space-base));
+    /* Space between the marker column and the text. */
+    --pinfold-tl-cgap: 0.875rem;
+    /* The card's padding: the first line of text sits that far in. */
+    --pinfold-tl-pad-y: 0px;
+    --pinfold-tl-pad-x: 0px;
+    --pinfold-tl-lead: calc(var(--pinfold-tl-pad-y) + var(--pinfold-tl-row) / 2);
+    --pinfold-tl-head: max(var(--pinfold-tl-mark), calc(var(--pinfold-tl-lead) * 2));
+    --pinfold-tl-off: calc((var(--pinfold-tl-head) - var(--pinfold-tl-mark)) / 2);
+    /* Space between the line and a marker: none when joined. */
+    --pinfold-tl-gap: 0.3125rem;
+    --pinfold-tl-track: color-mix(in oklab, var(--pinfold-color-text) 14%, transparent);
+    --pinfold-tl-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) + 0.125rem);
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
+    max-inline-size: 100%;
     margin: 0;
     padding: 0;
     list-style: none;
     font-family: var(--pinfold-font-sans);
-    font-size: var(--pinfold-text-sm);
+    font-size: var(--pinfold-tl-fs);
+    line-height: var(--pinfold-tl-row);
     color: var(--pinfold-color-text);
   }
-  .pinfold-timeline[data-variant='icon'],
-  .pinfold-timeline[data-variant='card'] { --pinfold-tl-mark: 2rem; }
-  .pinfold-timeline[data-size='lg'] { font-size: var(--pinfold-text-md); }
-  .pinfold-timeline[data-size='sm'] { font-size: var(--pinfold-text-xs); }
+  .pinfold-timeline[data-size='sm'] { --pinfold-tl-fs: var(--pinfold-text-xs); --pinfold-tl-mark-base: 0.625rem; --pinfold-tl-space-base: 1.125rem; --pinfold-tl-cgap: 0.75rem; }
+  .pinfold-timeline[data-size='lg'] { --pinfold-tl-fs: var(--pinfold-text-md); --pinfold-tl-mark-base: 0.875rem; --pinfold-tl-space-base: 1.75rem; --pinfold-tl-cgap: 1rem; }
+  .pinfold-timeline:is([data-variant='icon'], [data-variant='card']) { --pinfold-tl-mark-base: 2rem; }
+  .pinfold-timeline:is([data-variant='icon'], [data-variant='card'])[data-size='sm'] { --pinfold-tl-mark-base: 1.625rem; }
+  .pinfold-timeline:is([data-variant='icon'], [data-variant='card'])[data-size='lg'] { --pinfold-tl-mark-base: 2.5rem; }
+  .pinfold-timeline[data-variant='card'] { --pinfold-tl-pad-y: calc(0.75rem + var(--pinfold-border-width)); --pinfold-tl-pad-x: 1rem; --pinfold-tl-space-base: 0.75rem; }
+  .pinfold-timeline[data-density='compact'] { --pinfold-tl-space-base: 0.625rem; --pinfold-tl-cgap: 0.625rem; }
+  .pinfold-timeline[data-density='compact']:is([data-variant='icon'], [data-variant='card']) { --pinfold-tl-mark-base: 1.5rem; }
+  .pinfold-timeline[data-density='compact'][data-variant='card'] { --pinfold-tl-pad-y: calc(0.5rem + var(--pinfold-border-width)); --pinfold-tl-pad-x: 0.75rem; --pinfold-tl-space-base: 0.5rem; }
+  .pinfold-timeline[data-connector='joined'] { --pinfold-tl-gap: 0px; }
 
+  /* ---- An event: [opposite] [marker] [body] ---- */
   .pinfold-timeline__item {
-    --pinfold-tl-tone: var(--pinfold-tone-solid, var(--pinfold-tl-solid));
+    --pinfold-tl-tone: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-tl-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
     position: relative;
     display: grid;
-    grid-template-columns: var(--pinfold-tl-mark) minmax(0, 1fr);
-    column-gap: 0.875rem;
-    padding-block-end: 1.25rem;
+    grid-template-columns: [mark] var(--pinfold-tl-mark) [body] minmax(0, 1fr);
+    grid-template-rows: auto;
+    column-gap: var(--pinfold-tl-cgap);
+    min-inline-size: 0;
   }
-  .pinfold-timeline__item:last-child { padding-block-end: 0; }
+  .pinfold-timeline__item[data-status='error'] { --pinfold-tl-tone: var(--pinfold-color-danger); --pinfold-tl-on: var(--pinfold-color-status-contrast); }
+  .pinfold-timeline__item[data-status='upcoming'] { --pinfold-tl-tone: color-mix(in oklab, var(--pinfold-color-text) 34%, transparent); }
+
   .pinfold-timeline__marker {
     position: relative;
     z-index: 1;
+    grid-column: mark;
+    grid-row: 1;
+    justify-self: center;
+    align-self: start;
     display: grid;
     place-items: center;
+    box-sizing: border-box;
     inline-size: var(--pinfold-tl-mark);
     block-size: var(--pinfold-tl-mark);
-    margin-block-start: calc((1.4em - min(var(--pinfold-tl-mark), 1.4em)) / 2);
+    margin-block-start: var(--pinfold-tl-off);
+    font-size: calc(var(--pinfold-tl-mark) * 0.42);
+    font-weight: var(--pinfold-weight-semibold);
+    line-height: 1;
     color: var(--pinfold-tl-tone);
     background-color: var(--pinfold-tl-tone);
     border-radius: var(--pinfold-radius-full);
-    box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--pinfold-tl-tone) 16%, transparent);
-  }
-  .pinfold-timeline:is([data-variant='icon'], [data-variant='card']) .pinfold-timeline__marker {
-    margin-block-start: 0;
-    background-color: color-mix(in oklab, var(--pinfold-tl-tone) 14%, var(--pinfold-control-surface, var(--pinfold-color-surface)));
-    box-shadow: inset 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-tl-tone) 28%, transparent);
+    box-shadow: 0 0 0 0.1875rem color-mix(in oklab, var(--pinfold-tl-tone) 18%, transparent);
   }
   .pinfold-timeline__marker > svg { inline-size: 55%; block-size: 55%; }
-  /* Icons and cards without an icon: a dot in the circle. */
-  .pinfold-timeline:is([data-variant='icon'], [data-variant='card']) .pinfold-timeline__marker:empty::after { content: ''; inline-size: 0.5rem; block-size: 0.5rem; background: var(--pinfold-tl-tone); border-radius: var(--pinfold-radius-full); }
+
+  /* The line: from under this marker to the next one, in the marker column. */
   .pinfold-timeline__connector {
-    position: absolute;
-    inset-block: calc(var(--pinfold-tl-mark) + 0.25rem) 0.25rem;
-    inset-inline-start: calc(var(--pinfold-tl-mark) / 2 - 1px);
-    inline-size: 2px;
-    background: var(--pinfold-tl-line);
+    grid-column: mark;
+    grid-row: 1 / -1;
+    justify-self: center;
+    align-self: stretch;
+    box-sizing: border-box;
+    inline-size: var(--pinfold-tl-line-w);
+    margin-block: calc(var(--pinfold-tl-off) + var(--pinfold-tl-mark) + var(--pinfold-tl-gap)) calc(var(--pinfold-tl-gap) - var(--pinfold-tl-off));
+    background: var(--pinfold-tl-track);
     border-radius: var(--pinfold-radius-full);
   }
-  .pinfold-timeline__body { display: flex; flex-direction: column; gap: 0.125rem; min-inline-size: 0; }
-  .pinfold-timeline__time { order: -1; font-size: 0.85em; color: var(--pinfold-color-text-muted); font-variant-numeric: tabular-nums; }
-  .pinfold-timeline__title { font-weight: var(--pinfold-weight-semibold); }
+  .pinfold-timeline[data-connector='joined'] .pinfold-timeline__connector { border-radius: 0; }
+  .pinfold-timeline__connector[data-status='complete'] { background: var(--pinfold-tl-tone); }
+  .pinfold-timeline[data-connector='dashed'] .pinfold-timeline__connector {
+    --pinfold-tl-dash: var(--pinfold-tl-track);
+    background: repeating-linear-gradient(to bottom, var(--pinfold-tl-dash) 0 0.25rem, transparent 0.25rem 0.5rem);
+    border-radius: 0;
+  }
+  .pinfold-timeline[data-connector='dashed'] .pinfold-timeline__connector[data-status='complete'] { --pinfold-tl-dash: var(--pinfold-tl-tone); }
+
+  .pinfold-timeline__body {
+    position: relative;
+    grid-column: body;
+    grid-row: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    margin-block: calc(var(--pinfold-tl-head) / 2 - var(--pinfold-tl-lead)) var(--pinfold-tl-space);
+    overflow-wrap: anywhere;
+  }
+  .pinfold-timeline__item:last-child > .pinfold-timeline__body { margin-block-end: 0; }
+  .pinfold-timeline__opposite {
+    grid-row: 1 / -1;
+    min-inline-size: 0;
+    margin-block-start: calc(var(--pinfold-tl-head) / 2 - var(--pinfold-tl-row) / 2);
+    color: var(--pinfold-color-text-muted);
+    overflow-wrap: anywhere;
+  }
+  .pinfold-timeline__time { font-size: 0.85em; color: var(--pinfold-color-text-muted); font-variant-numeric: tabular-nums; }
+  .pinfold-timeline__opposite > .pinfold-timeline__time { font-size: inherit; }
+  .pinfold-timeline__title {
+    font-weight: var(--pinfold-weight-semibold);
+    color: var(--pinfold-color-text);
+  }
+  button.pinfold-timeline__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    align-self: flex-start;
+    max-inline-size: 100%;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    font-weight: var(--pinfold-weight-semibold);
+    text-align: start;
+    background: none;
+    border: 0;
+    border-radius: var(--pinfold-radius-xs, 0.25rem);
+    cursor: pointer;
+  }
+  button.pinfold-timeline__title:hover { color: var(--pinfold-tl-tone); }
+  .pinfold-timeline__item[data-status='upcoming'] button.pinfold-timeline__title:hover { color: var(--pinfold-color-text); }
+  .pinfold-timeline__chevron { display: inline-grid; flex-shrink: 0; color: var(--pinfold-color-text-muted); }
+  .pinfold-timeline__chevron > svg { inline-size: 1em; block-size: 1em; }
+  .pinfold-timeline__item[data-open] .pinfold-timeline__chevron { transform: rotate(180deg); }
   .pinfold-timeline__description { color: var(--pinfold-color-text-muted); }
   .pinfold-timeline__content { margin-block-start: 0.5rem; }
-  .pinfold-timeline[data-variant='card'] .pinfold-timeline__body {
-    padding: 0.75rem 1rem;
+  .pinfold-timeline__item[data-status='upcoming'] .pinfold-timeline__title { color: var(--pinfold-color-text-muted); }
+  .pinfold-timeline__item[data-status='error'] .pinfold-timeline__title { color: var(--pinfold-color-danger); }
+
+  /* ---- Marker by variant and status ---- */
+  /* dot: a filled dot; current: a ring around a dot; upcoming: hollow. */
+  .pinfold-timeline__item:is([data-status='current'], [data-pending]) > .pinfold-timeline__marker {
     background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
-    background-image: var(--pinfold-texture);
-    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
-    border-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1) + 0.125rem);
-    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
-    backdrop-filter: var(--pinfold-backdrop);
+    box-shadow: inset 0 0 0 2px var(--pinfold-tl-tone), 0 0 0 0.25rem color-mix(in oklab, var(--pinfold-tl-tone) 20%, transparent);
   }
-  .pinfold-timeline__item[data-pending] .pinfold-timeline__marker { background-color: transparent; box-shadow: inset 0 0 0 2px var(--pinfold-tl-tone), 0 0 0 0.25rem color-mix(in oklab, var(--pinfold-tl-tone) 16%, transparent); }
-  .pinfold-timeline[data-animate] .pinfold-timeline__item[data-pending] .pinfold-timeline__marker { animation: pinfold-timeline-pulse 1.4s var(--pinfold-ease-out) infinite; }
+  .pinfold-timeline[data-variant='dot'] .pinfold-timeline__item:is([data-status='current'], [data-pending]) > .pinfold-timeline__marker {
+    background-image: radial-gradient(circle, var(--pinfold-tl-tone) 0 28%, transparent 30%);
+  }
+  .pinfold-timeline__item[data-status='upcoming'] > .pinfold-timeline__marker {
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--pinfold-color-text) 28%, transparent);
+  }
+  /* icon and card: a tinted circle with the icon in the tone; complete and error fill it. */
+  .pinfold-timeline:is([data-variant='icon'], [data-variant='card']) .pinfold-timeline__marker {
+    background-color: color-mix(in oklab, var(--pinfold-tl-tone) 14%, var(--pinfold-control-surface, var(--pinfold-color-surface)));
+    box-shadow: inset 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-tl-tone) 30%, transparent);
+  }
+  .pinfold-timeline:is([data-variant='icon'], [data-variant='card']) .pinfold-timeline__item:is([data-status='complete'], [data-status='error']) > .pinfold-timeline__marker {
+    color: var(--pinfold-tl-on);
+    background-color: var(--pinfold-tl-tone);
+    box-shadow: 0 2px 6px -1px color-mix(in oklab, var(--pinfold-tl-tone) 50%, transparent);
+  }
+  .pinfold-timeline:is([data-variant='icon'], [data-variant='card']) .pinfold-timeline__item:is([data-status='current'], [data-pending]) > .pinfold-timeline__marker {
+    box-shadow: inset 0 0 0 2px var(--pinfold-tl-tone), 0 0 0 0.25rem color-mix(in oklab, var(--pinfold-tl-tone) 18%, transparent);
+  }
+  .pinfold-timeline:is([data-variant='icon'], [data-variant='card']) .pinfold-timeline__item[data-status='upcoming'] > .pinfold-timeline__marker {
+    color: var(--pinfold-color-text-muted);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    box-shadow: inset 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-color-text) 20%, transparent);
+  }
+  /* Icons and cards without an icon: a small dot in the circle. */
+  .pinfold-timeline:is([data-variant='icon'], [data-variant='card']) .pinfold-timeline__marker:empty::after {
+    content: '';
+    inline-size: 30%;
+    block-size: 30%;
+    background: currentColor;
+    border-radius: var(--pinfold-radius-full);
+  }
+  /* Your own marker: no fill of ours, sized by its content, still centred on the line, which starts
+     under it whatever its height (set dimensions.markerSize to its size to centre it on the first line). */
+  .pinfold-timeline[data-orientation='vertical'] .pinfold-timeline__item[data-custom-marker] { grid-template-rows: auto 1fr; }
+  .pinfold-timeline[data-orientation='vertical'] .pinfold-timeline__item[data-custom-marker] > .pinfold-timeline__connector { grid-row: 2; margin-block-start: var(--pinfold-tl-gap); }
+  .pinfold-timeline .pinfold-timeline__item > .pinfold-timeline__marker[data-custom] {
+    inline-size: auto;
+    block-size: auto;
+    min-inline-size: var(--pinfold-tl-mark);
+    min-block-size: var(--pinfold-tl-mark);
+    color: var(--pinfold-color-text);
+    background: none;
+    box-shadow: none;
+  }
+  .pinfold-timeline[data-animate] .pinfold-timeline__item[data-pending] > .pinfold-timeline__marker { animation: pinfold-timeline-pulse 1.6s var(--pinfold-ease-out) infinite; }
   @keyframes pinfold-timeline-pulse {
     50% { box-shadow: inset 0 0 0 2px var(--pinfold-tl-tone), 0 0 0 0.5rem color-mix(in oklab, var(--pinfold-tl-tone) 6%, transparent); }
   }
-
-  /* alternate: the line in the middle, events on either side (from a medium width). */
-  @media (min-width: 40rem) {
-    .pinfold-timeline[data-align='alternate'] .pinfold-timeline__item { grid-template-columns: minmax(0, 1fr) var(--pinfold-tl-mark) minmax(0, 1fr); }
-    .pinfold-timeline[data-align='alternate'] .pinfold-timeline__marker { grid-column: 2; }
-    .pinfold-timeline[data-align='alternate'] .pinfold-timeline__connector { inset-inline-start: calc(50% - 1px); }
-    .pinfold-timeline[data-align='alternate'] .pinfold-timeline__item:nth-child(odd) .pinfold-timeline__body { grid-column: 1; grid-row: 1; text-align: end; }
-    .pinfold-timeline[data-align='alternate'] .pinfold-timeline__item:nth-child(even) .pinfold-timeline__body { grid-column: 3; }
+  .pinfold-timeline[data-animate] :is(.pinfold-timeline__marker, .pinfold-timeline__connector, .pinfold-timeline__chevron, button.pinfold-timeline__title) {
+    transition: background-color var(--pinfold-duration-md) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-out);
   }
 
-  /* horizontal: markers in a row, text under them; the row scrolls when long. */
-  .pinfold-timeline[data-orientation='horizontal'] { flex-direction: row; overflow-x: auto; padding-block-end: 0.25rem; }
-  .pinfold-timeline[data-orientation='horizontal'] .pinfold-timeline__item { flex: 1 0 9rem; grid-template-columns: 1fr; grid-template-rows: auto auto; row-gap: 0.75rem; padding: 0 1rem 0 0; }
-  .pinfold-timeline[data-orientation='horizontal'] .pinfold-timeline__connector { inset-block: calc(var(--pinfold-tl-mark) / 2 - 1px) auto; inset-inline: calc(var(--pinfold-tl-mark) + 0.25rem) 0.25rem; inline-size: auto; block-size: 2px; }
+  /* ---- card: each event's text on a card ---- */
+  .pinfold-timeline[data-variant='card'] .pinfold-timeline__body {
+    box-sizing: border-box;
+    padding: calc(var(--pinfold-tl-pad-y) - var(--pinfold-border-width)) var(--pinfold-tl-pad-x);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border-radius: var(--pinfold-tl-radius);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-timeline[data-variant='card'] .pinfold-timeline__item[data-status='current'] > .pinfold-timeline__body { border-color: color-mix(in oklab, var(--pinfold-tl-tone) 45%, var(--pinfold-control-edge, var(--pinfold-color-border))); }
+  /* A clickable card: the title's button covers the whole card. */
+  .pinfold-timeline[data-variant='card'] [data-interactive] > button.pinfold-timeline__title { position: static; }
+  .pinfold-timeline[data-variant='card'] [data-interactive] > button.pinfold-timeline__title::after { content: ''; position: absolute; inset: calc(var(--pinfold-border-width) * -1); border-radius: var(--pinfold-tl-radius); }
+  .pinfold-timeline[data-variant='card'] [data-interactive]:hover { background-color: color-mix(in oklab, var(--pinfold-color-text) 3%, var(--pinfold-control-surface, var(--pinfold-color-surface))); }
+  .pinfold-timeline[data-variant='card'] [data-interactive] > .pinfold-timeline__content { position: relative; z-index: 1; }
 
+  /* ---- opposite, start alignment: [opposite] [marker] [body] ---- */
+  .pinfold-timeline[data-orientation='vertical'][data-opposite][data-align='start'] .pinfold-timeline__item { grid-template-columns: [opp] minmax(0, var(--pinfold-timeline-opposite-width, 1fr)) [mark] var(--pinfold-tl-mark) [body] minmax(0, 3fr); }
+  .pinfold-timeline[data-orientation='vertical'][data-opposite][data-align='start'] .pinfold-timeline__opposite { grid-column: opp; text-align: end; }
+
+  /* ---- alternate (vertical): the line in the middle, events on either side ---- */
+  .pinfold-timeline[data-orientation='vertical']:is([data-align='alternate'], [data-opposite]) { container-type: inline-size; }
+  .pinfold-timeline[data-orientation='vertical'][data-align='alternate'] .pinfold-timeline__item { grid-template-columns: [opp] minmax(0, 1fr) [mark] var(--pinfold-tl-mark) [body] minmax(0, 1fr); }
+  .pinfold-timeline[data-orientation='vertical'][data-align='alternate'] .pinfold-timeline__opposite { grid-column: opp; text-align: end; }
+  .pinfold-timeline[data-orientation='vertical'][data-align='alternate'] .pinfold-timeline__item:nth-child(odd) > .pinfold-timeline__body { grid-column: opp; text-align: end; align-items: flex-end; }
+  .pinfold-timeline[data-orientation='vertical'][data-align='alternate'] .pinfold-timeline__item:nth-child(odd) > .pinfold-timeline__opposite { grid-column: body; text-align: start; }
+  /* A narrow box: every event on one side; the opposite content above the text. */
+  @container (max-width: 34rem) {
+    .pinfold-timeline.pinfold-timeline.pinfold-timeline[data-orientation='vertical']:is([data-align='alternate'], [data-opposite]) .pinfold-timeline__item { grid-template-columns: [mark] var(--pinfold-tl-mark) [body] minmax(0, 1fr); }
+    .pinfold-timeline.pinfold-timeline.pinfold-timeline[data-orientation='vertical']:is([data-align='alternate'], [data-opposite]) .pinfold-timeline__item > .pinfold-timeline__body { grid-column: body; text-align: start; align-items: stretch; }
+    .pinfold-timeline.pinfold-timeline.pinfold-timeline[data-orientation='vertical'][data-opposite] .pinfold-timeline__item { grid-template-rows: auto 1fr; }
+    .pinfold-timeline.pinfold-timeline.pinfold-timeline[data-orientation='vertical'][data-opposite] .pinfold-timeline__item > .pinfold-timeline__opposite { grid-column: body; grid-row: 1; text-align: start; }
+    .pinfold-timeline.pinfold-timeline.pinfold-timeline[data-orientation='vertical'][data-opposite] .pinfold-timeline__item > .pinfold-timeline__opposite:not(:empty) + .pinfold-timeline__body { grid-row: 2; margin-block-start: 0; }
+    .pinfold-timeline.pinfold-timeline.pinfold-timeline[data-orientation='vertical'][data-opposite] .pinfold-timeline__item > .pinfold-timeline__opposite:empty { display: none; }
+  }
+
+  /* ---- horizontal: markers on one row, text under them (or above and below) ---- */
+  .pinfold-timeline[data-orientation='horizontal'] {
+    --pinfold-tl-hspace: 1rem;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(10rem, 1fr);
+    grid-template-rows: [top] auto [line] var(--pinfold-tl-mark) [bottom] auto;
+    overflow-x: auto;
+    padding-block: 0.375rem;
+    padding-inline: 0.375rem;
+    overscroll-behavior-x: contain;
+  }
+  .pinfold-timeline[data-orientation='horizontal'][data-density='compact'] { grid-auto-columns: minmax(8rem, 1fr); --pinfold-tl-hspace: 0.75rem; }
+  .pinfold-timeline[data-orientation='horizontal'] .pinfold-timeline__item {
+    grid-row: 1 / -1;
+    grid-template-rows: subgrid;
+    grid-template-columns: [mark] var(--pinfold-tl-mark) [body] minmax(0, 1fr);
+    column-gap: 0;
+  }
+  .pinfold-timeline[data-orientation='horizontal'] .pinfold-timeline__marker { grid-row: line; align-self: center; margin: 0; }
+  .pinfold-timeline[data-orientation='horizontal'] .pinfold-timeline__connector {
+    grid-column: body;
+    grid-row: line;
+    justify-self: stretch;
+    align-self: center;
+    inline-size: auto;
+    block-size: var(--pinfold-tl-line-w);
+    margin: 0 var(--pinfold-tl-gap);
+  }
+  .pinfold-timeline[data-orientation='horizontal'][data-connector='dashed'] .pinfold-timeline__connector { background: repeating-linear-gradient(to right, var(--pinfold-tl-dash) 0 0.25rem, transparent 0.25rem 0.5rem); }
+  [dir='rtl'] .pinfold-timeline[data-orientation='horizontal'][data-connector='dashed'] .pinfold-timeline__connector { background: repeating-linear-gradient(to left, var(--pinfold-tl-dash) 0 0.25rem, transparent 0.25rem 0.5rem); }
+  .pinfold-timeline[data-orientation='horizontal'] .pinfold-timeline__body {
+    grid-column: 1 / -1;
+    grid-row: bottom;
+    align-self: start;
+    margin: 0.75rem var(--pinfold-tl-hspace) 0 0;
+  }
+  .pinfold-timeline[data-orientation='horizontal'] .pinfold-timeline__opposite { grid-column: 1 / -1; grid-row: top; align-self: end; margin: 0 var(--pinfold-tl-hspace) 0.75rem 0; }
+  .pinfold-timeline[data-orientation='horizontal'][data-align='alternate'] .pinfold-timeline__item:nth-child(even) > .pinfold-timeline__body { grid-row: top; align-self: end; margin-block: 0 0.75rem; }
+  .pinfold-timeline[data-orientation='horizontal'][data-align='alternate'] .pinfold-timeline__item:nth-child(even) > .pinfold-timeline__opposite { grid-row: bottom; align-self: start; margin-block: 0.75rem 0; }
+
+  /* Focus: after the variants, so it always shows. */
+  button.pinfold-timeline__title:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-timeline[data-variant='card'] [data-interactive] > button.pinfold-timeline__title:focus-visible { box-shadow: none; }
+  .pinfold-timeline[data-variant='card'] [data-interactive] > button.pinfold-timeline__title:focus-visible::after { box-shadow: var(--pinfold-focus-ring); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pinfold-timeline[data-animate] .pinfold-timeline__item[data-pending] > .pinfold-timeline__marker { animation: none; }
+  }
   @media (forced-colors: active) {
-    .pinfold-timeline__marker { forced-color-adjust: none; background: Highlight; }
-    .pinfold-timeline__connector { forced-color-adjust: none; background: CanvasText; }
+    .pinfold-timeline__marker { forced-color-adjust: none; background: Canvas; box-shadow: inset 0 0 0 2px CanvasText; color: CanvasText; }
+    .pinfold-timeline__item:is([data-status='complete'], [data-status='current'], [data-pending]) > .pinfold-timeline__marker { background: Highlight; color: HighlightText; }
+    .pinfold-timeline__connector { forced-color-adjust: none; background: GrayText; }
+    .pinfold-timeline__connector[data-status='complete'] { background: Highlight; }
   }
 }

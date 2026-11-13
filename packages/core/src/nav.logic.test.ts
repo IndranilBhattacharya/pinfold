@@ -64,11 +64,14 @@ describe('navigation logic', () => {
     expect(inactiveTabsOptions({ onAdd: 1, onClose: 1, onReorder: 1 })).toEqual({});
     expect(Object.keys(inactiveBreadcrumbOptions({ items: [] }))).toEqual(['itemsBeforeCollapse', 'itemsAfterCollapse', 'collapse', 'expandLabel', 'path', 'pathLabels', 'homeLabel', 'tone']);
     expect(inactiveBreadcrumbOptions({ maxItems: 3, path: '/a', variant: 'pills' })).toEqual({});
-    expect(Object.keys(inactivePaginationOptions({ count: 5, showControls: false, pageSizes: [10] }))).toEqual(['showEdges']);
+    expect(Object.keys(inactivePaginationOptions({ count: 5, showControls: false, pageSizes: [10] }))).toEqual(['showEdges', 'showControlLabels']);
+    expect(Object.keys(inactivePaginationOptions({ count: 5, showPages: false, hasPrevious: true }))).toEqual(['hasPrevious', 'siblings', 'boundaries', 'renderItem', 'compact', 'showControls']);
     expect(Object.keys(inactivePaginationOptions({ total: 50, compact: true, hasNext: true }))).toEqual(['siblings', 'boundaries', 'showControls', 'hasNext']);
     expect(Object.keys(inactivePaginationOptions({ hasNext: true, pageSizes: [10] }))).toEqual(['showControls', 'siblings', 'boundaries', 'showEdges', 'compact']);
-    expect(Object.keys(inactiveStepperOptions({ variant: 'bar', onChange: () => {}, items: [{ content: 1 }] }))).toEqual(['orientation', 'labelPlacement']);
-    expect(Object.keys(inactiveStepperOptions({ orientation: 'vertical', items: ['a'] }))).toEqual(['labelPlacement', 'linear', 'showActions', 'doneContent']);
+    expect(Object.keys(inactiveStepperOptions({ variant: 'bar', onChange: () => {}, items: [{ content: 1 }] }))).toEqual(['orientation', 'labelPlacement', 'icons', 'connector']);
+    expect(Object.keys(inactiveStepperOptions({ orientation: 'vertical', items: ['a'] }))).toEqual(['labelPlacement', 'responsive', 'linear', 'showActions', 'doneContent']);
+    expect(Object.keys(inactiveTabsOptions({ mode: 'nav', onAdd: 1, onClose: 1, onReorder: 1 }))).toEqual(['keepMounted', 'lazy', 'panelVariant', 'renderPanel', 'activation']);
+    expect(Object.keys(inactiveTabsOptions({ keepMounted: true, onAdd: 1, onClose: 1, onReorder: 1 }))).toEqual(['lazy']);
   });
 });
 

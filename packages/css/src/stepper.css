@@ -9,6 +9,8 @@
   .pinfold-stepper {
     --pinfold-stp-d: 2rem;
     --pinfold-stp-g: 0.5rem;
+    /* Space between the line and a mark: none when joined. */
+    --pinfold-stp-cg: var(--pinfold-stp-g);
     --pinfold-stp-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
     --pinfold-stp-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
     --pinfold-stp-track: color-mix(in oklab, var(--pinfold-color-text) 12%, transparent);
@@ -20,6 +22,7 @@
     font-size: var(--pinfold-control-text);
     color: var(--pinfold-color-text);
   }
+  .pinfold-stepper[data-connector='joined'] { --pinfold-stp-cg: 0px; }
   .pinfold-stepper[data-size='sm'] { --pinfold-stp-d: 1.5rem; }
   .pinfold-stepper[data-size='lg'] { --pinfold-stp-d: 2.5rem; }
   .pinfold-stepper[data-variant='dot'] { --pinfold-stp-d: 0.75rem; }
@@ -121,8 +124,8 @@
   .pinfold-stepper__connector {
     position: absolute;
     inset-block-start: calc(var(--pinfold-stp-d) / 2 - 1px);
-    inset-inline-start: calc(50% + var(--pinfold-stp-d) / 2 + var(--pinfold-stp-g));
-    inline-size: calc(100% - var(--pinfold-stp-d) - var(--pinfold-stp-g) * 2);
+    inset-inline-start: calc(50% + var(--pinfold-stp-d) / 2 + var(--pinfold-stp-cg));
+    inline-size: calc(100% - var(--pinfold-stp-d) - var(--pinfold-stp-cg) * 2);
     block-size: 2px;
     background: linear-gradient(var(--pinfold-stp-solid), var(--pinfold-stp-solid)) no-repeat 0 0 / 0% 100%, var(--pinfold-stp-track);
     border-radius: var(--pinfold-radius-full);
@@ -137,7 +140,7 @@
   .pinfold-stepper[data-label-placement='end'][data-orientation='horizontal'] .pinfold-stepper__step:last-child { flex: 0 1 auto; }
   .pinfold-stepper[data-label-placement='end'][data-orientation='horizontal'] .pinfold-stepper__button { flex-direction: row; inline-size: auto; gap: 0.625rem; }
   .pinfold-stepper[data-label-placement='end'][data-orientation='horizontal'] .pinfold-stepper__text { padding-inline: 0; text-align: start; }
-  .pinfold-stepper[data-label-placement='end'][data-orientation='horizontal'] .pinfold-stepper__connector { position: static; flex: 1 1 1.5rem; inline-size: auto; min-inline-size: 1.5rem; margin-inline-end: 0.75rem; }
+  .pinfold-stepper[data-label-placement='end'][data-orientation='horizontal'] .pinfold-stepper__connector { position: static; flex: 1 1 1.5rem; inline-size: auto; min-inline-size: 1.5rem; margin-inline-end: max(var(--pinfold-stp-cg), 0px); }
 
   /* vertical: marks in a column, names beside them, the line down between marks, content under the current step. */
   .pinfold-stepper[data-orientation='vertical'] .pinfold-stepper__step { display: grid; grid-template-columns: var(--pinfold-stp-d) minmax(0, 1fr); column-gap: 0.75rem; align-items: start; padding-block-end: 1.5rem; }
@@ -145,7 +148,7 @@
   .pinfold-stepper[data-orientation='vertical'] .pinfold-stepper__step > .pinfold-stepper__button { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: start; }
   .pinfold-stepper[data-orientation='vertical'] .pinfold-stepper__text { padding-block-start: calc((var(--pinfold-stp-d) - 1.4em) / 2); padding-inline: 0; text-align: start; }
   .pinfold-stepper[data-orientation='vertical'] .pinfold-stepper__connector {
-    inset-block: calc(var(--pinfold-stp-d) + var(--pinfold-stp-g)) var(--pinfold-stp-g);
+    inset-block: calc(var(--pinfold-stp-d) + var(--pinfold-stp-cg)) var(--pinfold-stp-cg);
     inset-inline-start: calc(var(--pinfold-stp-d) / 2 - 1px);
     inline-size: 2px;
     block-size: auto;
@@ -163,6 +166,52 @@
   .pinfold-stepper[data-variant='bar'] .pinfold-stepper__text { padding-inline: 0; text-align: start; }
   .pinfold-stepper[data-variant='bar'] [data-status='current'] .pinfold-stepper__label { color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 86%, var(--pinfold-color-text)); }
   .pinfold-stepper[data-variant='bar'] .pinfold-stepper__connector { display: none; }
+
+  /* Your own mark in the dot variant: sized by its content, no fill of ours. */
+  .pinfold-stepper[data-variant='dot'] .pinfold-stepper__indicator[data-custom] { inline-size: auto; block-size: auto; min-inline-size: 1.25rem; min-block-size: 1.25rem; font-size: 0.75rem; background: none; color: var(--pinfold-stp-solid); }
+
+  /* text: numbers and names in a row, joined by short lines. */
+  .pinfold-stepper[data-variant='text'] .pinfold-stepper__list { flex-wrap: wrap; row-gap: 0.5rem; }
+  .pinfold-stepper[data-variant='text'] .pinfold-stepper__step,
+  .pinfold-stepper[data-variant='text'] .pinfold-stepper__step:last-child { flex: 0 1 auto; gap: 0.625rem; }
+  .pinfold-stepper[data-variant='text'] .pinfold-stepper__button { gap: 0.375rem; }
+  .pinfold-stepper[data-variant='text'] :is(.pinfold-stepper__step, .pinfold-stepper__button) { align-items: baseline; }
+  .pinfold-stepper[data-variant='text'] .pinfold-stepper__connector { align-self: center; }
+  .pinfold-stepper[data-variant='text'] .pinfold-stepper__indicator {
+    display: inline-flex;
+    justify-content: flex-end;
+    line-height: inherit;
+    inline-size: auto;
+    block-size: auto;
+    min-inline-size: 1.25rem;
+    font-size: 0.8125em;
+    color: var(--pinfold-color-text-muted);
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+  .pinfold-stepper[data-variant='text'] .pinfold-stepper__indicator::after { content: '.'; }
+  .pinfold-stepper[data-variant='text'] .pinfold-stepper__indicator:empty::after { content: none; }
+  .pinfold-stepper[data-variant='text'] [data-status] .pinfold-stepper__indicator { color: var(--pinfold-stp-solid); background: none; border: 0; box-shadow: none; }
+  .pinfold-stepper[data-variant='text'] [data-status='upcoming'] .pinfold-stepper__indicator { color: var(--pinfold-color-text-muted); }
+  .pinfold-stepper[data-variant='text'] [data-status='current'] .pinfold-stepper__label { color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 86%, var(--pinfold-color-text)); font-weight: var(--pinfold-weight-semibold); }
+  .pinfold-stepper[data-variant='text'] .pinfold-stepper__connector { flex: 0 0 1.5rem; min-inline-size: 1.5rem; margin-inline-end: 0.625rem; }
+
+  /* A narrow box: "Step 2 of 5" and the current name over the marks; the names are still read. */
+  .pinfold-stepper__summary { display: none; }
+  .pinfold-stepper[data-responsive] { container-type: inline-size; }
+  @container (max-width: 30rem) {
+    .pinfold-stepper[data-responsive]:not([data-variant='text']) .pinfold-stepper__summary {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      font-size: 0.8125em;
+      color: var(--pinfold-color-text-muted);
+    }
+    .pinfold-stepper[data-responsive] .pinfold-stepper__summary > b { font-size: 1.2em; font-weight: var(--pinfold-weight-semibold); color: var(--pinfold-color-text); }
+    .pinfold-stepper[data-responsive]:not([data-variant='text']) .pinfold-stepper__text { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .pinfold-stepper[data-responsive]:not([data-variant='text']) { gap: var(--pinfold-space-4); }
+  }
 
   /* The current step's content: a card on the control tokens, so style packs reach it. */
   .pinfold-stepper__panel {

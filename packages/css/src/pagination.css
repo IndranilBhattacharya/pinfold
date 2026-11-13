@@ -65,6 +65,9 @@
   .pinfold-pagination__status { padding-inline: 0.75rem; cursor: default; color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 86%, var(--pinfold-color-text)); }
   .pinfold-pagination[data-tone='neutral'] .pinfold-pagination__status { color: var(--pinfold-color-text); }
   .pinfold-pagination svg { inline-size: var(--pinfold-control-icon); block-size: var(--pinfold-control-icon); }
+  /* showControlLabels: "Previous" / "Next" beside the chevron. */
+  .pinfold-pagination[data-control-labels] :is(.pinfold-pagination__previous, .pinfold-pagination__next) { display: inline-flex; gap: 0.25rem; padding-inline: 0.625rem 0.75rem; }
+  .pinfold-pagination[data-control-labels] .pinfold-pagination__next { padding-inline: 0.75rem 0.625rem; }
   .pinfold-pagination [data-flip] > svg { transform: scaleX(-1); }
   [dir='rtl'] .pinfold-pagination [data-pagination-control] > svg { transform: scaleX(-1); }
   [dir='rtl'] .pinfold-pagination [data-flip] > svg { transform: none; }

@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
-const SLOTS = ['root', 'header', 'list', 'tab', 'indicator', 'icon', 'endContent', 'close', 'add', 'panel'] as const;
+const SLOTS = ['root', 'header', 'list', 'tab', 'indicator', 'icon', 'endContent', 'close', 'add', 'scrollButton', 'panel'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -66,6 +66,12 @@ export const tabsMeta: ComponentMeta = {
     },
     fullWidth: { type: 'boolean', default: false, description: 'A row of tabs that shares the full width.', group: 'appearance', control: true },
     keepMounted: { type: 'boolean', default: false, description: 'Keep hidden panels in the DOM (their state survives a switch). Otherwise only the selected panel renders.', group: 'behaviour', control: true, silent: true },
+    lazy: { type: 'boolean', default: false, description: 'Mount a panel the first time its tab is selected, then keep it mounted (hidden) so its state survives a switch.', group: 'behaviour', control: true, silent: true },
+    mode: { type: 'enum', values: ['tabs', 'nav'], default: 'tabs', description: '`tabs`: a tab list with panels. `nav`: the tabs are links in a `<nav>` named by `label`, the current one `aria-current="page"`, no panels (route tabs: give items `href` and `value` from the router).', group: 'behaviour', control: true },
+    panelVariant: { type: 'enum', values: ['auto', 'plain', 'card'], default: 'auto', description: 'The panel\'s frame: `plain` (none: the content is your layout), `card` (a card on the control tokens), `auto` (a card for `enclosed`, else plain).', group: 'appearance', control: true },
+    scrollButtons: { type: 'boolean', default: true, description: 'Arrow buttons at the ends of a row of tabs that overflows, shown only on the side with more tabs. For pointers: keys move focus along the row.', group: 'appearance', control: true },
+    renderTab: { type: 'function', description: '`(item) => node`: the inside of each tab (icon, text, badge, anything). The tab keeps its element, role and keys.', group: 'data' },
+    renderPanel: { type: 'function', description: '`(item) => node`: the panel for a tab, instead of each item\'s `content` (`items={["Board", "List"]} renderPanel={(t) => <View id={t.id} />}`).', group: 'data' },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.tabs`, the provider, then md.', group: 'appearance', control: true },
     tone: {
@@ -107,7 +113,9 @@ export const tabsMeta: ComponentMeta = {
     { name: 'data-direction', on: 'root', values: '"forward" | "back": which way the last change went (unset until one)' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-tone', on: 'root', values: 'the resolved tone' },
-    { name: 'data-overflow-start / data-overflow-end', on: 'header', values: 'present when the tabs scroll that way' },
+    { name: 'data-overflow-start / -end / -top / -bottom', on: 'header', values: 'present when the tabs scroll that way' },
+    { name: 'data-panel-variant', on: 'root', values: '"plain" | "card": the resolved panel frame' },
+    { name: 'data-mode', on: 'root', values: '"tabs" | "nav"' },
     { name: 'data-selected', on: 'tab', values: 'present on the selected tab' },
   ],
   cssVariables: ['--pinfold-tabs-height', '--pinfold-tabs-gap'],

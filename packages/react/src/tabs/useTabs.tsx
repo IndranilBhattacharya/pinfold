@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveTabsOptions, mergeProps, moveItem, nextIndexFromKey, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveTabsOptions, mergeProps, moveItem, nextIndexFromKey, warnOnce, watchScrollEdges, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
 import { useSlidingIndicator } from '../indicator';
 import { usePinfold } from '../provider';
@@ -8,7 +8,7 @@ import { mergeConfig } from '../preset';
 import { ITEM, renderSlot, slotProps } from '../slots';
 import { followLink } from '../link';
 import { VISUALLY_HIDDEN } from '../a11y';
-import { CLOSE_ICON, PLUS_ICON } from '../nav-icons';
+import { CHEVRON_ICON, CLOSE_ICON, PLUS_ICON } from '../nav-icons';
 import type { TabsApi, TabsComponent, TabsConfig, TabsItem, TabsRootProps, TabsSlot, TabsState } from './types';
 
 /**
@@ -36,6 +36,10 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
   const [direction, setDirection] = React.useState<'forward' | 'back' | null>(null);
   // After a close, focus the tab that took the closed one's place.
   const refocus = React.useRef<number | null>(null);
+  // With `lazy`: panels that were shown once stay mounted.
+  const visited = React.useRef<Set<string>>(new Set());
+  if (value) visited.current.add(value);
+  const nav = config.mode === 'nav';
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ tabsMeta, validateConfig }) => {
@@ -56,25 +60,21 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
 
   const tabs = () => Array.from(list.current?.querySelectorAll<HTMLElement>('[data-tabs-tab]') ?? []);
 
-  // A row wider than its box scrolls; the edges fade where there is more to see.
-  const overflow = React.useCallback(() => {
-    const el = list.current;
-    const box = header.current;
-    if (!el || !box) return;
-    const vertical = orientation === 'vertical';
-    const start = vertical ? el.scrollTop : Math.abs(el.scrollLeft);
-    const size = vertical ? el.scrollHeight - el.clientHeight : el.scrollWidth - el.clientWidth;
-    box.toggleAttribute('data-overflow-start', size > 1 && start > 1);
-    box.toggleAttribute('data-overflow-end', size > 1 && start < size - 1);
-  }, [orientation]);
+  // A row wider than its box scrolls: the header gets data-overflow-start / -end (-top / -bottom in
+  // a column), so the edges fade and the scroll buttons show where there is more to see.
   useIsomorphicLayoutEffect(() => {
-    overflow();
     const el = list.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(overflow);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [overflow, items.length]);
+    if (!el || !header.current) return;
+    return watchScrollEdges(el, { target: header.current });
+  }, [items.length, orientation]);
+  const scrollList = (by: 1 | -1) => {
+    const el = list.current;
+    if (!el) return;
+    const vertical = orientation === 'vertical';
+    const rtl = !vertical && typeof getComputedStyle === 'function' && getComputedStyle(el).direction === 'rtl';
+    const amount = (vertical ? el.clientHeight : el.clientWidth) * 0.75 * by * (rtl ? -1 : 1);
+    el.scrollBy?.({ [vertical ? 'top' : 'left']: amount, behavior: ctx.disableAnimation ? 'auto' : 'smooth' });
+  };
   React.useEffect(() => {
     tabs()[selected]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     if (refocus.current !== null) {
@@ -161,12 +161,17 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
         'data-size': state.size,
         'data-tone': state.tone,
         'data-full-width': dataAttr(config.fullWidth && orientation === 'horizontal'),
+        'data-panel-variant': (config.panelVariant ?? 'auto') === 'auto' ? (variant === 'enclosed' ? 'card' : 'plain') : config.panelVariant,
+        'data-mode': nav ? 'nav' : 'tabs',
         'data-direction': direction ?? undefined,
         'data-animate': dataAttr(!ctx.disableAnimation),
         'data-unstyled': dataAttr(config.unstyled),
       },
       props,
     );
+
+  // The selected panel; with `keepMounted` every one; with `lazy` every one shown before.
+  const mounted = (i: number) => i === selected || !!config.keepMounted || (!!config.lazy && visited.current.has(items[i]?.id));
 
   const render = (rootProps?: TabsRootProps): React.ReactElement => {
     const slot = (name: TabsSlot, content: React.ReactNode, tag: string, own: PropsBag = {}) =>
@@ -189,14 +194,21 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
         {items.map((item, i) => {
           const isSelected = i === selected;
           const link = item.href !== undefined && !item.disabled;
+          const context = { ...item, index: i, selected: isSelected };
           return (
             <React.Fragment key={item.id}>
               {slot(
                 'tab',
                 <>
-                  {item.icon != null ? slot('icon', item.icon, 'span', { 'aria-hidden': true }) : null}
-                  <span className={config.unstyled ? undefined : 'pinfold-tabs__text'}>{item.label ?? item.id}</span>
-                  {item.endContent != null ? slot('endContent', item.endContent, 'span') : null}
+                  {config.renderTab ? (
+                    config.renderTab(context)
+                  ) : (
+                    <>
+                      {item.icon != null ? slot('icon', item.icon, 'span', { 'aria-hidden': true }) : null}
+                      <span className={config.unstyled ? undefined : 'pinfold-tabs__text'}>{item.label ?? item.id}</span>
+                      {item.endContent != null ? slot('endContent', item.endContent, 'span') : null}
+                    </>
+                  )}
                   {/* Pointer only: the keyboard closes with Delete, which the tab announces. */}
                   {closable(i)
                     ? slot('close', CLOSE_ICON, 'span', {
@@ -212,12 +224,14 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
                 </>,
                 link ? 'a' : 'button',
                 {
-                  [ITEM]: { ...item, index: i, selected: isSelected },
+                  [ITEM]: context,
                   ...(link ? { href: item.href } : { type: 'button' }),
-                  role: 'tab',
+                  // As navigation, links in a nav: the current one is the page, every link a tab stop.
+                  role: nav ? undefined : 'tab',
                   id: `${base}-tab-${i}`,
-                  'aria-selected': isSelected,
-                  'aria-controls': isSelected || config.keepMounted ? `${base}-panel-${i}` : undefined,
+                  'aria-selected': nav ? undefined : isSelected,
+                  'aria-current': nav && isSelected ? 'page' : undefined,
+                  'aria-controls': !nav && mounted(i) ? `${base}-panel-${i}` : undefined,
                   'aria-disabled': item.disabled || undefined,
                   'aria-keyshortcuts': [closable(i) ? 'Delete' : '', config.onReorder ? (horizontal ? 'Control+Shift+ArrowLeft Control+Shift+ArrowRight' : 'Control+Shift+ArrowUp Control+Shift+ArrowDown') : ''].filter(Boolean).join(' ') || undefined,
                   'aria-describedby': [closable(i) ? hint : '', config.onReorder ? moveHint : ''].filter(Boolean).join(' ') || undefined,
@@ -258,7 +272,7 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
                     : null),
                   'data-tabs-tab': '',
                   'data-selected': dataAttr(isSelected),
-                  tabIndex: i === stop ? 0 : -1,
+                  tabIndex: nav ? undefined : i === stop ? 0 : -1,
                   onClick: (event: React.MouseEvent) => {
                     if (item.disabled) {
                       event.preventDefault();
@@ -276,15 +290,29 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
         })}
       </>,
       'div',
-      { ref: list, role: 'tablist', 'aria-label': config.label, 'aria-orientation': orientation, onKeyDown, onScroll: overflow },
+      nav ? { ref: list } : { ref: list, role: 'tablist', 'aria-label': config.label, 'aria-orientation': orientation, onKeyDown },
     );
+    // Pointer only (the keyboard scrolls the row by moving focus): shown where the row hides tabs.
+    const scroller = (by: 1 | -1) =>
+      config.scrollButtons === false
+        ? null
+        : slot('scrollButton', CHEVRON_ICON, 'button', {
+            type: 'button',
+            tabIndex: -1,
+            'aria-hidden': true,
+            'aria-label': by < 0 ? 'Scroll back' : 'Scroll forward',
+            'data-scroll': by < 0 ? 'back' : 'forward',
+            onClick: () => scrollList(by),
+          });
     const add = config.onAdd
       ? slot('add', PLUS_ICON, 'button', { type: 'button', 'aria-label': config.addLabel ?? 'New tab', title: config.addLabel ?? 'New tab', onClick: config.onAdd })
       : null;
     const bar = slot(
       'header',
       <>
+        {scroller(-1)}
         {tablist}
+        {scroller(1)}
         {add}
         {config.onClose ? (
           <span id={hint} style={VISUALLY_HIDDEN}>
@@ -302,16 +330,25 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
           </>
         ) : null}
       </>,
-      'div',
-      { ref: header },
+      nav ? 'nav' : 'div',
+      nav ? { ref: header, 'aria-label': config.label } : { ref: header },
     );
-    const panels = items.map((item, i) =>
-      i === selected || config.keepMounted ? (
-        <React.Fragment key={item.id}>
-          {slot('panel', item.content, 'div', { role: 'tabpanel', id: `${base}-panel-${i}`, 'aria-labelledby': `${base}-tab-${i}`, tabIndex: 0, hidden: i !== selected || undefined })}
-        </React.Fragment>
-      ) : null,
-    );
+    const panels = nav
+      ? null
+      : items.map((item, i) =>
+          mounted(i) ? (
+            <React.Fragment key={item.id}>
+              {slot('panel', config.renderPanel ? config.renderPanel({ ...item, index: i, selected: i === selected }) : item.content, 'div', {
+                [ITEM]: { ...item, index: i, selected: i === selected },
+                role: 'tabpanel',
+                id: `${base}-panel-${i}`,
+                'aria-labelledby': `${base}-tab-${i}`,
+                tabIndex: 0,
+                hidden: i !== selected || undefined,
+              })}
+            </React.Fragment>
+          ) : null,
+        );
     return renderSlot(config, 'root', root, state, <>{bar}{panels}</>, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;
   };
 

@@ -12,6 +12,8 @@ import type { StepperApi, StepperComponent, StepperConfig, StepperItem, StepperR
 
 const SPOKEN: Record<StepStatus, string> = { complete: 'done', current: 'current', upcoming: 'not started', error: 'error' };
 const thenable = (v: unknown): v is PromiseLike<unknown> => !!v && typeof (v as PromiseLike<unknown>).then === 'function';
+/** Run `then` on a value, waiting first when it is a promise: sync stays sync. */
+const after = <T, R>(v: T | PromiseLike<T>, then: (value: T) => R): R | Promise<R> => (thenable(v) ? Promise.resolve(v).then(then) : then(v as T));
 
 /**
  * Progress through the steps of a task, with each step's content and the Back / Next actions, as a
@@ -52,34 +54,37 @@ export function useStepper(input: StepperConfig): StepperComponent {
 
   const variant = config.variant ?? 'circle';
   const orientation = variant === 'bar' ? 'horizontal' : config.orientation ?? 'horizontal';
-  const labelPlacement = variant === 'bar' ? 'bottom' : orientation === 'vertical' ? 'end' : config.labelPlacement ?? 'bottom';
+  const labelPlacement = variant === 'bar' ? 'bottom' : orientation === 'vertical' || variant === 'text' ? 'end' : config.labelPlacement ?? 'bottom';
   const state: StepperState = { variant, orientation, labelPlacement, size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, value };
   const labels = config.labels ?? {};
   const panels = items.some((item) => item.content !== undefined);
   const complete = value >= items.length;
   const last = value === items.length - 1;
 
-  const move = (step: number, event?: React.SyntheticEvent, focus = false) => {
-    const next = clamp(step);
-    if (next === value) return;
+  const commit = (next: number, event?: React.SyntheticEvent, focus = false) => {
     moved.current = focus;
     setChanged(true);
     setRaw(next);
     if (event) config.onChange?.(next, event);
   };
-  // Next: ask `onNext`, then (on the last step) `onComplete`, then move. A promise keeps the button
-  // loading until it settles; `false` stays.
-  const advance = (event: React.MouseEvent): void | Promise<void> => {
-    const go = (): void | Promise<void> => {
-      const done = last ? config.onComplete?.() : undefined;
-      if (thenable(done)) return Promise.resolve(done).then(() => move(value + 1, event, true));
-      move(value + 1, event, true);
-    };
-    const ok = config.onNext?.(value);
-    if (thenable(ok)) return Promise.resolve(ok).then((result) => (result === false ? undefined : go()));
-    if (ok === false) return;
-    return go();
+  // Every move by Back, Next or a click asks `beforeChange(from, to)` first: `false` (or a promise
+  // of it) stays. A promise keeps the pressed button loading until it settles.
+  const move = (step: number, event?: React.SyntheticEvent, focus = false): void | Promise<void> => {
+    const next = clamp(step);
+    if (next === value) return;
+    return after(config.beforeChange ? config.beforeChange(value, next) : true, (ok) => {
+      if (ok !== false) commit(next, event, focus);
+    });
   };
+  // Next: ask `onNext`, then `beforeChange`, then (on the last step) `onComplete`, then move.
+  const advance = (event: React.MouseEvent): void | Promise<unknown> =>
+    after(config.onNext?.(value), (ok) => {
+      if (ok === false) return;
+      return after(config.beforeChange ? config.beforeChange(value, value + 1) : true, (allowed) => {
+        if (allowed === false) return;
+        return after(last ? config.onComplete?.() : undefined, () => commit(value + 1, event, true));
+      });
+    });
 
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
@@ -88,6 +93,8 @@ export function useStepper(input: StepperConfig): StepperComponent {
         'data-variant': variant,
         'data-orientation': orientation,
         'data-label-placement': labelPlacement,
+        'data-connector': config.connector ?? 'gap',
+        'data-responsive': dataAttr(config.responsive !== false && orientation === 'horizontal'),
         'data-size': state.size,
         'data-tone': state.tone,
         'data-animate': dataAttr(!ctx.disableAnimation),
@@ -135,11 +142,23 @@ export function useStepper(input: StepperConfig): StepperComponent {
 
     const steps = items.map((item, i) => {
       const status: StepStatus = item.error ? 'error' : stepStatus(i, value);
+      const context = { ...item, index: i, status };
+      // Your icon for this step (a node, or a function of the step and its status), then your icon
+      // for the status, then ours: a check when done, a mark on an error, else the number.
+      const own = typeof item.icon === 'function' ? item.icon(context) : item.icon;
+      const forStatus = config.icons?.[status];
+      const custom = own != null || forStatus != null;
       const mark =
-        variant === 'circle' ? (status === 'error' ? ALERT_ICON : status === 'complete' ? CHECK_ICON : item.icon ?? i + 1) : variant === 'dot' && status === 'error' ? ALERT_ICON : null;
+        variant === 'bar'
+          ? null
+          : variant === 'text'
+            ? (own ?? forStatus ?? i + 1)
+            : variant === 'circle'
+              ? (own ?? forStatus ?? (status === 'error' ? ALERT_ICON : status === 'complete' ? CHECK_ICON : i + 1))
+              : (own ?? forStatus ?? (status === 'error' ? ALERT_ICON : null));
       const inner = (
         <>
-          {slot('indicator', mark, 'span', { 'aria-hidden': true })}
+          {slot('indicator', mark, 'span', { 'aria-hidden': true, 'data-custom': dataAttr(custom && variant === 'dot') })}
           {slot(
             'text',
             <>
@@ -160,7 +179,7 @@ export function useStepper(input: StepperConfig): StepperComponent {
           {slot(
             'step',
             <>
-              {clickable ? slot('button', inner, 'button', { type: 'button', onClick: (event: React.MouseEvent) => move(i, event) }) : inner}
+              {clickable ? slot('button', inner, 'button', { type: 'button', onClick: (event: React.MouseEvent) => void move(i, event) }) : inner}
               {i < items.length - 1 ? slot('connector', null, 'span', { 'aria-hidden': true }) : null}
               {inline && i === value ? (
                 <div className={config.unstyled ? undefined : 'pinfold-stepper__body'}>
@@ -170,13 +189,25 @@ export function useStepper(input: StepperConfig): StepperComponent {
               ) : null}
             </>,
             'li',
-            { [ITEM]: { ...item, index: i, status }, 'data-status': status, 'data-disabled': dataAttr(item.disabled), 'aria-current': i === value ? 'step' : undefined },
+            { [ITEM]: context, 'data-status': status, 'data-disabled': dataAttr(item.disabled), 'aria-current': i === value ? 'step' : undefined },
           )}
         </React.Fragment>
       );
     });
+    // On a narrow box the names give way to "Step 2 of 5: Shipping" (the list still reads in full).
+    const current = items[Math.min(value, items.length - 1)];
+    const summary =
+      config.responsive !== false && orientation === 'horizontal' && items.length
+        ? slot(
+            'summary',
+            complete ? labels.status?.complete ?? 'Done' : <>{labels.progress ? labels.progress(value + 1, items.length) : `Step ${value + 1} of ${items.length}`}<b>{current?.label}</b></>,
+            'div',
+            { 'aria-hidden': true },
+          )
+        : null;
     const body = (
       <>
+        {summary}
         {slot('list', steps, 'ol', { 'aria-label': config.label ?? 'Progress' })}
         {panels && !inline && (items[value]?.content !== undefined || (complete && config.doneContent !== undefined)) ? content(value) : null}
         {panels && !inline ? actions() : null}
@@ -192,6 +223,7 @@ export function useStepper(input: StepperConfig): StepperComponent {
     isLast: last,
     isComplete: complete,
     setValue: (n) => setRaw(clamp(n)),
+    goTo: (n) => move(n),
     next: () => setRaw(clamp(value + 1)),
     previous: () => setRaw(clamp(value - 1)),
     reset: () => setRaw(clamp(config.defaultValue ?? 0)),

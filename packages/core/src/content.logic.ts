@@ -23,10 +23,12 @@ export function inactiveRatingOptions(config: { readOnly?: boolean }): Record<st
   return { clearable: why, onChange: why };
 }
 
-export function inactiveTimelineOptions(config: { orientation?: string; variant?: string }): Record<string, string> {
+export function inactiveTimelineOptions(config: { orientation?: string; variant?: string; collapsible?: boolean; items?: ReadonlyArray<unknown> }): Record<string, string> {
   const out: Record<string, string> = {};
-  if (config.orientation === 'horizontal') out.align = 'a horizontal timeline always has its text under the marks.';
   if ((config.variant ?? 'dot') !== 'card') out.radius = 'only the card variant has corners; dots and icons are round.';
+  const content = Array.isArray(config.items) && config.items.some((item) => typeof item === 'object' && item !== null && (item as { content?: unknown }).content != null);
+  if (!content) out.collapsible = 'only events with `content` collapse.';
+  if (!config.collapsible || !content) out.onOpenChange = 'only used with `collapsible` and events with `content`.';
   return out;
 }
 
