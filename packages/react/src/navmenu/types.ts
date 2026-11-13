@@ -3,7 +3,7 @@ import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
-export type NavMenuSlot = 'root' | 'list' | 'item' | 'link' | 'trigger' | 'chevron' | 'panel' | 'content' | 'grid' | 'panelLink' | 'icon' | 'description';
+export type NavMenuSlot = 'root' | 'list' | 'item' | 'link' | 'trigger' | 'chevron' | 'panel' | 'content' | 'grid' | 'panelLink' | 'icon' | 'description' | 'highlight';
 export type NavMenuVariant = 'ghost' | 'underline' | 'pills';
 
 /** A link in a panel. */
@@ -24,8 +24,8 @@ export interface NavMenuLink {
 /** A top-level entry: a link, or a button that opens a panel of links (`items`) and/or any `content`. */
 export interface NavMenuItem extends NavMenuLink {
   items?: ReadonlyArray<NavMenuLink | string>;
-  /** Any node in the panel, before the links: a featured card. */
-  content?: React.ReactNode;
+  /** Anything in the panel, before the links: a featured card, a form, your own layout. A function gets `{ close, open }`. */
+  content?: React.ReactNode | ((panel: { close: () => void; open: boolean }) => React.ReactNode);
   /** Link columns in the panel. Default 2 with more than three links, else 1. */
   columns?: 1 | 2 | 3;
 }
@@ -71,6 +71,14 @@ export interface NavMenuConfig extends SlotOverrides<NavMenuSlot, NavMenuState> 
   onOpenChange?: (key: string | null) => void;
   /** Panels open on pointer hover (and a press), or on a press only. @default 'hover' */
   openOn?: 'hover' | 'click';
+  /** How a panel arrives. `'slide'`: it drops in, and moving between entries it comes from the side you moved from. `'scale'`: it grows from the top. `'fade'`. `'none'`. @default 'slide' */
+  transition?: 'slide' | 'scale' | 'fade' | 'none';
+  /** A highlight that slides between entries with the pointer and rests on the open one. @default true */
+  highlight?: boolean;
+  /** Milliseconds the pointer rests on an entry before its panel opens. @default 120 */
+  openDelay?: number;
+  /** Milliseconds a panel stays after the pointer leaves, so a gap can be crossed. @default 260 */
+  closeDelay?: number;
   /** @default 'ghost' */
   variant?: NavMenuVariant;
   /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */

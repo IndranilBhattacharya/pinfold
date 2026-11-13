@@ -17,7 +17,25 @@
     font-size: var(--pinfold-control-text);
     color: var(--pinfold-color-text);
   }
-  .pinfold-navmenu__list { display: flex; flex-wrap: wrap; align-items: center; gap: 0.125rem; margin: 0; padding: 0; list-style: none; }
+  .pinfold-navmenu__list { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 0.125rem; margin: 0; padding: 0; list-style: none; }
+  /* One highlight for the whole row: it slides to the entry under the pointer and rests on the open one. */
+  .pinfold-navmenu__highlight {
+    position: absolute;
+    inset: 0 auto auto 0;
+    z-index: 0;
+    inline-size: var(--pinfold-navmenu-i-w, 0);
+    block-size: var(--pinfold-navmenu-i-h, 0);
+    pointer-events: none;
+    opacity: 0;
+    background: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent);
+    border-radius: var(--pinfold-nm-radius);
+    transform: translate(var(--pinfold-navmenu-i-x, 0), var(--pinfold-navmenu-i-y, 0));
+  }
+  .pinfold-navmenu__list[data-placed] > .pinfold-navmenu__highlight { opacity: 1; }
+  .pinfold-navmenu[data-animate] .pinfold-navmenu__highlight { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-out), inline-size var(--pinfold-duration-md) var(--pinfold-ease-out), opacity var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  /* With the highlight the entries do not paint their own hover fill. */
+  .pinfold-navmenu[data-highlight] .pinfold-navmenu__list[data-placed] :is(.pinfold-navmenu__link:hover, .pinfold-navmenu__trigger:hover, .pinfold-navmenu__trigger[data-open]) { background: transparent; }
+  .pinfold-navmenu__item { z-index: 1; }
   .pinfold-navmenu__item { position: relative; }
 
   .pinfold-navmenu__link, .pinfold-navmenu__trigger {
@@ -102,6 +120,25 @@
     transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-out), visibility 0s linear var(--pinfold-duration-md);
   }
   .pinfold-navmenu[data-animate] .pinfold-navmenu__panel[data-open] { transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-out), visibility 0s; }
+  /* How a panel arrives. */
+  .pinfold-navmenu[data-transition='fade'] .pinfold-navmenu__panel,
+  .pinfold-navmenu[data-transition='slide'] .pinfold-navmenu__panel,
+  .pinfold-navmenu[data-transition='none'] .pinfold-navmenu__panel { transform: none; }
+  .pinfold-navmenu[data-transition='none'] .pinfold-navmenu__panel { transition: none; }
+  .pinfold-navmenu[data-animate][data-transition='slide'] .pinfold-navmenu__panel[data-open][data-motion='in'] { animation: pinfold-navmenu-drop var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-navmenu[data-animate][data-transition='slide'] .pinfold-navmenu__panel[data-open][data-motion='forward'] { animation: pinfold-navmenu-from-end var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-navmenu[data-animate][data-transition='slide'] .pinfold-navmenu__panel[data-open][data-motion='backward'] { animation: pinfold-navmenu-from-start var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  [dir='rtl'] .pinfold-navmenu[data-animate][data-transition='slide'] .pinfold-navmenu__panel[data-open][data-motion='forward'] { animation-name: pinfold-navmenu-from-start; }
+  [dir='rtl'] .pinfold-navmenu[data-animate][data-transition='slide'] .pinfold-navmenu__panel[data-open][data-motion='backward'] { animation-name: pinfold-navmenu-from-end; }
+  @keyframes pinfold-navmenu-drop {
+    from { opacity: 0; transform: translateY(-0.375rem); }
+  }
+  @keyframes pinfold-navmenu-from-end {
+    from { opacity: 0; transform: translateX(1.5rem); }
+  }
+  @keyframes pinfold-navmenu-from-start {
+    from { opacity: 0; transform: translateX(-1.5rem); }
+  }
   .pinfold-navmenu[data-animate] .pinfold-navmenu__chevron { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-out); }
   .pinfold-navmenu[data-animate] :is(.pinfold-navmenu__link, .pinfold-navmenu__trigger)::after { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-out); }
 

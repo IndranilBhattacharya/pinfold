@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
-const SLOTS = ['root', 'list', 'item', 'link', 'trigger', 'chevron', 'panel', 'content', 'grid', 'panelLink', 'icon', 'description'] as const;
+const SLOTS = ['root', 'list', 'item', 'link', 'trigger', 'chevron', 'panel', 'content', 'grid', 'panelLink', 'icon', 'description', 'highlight'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -34,6 +34,10 @@ export const navmenuMeta: ComponentMeta = {
     defaultOpen: { type: 'string', orString: true, description: 'The open entry at first.', group: 'behaviour' },
     onOpenChange: { type: 'function', description: '`(key | null) => void`.', group: 'events' },
     openOn: { type: 'enum', values: ['hover', 'click'], default: 'hover', description: 'Panels open when the pointer rests on an entry (and on a press), or on a press only. Touch and keyboard always use a press.', group: 'behaviour', control: true, silent: true },
+    transition: { type: 'enum', values: ['slide', 'scale', 'fade', 'none'], default: 'slide', description: 'How a panel arrives. `slide`: it drops in, and moving between entries it comes from the side you moved from. `scale`: it grows from the top. `fade`. `none`.', group: 'appearance', control: true },
+    highlight: { type: 'boolean', default: true, description: 'A highlight that slides between entries with the pointer and rests on the open one.', group: 'appearance', control: true },
+    openDelay: { type: 'number', default: 120, description: 'Milliseconds the pointer rests on an entry before its panel opens.', group: 'behaviour' },
+    closeDelay: { type: 'number', default: 260, description: 'Milliseconds a panel stays after the pointer leaves, so a gap can be crossed.', group: 'behaviour' },
     variant: { type: 'enum', values: ['ghost', 'underline', 'pills'], default: 'ghost', description: 'Top entries: a tint under the pointer, a bar under the current one, or the current one filled.', group: 'appearance', control: true },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.navmenu`, the provider, then md.', group: 'appearance', control: true },

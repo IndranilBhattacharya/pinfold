@@ -37,6 +37,9 @@ props, the preset, `defaults.navmenu`, the provider, the library default.
 | `onNavigate(href, event)` | follow links yourself | provider `navigate` |
 | `open`, `defaultOpen`, `onOpenChange` | the open entry's key or `null` | `null` |
 | `openOn` | `hover` (and a press) or `click` | `'hover'` |
+| `transition` | how a panel arrives: `'slide'` (it drops in; moving between entries it comes from the side you moved from), `'scale'`, `'fade'`, `'none'` | `'slide'` |
+| `highlight` | one highlight that slides between entries with the pointer and rests on the open one | `true` |
+| `openDelay`, `closeDelay` | ms the pointer rests before a panel opens; ms a panel stays after the pointer leaves | `120`, `260` |
 | `variant` | `ghost` tint, `underline` bar, `pills` fill | `'ghost'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone`, `dimensions` | `columnWidth` | `'md'`, `'primary'`, `14rem` |
@@ -53,6 +56,17 @@ Controller: `value`, `open`, `setOpen(key | null)`.
 | Option | Inactive when |
 |---|---|
 | `openOn`, `open`, `defaultOpen` | no entry has a panel |
+
+## Your own panels
+An entry's `content` is anything: a featured card, a form, a whole layout. As a function it gets `{ close, open }`:
+```tsx
+<Nav label="Main" items={[
+  { label: 'Products', items: products, content: <Featured /> },
+  { label: 'Account', content: ({ close }) => <AccountPanel onDone={close} /> },
+  { label: 'Pricing', href: '/pricing' },
+]} />
+```
+Every part is a slot (`trigger`, `panel`, `grid`, `panelLink`, `highlight`...): `render` swaps the element, `classNames` restyles it.
 
 ## Accessibility
 - A `nav` landmark with a list; panel buttons are disclosures (`aria-expanded`, `aria-controls`).

@@ -6,6 +6,7 @@ import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
 import { followLink } from '../link';
+import { useSlidingIndicator } from '../indicator';
 import { CHEVRON_DOWN_ICON } from '../nav-icons';
 import type { NavMenuApi, NavMenuComponent, NavMenuConfig, NavMenuItem, NavMenuLink, NavMenuRootProps, NavMenuSlot, NavMenuState } from './types';
 
@@ -47,6 +48,23 @@ export function useNavMenu(input: NavMenuConfig): NavMenuComponent {
   const latest = React.useRef(open);
   latest.current = open;
   const hover = (config.openOn ?? 'hover') === 'hover';
+  const openDelay = config.openDelay ?? OPEN_DELAY;
+  const closeDelay = config.closeDelay ?? CLOSE_DELAY;
+  const list = React.useRef<HTMLUListElement | null>(null);
+  // The entry under the pointer: the highlight slides to it.
+  const [pointed, setPointed] = React.useState<number | null>(null);
+  // Which way the open panel changed, so the next one arrives from that side.
+  const previous = React.useRef<string | null>(null);
+  const motion = React.useRef<'in' | 'forward' | 'backward'>('in');
+  if (previous.current !== open) {
+    const from = items.findIndex((item) => sidebarKey(item) === previous.current);
+    const to = items.findIndex((item) => sidebarKey(item) === open);
+    motion.current = from < 0 || to < 0 ? 'in' : to > from ? 'forward' : 'backward';
+    previous.current = open;
+  }
+  const highlight = config.highlight !== false;
+  const openIndex = items.findIndex((item) => sidebarKey(item) === open);
+  useSlidingIndicator(list as React.RefObject<HTMLElement | null>, highlight, ':scope > [data-nm-entry]', pointed ?? openIndex, '--pinfold-navmenu-i-', items.length);
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ navmenuMeta, validateConfig }) => {
@@ -106,6 +124,8 @@ export function useNavMenu(input: NavMenuConfig): NavMenuComponent {
         ...radiusProps(config.radius),
         'aria-label': config.label,
         'data-variant': state.variant,
+        'data-transition': config.transition ?? 'slide',
+        'data-highlight': dataAttr(highlight),
         'data-size': state.size,
         'data-tone': state.tone,
         'data-animate': dataAttr(!ctx.disableAnimation),
@@ -160,7 +180,7 @@ export function useNavMenu(input: NavMenuConfig): NavMenuComponent {
       getRootProps(mergeProps({ ref: root, className: config.unstyled ? config.className : cn('pinfold pinfold-navmenu', config.className), style: vars ? { ...vars, ...config.style } : config.style }, rootProps)),
     );
 
-    const entries = items.map((item) => {
+    const entries = items.map((item, index) => {
       const key = sidebarKey(item);
       const panel = hasPanel(item);
       const isOpen = panel && open === key;
@@ -179,12 +199,12 @@ export function useNavMenu(input: NavMenuConfig): NavMenuComponent {
                   setOpen(key);
                 };
                 if (latest.current !== null && latest.current !== key) go();
-                else if (latest.current !== key) timer.current = setTimeout(go, OPEN_DELAY);
+                else if (latest.current !== key) timer.current = setTimeout(go, openDelay);
               },
               onPointerLeave: (e: React.PointerEvent) => {
                 if (e.pointerType === 'touch') return;
                 clearTimeout(timer.current);
-                if (latest.current === key) timer.current = setTimeout(() => setOpen(null), CLOSE_DELAY);
+                if (latest.current === key) timer.current = setTimeout(() => setOpen(null), closeDelay);
               },
             }
           : {};
@@ -237,7 +257,7 @@ export function useNavMenu(input: NavMenuConfig): NavMenuComponent {
         ? slot(
             'panel',
             <>
-              {item.content != null ? slot('content', item.content, 'div') : null}
+              {item.content != null ? slot('content', typeof item.content === 'function' ? item.content({ close: () => setOpen(null), open: isOpen }) : item.content, 'div') : null}
               {links.length
                 ? slot(
                     'grid',
@@ -278,7 +298,7 @@ export function useNavMenu(input: NavMenuConfig): NavMenuComponent {
                 : null}
             </>,
             'div',
-            { id: panelId, 'data-nm-panel': '', 'data-open': dataAttr(isOpen), 'data-has-content': dataAttr(item.content != null) },
+            { id: panelId, 'data-nm-panel': '', 'data-open': dataAttr(isOpen), 'data-motion': isOpen ? motion.current : undefined, 'data-has-content': dataAttr(item.content != null) },
           )
         : null;
       return (
@@ -290,13 +310,22 @@ export function useNavMenu(input: NavMenuConfig): NavMenuComponent {
               {panelEl}
             </>,
             'li',
-            { ...hoverProps, 'data-open': dataAttr(isOpen) },
+            mergeProps(hoverProps as PropsBag, { 'data-nm-entry': '', 'data-open': dataAttr(isOpen), onPointerEnter: () => setPointed(index), onPointerLeave: () => setPointed(null) }),
           )}
         </React.Fragment>
       );
     });
 
-    return renderSlot(config, 'root', rootEl, state, slot('list', entries, 'ul'), (p, c) => <nav {...p}>{c}</nav>) as React.ReactElement;
+    const listEl = slot(
+      'list',
+      <>
+        {entries}
+        {highlight ? slot('highlight', null, 'li', { 'aria-hidden': true, role: 'presentation' }) : null}
+      </>,
+      'ul',
+      { ref: list },
+    );
+    return renderSlot(config, 'root', rootEl, state, listEl, (p, c) => <nav {...p}>{c}</nav>) as React.ReactElement;
   };
 
   const api: NavMenuApi = { value, open, setOpen, getRootProps, render };
