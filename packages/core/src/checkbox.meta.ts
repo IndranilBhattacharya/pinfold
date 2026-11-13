@@ -1,8 +1,8 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
-import { FIELD_ARIA, fieldProps } from './field.meta';
+import { FIELD_ARIA, VALIDATION_ARIA, fieldProps, validationProps } from './field.meta';
 
-const SLOTS = ['root', 'label', 'items', 'item', 'input', 'box', 'itemLabel', 'itemDescription', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'items', 'item', 'input', 'box', 'itemLabel', 'itemDescription', 'itemStartContent', 'itemEndContent', 'description', 'error', 'statusIcon', 'validating'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -15,6 +15,8 @@ const row: Record<string, PropMeta> = {
   label: { type: 'node', required: true, description: 'The name of this row.', group: 'data' },
   description: { type: 'node', description: 'Help text for this row.', group: 'data' },
   disabled: { type: 'boolean', default: false, description: 'This row only.', group: 'behaviour' },
+  startContent: { type: 'node', description: 'Before the text: an icon or a logo (cards especially).', group: 'data' },
+  endContent: { type: 'node', description: 'At the end of the row: a price, a badge.', group: 'data' },
 };
 
 export const checkboxMeta: ComponentMeta = {
@@ -26,11 +28,16 @@ export const checkboxMeta: ComponentMeta = {
   slots: SLOTS,
   props: {
     ...fieldProps,
+    ...validationProps,
     checked: { type: 'boolean', description: 'Controlled state.', group: 'data' },
     defaultChecked: { type: 'boolean', default: false, description: 'Initial state when uncontrolled. A form reset returns to it.', group: 'data' },
     indeterminate: { type: 'boolean', default: false, description: 'Shown and read as partly checked, e.g. a "select all" with some selected.', group: 'data', control: true },
     formValue: { type: 'string', default: 'on', description: 'What the form submits when checked.', group: 'data' },
     onChange: { type: 'function', description: 'One checkbox: `(checked, event) => void`. A group: `(values, event) => void`.', group: 'behaviour' },
+    onFocus: { type: 'function', description: '`(event) => void`: a checkbox took focus (in a group, `event.target` says which).', group: 'events' },
+    onBlur: { type: 'function', description: '`(event) => void`: a checkbox lost focus.', group: 'events' },
+    onKeyDown: { type: 'function', description: '`(event) => void`: any key on a checkbox.', group: 'events' },
+    icon: { type: 'node', description: 'The mark in the box, in place of the tick: a node, or a function of `{ checked, indeterminate, disabled }`. Drawn in `currentColor`.', group: 'appearance' },
     items: { type: 'array', description: 'A group: one row each. `label` then names the group.', group: 'data', items: row },
     value: { type: 'string[]', description: 'Group: the checked values, controlled.', group: 'data' },
     defaultValue: { type: 'string[]', description: 'Group: the checked values when uncontrolled.', group: 'data' },
@@ -62,6 +69,7 @@ export const checkboxMeta: ComponentMeta = {
   ],
   aria: [
     ...FIELD_ARIA,
+    ...VALIDATION_ARIA,
     'A native `<input type="checkbox">`, so it submits with forms and needs no scripted key handling. The whole row is its click target.',
     '`indeterminate` sets the native property, which is read as "mixed".',
     'A group is a `<fieldset>` named by a `<legend>`. `required` on a group means at least one.',
@@ -73,6 +81,8 @@ export const checkboxMeta: ComponentMeta = {
     { name: 'data-orientation', on: 'root', values: '"vertical" | "horizontal"' },
     { name: 'data-invalid', on: 'root', values: 'present when invalid' },
     { name: 'data-group', on: 'root', values: 'present on a group' },
+    { name: 'data-checked', on: 'item', values: 'present on a checked row' },
+    { name: 'data-validity', on: 'root', values: '"error" | "warning" | "success": the resolved status' },
   ],
   cssVariables: ['--pinfold-checkbox-size', '--pinfold-checkbox-gap'],
   examples: [

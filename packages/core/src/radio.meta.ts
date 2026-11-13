@@ -1,8 +1,8 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
-import { FIELD_ARIA, fieldProps } from './field.meta';
+import { FIELD_ARIA, VALIDATION_ARIA, fieldProps, validationProps } from './field.meta';
 
-const SLOTS = ['root', 'label', 'items', 'item', 'input', 'box', 'itemLabel', 'itemDescription', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'items', 'item', 'input', 'box', 'itemLabel', 'itemDescription', 'itemStartContent', 'itemEndContent', 'description', 'error', 'statusIcon', 'validating'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -15,6 +15,8 @@ const row: Record<string, PropMeta> = {
   label: { type: 'node', required: true, description: 'The name of this row.', group: 'data' },
   description: { type: 'node', description: 'Help text for this row.', group: 'data' },
   disabled: { type: 'boolean', default: false, description: 'This row only.', group: 'behaviour' },
+  startContent: { type: 'node', description: 'Before the text: an icon or a logo (cards especially).', group: 'data' },
+  endContent: { type: 'node', description: 'At the end of the row: a price, a badge.', group: 'data' },
 };
 
 export const radioMeta: ComponentMeta = {
@@ -26,11 +28,16 @@ export const radioMeta: ComponentMeta = {
   slots: SLOTS,
   props: {
     ...fieldProps,
+    ...validationProps,
     label: { ...fieldProps.label, description: 'Names the group.' },
     items: { type: 'array', required: true, description: 'One row each.', group: 'data', items: row },
     value: { type: 'string', description: 'The selected value, controlled.', group: 'data' },
     defaultValue: { type: 'string', description: 'The selected value when uncontrolled. A form reset returns to it.', group: 'data' },
     onChange: { type: 'function', description: '`(value, event) => void`.', group: 'behaviour' },
+    onFocus: { type: 'function', description: '`(event) => void`: a radio took focus (`event.target` says which).', group: 'events' },
+    onBlur: { type: 'function', description: '`(event) => void`: a radio lost focus.', group: 'events' },
+    onKeyDown: { type: 'function', description: '`(event) => void`: any key on a radio.', group: 'events' },
+    icon: { type: 'node', description: 'The mark in the circle, in place of the dot: a node, or a function of `{ checked, disabled }`. Drawn in `currentColor`.', group: 'appearance' },
     orientation: { type: 'enum', values: ['vertical', 'horizontal'], default: 'vertical', description: 'Rows or a wrapping line.', group: 'appearance', control: true },
     variant: { type: 'enum', values: ['plain', 'card'], default: 'plain', description: 'Bare rows, or each row a bordered card.', group: 'appearance', control: true },
     animation: { type: 'enum', values: ['spring', 'ripple', 'none'], default: 'spring', description: 'How the dot arrives: `spring` grows it with a little overshoot, `ripple` also sends a ring out. Reduced motion and `disableAnimation` turn it off.', group: 'appearance', control: true },
@@ -60,6 +67,7 @@ export const radioMeta: ComponentMeta = {
   ],
   aria: [
     ...FIELD_ARIA,
+    ...VALIDATION_ARIA,
     'Native radios in a `<fieldset role="radiogroup">` named by a `<legend>`: roving focus and arrow keys are the browser\'s, so they cannot break.',
     'Without a `name` a unique one is generated, so the rows form a group.',
   ],
@@ -69,6 +77,8 @@ export const radioMeta: ComponentMeta = {
     { name: 'data-variant', on: 'root', values: '"plain" | "card"' },
     { name: 'data-orientation', on: 'root', values: '"vertical" | "horizontal"' },
     { name: 'data-invalid', on: 'root', values: 'present when invalid' },
+    { name: 'data-checked', on: 'item', values: 'present on the selected row' },
+    { name: 'data-validity', on: 'root', values: '"error" | "warning" | "success": the resolved status' },
   ],
   cssVariables: ['--pinfold-radio-size', '--pinfold-radio-gap'],
   examples: [

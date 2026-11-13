@@ -21,6 +21,14 @@
     --pinfold-swt-h: var(--pinfold-switch-height, 1.75rem);
   }
   .pinfold-switch[data-animate='slide'] { --pinfold-swt-ease: var(--pinfold-ease-out); }
+  /* Help text and messages line up with the label, after the track. */
+  .pinfold-switch { gap: 0.125rem; }
+  .pinfold-switch[data-label-position='end'] > .pinfold-switch__description,
+  .pinfold-switch[data-label-position='end'] > .pinfold-switch__error,
+  .pinfold-switch[data-label-position='end'] > .pinfold-switch__validating { margin-inline-start: calc(var(--pinfold-swt-w) + var(--pinfold-space-2)); }
+  .pinfold-switch[data-validity='warning'] .pinfold-switch__input:not(:checked):not(:focus-visible) + .pinfold-switch__box,
+  .pinfold-switch[data-validity='success'] .pinfold-switch__input:not(:checked):not(:focus-visible) + .pinfold-switch__box { box-shadow: 0 0 0 var(--pinfold-border-width) var(--pinfold-fld-status); }
+  .pinfold-switch[data-invalid] .pinfold-switch__input:not(:checked):not(:focus-visible) + .pinfold-switch__box { box-shadow: 0 0 0 1.5px var(--pinfold-fld-danger); }
   .pinfold-switch[data-label-position='start'] .pinfold-switch__item {
     flex-direction: row-reverse;
     justify-content: space-between;

@@ -5,7 +5,7 @@ import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
-import { filled, hiddenStyle, labelContent, useField } from '../field';
+import { filled, hiddenStyle, labelContent, renderFieldMessages, useField, validationAttrs } from '../field';
 import { Button } from '../button/Button';
 import { CLOSE_ICON } from '../icons';
 import { VISUALLY_HIDDEN } from '../a11y';
@@ -25,6 +25,8 @@ const eye = (open: boolean) => (
   </svg>
 );
 
+const SHARED: Record<string, string> = { description: 'pinfold-field__description', error: 'pinfold-field__error', statusIcon: 'pinfold-field__icon', validating: 'pinfold-field__validating' };
+
 /**
  * A text field with its label, help text and error wired up, as a hook that hands back a component.
  *
@@ -37,8 +39,8 @@ const eye = (open: boolean) => (
 export function useInput(input: InputConfig): InputComponent {
   const ctx = usePinfold();
   const config = ctx.defaults.input ? mergeConfig<InputConfig>(ctx.defaults.input, input) : input;
-  const field = useField(config);
   const node = React.useRef<InputElement | null>(null);
+  const field = useField(config, { control: () => node.current });
   const minHeight = React.useRef(0);
   const controlled = config.value !== undefined;
   const [uncontrolledFilled, setFilled] = React.useState(() => !!config.defaultValue);
@@ -63,7 +65,8 @@ export function useInput(input: InputConfig): InputComponent {
     warnOnce(!filled(config.label), 'Input: give it a `label` (`hideLabel` keeps it for screen readers only). A placeholder is not a name.');
   }
 
-  const state: InputState = { variant: config.variant ?? 'outline', size: config.size ?? ctx.size, invalid: field.invalid, disabled: !!config.disabled, hasValue, labelPlacement: inside ? 'inside' : 'outside' };
+  const state: InputState = { variant: config.variant ?? 'outline', size: config.size ?? ctx.size, invalid: field.invalid, disabled: !!config.disabled, hasValue, labelPlacement: inside ? 'inside' : 'outside', status: field.status, validating: field.validating, readOnly: !!config.readOnly };
+  const node_ = (content: InputConfig['startContent']) => (typeof content === 'function' ? content(state) : content);
 
   const fit = () => {
     const el = node.current;
@@ -110,7 +113,15 @@ export function useInput(input: InputConfig): InputComponent {
     if (el) field.revalidate(el);
     fit();
     config.onChange?.('');
+    config.onClear?.();
     el?.focus();
+  };
+  const onKeyDown = (event: React.KeyboardEvent<InputElement>) => {
+    config.onKeyDown?.(event);
+    // Enter submits a one-line field's form natively; a multiline one takes Ctrl or Cmd with it.
+    if (event.defaultPrevented || event.key !== 'Enter' || event.nativeEvent.isComposing) return;
+    if (config.multiline && !(event.ctrlKey || event.metaKey)) return;
+    config.onEnter?.(event.currentTarget.value, event);
   };
 
   // The corner handle: drag to set the height, never below the height `rows` gives. The pointer is
@@ -150,6 +161,7 @@ export function useInput(input: InputConfig): InputComponent {
         'data-disabled': dataAttr(config.disabled),
         'data-readonly': dataAttr(config.readOnly),
         'data-multiline': dataAttr(config.multiline),
+        ...validationAttrs(field),
         'data-animate': dataAttr(!ctx.disableAnimation),
         'data-unstyled': dataAttr(config.unstyled),
       },
@@ -181,11 +193,20 @@ export function useInput(input: InputConfig): InputComponent {
       minLength: config.minLength,
       'aria-invalid': field.invalid || undefined,
       'aria-describedby': field.describedBy,
+      'aria-busy': field.validating || undefined,
       onChange,
+      onKeyDown,
+      onFocus: config.onFocus,
+      onBlur: (event: React.FocusEvent<InputElement>) => {
+        field.onBlur(event.currentTarget);
+        config.onBlur?.(event);
+      },
       onInvalid: field.onInvalid,
       ...(controlled ? { value: config.value } : { defaultValue: config.defaultValue }),
       ...(config.multiline ? { rows: config.rows ?? 3 } : { type: reveal && revealed ? 'text' : (config.type ?? 'text'), pattern: config.pattern }),
     };
+    const start = node_(config.startContent);
+    const end = node_(config.endContent);
     const canClear = config.clearable && hasValue && !config.disabled && !config.readOnly;
     const label = slot('label', labelContent(config, config.unstyled), 'label', { htmlFor: field.controlId, ...hiddenStyle(config.hideLabel) }, 'pinfold-field__label');
     const text = slot('input', null, config.multiline ? 'textarea' : 'input', control);
@@ -195,19 +216,20 @@ export function useInput(input: InputConfig): InputComponent {
         {slot(
           'control',
           <>
-            {filled(config.startContent) ? slot('startContent', config.startContent, 'span') : null}
+            {filled(start) ? slot('startContent', start, 'span') : null}
             {/* Inside, the label follows the input in the DOM so CSS can lift it on the input's state. */}
             {inside ? slot('field', <>{text}{label}</>, 'span') : text}
             {canClear ? slot('clear', <Button label={config.clearLabel ?? 'Clear'} icon={config.clearIcon ?? CLOSE_ICON} iconOnly variant="ghost" tone="neutral" size="sm" onClick={clear} />, 'span') : null}
             {reveal
               ? slot('reveal', <Button label={config.revealLabel ?? 'Show password'} icon={eye(!revealed)} iconOnly variant="ghost" tone="neutral" size="sm" disabled={config.disabled} aria-pressed={revealed} onClick={() => setRevealed((r) => !r)} />, 'span')
               : null}
-            {filled(config.endContent) ? slot('endContent', config.endContent, 'span') : null}
+            {field.validating ? slot('validating', null, 'span', { 'aria-hidden': true }, 'pinfold-field__validating') : null}
+            {filled(end) ? slot('endContent', end, 'span') : null}
             {handle ? slot('handle', config.resizeIcon ?? GRIP, 'span', { 'aria-hidden': true, onPointerDown: startResize }) : null}
           </>,
           'div',
         )}
-        {filled(config.description) ? slot('description', config.description, 'div', { id: field.descriptionId }, 'pinfold-field__description') : null}
+        {renderFieldMessages(field, config.description, (n, c, t, b) => slot(n as InputSlot, c, t, b, SHARED[n]), true)}
         {config.showCount
           ? slot(
               'counter',
@@ -221,12 +243,11 @@ export function useInput(input: InputConfig): InputComponent {
               { 'data-near': dataAttr(config.maxLength !== undefined && length >= config.maxLength * 0.9 && length < config.maxLength), 'data-full': dataAttr(config.maxLength !== undefined && length >= config.maxLength) },
             )
           : null}
-        {filled(field.message) ? slot('error', field.message, 'div', { id: field.errorId }, 'pinfold-field__error') : null}
       </>
     );
     return renderSlot(config, 'root', root, state, content, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;
   };
 
-  const api: InputApi = { focus: () => node.current?.focus(), clear, getRootProps, render };
+  const api: InputApi = { focus: () => node.current?.focus(), clear, ...field.api, getRootProps, render };
   return usePinfoldComponent<InputApi, InputRootProps>('Input', api, (props) => render(props));
 }

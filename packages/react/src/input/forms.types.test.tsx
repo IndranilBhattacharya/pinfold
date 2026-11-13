@@ -14,6 +14,7 @@ import { defineRadio } from '../radio/define';
 import { useRadio } from '../radio/useRadio';
 import { defineSwitch } from '../switch/define';
 import { useSwitch } from '../switch/useSwitch';
+import { useSlider } from '../slider/useSlider';
 
 const Email = defineInput({ type: 'email', required: true });
 const Terms = defineCheckbox({ required: true });
@@ -23,7 +24,7 @@ const rows = [{ value: 'a', label: 'A' }] as const;
 
 function Valid() {
   const Name = useInput({ label: 'Name', onChange: (value: string) => void value, dimensions: { width: 200 } });
-  const Notes = useInput({ label: 'Notes', multiline: true, autosize: true, rows: 2 });
+  const Notes = useInput({ label: 'Notes', multiline: true, autosize: true, rows: 2, validate: async (v) => (v.length > 2 ? null : { status: 'warning', message: 'Short' }), onEnter: (v) => void v.trim(), error: ({ message }) => message });
   const Topics = useCheckbox({ label: 'Topics', items: rows, defaultValue: ['a'], onChange: (values: string[]) => void values });
   const One = useRadio({ label: 'One', items: rows, value: 'a', onChange: (value) => void value.length });
   const On = useSwitch({ label: 'On', tone: 'success', onChange: (checked) => void !checked });
@@ -57,6 +58,14 @@ function Invalid() {
   useRadio({ label: 'x', items: [{ label: 'A' }] });
   // @ts-expect-error a group value is a list
   useCheckbox({ label: 'x', items: rows, value: 'a' });
+  // @ts-expect-error validateOn is change, blur or submit
+  useInput({ label: 'x', validateOn: 'input' });
+  // @ts-expect-error an input validates a string
+  useInput({ label: 'x', validate: (v: number) => (v > 1 ? 'x' : null) });
+  // @ts-expect-error a status is error, warning or success
+  useSwitch({ label: 'x', status: 'info' });
+  // @ts-expect-error a slider has no native constraint messages
+  useSlider({ label: 'x', messages: {} });
   // @ts-expect-error a switch has no indeterminate state
   useSwitch({ label: 'x', indeterminate: true });
   return null;

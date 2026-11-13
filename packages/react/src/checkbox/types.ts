@@ -1,10 +1,10 @@
 import type * as React from 'react';
 import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
-import type { ChoiceRow, FieldConfig } from '../field';
+import type { ChoiceRow, FieldConfig, FieldStatus, FieldValidationApi, FieldValidationConfig } from '../field';
 import type { SlotOverrides } from '../types';
 
-export type CheckboxSlot = 'root' | 'label' | 'items' | 'item' | 'input' | 'box' | 'itemLabel' | 'itemDescription' | 'description' | 'error';
+export type CheckboxSlot = 'root' | 'label' | 'items' | 'item' | 'input' | 'box' | 'itemLabel' | 'itemDescription' | 'itemStartContent' | 'itemEndContent' | 'description' | 'error' | 'statusIcon' | 'validating';
 export type CheckboxVariant = 'plain' | 'card';
 
 /** One row of a group. */
@@ -13,12 +13,33 @@ export interface CheckboxItem extends ChoiceRow {
   value: string;
 }
 
+/** A group row as a slot `render` override receives it (`item`): the row plus its live state. */
+export interface CheckboxItemContext extends CheckboxItem {
+  index: number;
+  checked: boolean;
+}
+
 /** Passed to slot `render` overrides. */
 export interface CheckboxState {
   size: PinfoldSize;
   tone: PinfoldTone;
   invalid: boolean;
   group: boolean;
+  /** One checkbox: whether it is checked. */
+  checked: boolean;
+  /** A group: the checked values. */
+  values: string[];
+  /** The resolved status: an error, or a warning or success from `status` or `validate`. */
+  status: FieldStatus | null;
+  /** An async `validate` is running. */
+  validating: boolean;
+}
+
+/** What an `icon` function receives, per box. */
+export interface CheckboxIconState {
+  checked: boolean;
+  indeterminate: boolean;
+  disabled: boolean;
 }
 
 export interface CheckboxDimensions {
@@ -33,7 +54,7 @@ export interface CheckboxDimensions {
  *   const Topics = defineCheckbox({ variant: 'card' });
  *   <Topics label="Topics" name="topics" items={[{ value: 'news', label: 'News' }]} />
  */
-export interface CheckboxConfig extends FieldConfig, SlotOverrides<CheckboxSlot, CheckboxState> {
+export interface CheckboxConfig extends Omit<FieldConfig, 'error'>, FieldValidationConfig<any>, SlotOverrides<CheckboxSlot, CheckboxState, CheckboxItemContext> {
   /** Controlled state. */
   checked?: boolean;
   /** @default false */
@@ -47,6 +68,14 @@ export interface CheckboxConfig extends FieldConfig, SlotOverrides<CheckboxSlot,
   formValue?: string;
   /** One checkbox: `boolean`. A group: the checked values. */
   onChange?: (value: any, event: React.ChangeEvent<HTMLInputElement>) => void;
+  /** A checkbox took focus (a group: `event.target` says which). */
+  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  /** A checkbox lost focus. */
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  /** Any key on a checkbox. */
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  /** The mark in the box, in place of the tick: a node, or a function of `{ checked, indeterminate, disabled }`. */
+  icon?: React.ReactNode | ((state: CheckboxIconState) => React.ReactNode);
   /** A group: one row each. `label` then names the group. */
   items?: readonly CheckboxItem[];
   /** Group: the checked values, controlled. */
@@ -79,7 +108,7 @@ export interface CheckboxConfig extends FieldConfig, SlotOverrides<CheckboxSlot,
 export type CheckboxRootProps = Omit<React.HTMLAttributes<HTMLElement>, 'children' | 'onChange' | 'defaultValue' | 'defaultChecked' | 'id'> & { [key: `data-${string}`]: unknown };
 export type CheckboxTagProps = CheckboxConfig & Omit<CheckboxRootProps, keyof CheckboxConfig>;
 
-export interface CheckboxApi {
+export interface CheckboxApi extends FieldValidationApi {
   /** Focus the checkbox, or a group's first row. */
   focus: () => void;
   getRootProps: (props?: PropsBag) => PropsBag;

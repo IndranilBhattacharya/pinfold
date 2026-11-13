@@ -92,7 +92,8 @@
     background-color: var(--pinfold-tone-solid, var(--pinfold-color-accent));
     border-color: var(--pinfold-control-edge, var(--pinfold-tone-solid, var(--pinfold-color-accent)));
   }
-  .pinfold-field[data-invalid] .pinfold-choice__box { border-color: var(--pinfold-fld-danger); }
+  /* Invalid frames the empty boxes; a checked one keeps its fill. */
+  .pinfold-field[data-invalid] .pinfold-choice__input:not(:checked):not(:indeterminate) + .pinfold-choice__box { border-color: var(--pinfold-fld-danger); }
   .pinfold-choice__input:focus-visible + .pinfold-choice__box { box-shadow: var(--pinfold-focus-ring); }
   .pinfold-choice__input:focus-visible { outline: none; box-shadow: none; }
   .pinfold-field[data-animate] .pinfold-choice__box { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), border-color var(--pinfold-duration-fast) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
@@ -152,5 +153,76 @@
     .pinfold-choice__input:checked + .pinfold-choice__box,
     .pinfold-choice__input[type='checkbox']:indeterminate + .pinfold-choice__box { background: Highlight; color: Canvas; border-color: Highlight; }
     .pinfold-choice__input:focus-visible + .pinfold-choice__box { outline: 2px solid Highlight; outline-offset: 2px; }
+  }
+
+  /* ------------------------------------------------- validation (data-validity) */
+  /* The resolved status tones the frame, the ring and the message line. Only controls with the
+     validation options set data-validity, so the rest are untouched. */
+  .pinfold-field[data-validity] {
+    --pinfold-fld-status: var(--pinfold-fld-danger);
+    --pinfold-focus-ring: 0 0 0 var(--pinfold-focus-offset) var(--pinfold-color-bg), 0 0 0 calc(var(--pinfold-focus-offset) + var(--pinfold-focus-width)) color-mix(in oklab, var(--pinfold-fld-status) 70%, transparent);
+  }
+  .pinfold-field[data-validity='warning'] { --pinfold-fld-status: color-mix(in oklab, var(--pinfold-color-warning) 88%, var(--pinfold-color-text)); }
+  .pinfold-field[data-validity='success'] { --pinfold-fld-status: color-mix(in oklab, var(--pinfold-color-success) 88%, var(--pinfold-color-text)); }
+
+  .pinfold-field__error[data-status],
+  .pinfold-field__description[data-status] {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.375em;
+  }
+  .pinfold-field__error[data-status='warning'],
+  .pinfold-field__description[data-status='warning'] { color: color-mix(in oklab, var(--pinfold-color-warning) 88%, var(--pinfold-color-text)); }
+  .pinfold-field__error[data-status='success'],
+  .pinfold-field__description[data-status='success'] { color: color-mix(in oklab, var(--pinfold-color-success) 88%, var(--pinfold-color-text)); }
+  .pinfold-field__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    inline-size: 1.15em;
+    block-size: 1.4em;
+    align-items: center;
+  }
+  .pinfold-field__icon > svg { inline-size: 100%; block-size: auto; }
+  .pinfold-field[data-animate] .pinfold-field__error[data-status] { animation: pinfold-field-in var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  @keyframes pinfold-field-in {
+    from { opacity: 0; transform: translateY(-0.25rem); }
+  }
+
+  /* Pending async validation: a small ring that turns. The one motion kept (slower) under reduced motion. */
+  .pinfold-field__validating {
+    display: inline-block;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    inline-size: 1em;
+    block-size: 1em;
+    border: 2px solid color-mix(in oklab, var(--pinfold-color-text-muted) 35%, transparent);
+    border-block-start-color: var(--pinfold-color-accent);
+    border-radius: var(--pinfold-radius-full);
+    animation: pinfold-field-spin 700ms linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pinfold-field__validating { animation-duration: 1.6s; }
+    .pinfold-field[data-animate] .pinfold-field__error[data-status] { animation: none; }
+  }
+  @keyframes pinfold-field-spin {
+    to { transform: rotate(1turn); }
+  }
+
+  /* Rows with their own content (a logo, a price). */
+  .pinfold-choice__start,
+  .pinfold-choice__end {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    min-block-size: 1.4em;
+    color: var(--pinfold-color-text-muted);
+  }
+  .pinfold-choice__start > svg,
+  .pinfold-choice__end > svg { inline-size: 1.25em; block-size: 1.25em; }
+  .pinfold-choice__end { margin-inline-start: auto; padding-inline-start: var(--pinfold-space-3); color: var(--pinfold-color-text); font-weight: var(--pinfold-weight-medium); }
+  .pinfold-choice__item > .pinfold-choice__text { flex: 0 1 auto; }
+
+  @media (forced-colors: active) {
+    .pinfold-field__validating { border-color: CanvasText; border-block-start-color: Highlight; }
   }
 }

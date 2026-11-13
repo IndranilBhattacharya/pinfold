@@ -4,4 +4,5 @@
 export { Checkbox, useCheckbox } from './client';
 export { Checkbox as default } from './client';
 export { defineCheckbox, type DefinedCheckbox, type CheckboxPresetProps } from './define';
-export type { CheckboxApi, CheckboxComponent, CheckboxConfig, CheckboxRootProps, CheckboxTagProps, CheckboxSlot, CheckboxState, CheckboxItem, CheckboxVariant, CheckboxDimensions } from './types';
+export type { CheckboxApi, CheckboxComponent, CheckboxConfig, CheckboxRootProps, CheckboxTagProps, CheckboxSlot, CheckboxState, CheckboxItem, CheckboxVariant, CheckboxDimensions, CheckboxIconState, CheckboxItemContext } from './types';
+export type { FieldStatus, FieldValidateOutcome, FieldValidationResult, FieldMessages, FieldErrorState } from '../field';

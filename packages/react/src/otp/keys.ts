@@ -1,5 +1,5 @@
-/** Every config key of the one-time code field. Tag and preset props with these names are config; the rest go
- * to the root element. `config-keys.test.ts` keeps this equal to the meta. */
+/** Every config key of the one-time code. Tag and preset props with these names are config; the rest go to the root
+ * element. `config-keys.test.ts` keeps this equal to the meta. */
 export const OTP_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'label',
   'hideLabel',
@@ -11,15 +11,27 @@ export const OTP_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'nativeErrors',
   'name',
   'id',
+  'validate',
+  'validateOn',
+  'messages',
+  'onValidate',
+  'onInvalid',
+  'status',
   'length',
   'type',
   'value',
   'defaultValue',
   'onChange',
   'onComplete',
+  'onPaste',
+  'onFocus',
+  'onBlur',
+  'onKeyDown',
   'groups',
   'separator',
   'mask',
+  'maskChar',
+  'placeholder',
   'variant',
   'radius',
   'size',

@@ -4,4 +4,5 @@
 export { Radio, useRadio } from './client';
 export { Radio as default } from './client';
 export { defineRadio, type DefinedRadio, type RadioPresetProps } from './define';
-export type { RadioApi, RadioComponent, RadioConfig, RadioRootProps, RadioTagProps, RadioSlot, RadioState, RadioItem, RadioVariant, RadioDimensions } from './types';
+export type { RadioApi, RadioComponent, RadioConfig, RadioRootProps, RadioTagProps, RadioSlot, RadioState, RadioItem, RadioVariant, RadioDimensions, RadioIconState, RadioItemContext } from './types';
+export type { FieldStatus, FieldValidateOutcome, FieldValidationResult, FieldMessages, FieldErrorState } from '../field';

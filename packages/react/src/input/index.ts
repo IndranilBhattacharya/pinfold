@@ -4,4 +4,5 @@
 export { Input, useInput } from './client';
 export { Input as default } from './client';
 export { defineInput, type DefinedInput, type InputPresetProps } from './define';
-export type { InputApi, InputComponent, InputConfig, InputRootProps, InputTagProps, InputSlot, InputState, InputType, InputVariant, InputElement, InputDimensions } from './types';
+export type { InputApi, InputComponent, InputConfig, InputRootProps, InputTagProps, InputSlot, InputState, InputType, InputVariant, InputElement, InputDimensions, InputContent } from './types';
+export type { FieldStatus, FieldValidateOutcome, FieldValidationResult, FieldMessages, FieldErrorState } from '../field';

@@ -46,14 +46,15 @@ describe('controls logic', () => {
     expect(Object.keys(inactiveSliderOptions({ value: [1, 2], showValue: 'never', marks: [{}], step: 5 }))).toEqual(['formatValue']);
     expect(Object.keys(inactiveSliderOptions({ value: [1, 2], marks: [{}] }))).toEqual(['showSteps']);
     expect(Object.keys(inactiveSliderOptions({ value: [1, 2], marks: [{}], snapToMarks: true }))).toEqual(['step', 'showSteps']);
-    expect(Object.keys(inactiveNumberOptions({ steppers: 'none' }))).toEqual(['incrementLabel', 'decrementLabel']);
+    expect(Object.keys(inactiveNumberOptions({ steppers: 'none' }))).toEqual(['incrementLabel', 'decrementLabel', 'incrementIcon', 'decrementIcon']);
     expect(Object.keys(inactiveToolbarOptions({}))).toEqual(['value', 'defaultValue', 'onChange', 'selectedTone']);
     expect(inactiveToolbarOptions({ selection: 'single' })).toEqual({});
     expect(toolbarPress(['a'], 'b', 'single')).toEqual(['b']);
     expect(toolbarPress(['a'], 'a', 'single')).toEqual([]);
     expect(toolbarPress(['a'], 'b', 'multiple')).toEqual(['a', 'b']);
     expect(toolbarPress(['a', 'b'], 'a', 'multiple')).toEqual(['b']);
-    expect(Object.keys(inactiveOtpOptions({}))).toEqual(['separator']);
-    expect(inactiveOtpOptions({ groups: [3, 3] })).toEqual({});
+    expect(Object.keys(inactiveOtpOptions({}))).toEqual(['separator', 'maskChar']);
+    expect(Object.keys(inactiveOtpOptions({ groups: [2, 2], mask: true }))).toEqual([]);
+    expect(inactiveOtpOptions({ groups: [3, 3], mask: true })).toEqual({});
   });
 });

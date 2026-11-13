@@ -1,8 +1,8 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
-import { FIELD_ARIA, fieldProps } from './field.meta';
+import { FIELD_ARIA, VALIDATION_ARIA, fieldProps, validationProps } from './field.meta';
 
-const SLOTS = ['root', 'label', 'control', 'input', 'decrement', 'increment', 'startContent', 'endContent', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'control', 'input', 'decrement', 'increment', 'startContent', 'endContent', 'description', 'error', 'statusIcon', 'validating'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -21,9 +21,14 @@ export const numberMeta: ComponentMeta = {
   slots: SLOTS,
   props: {
     ...fieldProps,
+    ...validationProps,
     value: { type: 'number', description: 'Controlled value; `null` is empty.', group: 'data' },
     defaultValue: { type: 'number', description: 'Initial value when uncontrolled. A form reset returns to it.', group: 'data' },
     onChange: { type: 'function', description: '`(value, event?) => void`; `value` is `null` when the field is empty. No `event` from the buttons.', group: 'behaviour' },
+    onValueCommit: { type: 'function', description: '`(value) => void`: the value settled. A stepper press ended, an arrow key was released, Enter, or the field was left after a change. The moment to save.', group: 'events' },
+    onFocus: { type: 'function', description: '`(event) => void`: the number took focus.', group: 'events' },
+    onBlur: { type: 'function', description: '`(event) => void`: the number lost focus, after `onValueCommit` and validation on blur.', group: 'events' },
+    onKeyDown: { type: 'function', description: '`(event) => void`: any key in the number; `preventDefault()` on Enter skips the commit.', group: 'events' },
     min: { type: 'number', description: 'Lowest value: native validation, and the − button stops there.', group: 'data' },
     max: { type: 'number', description: 'Highest value.', group: 'data' },
     step: { type: 'number', default: 1, description: 'What the buttons and arrow keys add; native validation checks values against it.', group: 'data' },
@@ -39,8 +44,10 @@ export const numberMeta: ComponentMeta = {
     },
     incrementLabel: { type: 'string', default: 'Increase', description: 'Accessible name and tooltip of +.', group: 'behaviour' },
     decrementLabel: { type: 'string', default: 'Decrease', description: 'Accessible name and tooltip of −.', group: 'behaviour' },
-    startContent: { type: 'node', description: 'Before the number: a currency, an icon.', group: 'data' },
-    endContent: { type: 'node', description: 'After the number: a unit.', group: 'data' },
+    incrementIcon: { type: 'node', description: 'The + button\'s icon.', group: 'appearance' },
+    decrementIcon: { type: 'node', description: 'The − button\'s icon.', group: 'appearance' },
+    startContent: { type: 'node', description: 'Before the number: a currency, an icon. A node or a function of state.', group: 'data' },
+    endContent: { type: 'node', description: 'After the number: a unit. A node or a function of state.', group: 'data' },
     variant: { type: 'enum', values: ['outline', 'filled'], default: 'outline', description: 'A frame, or a tinted fill.', group: 'appearance', control: true },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'The same heights as a button and an input. Precedence: this config, `defaults.number`, the provider, then md.', group: 'appearance', control: true },
@@ -59,6 +66,7 @@ export const numberMeta: ComponentMeta = {
   ],
   aria: [
     ...FIELD_ARIA,
+    ...VALIDATION_ARIA,
     'A native `<input type="number">` is a `spinbutton`: value, limits and steps are read and validated by the browser.',
     'The − and + buttons are named, out of the tab order (the arrow keys do the same), disabled at the limits, and repeat while held.',
   ],
@@ -67,6 +75,8 @@ export const numberMeta: ComponentMeta = {
     { name: 'data-variant', on: 'root', values: '"outline" | "filled"' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-invalid', on: 'root', values: 'present when invalid' },
+    { name: 'data-validity', on: 'root', values: '"error" | "warning" | "success": the resolved status' },
+    { name: 'data-validating', on: 'root', values: 'present while an async `validate` runs' },
   ],
   cssVariables: ['--pinfold-number-width', '--pinfold-number-height'],
   examples: [

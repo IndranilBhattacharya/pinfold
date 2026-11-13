@@ -1,8 +1,8 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
-import { FIELD_ARIA, fieldProps } from './field.meta';
+import { FIELD_ARIA, VALIDATION_ARIA, fieldProps, validationProps } from './field.meta';
 
-const SLOTS = ['root', 'label', 'value', 'control', 'track', 'range', 'steps', 'input', 'thumb', 'marks', 'mark', 'startContent', 'endContent', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'value', 'control', 'track', 'range', 'steps', 'input', 'thumb', 'marks', 'mark', 'startContent', 'endContent', 'description', 'error', 'statusIcon', 'validating'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -10,7 +10,8 @@ const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   keys: Object.fromEntries(SLOTS.map((s) => [s, { type, description: `The \`${s}\` slot.`, group: 'escape-hatch' }])),
 });
 const len = (description: string): PropMeta => ({ type: 'length', description, group: 'appearance' });
-const { label, hideLabel, description, error, invalid, disabled, name, id } = fieldProps;
+const { label, hideLabel, description, invalid, disabled, name, id } = fieldProps;
+const { error, validate, validateOn, onValidate, onInvalid, status } = validationProps;
 
 export const sliderMeta: ComponentMeta = {
   name: 'slider',
@@ -28,10 +29,20 @@ export const sliderMeta: ComponentMeta = {
     disabled,
     name,
     id,
+    validate,
+    validateOn,
+    onValidate,
+    onInvalid,
+    status,
     value: { type: 'array', description: 'Controlled values: one number, or two for a range.', group: 'data' },
     defaultValue: { type: 'array', description: 'Initial values when uncontrolled: `[40]`, or `[20, 80]` for a range. A form reset returns to it. Default `[min]`.', group: 'data' },
     onChange: { type: 'function', description: '`(values, event) => void`, while dragging.', group: 'behaviour' },
-    onChangeEnd: { type: 'function', description: '`(values) => void`, once the pointer or key is released: the moment to save.', group: 'behaviour' },
+    onChangeEnd: { type: 'function', description: '`(values) => void`, once the pointer or key is released after a change: the moment to save.', group: 'behaviour' },
+    onValueCommit: { type: 'function', description: '`(values) => void`: the same moment as `onChangeEnd` (also on leaving a thumb after a change), named like the other fields.', group: 'events' },
+    onFocus: { type: 'function', description: '`(event) => void`: a thumb took focus (`event.target.dataset.index` says which).', group: 'events' },
+    onBlur: { type: 'function', description: '`(event) => void`: a thumb lost focus.', group: 'events' },
+    onKeyDown: { type: 'function', description: '`(event) => void`: any key on a thumb; `preventDefault()` stops the mark-to-mark keys of `snapToMarks`.', group: 'events' },
+    thumbContent: { type: 'node', description: 'Inside each thumb: an icon, a grip, the value. A node or a function of the thumb\'s state (`{ value, index, values, ... }`).', group: 'appearance' },
     min: { type: 'number', default: 0, description: 'Lowest value.', group: 'data' },
     max: { type: 'number', default: 100, description: 'Highest value.', group: 'data' },
     step: { type: 'number', default: 1, description: 'Values snap to it.', group: 'data' },
@@ -80,6 +91,7 @@ export const sliderMeta: ComponentMeta = {
   ],
   aria: [
     ...FIELD_ARIA.slice(0, 1),
+    ...VALIDATION_ARIA,
     'Each thumb is a native `<input type="range">`: keyboard, touch, forms and assistive tech are the browser\'s. A range has two, named "label, Minimum" and "label, Maximum" by default.',
     '`formatValue` is read as `aria-valuetext`, so "$40" is read, not "40".',
     'The filled range and marks are decorative; the value is always in the inputs.',
@@ -89,6 +101,7 @@ export const sliderMeta: ComponentMeta = {
     { name: 'data-tone', on: 'root', values: 'the resolved tone' },
     { name: 'data-range', on: 'root', values: 'present with two thumbs' },
     { name: 'data-variant', on: 'root', values: '"line" | "bar" | "minimal"' },
+    { name: 'data-validity', on: 'root', values: '"error" | "warning" | "success": the resolved status' },
   ],
   cssVariables: ['--pinfold-slider-thickness', '--pinfold-slider-thumb-size'],
   examples: [

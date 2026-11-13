@@ -22,7 +22,11 @@ preset, `defaults.slider`, the provider (size, tone), the library default.
 |---|---|---|
 | `label`, `hideLabel`, `description`, `error`, `invalid`, `disabled`, `name`, `id` | field options | |
 | `value`, `defaultValue` | `number[]` | none, `[min]` |
-| `onChange`, `onChangeEnd` | `(values, event)` while dragging; `(values)` on release | none |
+| `onChange`, `onChangeEnd` | `(values, event)` while dragging; `(values)` on release after a change | none |
+| `onValueCommit` | `(values) => void`: the same moment as `onChangeEnd`, also on leaving a thumb after a change | none |
+| `onFocus`, `onBlur`, `onKeyDown` | `(event) => void` on each thumb (`event.currentTarget.dataset.index`); `preventDefault()` on a key stops the mark-to-mark keys of `snapToMarks` | none |
+| `thumbContent` | inside each thumb, replacing the dot: a node or `({ value, index, values... }) => node` | none |
+| validation | `validate` (gets the values), `validateOn` (`'blur'`), `status`, `onValidate`, `onInvalid`; `error` may be a function. No `messages`: a range input has no native constraint. See [Input: Validation](input.md#validation) | |
 | `min`, `max`, `step` | `number` | `0`, `100`, `1` |
 | `minGap` | range: least distance between thumbs | `0` |
 | `marks` | `{ value, label? }[]` | none |
@@ -37,7 +41,10 @@ preset, `defaults.slider`, the provider (size, tone), the library default.
 | `size`, `tone` | | `'md'`, `'primary'` (provider) |
 | `orientation` | `horizontal`, or `vertical` with the minimum at the bottom | `'horizontal'` |
 | `dimensions` | `thickness, thumbSize, length` (vertical track, 12rem) | from the size |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label value control track range steps input thumb marks mark startContent endContent description error`) | | |
+| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label value control track range steps input thumb marks mark startContent endContent description error statusIcon validating`) | | |
+
+Controller: `values`, `setValues(values)`, `focus()`, `validate()`, `setError(message)`, `clearError()`.
+Marks take any node as `label`; `showValue: 'tooltip'` shows `formatValue` in a bubble over the thumb.
 
 Inactive (`inactiveSliderOptions`): `minGap` with one thumb; `formatValue` with `showValue: 'never'`;
 `snapToMarks` without marks; `step` and `showSteps` while snapping; `showSteps` over 40 steps.

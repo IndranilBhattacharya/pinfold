@@ -27,6 +27,11 @@
     transform: scale(0);
   }
   .pinfold-radio__input:checked + .pinfold-radio__box::after { transform: none; }
+  /* A custom icon replaces the dot. */
+  .pinfold-radio[data-icon] .pinfold-radio__box::after { display: none; }
+  .pinfold-radio__box > svg { inline-size: 70%; block-size: 70%; }
+  .pinfold-radio[data-validity='warning'] .pinfold-radio__input:not(:checked) + .pinfold-radio__box,
+  .pinfold-radio[data-validity='success'] .pinfold-radio__input:not(:checked) + .pinfold-radio__box { border-color: var(--pinfold-fld-status); }
   .pinfold-radio[data-animate] .pinfold-radio__box::after { transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-spring); }
 
   .pinfold-radio__box::before {

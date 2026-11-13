@@ -124,11 +124,13 @@ export function toolbarPress(values: readonly string[], value: string, selection
 }
 
 export function inactiveNumberOptions(config: { steppers?: string }): Record<string, string> {
-  return config.steppers === 'none' ? { incrementLabel: 'there are no stepper buttons.', decrementLabel: 'there are no stepper buttons.' } : {};
+  const why = 'there are no stepper buttons.';
+  return config.steppers === 'none' ? { incrementLabel: why, decrementLabel: why, incrementIcon: why, decrementIcon: why } : {};
 }
 
-export function inactiveOtpOptions(config: { groups?: readonly number[] }): Record<string, string> {
+export function inactiveOtpOptions(config: { groups?: readonly number[]; mask?: boolean }): Record<string, string> {
   const out: Record<string, string> = {};
   if (!config.groups?.length) out.separator = 'only shown between `groups`.';
+  if (!config.mask) out.maskChar = 'only shown with `mask`.';
   return out;
 }

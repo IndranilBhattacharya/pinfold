@@ -6,7 +6,7 @@ import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
 import { VISUALLY_HIDDEN } from '../a11y';
-import { filled, hiddenStyle, useField } from '../field';
+import { filled, hiddenStyle, renderFieldMessages, useField, validationAttrs } from '../field';
 import type { SliderApi, SliderComponent, SliderConfig, SliderRootProps, SliderSlot, SliderState } from './types';
 
 /**
@@ -21,7 +21,8 @@ import type { SliderApi, SliderComponent, SliderConfig, SliderRootProps, SliderS
 export function useSlider(input: SliderConfig): SliderComponent {
   const ctx = usePinfold();
   const config = ctx.defaults.slider ? mergeConfig<SliderConfig>(ctx.defaults.slider, input) : input;
-  const field = useField(config);
+  const latest = React.useRef<number[]>([]);
+  const field = useField(config, { value: () => latest.current, control: () => field.root.current?.querySelector<HTMLInputElement>('input[type="range"]') });
   const min = config.min ?? 0;
   const max = config.max ?? 100;
   const step = config.step && config.step > 0 ? config.step : 1;
@@ -33,8 +34,9 @@ export function useSlider(input: SliderConfig): SliderComponent {
   const [raw, setRaw] = useControllableState<readonly number[]>({ value: config.value, defaultValue: initial.current });
   const values = sliderValues(raw.length ? raw.slice(0, 2) : [min], min, max, step, gap, stops);
   const range = values.length === 2;
-  const latest = React.useRef(values);
   latest.current = values;
+  // The values last handed to `onValueCommit`: a release without a change commits nothing.
+  const committed = React.useRef(values);
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ sliderMeta, validateConfig }) => {
@@ -54,7 +56,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
     return () => form.removeEventListener('reset', onReset);
   }, []);
 
-  const state: SliderState = { size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, values, range, variant: config.variant ?? 'line', invalid: field.invalid };
+  const state: SliderState = { size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, values, range, variant: config.variant ?? 'line', invalid: field.invalid, disabled: !!config.disabled, status: field.status, validating: field.validating };
   const format = (v: number) => (config.formatValue ? config.formatValue(v) : String(v));
   const fraction = (v: number) => sliderPercent(v, min, max) / 100;
 
@@ -65,10 +67,18 @@ export function useSlider(input: SliderConfig): SliderComponent {
     const next = values.slice();
     next[index] = v;
     const clean = sliderValues(next, min, max, step, 0, stops);
+    latest.current = clean;
     setRaw(clean);
+    field.revalidate(event.target);
     config.onChange?.(clean, event);
   };
-  const end = () => config.onChangeEnd?.(latest.current);
+  const end = () => {
+    const now = latest.current;
+    if (now.length === committed.current.length && now.every((v, i) => v === committed.current[i])) return;
+    committed.current = now;
+    config.onChangeEnd?.(now);
+    config.onValueCommit?.(now);
+  };
   // Snapping to marks, the input takes any value (marks need not sit on a step), so the arrow keys
   // are ours: they set the next mark the native way, and the input event above does the rest.
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -108,6 +118,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
         'data-mark-labels': dataAttr(config.marks?.some((m) => filled(m.label))),
         'data-invalid': dataAttr(field.invalid),
         'data-disabled': dataAttr(config.disabled),
+        ...validationAttrs(field),
         'data-animate': dataAttr(!ctx.disableAnimation),
         'data-unstyled': dataAttr(config.unstyled),
       },
@@ -115,7 +126,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
     );
 
   const render = (rootProps?: SliderRootProps): React.ReactElement => {
-    const shared: Partial<Record<SliderSlot, string>> = { label: 'pinfold-field__label', description: 'pinfold-field__description', error: 'pinfold-field__error' };
+    const shared: Partial<Record<SliderSlot, string>> = { label: 'pinfold-field__label', description: 'pinfold-field__description', error: 'pinfold-field__error', statusIcon: 'pinfold-field__icon', validating: 'pinfold-field__validating' };
     const slot = (name: SliderSlot, content: React.ReactNode, tag: string, base: PropsBag = {}) =>
       renderSlot(config, name, slotProps(config, name, { className: config.unstyled ? undefined : cn(`pinfold-slider__${name}`, shared[name]), ...base }), state, content, (p, c) => React.createElement(tag, p, c));
     const vars: Record<string, string> = {
@@ -191,12 +202,30 @@ export function useSlider(input: SliderConfig): SliderComponent {
                   'aria-invalid': field.invalid || undefined,
                   'data-index': i,
                   'aria-orientation': config.orientation === 'vertical' ? 'vertical' : undefined,
+                  'aria-busy': field.validating || undefined,
                   onChange: onInput(i),
                   onPointerUp: end,
                   onKeyUp: end,
-                  onKeyDown: stops ? onKeyDown : undefined,
+                  onFocus: config.onFocus,
+                  onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+                    end();
+                    if (!field.root.current?.contains(event.relatedTarget as Node | null)) field.onBlur(event.currentTarget);
+                    config.onBlur?.(event);
+                  },
+                  onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {
+                    config.onKeyDown?.(event);
+                    if (stops && !event.defaultPrevented) onKeyDown(event);
+                  },
                 })}
-                {slot('thumb', showValue === 'tooltip' ? slot('value', format(v), 'span', { 'aria-hidden': true }) : null, 'span', { 'aria-hidden': true, style: { '--pinfold-sld-at': String(fraction(v)) } })}
+                {slot(
+                  'thumb',
+                  <>
+                    {typeof config.thumbContent === 'function' ? config.thumbContent({ ...state, value: v, index: i }) : config.thumbContent}
+                    {showValue === 'tooltip' ? slot('value', format(v), 'span', { 'aria-hidden': true }) : null}
+                  </>,
+                  'span',
+                  { 'aria-hidden': true, 'data-index': i, 'data-custom': dataAttr(config.thumbContent !== undefined), style: { '--pinfold-sld-at': String(fraction(v)) } },
+                )}
                 {range ? (
                   <span id={`${field.base}-thumb-${i}`} style={VISUALLY_HIDDEN}>
                     {names[i]}
@@ -208,8 +237,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
           'div',
           ),
         )}
-        {filled(config.description) ? slot('description', config.description, 'div', { id: field.descriptionId }) : null}
-        {filled(field.message) ? slot('error', field.message, 'div', { id: field.errorId }) : null}
+        {renderFieldMessages(field, config.description, (n, c, t, b) => slot(n as SliderSlot, c, t, b))}
       </>
     );
     return renderSlot(config, 'root', root, state, content, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;
@@ -218,6 +246,7 @@ export function useSlider(input: SliderConfig): SliderComponent {
   const api: SliderApi = {
     values,
     setValues: (next) => setRaw(sliderValues(next, min, max, step, gap, stops)),
+    ...field.api,
     focus: () => field.root.current?.querySelector<HTMLInputElement>('input[type="range"]')?.focus(),
     getRootProps,
     render,

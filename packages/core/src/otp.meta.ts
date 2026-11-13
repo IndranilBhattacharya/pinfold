@@ -1,8 +1,8 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
-import { FIELD_ARIA, fieldProps } from './field.meta';
+import { FIELD_ARIA, VALIDATION_ARIA, fieldProps, validationProps } from './field.meta';
 
-const SLOTS = ['root', 'label', 'control', 'input', 'slots', 'slot', 'caret', 'separator', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'control', 'input', 'slots', 'slot', 'caret', 'separator', 'description', 'error', 'statusIcon', 'validating'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -21,15 +21,22 @@ export const otpMeta: ComponentMeta = {
   slots: SLOTS,
   props: {
     ...fieldProps,
+    ...validationProps,
     length: { type: 'number', default: 6, description: 'How many characters.', group: 'data' },
     type: { type: 'enum', values: ['numeric', 'alphanumeric'], default: 'numeric', description: 'Digits only (a number keypad on phones), or letters and digits (shown upper case). Anything else typed or pasted is dropped.', group: 'behaviour' },
     value: { type: 'string', description: 'Controlled value.', group: 'data' },
     defaultValue: { type: 'string', description: 'Initial value when uncontrolled.', group: 'data' },
     onChange: { type: 'function', description: '`(value, event) => void`.', group: 'behaviour' },
     onComplete: { type: 'function', description: '`(value) => void`, once every box is filled: the moment to verify.', group: 'behaviour' },
+    onPaste: { type: 'function', description: '`(text, event) => void`: text was pasted, before it is sanitized. `event.preventDefault()` cancels the paste.', group: 'events' },
+    onFocus: { type: 'function', description: '`(event) => void`: the code took focus.', group: 'events' },
+    onBlur: { type: 'function', description: '`(event) => void`: the code lost focus, after validation on blur.', group: 'events' },
+    onKeyDown: { type: 'function', description: '`(event) => void`: any key in the code.', group: 'events' },
     groups: { type: 'array', description: 'Box groups with a separator between, e.g. `[3, 3]`.', group: 'appearance' },
-    separator: { type: 'node', default: '–', description: 'What sits between groups.', group: 'appearance' },
-    mask: { type: 'boolean', default: false, description: 'Show dots instead of the characters.', group: 'appearance', control: true },
+    separator: { type: 'node', default: '–', description: 'What sits between groups: a node, or `(index) => node` for each separator.', group: 'appearance' },
+    mask: { type: 'boolean', default: false, description: 'Show dots instead of the characters (and a password input, so it is not read aloud).', group: 'appearance', control: true },
+    maskChar: { type: 'node', default: '•', description: 'What a masked box shows.', group: 'appearance' },
+    placeholder: { type: 'string', description: 'A faint mark in each empty box, e.g. `\'·\'`.', group: 'appearance' },
     variant: { type: 'enum', values: ['outline', 'filled', 'underline'], default: 'outline', description: 'Framed boxes, tinted boxes, or a line under each.', group: 'appearance', control: true },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Box size. Precedence: this config, `defaults.otp`, the provider, then md.', group: 'appearance', control: true },
@@ -48,6 +55,7 @@ export const otpMeta: ComponentMeta = {
   ],
   aria: [
     ...FIELD_ARIA,
+    ...VALIDATION_ARIA,
     'One native `<input autocomplete="one-time-code">` holds the code: screen readers read one field, SMS autofill and password managers fill it, and `pattern` and `required` validate it.',
     'The boxes are drawn from its value and hidden from assistive tech.',
   ],
@@ -55,6 +63,8 @@ export const otpMeta: ComponentMeta = {
     { name: 'data-variant', on: 'root', values: '"outline" | "filled" | "underline"' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-complete', on: 'root', values: 'present when every box is filled' },
+    { name: 'data-validity', on: 'root', values: '"error" | "warning" | "success": the resolved status' },
+    { name: 'data-validating', on: 'root', values: 'present while an async `validate` runs' },
     { name: 'data-active', on: 'slot', values: 'the box the next character goes in, while focused' },
   ],
   cssVariables: ['--pinfold-otp-slot-size', '--pinfold-otp-gap'],

@@ -23,15 +23,19 @@ applies when a form is submitted.
 | `checked`, `defaultChecked` | `boolean` | uncontrolled, `false` |
 | `formValue` | `string` | `'on'` |
 | `onChange` | `(checked, event) => void` | none |
+| `onFocus`, `onBlur`, `onKeyDown` | `(event) => void` on the native element | none |
+| `thumbIcon` | what the thumb carries, in any variant: a node or a function of state (`({ checked }) => checked ? <Moon /> : <Sun />`) | the `icon` variant's marks |
+| validation | `validate` (gets `checked`), `validateOn` (`'blur'`), `messages`, `status`, `onValidate`, `onInvalid`; `error` may be a function of `{ message, validating, status }`. See [Input: Validation](input.md#validation) | |
 | `labelPosition` | `'end' \| 'start'` | `'end'` |
 | `variant` | `'solid'`: filled track, white thumb · `'slim'`: thin rail, larger thumb · `'icon'`: check or cross in the thumb · `'outline'`: hollow track, the thumb takes the colour and the track glows | `'solid'` |
 | `animation` | `'spring'`: the thumb stretches while pressed and lands with a little overshoot · `'slide'`: a plain glide · `'none'` | `'spring'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | as everywhere | provider, then `'md'`, `'primary'` |
 | `dimensions` | `width, height` | from the size |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root item input box thumb itemLabel description error`) | | |
+| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root item input box thumb itemLabel description error statusIcon validating`) | | |
 
-Controller: `focus()`.
+Controller: `focus()`, `validate()`, `setError(message)`, `clearError()`. The root carries `data-checked`.
+The description and messages line up with the label after the track.
 
 ## Accessibility
 - Read as a switch, on or off. Space toggles; Enter submits the form, as with any checkbox.

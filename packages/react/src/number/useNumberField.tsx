@@ -4,7 +4,7 @@ import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
-import { filled, hiddenStyle, labelContent, useField } from '../field';
+import { filled, hiddenStyle, labelContent, renderFieldMessages, useField, validationAttrs } from '../field';
 import type { NumberFieldApi, NumberFieldComponent, NumberFieldConfig, NumberFieldRootProps, NumberFieldSlot, NumberFieldState } from './types';
 
 const MINUS = (
@@ -35,7 +35,6 @@ const parse = (text: string): number | null => (text.trim() === '' || Number.isN
 export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
   const ctx = usePinfold();
   const config = ctx.defaults.number ? mergeConfig<NumberFieldConfig>(ctx.defaults.number, input) : input;
-  const field = useField(config);
   const node = React.useRef<HTMLInputElement | null>(null);
   const timer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const controlled = config.value !== undefined;
@@ -43,6 +42,14 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
   const value = controlled ? config.value ?? null : own;
   const latest = React.useRef(value);
   latest.current = value;
+  const field = useField(config, { control: () => node.current, value: () => latest.current });
+  // The value last handed to `onValueCommit` (or found on focus).
+  const committed = React.useRef<number | null>(value);
+  const commitNow = () => {
+    if (Object.is(latest.current, committed.current)) return;
+    committed.current = latest.current;
+    config.onValueCommit?.(latest.current);
+  };
   const step = config.step && config.step > 0 ? config.step : 1;
 
   if (process.env.NODE_ENV !== 'production') {
@@ -67,7 +74,8 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
   const locked = !!config.disabled || !!config.readOnly;
   const atMin = config.min !== undefined && value !== null && value <= config.min;
   const atMax = config.max !== undefined && value !== null && value >= config.max;
-  const state: NumberFieldState = { value, variant: config.variant ?? 'outline', size: config.size ?? ctx.size, invalid: field.invalid, disabled: !!config.disabled };
+  const state: NumberFieldState = { value, variant: config.variant ?? 'outline', size: config.size ?? ctx.size, invalid: field.invalid, disabled: !!config.disabled, readOnly: !!config.readOnly, status: field.status, validating: field.validating };
+  const content_ = (c: NumberFieldConfig['startContent']) => (typeof c === 'function' ? c(state) : c);
 
   const commit = (next: number | null) => {
     const el = node.current;
@@ -85,13 +93,20 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
     commit(next);
     return true;
   };
-  const stop = () => clearTimeout(timer.current);
+  const stop = () => {
+    if (timer.current === undefined) return;
+    clearTimeout(timer.current);
+    timer.current = undefined;
+    // A press of a stepper ends: the value is settled.
+    commitNow();
+  };
   const hold = (direction: 1 | -1) => (event: React.PointerEvent) => {
     if (event.button !== 0) return;
     // Keep focus in the field, where the arrow keys also work.
     event.preventDefault();
     node.current?.focus();
     if (!bump(direction)) return;
+    timer.current = undefined;
     const repeat = () => {
       if (bump(direction)) timer.current = setTimeout(repeat, HOLD_EVERY);
     };
@@ -99,7 +114,7 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
   };
   // A click without a pointer press (a screen reader's, or a test's) steps once.
   const click = (direction: 1 | -1) => (event: React.MouseEvent) => {
-    if (event.detail === 0) bump(direction);
+    if (event.detail === 0 && bump(direction)) commitNow();
   };
 
   const getRootProps = (props?: PropsBag): PropsBag =>
@@ -113,6 +128,7 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
         'data-invalid': dataAttr(field.invalid),
         'data-disabled': dataAttr(config.disabled),
         'data-readonly': dataAttr(config.readOnly),
+        ...validationAttrs(field),
         'data-animate': dataAttr(!ctx.disableAnimation),
         'data-unstyled': dataAttr(config.unstyled),
       },
@@ -120,7 +136,7 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
     );
 
   const render = (rootProps?: NumberFieldRootProps): React.ReactElement => {
-    const shared: Partial<Record<NumberFieldSlot, string>> = { label: 'pinfold-field__label', description: 'pinfold-field__description', error: 'pinfold-field__error' };
+    const shared: Partial<Record<NumberFieldSlot, string>> = { label: 'pinfold-field__label', description: 'pinfold-field__description', error: 'pinfold-field__error', statusIcon: 'pinfold-field__icon', validating: 'pinfold-field__validating' };
     const slot = (name: NumberFieldSlot, content: React.ReactNode, tag: string, base: PropsBag = {}) =>
       renderSlot(config, name, slotProps(config, name, { className: config.unstyled ? undefined : cn(`pinfold-number__${name}`, shared[name]), ...base }), state, content, (p, c) => React.createElement(tag, p, c));
     const vars = dimensionVars('number', config.dimensions);
@@ -132,7 +148,7 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
     const steppers = config.steppers ?? 'split';
     const button = (name: 'decrement' | 'increment', direction: 1 | -1, off: boolean) => {
       const label = direction > 0 ? config.incrementLabel ?? 'Increase' : config.decrementLabel ?? 'Decrease';
-      return slot(name, direction > 0 ? PLUS : MINUS, 'button', {
+      return slot(name, direction > 0 ? config.incrementIcon ?? PLUS : config.decrementIcon ?? MINUS, 'button', {
         type: 'button',
         tabIndex: -1,
         'aria-label': label,
@@ -161,8 +177,27 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
       placeholder: config.placeholder,
       'aria-invalid': field.invalid || undefined,
       'aria-describedby': field.describedBy,
+      'aria-busy': field.validating || undefined,
+      onFocus: (event: React.FocusEvent<HTMLInputElement>) => {
+        committed.current = latest.current;
+        config.onFocus?.(event);
+      },
+      onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+        commitNow();
+        field.onBlur(event.currentTarget);
+        config.onBlur?.(event);
+      },
+      onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {
+        config.onKeyDown?.(event);
+        if (!event.defaultPrevented && event.key === 'Enter') commitNow();
+      },
+      onKeyUp: (event: React.KeyboardEvent<HTMLInputElement>) => {
+        // Arrow keys and Page keys step natively; releasing one settles the value.
+        if (/^(Arrow(Up|Down)|Page(Up|Down))$/.test(event.key)) commitNow();
+      },
       onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
         const next = parse(event.target.value);
+        latest.current = next;
         if (!controlled) setOwn(next);
         field.revalidate(event.target);
         config.onChange?.(next, event);
@@ -170,6 +205,8 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
       onInvalid: field.onInvalid,
       ...(controlled ? { value: value === null ? '' : value } : { defaultValue: config.defaultValue }),
     });
+    const start = content_(config.startContent);
+    const end = content_(config.endContent);
     const content = (
       <>
         {slot('label', labelContent(config, config.unstyled), 'label', { htmlFor: field.controlId, ...hiddenStyle(config.hideLabel) })}
@@ -177,9 +214,10 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
           'control',
           <>
             {steppers === 'split' ? button('decrement', -1, atMin) : null}
-            {filled(config.startContent) ? slot('startContent', config.startContent, 'span') : null}
+            {filled(start) ? slot('startContent', start, 'span') : null}
             {text}
-            {filled(config.endContent) ? slot('endContent', config.endContent, 'span') : null}
+            {field.validating ? slot('validating', null, 'span', { 'aria-hidden': true }) : null}
+            {filled(end) ? slot('endContent', end, 'span') : null}
             {steppers === 'split' ? button('increment', 1, atMax) : null}
             {steppers === 'end' ? (
               <>
@@ -190,13 +228,12 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
           </>,
           'div',
         )}
-        {filled(config.description) ? slot('description', config.description, 'div', { id: field.descriptionId }) : null}
-        {filled(field.message) ? slot('error', field.message, 'div', { id: field.errorId }) : null}
+        {renderFieldMessages(field, config.description, (n, c, t, b) => slot(n as NumberFieldSlot, c, t, b), true)}
       </>
     );
     return renderSlot(config, 'root', root, state, content, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;
   };
 
-  const api: NumberFieldApi = { value, step: (d) => void bump(d), focus: () => node.current?.focus(), getRootProps, render };
+  const api: NumberFieldApi = { value, step: (d) => void bump(d), ...field.api, focus: () => node.current?.focus(), getRootProps, render };
   return usePinfoldComponent<NumberFieldApi, NumberFieldRootProps>('NumberField', api, (props) => render(props));
 }

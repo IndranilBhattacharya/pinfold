@@ -5,3 +5,4 @@ export { Switch, useSwitch } from './client';
 export { Switch as default } from './client';
 export { defineSwitch, type DefinedSwitch, type SwitchPresetProps } from './define';
 export type { SwitchApi, SwitchComponent, SwitchConfig, SwitchRootProps, SwitchTagProps, SwitchSlot, SwitchState, SwitchDimensions } from './types';
+export type { FieldStatus, FieldValidateOutcome, FieldValidationResult, FieldMessages, FieldErrorState } from '../field';

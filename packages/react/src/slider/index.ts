@@ -4,4 +4,5 @@
 export { Slider, useSlider } from './client';
 export { Slider as default } from './client';
 export { defineSlider, type DefinedSlider, type SliderPresetProps } from './define';
-export type { SliderApi, SliderComponent, SliderConfig, SliderRootProps, SliderTagProps, SliderSlot, SliderState, SliderMark, SliderDimensions } from './types';
+export type { SliderApi, SliderComponent, SliderConfig, SliderRootProps, SliderTagProps, SliderSlot, SliderState, SliderMark, SliderDimensions, SliderThumbState } from './types';
+export type { FieldStatus, FieldValidateOutcome, FieldValidationResult, FieldMessages, FieldErrorState } from '../field';

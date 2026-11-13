@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
-import { FIELD_ARIA, fieldProps } from './field.meta';
+import { FIELD_ARIA, VALIDATION_ARIA, fieldProps, validationProps } from './field.meta';
 
-const SLOTS = ['root', 'label', 'control', 'field', 'input', 'startContent', 'endContent', 'clear', 'reveal', 'handle', 'description', 'counter', 'error'] as const;
+const SLOTS = ['root', 'label', 'control', 'field', 'input', 'startContent', 'endContent', 'clear', 'reveal', 'handle', 'description', 'counter', 'error', 'statusIcon', 'validating'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -20,10 +20,16 @@ export const inputMeta: ComponentMeta = {
   slots: SLOTS,
   props: {
     ...fieldProps,
+    ...validationProps,
     type: { type: 'enum', values: ['text', 'email', 'password', 'search', 'url', 'tel'], default: 'text', description: 'The native type: it picks the mobile keyboard and the built-in validation.', group: 'behaviour', control: true, silent: true },
     value: { type: 'string', description: 'Controlled value.', group: 'data' },
     defaultValue: { type: 'string', description: 'Initial value when uncontrolled. A form reset returns to it.', group: 'data' },
     onChange: { type: 'function', description: '`(value, event) => void`. `event` is absent when the clear button did it.', group: 'behaviour' },
+    onFocus: { type: 'function', description: '`(event) => void`: the native element took focus.', group: 'events' },
+    onBlur: { type: 'function', description: '`(event) => void`: the native element lost focus, after validation on blur ran.', group: 'events' },
+    onKeyDown: { type: 'function', description: '`(event) => void`: any key in the native element; `preventDefault()` stops `onEnter`.', group: 'events' },
+    onEnter: { type: 'function', description: '`(value, event) => void`: Enter in a one-line field, Ctrl or Cmd + Enter in a multiline one. The form still submits natively unless you prevent it.', group: 'events' },
+    onClear: { type: 'function', description: '`() => void`: the clear button or `clear()` emptied the field.', group: 'events' },
     placeholder: { type: 'string', description: 'A hint inside an empty field. Never instead of a label.', group: 'data' },
     autoComplete: { type: 'string', description: 'Native `autocomplete`, e.g. `email`: lets browsers and password managers fill it in.', group: 'behaviour' },
     inputMode: { type: 'string', description: 'Native `inputmode`, e.g. `numeric`, for the mobile keyboard.', group: 'behaviour' },
@@ -36,8 +42,8 @@ export const inputMeta: ComponentMeta = {
     autosize: { type: 'boolean', default: false, description: 'Multiline: grows with its content.', group: 'behaviour', control: true },
     resize: { type: 'enum', values: ['vertical', 'none'], default: 'vertical', description: 'Multiline: a drag handle in the corner to change the height. Not with `autosize`.', group: 'appearance', control: true },
     resizeIcon: { type: 'node', description: 'Multiline: the drag handle\'s icon, in place of the two lines.', group: 'appearance' },
-    startContent: { type: 'node', description: 'Before the text: an icon or a unit. Decorative unless it is a control.', group: 'data' },
-    endContent: { type: 'node', description: 'After the text.', group: 'data' },
+    startContent: { type: 'node', description: 'Before the text: an icon, a unit or a button. A node or a function of state. Decorative unless it is a control.', group: 'data' },
+    endContent: { type: 'node', description: 'After the text. A node or a function of state.', group: 'data' },
     clearable: { type: 'boolean', default: false, description: 'A clear button while it has a value.', group: 'behaviour', control: true },
     clearLabel: { type: 'string', default: 'Clear', description: 'Accessible name and tooltip of the clear button.', group: 'behaviour' },
     clearIcon: { type: 'node', description: 'The clear button\'s icon, in place of the cross.', group: 'appearance' },
@@ -63,7 +69,7 @@ export const inputMeta: ComponentMeta = {
     render: perSlot('Replace a slot element: `({ props, state, children }) => node`.', 'function'),
   },
   keyboard: [{ keys: 'Tab', action: 'Native: into the field, then the clear button.' }],
-  aria: FIELD_ARIA,
+  aria: [...FIELD_ARIA, ...VALIDATION_ARIA],
   dataAttributes: [
     { name: 'data-variant', on: 'root', values: '"outline" | "filled" | "underline"' },
     { name: 'data-label-placement', on: 'root', values: '"outside" | "inside"' },
@@ -71,6 +77,8 @@ export const inputMeta: ComponentMeta = {
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-invalid', on: 'root', values: 'present when invalid' },
     { name: 'data-disabled', on: 'root', values: 'present when disabled' },
+    { name: 'data-validity', on: 'root', values: '"error" | "warning" | "success": the resolved status' },
+    { name: 'data-validating', on: 'root', values: 'present while an async `validate` runs' },
   ],
   cssVariables: ['--pinfold-input-width', '--pinfold-input-height', '--pinfold-input-padding-x', '--pinfold-input-radius'],
   examples: [

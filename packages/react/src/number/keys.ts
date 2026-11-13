@@ -1,5 +1,5 @@
-/** Every config key of the number field. Tag and preset props with these names are config; the rest go to the
- * root element. `config-keys.test.ts` keeps this equal to the meta. */
+/** Every config key of the number field. Tag and preset props with these names are config; the rest go to the root
+ * element. `config-keys.test.ts` keeps this equal to the meta. */
 export const NUMBER_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'label',
   'hideLabel',
@@ -11,9 +11,19 @@ export const NUMBER_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'nativeErrors',
   'name',
   'id',
+  'validate',
+  'validateOn',
+  'messages',
+  'onValidate',
+  'onInvalid',
+  'status',
   'value',
   'defaultValue',
   'onChange',
+  'onValueCommit',
+  'onFocus',
+  'onBlur',
+  'onKeyDown',
   'min',
   'max',
   'step',
@@ -22,6 +32,8 @@ export const NUMBER_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'steppers',
   'incrementLabel',
   'decrementLabel',
+  'incrementIcon',
+  'decrementIcon',
   'startContent',
   'endContent',
   'variant',

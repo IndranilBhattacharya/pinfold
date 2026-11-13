@@ -227,6 +227,13 @@
   .pinfold-slider .pinfold-slider__input:focus-visible + .pinfold-slider__thumb { box-shadow: var(--pinfold-focus-ring); }
   .pinfold-slider[data-disabled] { opacity: 0.6; }
   .pinfold-slider[data-invalid] { --pinfold-sld-fill: var(--pinfold-fld-danger); }
+  .pinfold-slider[data-validity='warning'],
+  .pinfold-slider[data-validity='success'] { --pinfold-sld-fill: var(--pinfold-fld-status); }
+  /* Your own thumb content replaces the dot; it takes the fill colour. */
+  .pinfold-slider__thumb[data-custom]::after { display: none; }
+  .pinfold-slider__thumb[data-custom] { color: var(--pinfold-sld-fill); font-size: calc(var(--pinfold-sld-t) * 0.45); font-weight: var(--pinfold-weight-semibold); line-height: 1; }
+  .pinfold-slider__thumb[data-custom] > svg { inline-size: 60%; block-size: 60%; }
+  .pinfold-slider[data-variant='bar'] .pinfold-slider__thumb[data-custom] { color: var(--pinfold-sld-on); }
 
   /* The value in a bubble over the thumb, while it is hovered, focused or dragged: the look of the
      inverse tooltip, clear of the hover halo. The knob never scales, so neither does the bubble. */

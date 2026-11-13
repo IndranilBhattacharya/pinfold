@@ -5,7 +5,7 @@ import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
-import { filled, hiddenStyle, labelContent, useField } from '../field';
+import { filled, hiddenStyle, labelContent, renderFieldMessages, useField, validationAttrs } from '../field';
 import type { OtpApi, OtpComponent, OtpConfig, OtpRootProps, OtpSlot, OtpState } from './types';
 
 /**
@@ -21,12 +21,14 @@ import type { OtpApi, OtpComponent, OtpConfig, OtpRootProps, OtpSlot, OtpState }
 export function useOtp(input: OtpConfig): OtpComponent {
   const ctx = usePinfold();
   const config = ctx.defaults.otp ? mergeConfig<OtpConfig>(ctx.defaults.otp, input) : input;
-  const field = useField(config);
   const node = React.useRef<HTMLInputElement | null>(null);
   const length = Math.max(1, Math.floor(config.length ?? 6));
   const kind = config.type ?? 'numeric';
   const [raw, setRaw] = useControllableState<string>({ value: config.value, defaultValue: config.defaultValue ?? '' });
   const value = otpSanitize(raw, kind, length);
+  const current = React.useRef(value);
+  current.current = value;
+  const field = useField(config, { control: () => node.current, value: () => current.current });
   const [focused, setFocused] = React.useState(false);
   // The box just typed into pops; a code there from the start loads still.
   const [fresh, setFresh] = React.useState(-1);
@@ -50,7 +52,7 @@ export function useOtp(input: OtpConfig): OtpComponent {
   }, []);
 
   const complete = value.length === length;
-  const state: OtpState = { value, complete, variant: config.variant ?? 'outline', size: config.size ?? ctx.size, invalid: field.invalid };
+  const state: OtpState = { value, complete, variant: config.variant ?? 'outline', size: config.size ?? ctx.size, invalid: field.invalid, focused, status: field.status, validating: field.validating };
   // Typing always goes at the end: the caret is kept there, so the boxes fill in order.
   const toEnd = () => {
     const el = node.current;
@@ -64,6 +66,7 @@ export function useOtp(input: OtpConfig): OtpComponent {
     const next = added.length === length ? added : otpSanitize(raw, kind, length);
     if (raw !== next) event.target.value = next;
     setFresh(next.length > value.length ? next.length - 1 : -1);
+    current.current = next;
     setRaw(next);
     field.revalidate(event.target);
     config.onChange?.(next, event);
@@ -81,6 +84,7 @@ export function useOtp(input: OtpConfig): OtpComponent {
         'data-focused': dataAttr(focused),
         'data-invalid': dataAttr(field.invalid),
         'data-disabled': dataAttr(config.disabled),
+        ...validationAttrs(field),
         'data-animate': dataAttr(!ctx.disableAnimation),
         'data-unstyled': dataAttr(config.unstyled),
       },
@@ -88,7 +92,7 @@ export function useOtp(input: OtpConfig): OtpComponent {
     );
 
   const render = (rootProps?: OtpRootProps): React.ReactElement => {
-    const shared: Partial<Record<OtpSlot, string>> = { label: 'pinfold-field__label', description: 'pinfold-field__description', error: 'pinfold-field__error' };
+    const shared: Partial<Record<OtpSlot, string>> = { label: 'pinfold-field__label', description: 'pinfold-field__description', error: 'pinfold-field__error', statusIcon: 'pinfold-field__icon', validating: 'pinfold-field__validating' };
     const slot = (name: OtpSlot, content: React.ReactNode, tag: string, base: PropsBag = {}) =>
       renderSlot(config, name, slotProps(config, name, { className: config.unstyled ? undefined : cn(`pinfold-otp__${name}`, shared[name]), ...base }), state, content, (p, c) => React.createElement(tag, p, c));
     const vars = dimensionVars('otp', config.dimensions);
@@ -100,13 +104,17 @@ export function useOtp(input: OtpConfig): OtpComponent {
     const breaks = otpBreaks(length, config.groups);
     const at = Math.min(value.length, length - 1);
     const boxes: React.ReactNode[] = [];
+    let group = 0;
     for (let i = 0; i < length; i++) {
-      if (breaks.has(i)) boxes.push(<React.Fragment key={`s${i}`}>{slot('separator', config.separator ?? '–', 'span')}</React.Fragment>);
+      if (breaks.has(i)) {
+        const sep = config.separator;
+        boxes.push(<React.Fragment key={`s${i}`}>{slot('separator', typeof sep === 'function' ? sep(group++) : sep ?? '–', 'span')}</React.Fragment>);
+      }
       const char = value[i];
       const active = focused && i === at;
       boxes.push(
         <React.Fragment key={i}>
-          {slot('slot', char ? (config.mask ? '•' : char) : active ? slot('caret', null, 'span') : null, 'span', {
+          {slot('slot', char ? (config.mask ? config.maskChar ?? '•' : char) : active ? slot('caret', null, 'span') : filled(config.placeholder) ? <span className={config.unstyled ? undefined : 'pinfold-otp__placeholder'}>{config.placeholder}</span> : null, 'span', {
             'data-filled': dataAttr(!!char),
             'data-active': dataAttr(active),
             'data-new': dataAttr(i === fresh && !!char),
@@ -137,20 +145,30 @@ export function useOtp(input: OtpConfig): OtpComponent {
               value,
               'aria-invalid': field.invalid || undefined,
               'aria-describedby': field.describedBy,
+              'aria-busy': field.validating || undefined,
               onChange,
+              onKeyDown: config.onKeyDown,
+              onPaste: (event: React.ClipboardEvent<HTMLInputElement>) => {
+                // Cancel it with `event.preventDefault()`.
+                config.onPaste?.(event.clipboardData?.getData('text') ?? '', event);
+              },
               onInvalid: field.onInvalid,
-              onFocus: () => {
+              onFocus: (event: React.FocusEvent<HTMLInputElement>) => {
                 setFocused(true);
+                config.onFocus?.(event);
                 requestAnimationFrame(toEnd);
               },
-              onBlur: () => setFocused(false),
+              onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+                setFocused(false);
+                field.onBlur(event.currentTarget);
+                config.onBlur?.(event);
+              },
               onSelect: toEnd,
             })}
           </>,
           'div',
         )}
-        {filled(config.description) ? slot('description', config.description, 'div', { id: field.descriptionId }) : null}
-        {filled(field.message) ? slot('error', field.message, 'div', { id: field.errorId }) : null}
+        {renderFieldMessages(field, config.description, (n, c, t, b) => slot(n as OtpSlot, c, t, b))}
       </>
     );
     return renderSlot(config, 'root', root, state, content, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;
@@ -163,6 +181,7 @@ export function useOtp(input: OtpConfig): OtpComponent {
       node.current?.focus();
     },
     focus: () => node.current?.focus(),
+    ...field.api,
     getRootProps,
     render,
   };

@@ -19,3 +19,37 @@ export const FIELD_ARIA = [
   'Native validation: the browser\'s message shows in the error slot instead of its bubble, in the reader\'s language, and submitting focuses the first invalid control. A form reset clears it.',
   'An error message is not a live region: it is read when the control takes focus, so many errors at once do not talk over each other.',
 ];
+
+const msg = (description: string): PropMeta => ({ type: 'string', description, group: 'behaviour' });
+
+/** Validation options shared by input, number field, one-time code, checkbox, radio, switch and slider. */
+export const validationProps: Record<string, PropMeta> = {
+  error: { type: 'node', description: 'The error message: shows it, marks the control invalid and links it with `aria-describedby`. A function receives `{ message, validating, status }`, the message validation produced, to wrap or replace it.', group: 'data' },
+  validate: { type: 'function', description: '`(value) => message | { status, message } | null`, or a promise of one. An error is also the native custom validity, so a plain `<form>` will not submit; a newer run makes an older async result stale.', group: 'behaviour' },
+  validateOn: { type: 'enum', values: ['change', 'blur', 'submit'], default: 'blur', description: 'When results show: as you type, when the field is left after an edit (then live while an error shows), or on submit and `validate()`.', group: 'behaviour', silent: true },
+  messages: {
+    type: 'object',
+    description: 'Your text for the browser\'s constraint messages, for translation: a string or `(el) => string` each.',
+    group: 'behaviour',
+    keys: {
+      required: msg('A required field is empty.'),
+      type: msg('Not an email, a URL...'),
+      pattern: msg('Does not match `pattern`.'),
+      min: msg('Below `min`.'),
+      max: msg('Above `max`.'),
+      minLength: msg('Shorter than `minLength`.'),
+      maxLength: msg('Longer than `maxLength`.'),
+      step: msg('Not on a `step`.'),
+      badInput: msg('Text the browser cannot read as a value.'),
+    },
+  },
+  onValidate: { type: 'function', description: '`({ valid, status, message, value }) => void`, after every validation run.', group: 'events' },
+  onInvalid: { type: 'function', description: '`(message, event) => void`: the browser refused to submit the form because of this field.', group: 'events' },
+  status: { type: 'enum', values: ['error', 'warning', 'success'], description: 'A helper state: `warning` and `success` tone the description and the frame and add an icon; `error` marks it invalid. A `validate` result wins.', group: 'appearance', control: true },
+};
+
+export const VALIDATION_ARIA = [
+  '`validate` errors are set as the native custom validity, so the browser blocks submit and `:invalid` matches; the message shows in the error slot, linked with `aria-describedby`, with `aria-invalid`.',
+  'While an async `validate` runs the control has `aria-busy` and the root `data-validating`; a stale result is dropped.',
+  'A warning or success message is linked like an error but does not set `aria-invalid`.',
+];

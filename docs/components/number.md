@@ -20,18 +20,27 @@ Precedence: use-site props, the preset, `defaults.number`, the provider (size), 
 | field options | `label`, `hideLabel`, `description`, `error`, `invalid`, `required`, `disabled`, `nativeErrors`, `name`, `id` | |
 | `value`, `defaultValue` | `number` (`null` empty, controlled) | none |
 | `onChange` | `(value, event?)`; no event from the buttons | none |
+| `onValueCommit` | `(value) => void`: the value settled. A stepper press ended (once per hold), an arrow key was released, Enter, or the field was left after a change. The moment to save | none |
+| `onFocus`, `onBlur`, `onKeyDown` | `(event) => void` on the native element | none |
+| validation | `validate` (gets the number or `null`), `validateOn` (`'blur'`), `messages`, `status`, `onValidate`, `onInvalid`; `error` may be a function of `{ message, validating, status }`. See [Input: Validation](input.md#validation) | |
 | `min`, `max`, `step` | `number` | none, none, `1` |
 | `placeholder`, `readOnly` | | none, `false` |
 | `steppers` | `'split' \| 'end' \| 'none'`: around the number, or both after it | `'split'` |
 | `incrementLabel`, `decrementLabel` | | `'Increase'`, `'Decrease'` |
-| `startContent`, `endContent` | a currency, a unit | none |
+| `startContent`, `endContent` | a currency, a unit; a node or a function of state | none |
+| `incrementIcon`, `decrementIcon` | the buttons' icons | + and − |
 | `variant` | `'outline' \| 'filled'` | `'outline'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size` | | `'md'` (provider) |
 | `dimensions` | `width, height` | `10rem`, from the size |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label control input decrement increment startContent endContent description error`) | | |
+| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label control input decrement increment startContent endContent description error statusIcon validating`) | | |
 
-Inactive (`inactiveNumberOptions`): the button labels with `steppers: 'none'`.
+Controller: `value`, `step(direction)`, `focus()`, `validate()`, `setError(message)`, `clearError()`.
+Inactive (`inactiveNumberOptions`): the button labels and icons with `steppers: 'none'`.
+
+Validation: `validate(value)` runs as on [Input](input.md#validation); a stepper press counts as an edit,
+and `messages.min`, `messages.max`, `messages.step` translate the range messages. While an async check
+runs, a spinner sits before the end content.
 
 ## Accessibility
 - A native `<input type="number">`: a `spinbutton` the browser reads, steps with the arrow keys and

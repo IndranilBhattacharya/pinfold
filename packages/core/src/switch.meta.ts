@@ -1,8 +1,8 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
-import { FIELD_ARIA, fieldProps } from './field.meta';
+import { FIELD_ARIA, VALIDATION_ARIA, fieldProps, validationProps } from './field.meta';
 
-const SLOTS = ['root', 'item', 'input', 'box', 'thumb', 'itemLabel', 'description', 'error'] as const;
+const SLOTS = ['root', 'item', 'input', 'box', 'thumb', 'itemLabel', 'description', 'error', 'statusIcon', 'validating'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -20,10 +20,15 @@ export const switchMeta: ComponentMeta = {
   slots: SLOTS,
   props: {
     ...fieldProps,
+    ...validationProps,
     checked: { type: 'boolean', description: 'Controlled state.', group: 'data' },
     defaultChecked: { type: 'boolean', default: false, description: 'Initial state when uncontrolled. A form reset returns to it.', group: 'data' },
     formValue: { type: 'string', default: 'on', description: 'What the form submits when on.', group: 'data' },
     onChange: { type: 'function', description: '`(checked, event) => void`.', group: 'behaviour' },
+    onFocus: { type: 'function', description: '`(event) => void`: the switch took focus.', group: 'events' },
+    onBlur: { type: 'function', description: '`(event) => void`: the switch lost focus.', group: 'events' },
+    onKeyDown: { type: 'function', description: '`(event) => void`: any key on the switch.', group: 'events' },
+    thumbIcon: { type: 'node', description: 'What the thumb carries, in any variant: a node, or a function of state (`({ checked }) => checked ? <Sun /> : <Moon />`).', group: 'appearance' },
     labelPosition: { type: 'enum', values: ['end', 'start'], default: 'end', description: 'The label after the switch, or before it (a settings row).', group: 'appearance', control: true },
     variant: { type: 'enum', values: ['solid', 'slim', 'icon', 'outline'], default: 'solid', description: '`solid`: a filled track and a white thumb. `slim`: a thin rail under a larger thumb. `icon`: the thumb carries a check or a cross. `outline`: a hollow track; the thumb takes the colour.', group: 'appearance', control: true },
     animation: { type: 'enum', values: ['spring', 'slide', 'none'], default: 'spring', description: '`spring`: the thumb stretches while pressed and lands with a little overshoot. `slide`: a plain glide. Reduced motion and `disableAnimation` turn it off.', group: 'appearance', control: true },
@@ -49,6 +54,7 @@ export const switchMeta: ComponentMeta = {
   keyboard: [{ keys: 'Space', action: 'Native: toggles. (Enter does not, as with any checkbox: it submits the form.)' }],
   aria: [
     ...FIELD_ARIA,
+    ...VALIDATION_ARIA,
     'A native `<input type="checkbox" role="switch">`: read as on or off, submits with forms, needs no scripted key handling. The whole row is its click target.',
     'The thumb moves and the track fills, so state never rests on colour alone. The thumb side flips in RTL.',
   ],
@@ -58,6 +64,8 @@ export const switchMeta: ComponentMeta = {
     { name: 'data-label-position', on: 'root', values: '"end" | "start"' },
     { name: 'data-variant', on: 'root', values: '"solid" | "slim" | "icon" | "outline"' },
     { name: 'data-invalid', on: 'root', values: 'present when invalid' },
+    { name: 'data-checked', on: 'root', values: 'present when on' },
+    { name: 'data-validity', on: 'root', values: '"error" | "warning" | "success": the resolved status' },
   ],
   cssVariables: ['--pinfold-switch-width', '--pinfold-switch-height'],
   examples: [
