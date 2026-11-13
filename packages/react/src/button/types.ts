@@ -9,8 +9,10 @@ import type { SlotOverrides, Slottable } from '../types';
  * accessible name of an icon-only button, so an unnamed button cannot be written.
  */
 
-export type ButtonSlot = 'root' | 'icon' | 'label' | 'endIcon' | 'spinner';
-export type ButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost' | 'link';
+export type ButtonSlot = 'root' | 'icon' | 'startContent' | 'label' | 'endContent' | 'endIcon' | 'spinner';
+export type ButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost' | 'link' | 'elevated';
+/** `pill`: rounded ends. `square` / `circle`: as wide as tall (icon-only buttons). */
+export type ButtonShape = 'default' | 'pill' | 'square' | 'circle';
 /** A radius preset (scales the size's radius) or a length: `20` is px, strings pass through. */
 export type ButtonRadius = PinfoldRadius | number | (string & {});
 
@@ -22,6 +24,7 @@ export interface ButtonState {
   disabled: boolean;
   loading: boolean;
   iconOnly: boolean;
+  shape: ButtonShape;
 }
 
 /** Anything renderable, or a function of the live state. */
@@ -57,12 +60,22 @@ export interface ButtonConfig extends SlotOverrides<ButtonSlot, ButtonState> {
   size?: PinfoldSize;
   /** @default 'primary' */
   tone?: PinfoldTone;
+  /**
+   * `pill`: fully rounded ends. `square` and `circle`: as wide as tall, for icon-only buttons.
+   * `pill` and `circle` win over `radius`.
+   * @default 'default'
+   */
+  shape?: ButtonShape;
   /** Corner radius: a preset or a length. Unset follows the theme radius. */
   radius?: ButtonRadius;
   /** A visual before the label (a node, an emoji or an icon-font ligature). */
   icon?: ButtonNode;
   /** A visual after the label. */
   endIcon?: ButtonNode;
+  /** Any content before the label, read by screen readers (an avatar, a status dot). The spinner never replaces it. */
+  startContent?: ButtonNode;
+  /** Any content after the label, read by screen readers (a count, a shortcut). Hidden when `iconOnly`. */
+  endContent?: ButtonNode;
   /**
    * Shows a spinner in place of the icon and blocks activation; the label stays visible.
    * Unset, the button manages it: an `onClick` that returns a promise shows it until the promise settles.
@@ -94,6 +107,11 @@ export interface ButtonConfig extends SlotOverrides<ButtonSlot, ButtonState> {
   type?: 'button' | 'submit' | 'reset';
   /** Activation. Return a promise and the button shows its loading state until it settles. */
   onClick?: (event: React.MouseEvent<HTMLElement>) => unknown;
+  /**
+   * With `href`: takes plain clicks (client-side routing), after `onClick`. Without it, the
+   * provider's `navigate`, then the browser. A modifier-key or new-tab click stays the browser's.
+   */
+  onNavigate?: (href: string, event: React.MouseEvent<HTMLElement>) => void;
   /** Exact measurements over the size preset. Numbers are px. */
   dimensions?: ButtonDimensions;
   /**

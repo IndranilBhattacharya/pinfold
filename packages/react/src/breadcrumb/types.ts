@@ -17,6 +17,10 @@ export interface BreadcrumbLink {
   icon?: React.ReactNode;
   /** Runs before navigation; `event.preventDefault()` stops it. */
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  /** What `onChange` reports for it. Default its `href`, else its text, else its position. */
+  key?: string;
+  /** Show only the icon; the label stays as its name (read by screen readers) and its tooltip. */
+  iconOnly?: boolean;
 }
 
 /** One crumb. */
@@ -61,8 +65,20 @@ export interface BreadcrumbConfig extends SlotOverrides<BreadcrumbSlot, Breadcru
   pathLabels?: Readonly<Record<string, React.ReactNode>> | ((segment: string, href: string) => React.ReactNode | undefined);
   /** @default 'Home' */
   homeLabel?: React.ReactNode;
+  /**
+   * A home crumb: `true` puts a house icon linking to `/` first (named by `homeLabel`); a crumb
+   * object sets its own `href`, `icon`, `label`. With `path`, it dresses the root crumb instead.
+   * @default false
+   */
+  home?: boolean | BreadcrumbItem;
   /** Handles crumb clicks (client-side routing). Without it, the provider's `navigate` does, then the browser. */
   onNavigate?: (href: string, event: React.MouseEvent<HTMLElement>) => void;
+  /**
+   * A crumb, a hidden crumb or a sibling page was chosen: `(key, item, event)`, after the item's own
+   * `onClick` and before navigation (`event.preventDefault()` keeps the page). `key` is the item's
+   * `key`, else its `href`, else its text, else its position.
+   */
+  onChange?: (key: string, item: BreadcrumbLink, event: React.MouseEvent<HTMLElement>) => void;
   /** @default 'Breadcrumb' */
   label?: string;
   /** @default 'chevron' */

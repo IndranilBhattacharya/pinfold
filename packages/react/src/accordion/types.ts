@@ -34,6 +34,8 @@ export type AccordionSlot =
   | 'title'
   | 'description'
   | 'badge'
+  | 'startContent'
+  | 'endContent'
   | 'endIcon'
   | 'indicator'
   | 'panel'
@@ -63,6 +65,11 @@ export interface AccordionItemState<Id extends string = string> {
   panelId: string;
 }
 
+/** What a row's `header` function receives: the row's state and a way to toggle it. */
+export interface AccordionHeaderState<Id extends string = string> extends AccordionItemState<Id> {
+  toggle: () => void;
+}
+
 /** Anything renderable in a row: a node, or a function of the row's live state. */
 export type AccordionNode<Id extends string = string> = Slottable<AccordionItemState<Id>>;
 
@@ -82,6 +89,18 @@ export interface AccordionItemConfig<Id extends string = string> {
   endIcon?: AccordionNode<Id>;
   /** Overrides the accordion-wide indicator for this row only. */
   indicator?: AccordionIndicator | AccordionNode<Id>;
+  /**
+   * Replaces what the trigger shows (icon, title, description, badge, end icon); the indicator
+   * stays. A node, or a function of the row's state plus `toggle`. It renders inside the trigger
+   * button, so keep it free of other controls (use `endContent` for those).
+   */
+  header?: React.ReactNode | ((state: AccordionHeaderState<Id>) => React.ReactNode);
+  /** Content before the title, inside the trigger and read with it (an avatar, a status dot). */
+  startContent?: AccordionNode<Id>;
+  /** Content after the trigger, outside the button, so it may hold its own controls (a menu, a switch). */
+  endContent?: AccordionNode<Id>;
+  /** This row opened or closed: `(open, details)`, after `onValueChange`. */
+  onOpenChange?: (open: boolean, details: AccordionValueDetails<Id>) => void;
   disabled?: boolean;
   /** Open on first render (uncontrolled only). */
   defaultOpen?: boolean;

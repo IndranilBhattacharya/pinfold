@@ -35,7 +35,7 @@ Precedence: use-site props, the preset, `defaults.toggle`, the provider (size, t
 | `onChange` | `(pressed, event)` / `(values, event)` | none |
 | `name` | hidden form fields, one per selected value | none |
 | `disabled`, `orientation`, `fullWidth` | | `false`, `'horizontal'`, `false` |
-| `variant` | `'segmented' \| 'outline' \| 'ghost'` | `'segmented'` |
+| `variant` | `'segmented' \| 'solid' \| 'soft' \| 'outline' \| 'ghost'` | `'segmented'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | | `'md'`, `'primary'` (provider) |
 | `dimensions` | `height, paddingX` | from the size |
@@ -44,9 +44,49 @@ Precedence: use-site props, the preset, `defaults.toggle`, the provider (size, t
 Inactive (`inactiveToggleOptions`): group options without `items`; `pressed`, `defaultPressed`,
 `icon`, `iconOnly`, `hideLabel` with them; `allowEmpty` in a multiple selection.
 
-`segmented`: a tray with a raised pill, measured from the selected button, that slides between
-buttons of any width (one ResizeObserver per group). Before it is measured, the selected button
-draws the pill itself, so the first paint is right without script.
+### Looks
+Every variant has a clear resting surface, a hover tint, a full focus ring, and a pressed state in
+the tone that is filled, framed or raised, never a colour change alone. Check them in light and
+dark: the pressed text is the tone pulled toward the theme text, so it clears 4.5:1 on its tint.
+
+| Variant | Resting | Pressed |
+|---|---|---|
+| `segmented` | a tinted tray | a raised pill in the tone's solid colour; `tone: 'neutral'` gives a raised surface, like an OS segmented control |
+| `solid` | one framed bar on the control surface, hairlines between buttons | filled with the tone, on-tone text |
+| `soft` | each button on a light tint | the tone's tint with a hairline ring and tone text |
+| `outline` | one framed bar, hairlines between buttons | the tone's tint with a ring in the tone |
+| `ghost` | no surface until hover | the tone's tint and tone text |
+
+**Sliding selection.** In a single selection, one indicator carries the pressed look and slides to
+the chosen button when the root has `data-animate` (the default; the provider's `disableAnimation`
+turns it off, `prefers-reduced-motion` makes it instant). It is measured from the selected button,
+so it fits buttons of any width, in a row or a column (one ResizeObserver per group). Before it is
+measured, the selected button draws the pressed look itself, so the first paint is right without
+script. A multiple selection has no indicator: each pressed button is drawn on its own.
+
+### Examples
+```tsx
+// A segmented control that fills its container
+<Toggle label="Billing" fullWidth items={[{ value: 'm', label: 'Monthly' }, { value: 'y', label: 'Yearly' }]} defaultValue={['y']} onChange={([period]) => setPeriod(period)} />
+
+// Icon-only formatting buttons: each label is the name and the tooltip (it must be text)
+<Toggle label="Text style" variant="solid" tone="neutral" selection="multiple"
+  items={[{ value: 'bold', label: 'Bold', icon: <BoldIcon />, iconOnly: true }, { value: 'italic', label: 'Italic', icon: <ItalicIcon />, iconOnly: true }]} />
+
+// A disabled option stays focusable and readable, but is never chosen
+<Toggle label="View" variant="soft" items={[{ value: 'list', label: 'List' }, { value: 'map', label: 'Map', disabled: true }]} />
+
+// One toggle
+<Toggle label="Pin" icon={<PinIcon />} variant="outline" onChange={(pressed) => setPinned(pressed)} />
+```
+
+### Custom content
+`render.item` receives the button's props and `item` (the entry, its `index` and `selected`), so a
+button can carry anything: a count, an avatar, a dot.
+
+```tsx
+<Toggle label="Filter" items={filters} render={{ item: ({ props, item }) => <button {...props}>{item.label} <Badge label={counts[item.value]} /></button> }} />
+```
 
 ## Accessibility
 - One toggle: `<button aria-pressed>`. Single selection: `radiogroup` of `radio` buttons, as a
@@ -54,10 +94,11 @@ draws the pill itself, so the first paint is right without script.
   keys move focus only.
 - Roving focus: one tab stop. Disabled buttons are `aria-disabled`: focusable and on the arrow
   path, so they can be found, but never selected.
-- Icon-only buttons keep the label as name and tooltip. Pressed is never colour alone.
+- Icon-only buttons keep the label as name and tooltip, so their `label` must be text: a node
+  label on an `iconOnly` toggle or item is a dev warning. Pressed is never colour alone.
 
 ## Compared with shadcn/ui, HeroUI and MUI
 | shadcn/ui | HeroUI | MUI | Pinfold |
 |---|---|---|---|
 | `Toggle`, `ToggleGroup type` | `ButtonGroup`, `Tabs` | `ToggleButton(Group) exclusive` | `items`, `selection` |
-| | `Tabs variant="solid"` (segmented) | | `variant: 'segmented'` |
+| | `Tabs variant="solid"` (segmented) | | `variant: 'segmented' \| 'solid' \| 'soft' \| 'outline' \| 'ghost'`, a sliding selection in each |

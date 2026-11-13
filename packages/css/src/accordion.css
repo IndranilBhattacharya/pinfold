@@ -254,6 +254,31 @@
     color: var(--pinfold-color-text-muted);
   }
 
+  /* Custom content: before the title inside the trigger, and after the trigger in the header
+     (outside the button, so it can hold its own controls). */
+  .pinfold-accordion__start-content {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+  }
+  .pinfold-accordion__end-content {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--pinfold-space-2);
+    padding-inline-end: var(--pinfold-acc-pad-x);
+    font-size: var(--pinfold-text-sm);
+    font-weight: var(--pinfold-weight-normal);
+  }
+  .pinfold-accordion__header[data-has-end-content] {
+    align-items: center;
+  }
+  .pinfold-accordion__header[data-has-end-content] > .pinfold-accordion__trigger {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-inline-end: var(--pinfold-space-2);
+  }
+
   .pinfold-accordion__label {
     display: flex;
     flex: 1 1 auto;
@@ -306,18 +331,25 @@
     flex: none;
     align-items: center;
     justify-content: center;
+    /* The glyph sits in a round chip: it carries hover and open, so the row itself stays calm. */
+    width: calc(var(--pinfold-acc-ind) + 0.5rem);
+    height: calc(var(--pinfold-acc-ind) + 0.5rem);
     font-size: var(--pinfold-acc-ind);
     color: var(--pinfold-color-text-subtle);
-    transition: transform var(--pinfold-acc-duration) var(--pinfold-ease-out),
-      color var(--pinfold-duration-fast) var(--pinfold-ease);
+    border-radius: var(--pinfold-radius-full);
+    transition: transform var(--pinfold-acc-duration) var(--pinfold-ease-spring, var(--pinfold-ease-out)),
+      color var(--pinfold-duration-fast) var(--pinfold-ease),
+      background-color var(--pinfold-duration-fast) var(--pinfold-ease);
   }
 
   .pinfold-accordion__trigger:not([data-disabled]):hover .pinfold-accordion__indicator {
     color: var(--pinfold-color-text);
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent);
   }
 
   .pinfold-accordion__trigger[data-state='open'] .pinfold-accordion__indicator {
     color: var(--pinfold-acc-accent);
+    background-color: color-mix(in oklab, var(--pinfold-acc-accent) 12%, transparent);
     transform: rotate(180deg);
   }
 

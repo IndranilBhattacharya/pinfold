@@ -8,20 +8,39 @@ import { followLink } from '../link';
 import { Menu } from '../menu/Menu';
 import type { MenuItem } from '../menu/types';
 import { ARROW_ICON, CHEVRON_DOWN_ICON, CHEVRON_ICON, MORE_ICON } from '../nav-icons';
+import { VISUALLY_HIDDEN } from '../a11y';
 import type { BreadcrumbApi, BreadcrumbComponent, BreadcrumbConfig, BreadcrumbItem, BreadcrumbLink, BreadcrumbRootProps, BreadcrumbSlot, BreadcrumbState } from './types';
 
 const MARKS: Record<string, React.ReactNode> = { chevron: CHEVRON_ICON, slash: '/', dot: '·', arrow: ARROW_ICON };
+const HOME_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" focusable="false" aria-hidden="true">
+    <path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z" />
+  </svg>
+);
 
-/** The crumbs from `items`, or from `path` when there are none. */
+/** The crumbs from `items`, or from `path` when there are none; `home` adds or dresses the first one. */
 function crumbsOf(config: BreadcrumbConfig): BreadcrumbItem[] {
-  if (config.items) return config.items.map((item) => (typeof item === 'string' ? { label: item } : item));
-  if (config.path === undefined) return [];
-  const names = config.pathLabels;
-  return breadcrumbPath(config.path).map(({ segment, href, label }, i) => {
-    const named = typeof names === 'function' ? names(segment, href) : names?.[href] ?? names?.[segment];
-    return { label: i === 0 ? config.homeLabel ?? named ?? label : named ?? label, href };
-  });
+  let list: BreadcrumbItem[] = [];
+  const fromPath = !config.items && config.path !== undefined;
+  if (config.items) list = config.items.map((item) => (typeof item === 'string' ? { label: item } : item));
+  else if (fromPath) {
+    const names = config.pathLabels;
+    list = breadcrumbPath(config.path!).map(({ segment, href, label }, i) => {
+      const named = typeof names === 'function' ? names(segment, href) : names?.[href] ?? names?.[segment];
+      return { label: i === 0 ? config.homeLabel ?? named ?? label : named ?? label, href };
+    });
+  }
+  const home = config.home;
+  if (!home) return list;
+  const base: BreadcrumbItem = { label: config.homeLabel ?? 'Home', href: '/', icon: HOME_ICON, iconOnly: true, key: 'home' };
+  const own = typeof home === 'object' ? home : {};
+  // A path already starts at its root: dress that crumb as the home crumb. Items get one in front.
+  if (fromPath && list.length) return [{ ...base, ...list[0], icon: HOME_ICON, iconOnly: true, key: 'home', ...own }, ...list.slice(1)];
+  return [{ ...base, ...own }, ...list];
 }
+
+/** What `onChange` reports a crumb or a menu row as: its `key`, else its `href`, else its text, else its position. */
+const keyOf = (link: BreadcrumbLink, index: number) => link.key ?? link.href ?? (typeof link.label === 'string' ? link.label : String(index));
 
 /**
  * The path to the current page, as a hook that hands back a component.
@@ -61,14 +80,16 @@ export function useBreadcrumb(input: BreadcrumbConfig): BreadcrumbComponent {
     revealFocus.current = null;
   });
 
-  // The crumb's own onClick, then `onNavigate`, the provider's router, or the browser.
-  const follow = (event: React.MouseEvent<HTMLElement>, link: BreadcrumbLink) => {
+  // The crumb's own onClick, then `onChange`, then `onNavigate`, the provider's router, or the browser.
+  const follow = (event: React.MouseEvent<HTMLElement>, link: BreadcrumbLink, index: number) => {
     link.onClick?.(event);
+    if (!event.defaultPrevented) config.onChange?.(keyOf(link, index), link, event);
     const own = config.onNavigate;
     followLink(event, link.href, own ? (href) => own(href, event) : ctx.navigate);
   };
-  const menuItems = (links: readonly BreadcrumbLink[]): MenuItem[] =>
-    links.map((link) => ({ label: link.label, icon: link.icon, href: link.href, onSelect: (event) => follow(event as React.MouseEvent<HTMLElement>, link) }));
+  // Rows are real links; a hidden crumb reports its place in the trail (`offset`), a sibling page its place in the menu.
+  const menuItems = (links: readonly BreadcrumbItem[], offset = 0): MenuItem[] =>
+    links.map((link, i) => ({ label: link.label, icon: link.icon, href: link.href, disabled: link.disabled, onSelect: (event) => follow(event as React.MouseEvent<HTMLElement>, link, offset + i) }));
 
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
@@ -76,6 +97,7 @@ export function useBreadcrumb(input: BreadcrumbConfig): BreadcrumbComponent {
         ...radiusProps(config.radius),
         'aria-label': config.label ?? 'Breadcrumb',
         'data-variant': state.variant,
+        'data-separator': typeof (config.separator ?? 'chevron') === 'string' ? config.separator ?? 'chevron' : 'custom',
         'data-size': state.size,
         'data-tone': state.tone,
         'data-animate': dataAttr(!ctx.disableAnimation),
@@ -98,14 +120,20 @@ export function useBreadcrumb(input: BreadcrumbConfig): BreadcrumbComponent {
     const separator = slot('separator', mark, 'span', { 'aria-hidden': true, 'data-mark': typeof sep === 'string' ? sep : 'custom' });
     const menuLabel = config.menuLabel ?? 'Other pages';
     const expandLabel = config.expandLabel ?? 'Show the full path';
+    // An icon-only crumb keeps its label for screen readers (visually hidden) and as its tooltip.
     const text = (item: BreadcrumbLink) => (
       <>
         {item.icon != null ? slot('icon', item.icon, 'span', { 'aria-hidden': true }) : null}
-        <span className={config.unstyled ? undefined : 'pinfold-breadcrumb__text'} title={typeof item.label === 'string' ? item.label : undefined}>
+        <span
+          className={config.unstyled || item.iconOnly ? undefined : 'pinfold-breadcrumb__text'}
+          style={item.iconOnly && item.icon != null ? VISUALLY_HIDDEN : undefined}
+          title={typeof item.label === 'string' && !item.iconOnly ? item.label : undefined}
+        >
           {item.label}
         </span>
       </>
     );
+    const tip = (item: BreadcrumbLink) => (item.iconOnly && typeof item.label === 'string' ? item.label : undefined);
     const crumbs = visible.map((index, n) => {
       const last = n === visible.length - 1;
       if (index === -1) {
@@ -114,7 +142,7 @@ export function useBreadcrumb(input: BreadcrumbConfig): BreadcrumbComponent {
         return (
           <li key="gap" className={config.unstyled ? undefined : 'pinfold-breadcrumb__item'} data-crumb="">
             {(config.collapse ?? 'menu') === 'menu' ? (
-              <Menu trigger={trigger as React.ReactElement} items={menuItems(hidden)} size={state.size} />
+              <Menu trigger={trigger as React.ReactElement} items={menuItems(hidden, before)} size={state.size} />
             ) : (
               React.cloneElement(trigger as React.ReactElement, {
                 onClick: () => {
@@ -142,8 +170,8 @@ export function useBreadcrumb(input: BreadcrumbConfig): BreadcrumbComponent {
             />
           )
         : link
-          ? slot('link', text(item), 'a', { href: item.href, onClick: (event: React.MouseEvent<HTMLElement>) => follow(event, item) })
-          : slot('link', text(item), 'span', { 'aria-current': current ? 'page' : undefined, 'aria-disabled': item.disabled || undefined, tabIndex: -1 });
+          ? slot('link', text(item), 'a', { href: item.href, title: tip(item), 'data-icon-only': dataAttr(item.iconOnly), onClick: (event: React.MouseEvent<HTMLElement>) => follow(event, item, index) })
+          : slot('link', text(item), 'span', { 'aria-current': current ? 'page' : undefined, 'aria-disabled': item.disabled || undefined, title: tip(item), 'data-icon-only': dataAttr(item.iconOnly), tabIndex: -1 });
       const toggle =
         menu && !own ? (
           <Menu trigger={slot('menuButton', CHEVRON_DOWN_ICON, 'button', { type: 'button', 'aria-label': menuLabel, title: menuLabel }) as React.ReactElement} items={menuItems(menu)} size={state.size} />

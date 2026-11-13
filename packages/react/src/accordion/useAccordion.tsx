@@ -142,7 +142,10 @@ export function useAccordion(input: AnyAccordionConfig): AccordionApi {
     if (onBeforeChange?.(details) === false) return false;
     setValue(next);
     onValueChange?.(next, details);
-    if (details.id != null) onItemToggle?.(details.id, details.open);
+    if (details.id != null) {
+      onItemToggle?.(details.id, details.open);
+      items.find((row) => row.id === details.id)?.config.onOpenChange?.(details.open, details);
+    }
     if (syncWithHash && details.id != null && (details.reason === 'click' || details.reason === 'keyboard')) {
       writeHash(details.open ? details.id : null);
     }

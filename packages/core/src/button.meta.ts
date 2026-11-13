@@ -3,7 +3,7 @@ import type { ComponentMeta, PropMeta } from './meta';
 const SIZE = ['sm', 'md', 'lg'] as const;
 const TONE = ['primary', 'neutral', 'success', 'warning', 'danger', 'info'] as const;
 const RADIUS = ['none', 'sm', 'md', 'lg', 'full'] as const;
-const SLOTS = ['root', 'icon', 'label', 'endIcon', 'spinner'] as const;
+const SLOTS = ['root', 'icon', 'startContent', 'label', 'endContent', 'endIcon', 'spinner'] as const;
 
 const node = (description: string): PropMeta => ({ type: 'node', description, group: 'data' });
 const len = (description: string): PropMeta => ({ type: 'length', description, group: 'appearance' });
@@ -26,9 +26,9 @@ export const buttonMeta: ComponentMeta = {
     iconOnly: { type: 'boolean', default: false, description: 'Show only the icon, square; `label` becomes the accessible name and the tooltip.', group: 'appearance', control: true },
     variant: {
       type: 'enum',
-      values: ['solid', 'soft', 'outline', 'ghost', 'link'],
+      values: ['solid', 'soft', 'outline', 'ghost', 'link', 'elevated'],
       default: 'solid',
-      description: 'Surface: a filled button, a tinted one, a frame, no surface, or underlined text.',
+      description: 'Surface: a filled button, a tinted one, a frame, no surface, underlined text, or a raised neutral card with tone text (`elevated`).',
       group: 'appearance',
       control: true,
     },
@@ -43,8 +43,18 @@ export const buttonMeta: ComponentMeta = {
       group: 'appearance',
       control: true,
     },
+    shape: {
+      type: 'enum',
+      values: ['default', 'pill', 'square', 'circle'],
+      default: 'default',
+      description: '`pill`: fully rounded ends. `square` and `circle`: as wide as tall (for icon-only buttons), with the size radius or fully round. `pill` and `circle` win over `radius`.',
+      group: 'appearance',
+      control: true,
+    },
     icon: node('A visual before the label: a node, `(state) => node`, or a string (an emoji or an icon-font ligature).'),
     endIcon: node('A visual after the label.'),
+    startContent: node('Any content before the label, read by screen readers (an avatar, a status dot): a node or `(state) => node`. Unlike `icon` it is not hidden and the spinner does not replace it.'),
+    endContent: node('Any content after the label, read by screen readers (a count, a shortcut): a node or `(state) => node`. Hidden when `iconOnly`.'),
     loading: {
       type: 'boolean',
       default: false,
@@ -72,6 +82,11 @@ export const buttonMeta: ComponentMeta = {
       group: 'behaviour',
     },
     onClick: { type: 'function', description: 'Activation. Return a promise and the button shows its loading state until it settles.', group: 'events' },
+    onNavigate: {
+      type: 'function',
+      description: 'With `href`: `(href, event) => void` takes plain clicks (client-side routing) after `onClick`. Without it, the provider\'s `navigate`, then the browser. A modifier-key or new-tab click stays the browser\'s.',
+      group: 'events',
+    },
     dimensions: {
       type: 'object',
       description: 'Exact measurements, each winning over the size preset. Numbers are px.',
@@ -111,12 +126,13 @@ export const buttonMeta: ComponentMeta = {
     'Icons are `aria-hidden`.',
   ],
   dataAttributes: [
-    { name: 'data-variant', on: 'root', values: '"solid" | "soft" | "outline" | "ghost" | "link"' },
+    { name: 'data-variant', on: 'root', values: '"solid" | "soft" | "outline" | "ghost" | "link" | "elevated"' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-tone', on: 'root', values: 'the resolved tone' },
     { name: 'data-disabled', on: 'root', values: 'present when disabled' },
     { name: 'data-loading', on: 'root', values: 'present while loading' },
     { name: 'data-icon-only', on: 'root', values: 'present when `iconOnly`' },
+    { name: 'data-shape', on: 'root', values: '"default" | "pill" | "square" | "circle"' },
   ],
   cssVariables: [
     '--pinfold-button-height',
@@ -138,6 +154,8 @@ export const buttonMeta: ComponentMeta = {
     },
     { title: 'Async: loading comes for free', code: "const Save = useButton({ label: 'Save', loadingText: 'Saving…', onClick: async () => { await api.save(); } });" },
     { title: 'Icon-only (the label becomes the name)', code: "const Remove = useButton({ label: 'Delete', icon: <TrashIcon />, iconOnly: true, variant: 'ghost', tone: 'danger' });" },
+    { title: 'Start and end content, shapes', code: "<Button label=\"Inbox\" variant=\"elevated\" endContent={<Badge label=\"12\" />} />\n<Button label=\"New\" shape=\"pill\" icon={<PlusIcon />} />\n<Button label=\"Add\" shape=\"circle\" iconOnly icon={<PlusIcon />} />" },
+    { title: 'A link through your router', code: "<Button label=\"Settings\" href=\"/settings\" variant=\"ghost\" onNavigate={(href) => router.push(href)} />" },
     { title: 'Server Component link', code: "import { defineButton } from '@pinfold/react/button';\n\nconst Docs = defineButton({ label: 'Read the docs', href: '/docs', variant: 'soft' });\nreturn <Docs />;" },
     { title: 'App-wide defaults', code: "defineConfig({ size: 'sm', defaults: { button: { variant: 'soft', radius: 'full' } } });\n// A button's own config still wins: useButton({ label: 'Go', size: 'lg' }) is large." },
   ],

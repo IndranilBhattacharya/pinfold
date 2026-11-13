@@ -14,6 +14,8 @@ export interface ButtonAppearanceInput {
   type?: string;
   radius?: unknown;
   endIcon?: unknown;
+  endContent?: unknown;
+  shape?: string;
 }
 
 /**
@@ -23,13 +25,18 @@ export interface ButtonAppearanceInput {
 export function inactiveButtonOptions(config: ButtonAppearanceInput): Record<string, string> {
   const out: Record<string, string> = {};
   if (!config.loading) out.loadingText = 'only shown while `loading` is true.';
-  if (config.iconOnly) out.endIcon = 'an icon-only button shows only `icon`.';
+  if (config.iconOnly) {
+    out.endIcon = 'an icon-only button shows only `icon`.';
+    out.endContent = out.endIcon;
+  }
   if (config.href) out.type = 'a link has no type; `href` renders an `<a>`.';
   else {
     out.target = 'only links (`href`) have a target.';
     out.rel = 'only links (`href`) have a rel.';
+    out.onNavigate = 'only links (`href`) navigate.';
   }
   if (config.variant === 'link') out.radius = 'the `link` variant has no surface to round.';
+  else if (config.shape === 'pill' || config.shape === 'circle') out.radius = `\`shape: '${config.shape}'\` is fully round.`;
   return out;
 }
 

@@ -110,7 +110,7 @@ export function moveItem<T>(list: readonly T[], from: number, to: number): T[] {
   return next;
 }
 
-export function inactiveBreadcrumbOptions(config: { maxItems?: number; items?: unknown; path?: string; variant?: string }): Record<string, string> {
+export function inactiveBreadcrumbOptions(config: { maxItems?: number; items?: unknown; path?: string; variant?: string; home?: unknown }): Record<string, string> {
   const out: Record<string, string> = {};
   if (!config.maxItems) {
     const why = 'only used with `maxItems`.';
@@ -118,10 +118,11 @@ export function inactiveBreadcrumbOptions(config: { maxItems?: number; items?: u
   }
   if (config.items !== undefined) {
     const why = 'only used with `path`; `items` wins.';
-    Object.assign(out, { path: why, pathLabels: why, homeLabel: why });
+    Object.assign(out, { path: why, pathLabels: why });
+    if (!config.home) out.homeLabel = 'only used with `path` or `home`.';
   } else if (config.path === undefined) {
-    const why = 'only used with `path`.';
-    Object.assign(out, { pathLabels: why, homeLabel: why });
+    out.pathLabels = 'only used with `path`.';
+    if (!config.home) out.homeLabel = 'only used with `path` or `home`.';
   }
   if (config.variant !== 'pills') out.tone = 'only the `pills` variant colours the current crumb.';
   return out;

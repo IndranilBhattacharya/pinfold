@@ -4,7 +4,7 @@ import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
 export type ToggleSlot = 'root' | 'label' | 'items' | 'item' | 'indicator' | 'icon' | 'text';
-export type ToggleVariant = 'segmented' | 'outline' | 'ghost';
+export type ToggleVariant = 'segmented' | 'solid' | 'soft' | 'outline' | 'ghost';
 
 /** One button of a group. */
 export interface ToggleItem {

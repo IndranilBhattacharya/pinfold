@@ -85,6 +85,9 @@
     white-space: nowrap;
   }
   .pinfold-breadcrumb__icon { display: inline-flex; flex-shrink: 0; }
+  /* An icon-only crumb (the home crumb): a square hit area around the icon. */
+  .pinfold-breadcrumb__link[data-icon-only] { justify-content: center; min-inline-size: max(1.5rem, 1.75em); padding-inline: 0.25rem; }
+  .pinfold-breadcrumb[data-variant='pills'] .pinfold-breadcrumb__link[data-icon-only] { padding-inline: 0.5rem; }
   .pinfold-breadcrumb__icon > svg { inline-size: calc(var(--pinfold-control-icon) * 0.9); block-size: calc(var(--pinfold-control-icon) * 0.9); }
   .pinfold-breadcrumb__separator {
     display: inline-flex;

@@ -4,4 +4,4 @@
 export { Toolbar, useToolbar } from './client';
 export { Toolbar as default } from './client';
 export { defineToolbar, type DefinedToolbar, type ToolbarPresetProps } from './define';
-export type { ToolbarApi, ToolbarComponent, ToolbarConfig, ToolbarRootProps, ToolbarTagProps, ToolbarSlot, ToolbarState, ToolbarVariant, ToolbarItem, ToolbarDimensions } from './types';
+export type { ToolbarApi, ToolbarComponent, ToolbarConfig, ToolbarRootProps, ToolbarTagProps, ToolbarSlot, ToolbarState, ToolbarVariant, ToolbarItem, ToolbarButtonItem, ToolbarSeparatorItem, ToolbarCustomItem, ToolbarDimensions } from './types';

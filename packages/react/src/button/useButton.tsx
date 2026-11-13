@@ -60,7 +60,10 @@ export function useButton(input: ButtonConfig): ButtonComponent {
     disabled,
     loading,
     iconOnly: config.iconOnly ?? false,
+    shape: config.shape ?? 'default',
   };
+  // `pill` and `circle` round fully; a `dimensions.radius` length still wins.
+  const round = state.shape === 'pill' || state.shape === 'circle';
 
   const onClick = useEvent((event: React.MouseEvent<HTMLElement>) => {
     // Swallowing the click also cancels a submit (and Enter's implicit submit) while blocked.
@@ -69,7 +72,10 @@ export function useButton(input: ButtonConfig): ButtonComponent {
       return;
     }
     const result = config.onClick?.(event);
-    if (config.href !== undefined) followLink(event, config.href, ctx.navigate, config.target);
+    if (config.href !== undefined) {
+      const own = config.onNavigate;
+      followLink(event, config.href, own ? (href) => own(href, event) : ctx.navigate, config.target);
+    }
     if (isThenable(result) && config.loading === undefined) {
       setBusy(true);
       const done = () => {
@@ -93,6 +99,7 @@ export function useButton(input: ButtonConfig): ButtonComponent {
       'data-disabled': dataAttr(disabled),
       'data-loading': dataAttr(loading),
       'data-icon-only': dataAttr(state.iconOnly),
+      'data-shape': state.shape,
       'data-full-width': dataAttr(config.fullWidth),
       'data-unstyled': dataAttr(config.unstyled),
       // Hover fades and the press nudge; the provider's `disableAnimation` (tests, low-power) turns them off.
@@ -122,8 +129,10 @@ export function useButton(input: ButtonConfig): ButtonComponent {
 
     const icon = resolveNode(config.icon, state) as React.ReactNode;
     const endIcon = resolveNode(config.endIcon, state) as React.ReactNode;
+    const startContent = resolveNode(config.startContent, state) as React.ReactNode;
+    const endContent = resolveNode(config.endContent, state) as React.ReactNode;
     const text = loading && config.loadingText ? config.loadingText : (resolveNode(config.label, state) as React.ReactNode);
-    const vars = dimensionVars('button', { ...config.dimensions, radius: config.dimensions?.radius ?? radiusValue(config.radius) });
+    const vars = dimensionVars('button', { ...config.dimensions, radius: config.dimensions?.radius ?? (round ? 'var(--pinfold-radius-full)' : radiusValue(config.radius)) });
 
     const root = slotProps(
       overrides,
@@ -147,7 +156,9 @@ export function useButton(input: ButtonConfig): ButtonComponent {
           : filled(icon)
             ? slot('icon', icon, { className: cls('pinfold-button__icon'), 'aria-hidden': true })
             : null}
+        {filled(startContent) ? slot('startContent', startContent, { className: cls('pinfold-button__startContent') }) : null}
         {state.iconOnly ? null : slot('label', text, { className: cls('pinfold-button__label') })}
+        {!state.iconOnly && filled(endContent) ? slot('endContent', endContent, { className: cls('pinfold-button__endContent') }) : null}
         {!state.iconOnly && filled(endIcon) ? slot('endIcon', endIcon, { className: cls('pinfold-button__endIcon'), 'aria-hidden': true }) : null}
       </>
     );

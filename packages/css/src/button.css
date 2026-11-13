@@ -68,21 +68,43 @@
     inline-size: 100%;
   }
 
-  .pinfold-button[data-icon-only] {
+  .pinfold-button:is([data-icon-only], [data-shape='square'], [data-shape='circle']) {
     inline-size: var(--pinfold-btn-h);
     padding-inline: 0;
+  }
+  /* A pill keeps its label clear of the round ends. */
+  .pinfold-button[data-shape='pill']:not([data-icon-only]) {
+    padding-inline: calc(var(--pinfold-btn-pad-x) * 1.2);
   }
 
   /* ---------------------------------------------------------------- variants */
   /* Style packs reach buttons through the control tokens (packs.css): edge, depth, the pane
      under tinted variants, the pressed transform, the backdrop and the texture. Unset, each
      falls back to the default look. */
+  /* Solid: the tone fill with a faint sheen toward the top, a hairline highlight on the top edge
+     and a two-layer shadow tinted with the tone, so it sits on the page instead of on top of it. */
   .pinfold-button[data-variant='solid'] {
+    --pinfold-btn-depth:
+      inset 0 1px 0 color-mix(in oklab, var(--pinfold-btn-on) 16%, transparent),
+      0 1px 2px color-mix(in oklab, var(--pinfold-btn-solid) 28%, transparent),
+      0 2px 6px -2px color-mix(in oklab, var(--pinfold-btn-solid) 38%, transparent);
     background-color: var(--pinfold-btn-solid);
-    background-image: var(--pinfold-texture);
+    background-image: var(--pinfold-texture, none), linear-gradient(to bottom, color-mix(in oklab, var(--pinfold-btn-on) 9%, transparent), transparent 70%);
     color: var(--pinfold-btn-on);
     border-color: var(--pinfold-control-edge, transparent);
-    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-btn-depth));
+  }
+  /* Elevated: a raised neutral card with the tone in its text, for secondary actions that still
+     need presence (toolbars, cards, empty states). */
+  .pinfold-button[data-variant='elevated'] {
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-raised));
+    background-image: var(--pinfold-texture);
+    border-color: var(--pinfold-control-edge, var(--pinfold-color-border));
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-highlight), var(--pinfold-shadow-sm));
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-button[data-variant='elevated'][data-tone='neutral'] {
+    color: var(--pinfold-color-text);
   }
   .pinfold-button[data-variant='soft'] {
     background-color: color-mix(in oklab, var(--pinfold-btn-solid) 14%, var(--pinfold-control-surface, transparent));
@@ -107,7 +129,18 @@
   /* Hover and pressed: solid moves toward the text colour (darker on light, lighter on
      dark); the others gain a tint. An open menu trigger (`aria-expanded`) looks hovered. */
   .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true'])[data-variant='solid'] {
-    background-color: color-mix(in oklab, var(--pinfold-btn-solid) 86%, var(--pinfold-color-text));
+    background-color: color-mix(in oklab, var(--pinfold-btn-solid) 88%, var(--pinfold-color-text));
+    box-shadow: var(
+      --pinfold-control-shadow,
+      inset 0 1px 0 color-mix(in oklab, var(--pinfold-btn-on) 18%, transparent),
+      0 2px 4px color-mix(in oklab, var(--pinfold-btn-solid) 30%, transparent),
+      0 6px 14px -4px color-mix(in oklab, var(--pinfold-btn-solid) 45%, transparent)
+    );
+  }
+  .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true'])[data-variant='elevated'] {
+    background-color: color-mix(in oklab, var(--pinfold-btn-solid) 6%, var(--pinfold-control-surface, var(--pinfold-color-raised)));
+    border-color: var(--pinfold-control-edge, var(--pinfold-color-border-strong));
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-highlight), var(--pinfold-shadow-md));
   }
   .pinfold-button:not([aria-disabled='true']):is(:hover, [aria-expanded='true']):is([data-variant='soft']) {
     background-color: color-mix(in oklab, var(--pinfold-btn-solid) 22%, var(--pinfold-control-surface, transparent));
@@ -123,7 +156,14 @@
   }
   /* A raised button (an offset or soft shadow) presses into its shadow. */
   .pinfold-button:not([aria-disabled='true'])[data-variant='solid']:active {
-    box-shadow: none;
+    background-color: color-mix(in oklab, var(--pinfold-btn-solid) 80%, var(--pinfold-color-text));
+    box-shadow: inset 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-950) 22%, transparent);
+  }
+  .pinfold-button:not([aria-disabled='true'])[data-variant='elevated']:active {
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+  }
+  .pinfold-button:not([aria-disabled='true']):is([data-variant='soft'], [data-variant='outline'], [data-variant='ghost']):active {
+    background-color: color-mix(in oklab, var(--pinfold-btn-solid) 24%, var(--pinfold-control-surface, transparent));
   }
 
   /* Focus comes after the variants and outranks them, so no variant shadow can hide the ring. */
@@ -143,6 +183,9 @@
   .pinfold-button[data-loading] {
     cursor: progress;
   }
+  .pinfold-button[data-loading] .pinfold-button__label {
+    opacity: 0.8;
+  }
 
   /* ------------------------------------------------------------------- slots */
   .pinfold-button__label {
@@ -152,6 +195,14 @@
     line-height: 1.25;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .pinfold-button__startContent,
+  .pinfold-button__endContent {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--pinfold-btn-gap);
+    line-height: 1;
   }
   .pinfold-button__icon,
   .pinfold-button__endIcon {
@@ -208,6 +259,10 @@
       forced-color-adjust: none;
       background: ButtonText;
       color: ButtonFace;
+    }
+    .pinfold-button[data-variant='solid'],
+    .pinfold-button[data-variant='elevated'] {
+      box-shadow: none;
     }
     .pinfold-button[data-disabled] {
       border-color: GrayText;

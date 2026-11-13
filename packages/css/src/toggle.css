@@ -1,22 +1,39 @@
 /* Pinfold — toggle and toggle group. Sizes from the shared control tokens, colour from the tone
-   tokens. Segmented: a tray with a raised pill that the script places on the selected button
-   (--pinfold-tgl-ix/iy/iw/ih) and that slides between them; until it is placed (first paint, no
-   script) the selected button draws the pill itself. Pressed is never colour alone. */
+   tokens. A single selection draws one indicator that the script places on the selected button
+   (--pinfold-tgl-ix/iy/iw/ih) and that slides between buttons under [data-animate]; until it is
+   placed (first paint, no script), and in a multiple selection, each pressed button draws the
+   pressed look itself. Pressed is never colour alone: it is filled, framed or raised.
+
+   segmented: a tinted tray and a raised pill. solid: a framed bar whose pressed button fills with
+   the tone. soft: tinted buttons, the pressed one in the tone. outline: a framed bar, the pressed
+   button tinted and ringed in the tone. ghost: quiet buttons that fill with the tone. */
 
 @layer pinfold.components {
   .pinfold-toggle {
     --pinfold-tgl-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
-    --pinfold-tgl-text: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 82%, var(--pinfold-color-text));
+    --pinfold-tgl-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    /* Text on a tint, pulled toward the theme text so it clears 4.5:1 on its own tint. */
+    --pinfold-tgl-text: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 80%, var(--pinfold-color-text));
     --pinfold-tgl-h: var(--pinfold-toggle-height, var(--pinfold-control-height));
     --pinfold-tgl-px: var(--pinfold-toggle-padding-x, calc(var(--pinfold-control-pad-x) * 0.85));
     --pinfold-tgl-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
+    --pinfold-tgl-rest: color-mix(in oklab, var(--pinfold-color-text) 80%, transparent);
+    --pinfold-tgl-hover: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent);
+    --pinfold-tgl-tint: color-mix(in oklab, var(--pinfold-tgl-solid) 18%, var(--pinfold-control-surface, transparent));
+    --pinfold-tgl-ring: color-mix(in oklab, var(--pinfold-tgl-solid) 55%, transparent);
+    --pinfold-tgl-edge: var(--pinfold-control-edge, var(--pinfold-color-border-strong));
+    /* The look of the pressed button (or the indicator under it); each variant sets these. */
+    --pinfold-tgl-on-bg: var(--pinfold-tgl-tint);
+    --pinfold-tgl-on-fg: var(--pinfold-tgl-text);
+    --pinfold-tgl-on-shadow: none;
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-control-text);
     color: var(--pinfold-color-text);
+    max-inline-size: 100%;
   }
   .pinfold-toggle[data-group] {
     display: inline-flex;
-    max-inline-size: 100%;
+    vertical-align: middle;
   }
   .pinfold-toggle[data-full-width] { display: flex; }
 
@@ -25,12 +42,13 @@
   .pinfold-toggle__item {
     position: relative;
     display: inline-flex;
-    flex-shrink: 0;
+    flex: 0 1 auto;
     align-items: center;
     justify-content: center;
     gap: var(--pinfold-control-gap);
     box-sizing: border-box;
     min-inline-size: var(--pinfold-tgl-h);
+    max-inline-size: 100%;
     block-size: var(--pinfold-tgl-h);
     margin: 0;
     padding-inline: var(--pinfold-tgl-px);
@@ -38,7 +56,7 @@
     font-weight: var(--pinfold-weight-medium);
     line-height: 1.25;
     white-space: nowrap;
-    color: var(--pinfold-color-text-muted);
+    color: var(--pinfold-tgl-rest);
     background: transparent;
     border: var(--pinfold-border-width) solid transparent;
     border-radius: var(--pinfold-tgl-radius);
@@ -50,127 +68,191 @@
   .pinfold-toggle__item[data-icon-only] { padding-inline: 0; }
   .pinfold-toggle__icon { display: inline-flex; flex-shrink: 0; }
   .pinfold-toggle__icon > svg { inline-size: var(--pinfold-control-icon); block-size: var(--pinfold-control-icon); }
+  .pinfold-toggle__text { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; }
+
   .pinfold-toggle:not([data-group]):hover:not([aria-disabled='true']),
   .pinfold-toggle__item:hover:not([aria-disabled='true']) { color: var(--pinfold-color-text); }
+  .pinfold-toggle:not([data-group]):not([data-pressed]):hover:not([aria-disabled='true']),
+  .pinfold-toggle__item:not([data-pressed]):hover:not([aria-disabled='true']) { background-color: var(--pinfold-tgl-hover); }
   .pinfold-toggle:not([data-group])[aria-disabled='true'],
-  .pinfold-toggle__item[aria-disabled='true'] { cursor: not-allowed; opacity: 0.5; }
+  .pinfold-toggle__item[aria-disabled='true'] { cursor: not-allowed; opacity: 0.45; }
   .pinfold-toggle[data-animate]:not([data-group]),
   .pinfold-toggle[data-animate] .pinfold-toggle__item {
-    transition: color var(--pinfold-duration-fast) var(--pinfold-ease-out), background-color var(--pinfold-duration-md) var(--pinfold-ease-out), border-color var(--pinfold-duration-md) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out), transform var(--pinfold-duration-md) var(--pinfold-ease-spring);
+    transition:
+      color var(--pinfold-duration-fast) var(--pinfold-ease-out),
+      background-color var(--pinfold-duration-fast) var(--pinfold-ease-out),
+      border-color var(--pinfold-duration-fast) var(--pinfold-ease-out),
+      box-shadow var(--pinfold-duration-fast) var(--pinfold-ease-out),
+      transform var(--pinfold-duration-fast) var(--pinfold-ease-out);
   }
   .pinfold-toggle[data-animate]:not([data-group]):active:not([aria-disabled='true']),
-  .pinfold-toggle[data-animate] .pinfold-toggle__item:active:not([aria-disabled='true']) { transform: scale(0.96); }
-  .pinfold-toggle:not([data-group]):focus-visible,
-  .pinfold-toggle__item:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); z-index: 2; }
+  .pinfold-toggle[data-animate] .pinfold-toggle__item:active:not([aria-disabled='true']) { transform: scale(0.97); }
+
+  /* Pressed, drawn by the button itself: one toggle, a multiple selection, or before the
+     indicator is placed. */
+  .pinfold-toggle[data-pressed]:not([data-group]),
+  .pinfold-toggle__item[data-pressed] {
+    z-index: 1;
+    color: var(--pinfold-tgl-on-fg);
+    background-color: var(--pinfold-tgl-on-bg);
+    box-shadow: var(--pinfold-tgl-on-shadow);
+  }
+  .pinfold-toggle__item:not([data-pressed]) { z-index: 1; }
 
   .pinfold-toggle__items {
     position: relative;
     display: inline-flex;
     flex: 1 1 auto;
+    box-sizing: border-box;
     min-inline-size: 0;
     max-inline-size: 100%;
-    overflow-x: auto;
-    scrollbar-width: none;
+    gap: 0.25rem;
   }
   .pinfold-toggle[data-orientation='vertical'] .pinfold-toggle__items { flex-direction: column; }
   .pinfold-toggle[data-full-width] .pinfold-toggle__item { flex: 1 1 0; }
 
-  /* ---------------------------------------------------------------- segmented */
-  /* A tinted tray (a mix of the text colour, so it reads on any surface in either mode) and a pill
-     that slides to the selection: a raised surface for neutral, the tone's solid fill otherwise. */
-  .pinfold-toggle[data-variant='segmented'] {
-    --pinfold-tgl-tray: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent);
-    --pinfold-tgl-pill: var(--pinfold-tgl-solid);
-    --pinfold-tgl-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
-    --pinfold-tgl-lift: 0 1px 2px color-mix(in oklab, var(--pinfold-tgl-solid) 30%, transparent), 0 4px 12px -2px color-mix(in oklab, var(--pinfold-tgl-solid) 45%, transparent);
-  }
-  .pinfold-toggle[data-variant='segmented'][data-tone='neutral'] {
-    --pinfold-tgl-pill: var(--pinfold-control-surface, var(--pinfold-color-raised));
-    --pinfold-tgl-on: var(--pinfold-color-text);
-    --pinfold-tgl-lift: 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-color-text) 8%, transparent), 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-900) 12%, transparent), 0 2px 6px color-mix(in oklab, var(--pinfold-neutral-900) 8%, transparent);
-  }
-  .pinfold-toggle[data-variant='segmented'] .pinfold-toggle__items {
-    gap: 0.125rem;
-    padding: 0.25rem;
-    background-color: var(--pinfold-tgl-tray);
-    background-image: var(--pinfold-texture);
-    border-radius: calc(var(--pinfold-tgl-radius) + 0.25rem);
-    box-shadow: inset 0 0 0 var(--pinfold-border-width) var(--pinfold-control-edge, transparent);
-    backdrop-filter: var(--pinfold-backdrop);
-  }
-  .pinfold-toggle[data-variant='segmented'] .pinfold-toggle__item {
-    z-index: 1;
-    block-size: calc(var(--pinfold-tgl-h) - 0.5rem);
-  }
-  .pinfold-toggle[data-variant='segmented'] .pinfold-toggle__item[data-pressed] { color: var(--pinfold-tgl-on); }
-  .pinfold-toggle[data-variant='segmented'][data-animate] .pinfold-toggle__item { transition-duration: var(--pinfold-duration-slow), var(--pinfold-duration-md), var(--pinfold-duration-md), var(--pinfold-duration-md), var(--pinfold-duration-md); }
-  /* Before the pill is placed, and in a multiple selection: each pressed button is its own pill. */
-  .pinfold-toggle[data-variant='segmented'] .pinfold-toggle__items:not([data-placed]) .pinfold-toggle__item[data-pressed],
-  .pinfold-toggle__indicator {
-    background-color: var(--pinfold-tgl-pill);
-    box-shadow: var(--pinfold-control-shadow, var(--pinfold-tgl-lift));
-  }
+  /* The sliding indicator of a single selection. offsetLeft is from the physical left, so it is
+     placed from the left in RTL too. Once placed, the selected button lets it show through. */
   .pinfold-toggle__indicator {
     position: absolute;
-    inset-block-start: 0;
-    inset-inline-start: 0;
+    top: 0;
+    left: 0;
     z-index: 0;
     display: none;
+    box-sizing: border-box;
     inline-size: var(--pinfold-tgl-iw, 0);
     block-size: var(--pinfold-tgl-ih, 0);
+    background-color: var(--pinfold-tgl-on-bg);
     border-radius: var(--pinfold-tgl-radius);
+    box-shadow: var(--pinfold-tgl-on-shadow);
     transform: translate(var(--pinfold-tgl-ix, 0), var(--pinfold-tgl-iy, 0));
     pointer-events: none;
   }
-  /* offsetLeft is from the physical left: the pill is placed from the left in RTL too. */
-  .pinfold-toggle__items[data-placed] > .pinfold-toggle__indicator { display: block; inset-inline-start: auto; left: 0; }
+  .pinfold-toggle__items[data-placed] > .pinfold-toggle__indicator { display: block; }
+  .pinfold-toggle__items[data-placed] > .pinfold-toggle__item[data-pressed] {
+    background-color: transparent;
+    box-shadow: none;
+  }
   .pinfold-toggle[data-animate] .pinfold-toggle__indicator {
-    transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-spring), inline-size var(--pinfold-duration-slow) var(--pinfold-ease-spring), block-size var(--pinfold-duration-slow) var(--pinfold-ease-spring);
+    transition:
+      transform var(--pinfold-duration-slow) var(--pinfold-ease-spring),
+      inline-size var(--pinfold-duration-slow) var(--pinfold-ease-spring),
+      block-size var(--pinfold-duration-slow) var(--pinfold-ease-spring);
   }
 
-  /* One toggle, segmented: a tray of its own that turns into the pill when pressed. */
-  .pinfold-toggle[data-variant='segmented']:not([data-group]) { background-color: var(--pinfold-tgl-tray); }
-  .pinfold-toggle[data-variant='segmented'][data-pressed]:not([data-group]) {
-    color: var(--pinfold-tgl-on);
-    background-color: var(--pinfold-tgl-pill);
-    box-shadow: var(--pinfold-control-shadow, var(--pinfold-tgl-lift));
+  /* ---------------------------------------------------------------- segmented */
+  .pinfold-toggle[data-variant='segmented'] {
+    --pinfold-tgl-tray: color-mix(in oklab, var(--pinfold-color-text) 8%, var(--pinfold-control-surface, transparent));
+    --pinfold-tgl-on-bg: var(--pinfold-tgl-solid);
+    --pinfold-tgl-on-fg: var(--pinfold-tgl-on);
+    --pinfold-tgl-on-shadow: var(
+      --pinfold-control-shadow,
+      inset 0 1px 0 color-mix(in oklab, var(--pinfold-tgl-on) 16%, transparent),
+      0 1px 2px color-mix(in oklab, var(--pinfold-tgl-solid) 30%, transparent),
+      0 3px 10px -2px color-mix(in oklab, var(--pinfold-tgl-solid) 45%, transparent)
+    );
   }
+  /* Neutral: a raised surface on the tray, like an OS segmented control. */
+  .pinfold-toggle[data-variant='segmented'][data-tone='neutral'] {
+    --pinfold-tgl-on-bg: var(--pinfold-control-surface, color-mix(in oklab, var(--pinfold-color-raised) 86%, var(--pinfold-color-text)));
+    --pinfold-tgl-on-fg: var(--pinfold-color-text);
+    --pinfold-tgl-on-shadow: var(
+      --pinfold-control-shadow,
+      var(--pinfold-highlight),
+      0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-color-text) 10%, transparent),
+      0 1px 2px color-mix(in oklab, var(--pinfold-neutral-950) 14%, transparent),
+      0 2px 6px color-mix(in oklab, var(--pinfold-neutral-950) 10%, transparent)
+    );
+  }
+  .pinfold-toggle[data-variant='segmented'] .pinfold-toggle__items {
+    gap: 0.125rem;
+    padding: 0.1875rem;
+    background-color: var(--pinfold-tgl-tray);
+    background-image: var(--pinfold-texture);
+    border-radius: calc(var(--pinfold-tgl-radius) + 0.1875rem);
+    box-shadow: inset 0 0 0 var(--pinfold-border-width) var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-color-text) 5%, transparent));
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-toggle[data-variant='segmented'] .pinfold-toggle__item { block-size: calc(var(--pinfold-tgl-h) - 0.375rem); }
+  .pinfold-toggle[data-variant='segmented'] .pinfold-toggle__item:not([data-pressed]):hover:not([aria-disabled='true']) { background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); }
+  /* One toggle: a tray of its own that turns into the pill. */
+  .pinfold-toggle[data-variant='segmented']:not([data-group]):not([data-pressed]) { background-color: var(--pinfold-tgl-tray); }
 
-  /* ------------------------------------------------------------------ outline */
-  .pinfold-toggle[data-variant='outline']:not([data-group]),
-  .pinfold-toggle[data-variant='outline'] .pinfold-toggle__item {
+  /* -------------------------------------------------------- solid and outline */
+  /* One framed bar; the buttons share it, divided by hairlines. */
+  .pinfold-toggle:is([data-variant='solid'], [data-variant='outline']) .pinfold-toggle__items {
+    gap: 0;
+    padding: 0;
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    background-image: var(--pinfold-texture);
+    border: var(--pinfold-border-width) solid var(--pinfold-tgl-edge);
+    border-radius: var(--pinfold-tgl-radius);
+    backdrop-filter: var(--pinfold-backdrop);
+  }
+  .pinfold-toggle:is([data-variant='solid'], [data-variant='outline']) .pinfold-toggle__item {
+    block-size: calc(var(--pinfold-tgl-h) - 2 * var(--pinfold-border-width));
+    border: 0;
+    border-radius: calc(var(--pinfold-tgl-radius) - var(--pinfold-border-width));
+  }
+  .pinfold-toggle:is([data-variant='solid'], [data-variant='outline'])[data-orientation='horizontal'] .pinfold-toggle__item + .pinfold-toggle__item { border-inline-start: var(--pinfold-border-width) solid var(--pinfold-color-border); }
+  .pinfold-toggle:is([data-variant='solid'], [data-variant='outline'])[data-orientation='vertical'] .pinfold-toggle__item + .pinfold-toggle__item { border-block-start: var(--pinfold-border-width) solid var(--pinfold-color-border); }
+  /* No hairline beside the pressed button: its fill is the divider. */
+  .pinfold-toggle:is([data-variant='solid'], [data-variant='outline']) .pinfold-toggle__item:is([data-pressed], [data-pressed] + .pinfold-toggle__item) { border-color: transparent; }
+
+  .pinfold-toggle[data-variant='solid'] {
+    --pinfold-tgl-on-bg: var(--pinfold-tgl-solid);
+    --pinfold-tgl-on-fg: var(--pinfold-tgl-on);
+    --pinfold-tgl-on-shadow: inset 0 1px 0 color-mix(in oklab, var(--pinfold-tgl-on) 16%, transparent), 0 1px 3px color-mix(in oklab, var(--pinfold-tgl-solid) 40%, transparent);
+  }
+  .pinfold-toggle[data-variant='solid'] .pinfold-toggle__items { box-shadow: var(--pinfold-control-shadow, var(--pinfold-highlight), var(--pinfold-shadow-xs)); }
+  .pinfold-toggle[data-variant='outline'] {
+    --pinfold-tgl-on-bg: color-mix(in oklab, var(--pinfold-tgl-solid) 14%, var(--pinfold-control-surface, var(--pinfold-color-surface)));
+    --pinfold-tgl-on-shadow: inset 0 0 0 calc(var(--pinfold-border-width) * 1.5) var(--pinfold-tgl-ring);
+  }
+  /* One toggle: its own frame. */
+  .pinfold-toggle:is([data-variant='solid'], [data-variant='outline']):not([data-group]) {
+    border-color: var(--pinfold-tgl-edge);
+  }
+  .pinfold-toggle:is([data-variant='solid'], [data-variant='outline']):not([data-group]):not([data-pressed]) {
     color: var(--pinfold-color-text);
     background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
-    border-color: var(--pinfold-control-edge, var(--pinfold-color-border-strong));
   }
-  .pinfold-toggle[data-variant='outline'] .pinfold-toggle__item + .pinfold-toggle__item { margin-inline-start: calc(var(--pinfold-border-width) * -1); }
-  .pinfold-toggle[data-variant='outline'][data-orientation='vertical'] .pinfold-toggle__item + .pinfold-toggle__item { margin-inline-start: 0; margin-block-start: calc(var(--pinfold-border-width) * -1); }
-  .pinfold-toggle[data-variant='outline'][data-group] .pinfold-toggle__item { border-radius: 0; }
-  .pinfold-toggle[data-variant='outline'][data-orientation='horizontal'] .pinfold-toggle__item:first-child { border-start-start-radius: var(--pinfold-tgl-radius); border-end-start-radius: var(--pinfold-tgl-radius); }
-  .pinfold-toggle[data-variant='outline'][data-orientation='horizontal'] .pinfold-toggle__item:last-child { border-start-end-radius: var(--pinfold-tgl-radius); border-end-end-radius: var(--pinfold-tgl-radius); }
-  .pinfold-toggle[data-variant='outline'][data-orientation='vertical'] .pinfold-toggle__item:first-child { border-start-start-radius: var(--pinfold-tgl-radius); border-start-end-radius: var(--pinfold-tgl-radius); }
-  .pinfold-toggle[data-variant='outline'][data-orientation='vertical'] .pinfold-toggle__item:last-child { border-end-start-radius: var(--pinfold-tgl-radius); border-end-end-radius: var(--pinfold-tgl-radius); }
-  .pinfold-toggle[data-variant='outline'][data-pressed]:not([data-group]),
-  .pinfold-toggle[data-variant='outline'] .pinfold-toggle__item[data-pressed] {
-    z-index: 1;
-    color: var(--pinfold-tgl-text);
-    background-color: color-mix(in oklab, var(--pinfold-tgl-solid) 12%, var(--pinfold-color-surface));
-    border-color: var(--pinfold-tgl-solid);
+  .pinfold-toggle[data-variant='solid']:not([data-group]):not([data-pressed]) { box-shadow: var(--pinfold-control-shadow, var(--pinfold-highlight), var(--pinfold-shadow-xs)); }
+  .pinfold-toggle[data-variant='solid'][data-pressed]:not([data-group]) { border-color: var(--pinfold-tgl-solid); }
+  .pinfold-toggle[data-variant='outline'][data-pressed]:not([data-group]) {
+    border-color: var(--pinfold-tgl-ring);
+    box-shadow: inset 0 0 0 calc(var(--pinfold-border-width) * 0.5) var(--pinfold-tgl-ring);
   }
+
+  /* --------------------------------------------------------------------- soft */
+  .pinfold-toggle[data-variant='soft'] {
+    --pinfold-tgl-on-shadow: inset 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-tgl-solid) 38%, transparent);
+  }
+  .pinfold-toggle[data-variant='soft']:not([data-group]):not([data-pressed]),
+  .pinfold-toggle[data-variant='soft'] .pinfold-toggle__item:not([data-pressed]) { background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, var(--pinfold-control-surface, transparent)); }
+  .pinfold-toggle[data-variant='soft'] .pinfold-toggle__items[data-placed] > .pinfold-toggle__item[data-pressed] { background-color: transparent; }
+  .pinfold-toggle[data-variant='soft']:not([data-group]):not([data-pressed]):hover:not([aria-disabled='true']),
+  .pinfold-toggle[data-variant='soft'] .pinfold-toggle__item:not([data-pressed]):hover:not([aria-disabled='true']) { background-color: color-mix(in oklab, var(--pinfold-color-text) 11%, var(--pinfold-control-surface, transparent)); }
 
   /* -------------------------------------------------------------------- ghost */
   .pinfold-toggle[data-variant='ghost'] .pinfold-toggle__items { gap: 0.125rem; }
-  .pinfold-toggle[data-variant='ghost']:not([data-group]):hover:not([aria-disabled='true']),
-  .pinfold-toggle[data-variant='ghost'] .pinfold-toggle__item:hover:not([aria-disabled='true']) { background-color: var(--pinfold-color-bg-subtle); }
-  .pinfold-toggle[data-variant='ghost'][data-pressed]:not([data-group]),
-  .pinfold-toggle[data-variant='ghost'] .pinfold-toggle__item[data-pressed] {
-    color: var(--pinfold-tgl-text);
-    background-color: color-mix(in oklab, var(--pinfold-tgl-solid) 16%, transparent);
+
+  /* Focus comes last and outranks every pressed look, so the ring always shows in full. */
+  .pinfold-toggle[data-variant]:not([data-group]):focus-visible,
+  .pinfold-toggle[data-variant] .pinfold-toggle__items > .pinfold-toggle__item:focus-visible {
+    z-index: 2;
+    outline: none;
+    box-shadow: var(--pinfold-focus-ring);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pinfold-toggle[data-animate] .pinfold-toggle__indicator { transition-duration: 1ms; }
   }
 
   @media (forced-colors: active) {
     .pinfold-toggle__item[data-pressed],
     .pinfold-toggle[data-pressed]:not([data-group]),
     .pinfold-toggle__indicator { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
+    .pinfold-toggle__items[data-placed] > .pinfold-toggle__item[data-pressed] { background: transparent; }
   }
 }

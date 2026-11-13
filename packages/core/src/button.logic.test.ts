@@ -11,8 +11,10 @@ describe('button logic', () => {
   });
 
   it('names options with no visible effect', () => {
-    expect(Object.keys(inactiveButtonOptions({})).sort()).toEqual(['loadingText', 'rel', 'target']);
+    expect(Object.keys(inactiveButtonOptions({})).sort()).toEqual(['loadingText', 'onNavigate', 'rel', 'target']);
     expect(Object.keys(inactiveButtonOptions({ loading: true, href: '/x' }))).toEqual(['type']);
-    expect(Object.keys(inactiveButtonOptions({ loading: true, href: '/x', variant: 'link', iconOnly: true })).sort()).toEqual(['endIcon', 'radius', 'type']);
+    expect(Object.keys(inactiveButtonOptions({ loading: true, href: '/x', variant: 'link', iconOnly: true })).sort()).toEqual(['endContent', 'endIcon', 'radius', 'type']);
+    expect(inactiveButtonOptions({ loading: true, href: '/x', shape: 'pill' }).radius).toContain('fully round');
+    expect(inactiveButtonOptions({ loading: true, href: '/x', shape: 'square' }).radius).toBeUndefined();
   });
 });

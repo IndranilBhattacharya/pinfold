@@ -40,13 +40,17 @@ export function useToggle(input: ToggleConfig): ToggleComponent {
       for (const key in inactive) warnOnce((input as unknown as Record<string, unknown>)[key] !== undefined, `Toggle: \`${key}\` has no visible effect here. ${inactive[key]}`);
     });
     warnOnce(!filled(config.label), 'Toggle: give it a `label`: it names the button, or the group.');
+    // An icon-only button is named by its label, so the label must be text.
+    warnOnce(!group && !!config.iconOnly && typeof config.label !== 'string', 'Toggle: an `iconOnly` toggle needs a text `label`: it becomes the accessible name and the tooltip.');
+    warnOnce(group && items!.some((item) => item.iconOnly && typeof item.label !== 'string'), 'Toggle: an `iconOnly` item needs a text `label`: it becomes the accessible name and the tooltip.');
   }
 
   const [pressed, setPressed] = useControllableState<boolean>({ value: config.pressed, defaultValue: config.defaultPressed ?? false });
   const [selected, setSelected] = useControllableState<readonly string[]>({ value: config.value, defaultValue: config.defaultValue ?? NONE });
   const value = group ? [...selected] : pressed ? ['on'] : [];
   const state: ToggleState = { variant: config.variant ?? 'segmented', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, group, value };
-  const segmented = group && !multiple && state.variant === 'segmented';
+  // A single selection draws one indicator that slides to the selected button (every variant).
+  const slides = group && !multiple;
 
   const choose = (item: ToggleItem, event: Press) => {
     const on = selected.includes(item.value);
@@ -67,7 +71,7 @@ export function useToggle(input: ToggleConfig): ToggleComponent {
   // The segmented pill: measured from the selected button, so it slides between any widths. One
   // observer per group, only while it shows.
   const selectedIndex = group ? items!.findIndex((item) => selected.includes(item.value)) : -1;
-  useSlidingIndicator(list, segmented, '[data-toggle-item]', selectedIndex, '--pinfold-tgl-i', items?.length);
+  useSlidingIndicator(list, slides, '[data-toggle-item]', selectedIndex, '--pinfold-tgl-i', `${items?.length}|${state.variant}|${state.size}|${config.orientation}`);
 
   const enabled = (i: number) => !config.disabled && !items![i]?.disabled;
   const firstEnabled = group ? items!.findIndex((_, i) => enabled(i)) : -1;
@@ -152,7 +156,7 @@ export function useToggle(input: ToggleConfig): ToggleComponent {
         {slot(
           'items',
           <>
-            {segmented ? slot('indicator', null, 'span', { 'aria-hidden': true }) : null}
+            {slides ? slot('indicator', null, 'span', { 'aria-hidden': true }) : null}
             {items!.map((item, i) => {
               const on = selected.includes(item.value);
               const name = typeof item.label === 'string' ? item.label : undefined;

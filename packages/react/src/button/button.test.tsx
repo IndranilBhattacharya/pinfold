@@ -135,6 +135,82 @@ describe('Button', () => {
     expect(container.querySelector('.pinfold-button__icon')!.getAttribute('aria-hidden')).toBe('true');
   });
 
+  it('start and end content: any node, read by screen readers, kept while loading; endContent hides when icon-only', () => {
+    const { container, rerender } = render(<Hook label="Inbox" startContent={<b>dot</b>} endContent={(s) => <kbd>{s.loading ? '…' : '12'}</kbd>} />);
+    const button = screen.getByRole('button', { name: 'dotInbox12' });
+    const start = container.querySelector('.pinfold-button__startContent')!;
+    expect(start.hasAttribute('aria-hidden')).toBe(false);
+    expect(start.nextElementSibling!.className).toBe('pinfold-button__label');
+    expect(container.querySelector('.pinfold-button__endContent')!.textContent).toBe('12');
+    rerender(<Hook label="Inbox" loading startContent={<b>dot</b>} endContent={(s) => <kbd>{s.loading ? '…' : '12'}</kbd>} />);
+    expect(container.querySelector('.pinfold-button__startContent')).not.toBeNull();
+    expect(container.querySelector('.pinfold-button__spinner')).not.toBeNull();
+    expect(container.querySelector('.pinfold-button__endContent')!.textContent).toBe('…');
+    rerender(<Hook label="Inbox" iconOnly icon={<svg />} endContent={<kbd>12</kbd>} />);
+    expect(container.querySelector('.pinfold-button__endContent')).toBeNull();
+    expect(button.getAttribute('aria-label')).toBe('Inbox');
+  });
+
+  it('shape: data-shape on the root; pill and circle round fully, a radius length still wins', () => {
+    const { rerender } = render(<Hook label="Go" />);
+    const button = screen.getByRole('button');
+    expect(button.getAttribute('data-shape')).toBe('default');
+    rerender(<Hook label="Go" shape="pill" />);
+    expect(button.getAttribute('data-shape')).toBe('pill');
+    expect(button.style.getPropertyValue('--pinfold-button-radius')).toBe('var(--pinfold-radius-full)');
+    rerender(<Hook label="Add" shape="circle" iconOnly icon={<svg />} dimensions={{ radius: 6 }} />);
+    expect(button.style.getPropertyValue('--pinfold-button-radius')).toBe('6px');
+    rerender(<Hook label="Add" shape="square" iconOnly icon={<svg />} radius="sm" />);
+    expect(button.getAttribute('data-shape')).toBe('square');
+    expect(button.style.getPropertyValue('--pinfold-button-radius')).toContain('0.6');
+  });
+
+  it('elevated variant reaches the root', () => {
+    render(<Hook label="More" variant="elevated" tone="neutral" />);
+    expect(screen.getByRole('button').getAttribute('data-variant')).toBe('elevated');
+  });
+
+  it('href: onNavigate takes plain clicks after onClick; a modifier click or a new tab stays the browser\'s', () => {
+    const order: string[] = [];
+    const onNavigate = vi.fn((href: string, _event: unknown) => order.push('nav ' + href));
+    const navigate = vi.fn();
+    const { rerender } = render(
+      <PinfoldProvider navigate={navigate}>
+        <Hook label="Settings" href="/settings" onClick={() => order.push('click')} onNavigate={onNavigate} />
+      </PinfoldProvider>,
+    );
+    const link = screen.getByRole('link', { name: 'Settings' });
+    expect(fireEvent.click(link)).toBe(false);
+    expect(order).toEqual(['click', 'nav /settings']);
+    expect(onNavigate).toHaveBeenCalledWith('/settings', expect.objectContaining({ type: 'click' }));
+    expect(fireEvent.click(link, { ctrlKey: true })).toBe(true);
+    expect(onNavigate).toHaveBeenCalledTimes(1);
+    expect(navigate).not.toHaveBeenCalled();
+    // Without onNavigate the provider routes.
+    rerender(
+      <PinfoldProvider navigate={navigate}>
+        <Hook label="Settings" href="/settings" />
+      </PinfoldProvider>,
+    );
+    fireEvent.click(link);
+    expect(navigate).toHaveBeenCalledWith('/settings');
+    // A disabled link never navigates.
+    rerender(<Hook label="Settings" href="/settings" disabled onNavigate={onNavigate} />);
+    fireEvent.click(screen.getByRole('link'));
+    expect(onNavigate).toHaveBeenCalledTimes(1);
+  });
+
+  it('inactive options: onNavigate without href, endContent when icon-only, radius with a round shape', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(<Hook label="A" iconOnly icon={<svg />} endContent="x" onNavigate={() => {}} shape="circle" radius="sm" />);
+    await vi.waitFor(() => {
+      const text = warn.mock.calls.map((c) => String(c[0])).join('\n');
+      expect(text).toContain('`onNavigate` has no visible effect');
+      expect(text).toContain('`endContent` has no visible effect');
+      expect(text).toContain('`radius` has no visible effect');
+    });
+  });
+
   it('warns about options with no effect and about config mistakes', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     render(<Hook label="A" href="/a" type="submit" variant="link" radius="full" />);
@@ -255,7 +331,7 @@ describe('Button', () => {
 
 describePinfoldConformance({
   name: 'button',
-  slots: ['root', 'icon', 'label', 'endIcon', 'spinner'],
+  slots: ['root', 'icon', 'startContent', 'label', 'endContent', 'endIcon', 'spinner'],
   // Loading replaces the icon with the spinner, so one of them is always absent.
   optionalSlots: ['icon', 'spinner'],
   dimension: { key: 'paddingX', value: 24 },
@@ -263,5 +339,5 @@ describePinfoldConformance({
   meta: buttonMeta,
   preset: { define: defineButton as any, props: { label: 'Save' } },
   hook: { use: useButton as any, config: { label: 'Save' } },
-  render: (config) => <Button label="Save" icon={<svg />} endIcon={<svg />} {...config} />,
+  render: (config) => <Button label="Save" icon={<svg />} startContent={<i />} endContent={<i />} endIcon={<svg />} {...config} />,
 });

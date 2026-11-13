@@ -43,9 +43,10 @@ export const toggleMeta: ComponentMeta = {
     fullWidth: { type: 'boolean', default: false, description: 'A group: fill the container, buttons sharing the width.', group: 'appearance', control: true },
     variant: {
       type: 'enum',
-      values: ['segmented', 'outline', 'ghost'],
+      values: ['segmented', 'solid', 'soft', 'outline', 'ghost'],
       default: 'segmented',
-      description: '`segmented`: a tray with a raised pill that slides to the selection. `outline`: joined framed buttons. `ghost`: quiet buttons that fill when pressed.',
+      description:
+        '`segmented`: a tinted tray with a raised pill. `solid`: a framed bar, the pressed button filled with the tone. `soft`: tinted buttons, the pressed one in the tone. `outline`: a framed bar, the pressed button tinted and ringed. `ghost`: quiet buttons that fill when pressed. In a single selection the pressed look slides between buttons.',
       group: 'appearance',
       control: true,
     },
@@ -79,12 +80,14 @@ export const toggleMeta: ComponentMeta = {
     'A single selection is a `radiogroup` of `radio` buttons with `aria-checked`, as a segmented control is read; a multiple selection is a `group` of `aria-pressed` buttons.',
     'The group is named by its label, kept for screen readers by default. An icon-only button keeps its label as its name and its tooltip.',
     'Pressed is never colour alone: the pressed button is raised, filled or framed.',
+    'An `iconOnly` button needs a text `label` (a dev warning says so): it is the accessible name and the tooltip.',
   ],
   dataAttributes: [
     { name: 'data-variant', on: 'root', values: 'the variant' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-tone', on: 'root', values: 'the resolved tone' },
     { name: 'data-pressed', on: 'item', values: 'present while pressed' },
+    { name: 'data-placed', on: 'items', values: 'present once the sliding indicator is placed (single selection)' },
   ],
   cssVariables: ['--pinfold-toggle-height', '--pinfold-toggle-padding-x'],
   examples: [

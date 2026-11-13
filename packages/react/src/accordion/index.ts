@@ -24,6 +24,7 @@ export type {
   AccordionDimensions,
   AccordionItemConfig,
   AccordionItemState,
+  AccordionHeaderState,
   AccordionNode,
   AccordionSlot,
   AccordionVariant,

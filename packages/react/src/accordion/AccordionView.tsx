@@ -194,9 +194,10 @@ export function renderHeader(
   delete headerProps['aria-level'];
 
   const Heading = ('h' + a.headingLevel) as 'h3';
+  const endContent = resolveNode(item.config.endContent as AccordionNode, item);
 
   return (
-    <Heading {...headerProps}>
+    <Heading {...headerProps} data-has-end-content={endContent ? '' : undefined}>
       {renderSlot<AccordionSlot, AccordionItemState>(
         ctx.config,
         'trigger',
@@ -205,12 +206,25 @@ export function renderHeader(
         children ?? <TriggerContent ctx={ctx} item={item} />,
         (props, kids) => <button {...props}>{kids}</button>,
       )}
+      {endContent ? <div {...slot(ctx, 'endContent', { className: cls(ctx, `${B}__end-content`) }, item)}>{endContent}</div> : null}
     </Heading>
   );
 }
 
 function TriggerContent({ ctx, item }: { ctx: ViewContext; item: AccordionItemState }) {
-  const { title, description, badge } = item.config;
+  const { title, description, badge, header } = item.config;
+
+  // A custom header replaces everything but the indicator; it gets the row's state and `toggle`.
+  if (header != null) {
+    const custom = typeof header === 'function' ? header({ ...item, toggle: () => ctx.api.toggle(item.id) }) : header;
+    return (
+      <>
+        <span {...slot(ctx, 'label', { className: cls(ctx, `${B}__label`), 'data-custom': '' }, item)}>{custom}</span>
+        {renderIndicator(ctx, item)}
+      </>
+    );
+  }
+  const startContent = resolveNode(item.config.startContent as AccordionNode, item);
 
   // A row's own icons win over the accordion-wide ones.
   const iconNode = resolveNode((item.config.icon ?? ctx.config.icon) as AccordionNode, item);
@@ -225,6 +239,8 @@ function TriggerContent({ ctx, item }: { ctx: ViewContext; item: AccordionItemSt
           {iconNode}
         </span>
       ) : null}
+
+      {startContent ? <span {...slot(ctx, 'startContent', { className: cls(ctx, `${B}__start-content`) }, item)}>{startContent}</span> : null}
 
       <span {...slot(ctx, 'label', { className: cls(ctx, `${B}__label`) }, item)}>
         <span {...slot(ctx, 'title', { className: cls(ctx, `${B}__title`), ...overflowProps(ctx.config.overflow?.title, 'wrap') }, item)}>

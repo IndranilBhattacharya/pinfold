@@ -301,10 +301,10 @@ describePinfoldConformance({
   name: 'accordion',
   slots: [
     'root', 'item', 'header', 'trigger', 'icon', 'label',
-    'title', 'description', 'badge', 'indicator', 'panel', 'content',
+    'title', 'description', 'badge', 'startContent', 'endContent', 'indicator', 'panel', 'content',
   ],
   // These render only when an item supplies them.
-  optionalSlots: ['icon', 'badge', 'description'],
+  optionalSlots: ['icon', 'badge', 'description', 'startContent', 'endContent'],
   dimension: { key: 'paddingX', value: 24 },
   cssFile: 'packages/css/src/accordion.css',
   meta: accordionMeta,
@@ -313,7 +313,7 @@ describePinfoldConformance({
   render: (config) => (
     <Accordion
       items={[
-        { id: 'a', title: 'First', content: 'One', description: 'sub', badge: 'New', icon: <i /> },
+        { id: 'a', title: 'First', content: 'One', description: 'sub', badge: 'New', icon: <i />, startContent: <b>s</b>, endContent: <b>e</b> },
         { id: 'b', title: 'Second', content: 'Two' },
       ]}
       defaultValue={['a']}

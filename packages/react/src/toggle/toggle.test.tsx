@@ -88,6 +88,40 @@ describe('Toggle', () => {
     expect(container.querySelector('.pinfold-toggle__indicator')).toBeNull();
   });
 
+  it('every variant of a single selection gets the sliding indicator; a multiple selection draws each pressed button', () => {
+    for (const variant of ['segmented', 'solid', 'soft', 'outline', 'ghost'] as const) {
+      const { container, unmount } = render(<Toggle label="View" variant={variant} items={views} defaultValue={['calendar']} />);
+      expect(container.querySelector('.pinfold-toggle')!.getAttribute('data-variant')).toBe(variant);
+      expect(container.querySelector('.pinfold-toggle__items > .pinfold-toggle__indicator')).not.toBeNull();
+      unmount();
+    }
+    const { container } = render(<Toggle label="Format" variant="solid" selection="multiple" items={views} defaultValue={['list', 'calendar']} />);
+    expect(container.querySelector('.pinfold-toggle__indicator')).toBeNull();
+    expect(container.querySelectorAll('[data-pressed]')).toHaveLength(2);
+  });
+
+  it('onChange: (values, event) for a group, (pressed, event) for one toggle; a disabled item never changes it', () => {
+    const onChange = vi.fn();
+    const { rerender } = render(<Toggle label="View" items={views} onChange={onChange} />);
+    fireEvent.click(screen.getByRole('radio', { name: 'Calendar' }));
+    expect(onChange).toHaveBeenLastCalledWith(['calendar'], expect.objectContaining({ type: 'click' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Board' }));
+    expect(onChange).toHaveBeenCalledTimes(1);
+    rerender(<Toggle label="Pin" onChange={onChange} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
+    expect(onChange).toHaveBeenLastCalledWith(true, expect.objectContaining({ type: 'click' }));
+  });
+
+  it('icon-only needs a text label: a node label warns in development', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(<Toggle label={<b>Pin</b>} iconOnly icon={<svg />} />);
+    render(<Toggle label="Format" selection="multiple" items={[{ value: 'b', label: <b>B</b>, icon: <svg />, iconOnly: true }]} />);
+    const text = warn.mock.calls.map((c) => String(c[0])).join('\n');
+    expect(text).toContain('an `iconOnly` toggle needs a text `label`');
+    expect(text).toContain('an `iconOnly` item needs a text `label`');
+    warn.mockRestore();
+  });
+
   it('a preset renders on the server', () => {
     const View = defineToggle({ fullWidth: true });
     const html = renderToString(<View label="View" items={views} defaultValue={['calendar']} />);
@@ -160,11 +194,11 @@ describePinfoldConformance({
 describePinfoldConformance({
   name: 'toolbar',
   inherits: ['size'],
-  slots: ['root', 'item'],
+  slots: ['root', 'item', 'separator', 'custom'],
   dimension: { key: 'gap', value: 6 },
   cssFile: 'packages/css/src/toolbar.css',
   meta: toolbarMeta,
   preset: { define: defineToolbar as any, props: { label: 'Pages', items: [{ label: 'A' }] } },
   hook: { use: useToolbar as any, config: { label: 'Pages', items: [{ label: 'A' }] } },
-  render: (config) => <Toolbar label="Pages" items={[{ label: 'A' }, { label: 'B' }]} {...config} />,
+  render: (config) => <Toolbar label="Pages" items={[{ label: 'A' }, { type: 'separator' }, { content: <span>C</span> }, { label: 'B' }]} {...config} />,
 });

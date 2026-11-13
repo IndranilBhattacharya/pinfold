@@ -13,6 +13,8 @@ const link: Record<string, PropMeta> = {
   href: { type: 'string', description: 'Where it goes.', group: 'data' },
   icon: { type: 'node', description: 'Before the text.', group: 'data' },
   onClick: { type: 'function', description: 'Runs before navigation; `event.preventDefault()` stops it.', group: 'events' },
+  key: { type: 'string', description: 'What `onChange` reports for it. Default its `href`, else its text, else its position.', group: 'data' },
+  iconOnly: { type: 'boolean', description: 'Show only the icon; the label stays as its name and its tooltip.', group: 'appearance' },
 };
 
 export const breadcrumbMeta: ComponentMeta = {
@@ -38,8 +40,21 @@ export const breadcrumbMeta: ComponentMeta = {
     },
     path: { type: 'string', description: 'Build the crumbs from a URL path instead: `path={location.pathname}`. One crumb per segment, each linking to the path up to it.', group: 'data' },
     pathLabels: { type: 'object', description: 'Names for path segments, by segment or by href (`{ "user-settings": "Settings" }`), or `(segment, href) => node`. Unnamed segments are made readable ("user-settings" reads "User settings").', group: 'data' },
-    homeLabel: { type: 'node', default: 'Home', description: 'The first crumb of a `path` (an icon works too).', group: 'data' },
+    homeLabel: { type: 'node', default: 'Home', description: 'The name of the first crumb of a `path`, and of the `home` crumb.', group: 'data' },
+    home: {
+      type: 'object',
+      orBoolean: true,
+      default: false,
+      description: 'A home crumb: `true` puts a house icon linking to `/` first, named by `homeLabel` (its tooltip too); a crumb object sets its own `href`, `icon`, `label`. With `path` it dresses the root crumb.',
+      group: 'data',
+      control: true,
+    },
     onNavigate: { type: 'function', description: '`(href, event) => void`: handles plain clicks on crumbs and menu rows (client-side routing). Without it, the provider\'s `navigate`, then the browser.', group: 'events' },
+    onChange: {
+      type: 'function',
+      description: '`(key, item, event) => void`: a crumb, a hidden crumb or a sibling page was chosen, after its own `onClick` and before navigation (`event.preventDefault()` keeps the page). `key`: the item\'s `key`, else its `href`, else its text, else its position.',
+      group: 'events',
+    },
     label: { type: 'string', default: 'Breadcrumb', description: 'The accessible name of the navigation landmark.', group: 'data' },
     separator: { type: 'enum', values: ['chevron', 'slash', 'dot', 'arrow'], orNode: true, default: 'chevron', description: 'Between crumbs: a named mark, or your own node.', group: 'appearance', control: true },
     maxItems: { type: 'number', description: 'Collapse the middle crumbs when there are more than this.', group: 'behaviour' },
@@ -91,6 +106,8 @@ export const breadcrumbMeta: ComponentMeta = {
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-tone', on: 'root', values: 'the resolved tone' },
     { name: 'data-current', on: 'item', values: 'present on the current page' },
+    { name: 'data-separator', on: 'root', values: '"chevron" | "slash" | "dot" | "arrow" | "custom"' },
+    { name: 'data-icon-only', on: 'link', values: 'present on an icon-only crumb' },
   ],
   cssVariables: ['--pinfold-breadcrumb-item-width'],
   examples: [

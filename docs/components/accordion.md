@@ -45,7 +45,7 @@ Only `items` is required. Defaults come from the global config first.
 | `value` / `defaultValue` | `string[]` | none | stable |
 | `onValueChange` | `(ids, details?)`. `details: { id, open, reason: 'click'\|'keyboard'\|'api'\|'find-in-page'\|'hash', event? }` | none | stable |
 | `onBeforeChange` | `(details) => boolean \| void`. Return `false` to block the change. | none | stable |
-| `onItemToggle` | `(id, open)` | none | stable |
+| `onItemToggle` | `(id, open)` for any row, after `onValueChange`; a row's own `onOpenChange` runs next | none | stable |
 | `disabled` | `boolean`, disables every row (they stay focusable) | `false` | stable |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | stable |
 | `dir` | `'ltr' \| 'rtl'` | provider | stable |
@@ -80,7 +80,8 @@ Only `items` is required. Defaults come from the global config first.
   own card. `filled`: tinted rows. `ghost`: no container.
 - In a card (`solid`, `outline`) the dividers stop at the row padding; `ghost` runs them full width.
 - The header never repaints on hover or when open, and there is no accent bar. The indicator carries the
-  state: it darkens on hover, turns to the tone colour and rotates when open.
+  state: it sits in a round chip that tints on hover, and when open turns to the tone colour on a tone
+  tint and rotates with a slight spring.
 - Colour comes from the `primary` palette role (through `tone`), so a palette change re-colours the
   indicator, icon, badge and focus ring. Style packs re-point surfaces, borders and depth and follow the
   palette too.
@@ -119,11 +120,42 @@ its control:
 | 4 | Parts: `<Faq.Item\|Trigger\|Panel\|Indicator id\|index>` |
 | 5 | Prop getters: `getRootProps`, `getItemProps`, `getHeaderProps`, `getTriggerProps`, `getPanelProps` |
 
-Slots: `root item header trigger icon label title description badge endIcon indicator panel content`.
+Slots: `root item header trigger icon startContent label title description badge endIcon endContent indicator panel content`.
 
 ### Per row (`items[]`)
-`id?`, `title`, `content?`, `description?`, `icon?`, `badge?`, `endIcon?`, `indicator?`, `disabled?`, `defaultOpen?`, `classNames?`, `styles?`.
-A row reads left to right (mirrored in RTL): `icon`, title over description, `badge`, `endIcon`, indicator.
+`id?`, `title`, `content?`, `description?`, `icon?`, `startContent?`, `badge?`, `endIcon?`, `endContent?`, `indicator?`, `header?`, `onOpenChange?`, `disabled?`, `defaultOpen?`, `classNames?`, `styles?`.
+A row reads left to right (mirrored in RTL): `icon`, `startContent`, title over description (the
+subtitle), `badge`, `endIcon`, indicator, then `endContent` outside the trigger.
+
+| Row key | What it does |
+|---|---|
+| `header` | Replaces what the trigger shows; the indicator stays. A node, or `({ open, disabled, toggle, id, index, ... }) => node`. It renders inside the trigger button, so keep other controls out of it. |
+| `startContent` | Before the title, inside the trigger and read with it (an avatar, a status dot). Unlike `icon` it is not `aria-hidden` and has no tinted box. A node or `(state) => node`. |
+| `endContent` | After the trigger, in the heading but outside the button, so it may hold its own controls (an "Edit" button, a menu, a switch). Clicking it does not toggle the row. A node or `(state) => node`. |
+| `indicator` | This row's own glyph, node or `(state) => node`, over the accordion-wide `indicator`. |
+| `onOpenChange` | `(open, details)` when this row opens or closes, after `onValueChange` and `onItemToggle`. |
+
+```tsx
+<Accordion
+  onItemToggle={(id, open) => track('faq', { id, open })}
+  items={[
+    { id: 'account', title: 'Account', description: 'Name, email, avatar', startContent: <Avatar name="Mara Lind" size="sm" />,
+      endContent: <Button label="Edit" size="sm" variant="ghost" onClick={edit} />, content: <AccountForm /> },
+    { id: 'security', header: ({ open }) => <>Security {open ? null : <Badge label="2 issues" tone="warning" />}</>, indicator: 'plus', content: <Security /> },
+    { id: 'billing', title: 'Billing', onOpenChange: (open) => open && prefetchInvoices(), content: <Invoices /> },
+  ]}
+/>
+```
+
+**Events, in order:** `onBeforeChange(details)` can veto; then `onValueChange(ids, details)`,
+`onItemToggle(id, open)`, and the row's own `onOpenChange(open, details)`. There is no
+accordion-wide `onOpenChange`: `onValueChange` is that event.
+
+**Nested accordions** work as is: put an `Accordion` in a row's `content`. Each one keeps its own
+state, ids and arrow-key order (the keys of an inner header never move focus in the outer one).
+
+`renderItem({ state, props, header, panel })` replaces a whole row, keeping the default header and
+panel to place as you like.
 Icons are your own nodes (any icon set; Pinfold ships no icon or UI dependency), or strings, which JSON
 can carry: an emoji (`"icon": "🚀"`) or an icon-font ligature with `classNames.icon` (e.g. Material Symbols).
 Every field that renders something accepts either a node or `(state) => node`.
@@ -157,7 +189,7 @@ Every option of both has a Pinfold equivalent:
 | className | `isCompact` | `size: 'sm'` |
 | className | `showDivider`, `dividerProps` | `dividers`, `--pinfold-accordion-divider-color` |
 | className | `itemClasses`, `classNames` | `classNames`, `styles`, `slotProps` (all rows) and row `classNames` |
-| children of Trigger | `title`, `subtitle`, `startContent` | `title`, `description`, `icon`, `endIcon`, `badge` |
+| children of Trigger | `title`, `subtitle`, `startContent` | `title`, `description` (the subtitle), `icon`, `startContent`, `endIcon`, `badge`, `endContent` (outside the button), or a whole `header` |
 | chevron in Trigger | `indicator` (node or function), `hideIndicator` | `indicator` (glyph, node or `(state) => node`, `'none'`), `indicatorPosition` |
 | | `disableAnimation`, `disableIndicatorAnimation` | `animate`, `animateIndicator` |
 | `--radix-accordion-content-height` keyframes | `motionProps` | CSS grid rows (no measuring), `data-transition`, `dimensions.duration` |

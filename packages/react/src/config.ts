@@ -52,7 +52,7 @@ import type { AlertConfig } from './alert/types';
 /** Per-component defaults. Data, state and ids never belong here, only how components look and behave. */
 export interface PinfoldComponentDefaults {
   accordion?: Omit<AccordionOptions, 'value' | 'defaultValue' | 'disabledIds' | 'id'>;
-  button?: Omit<ButtonConfig, 'label' | 'onClick' | 'href' | 'target' | 'rel' | 'loading' | 'loadingText' | 'disabled'>;
+  button?: Omit<ButtonConfig, 'label' | 'onClick' | 'href' | 'target' | 'rel' | 'loading' | 'loadingText' | 'disabled' | 'onNavigate' | 'startContent' | 'endContent'>;
   spinner?: SpinnerConfig;
   separator?: Omit<SeparatorConfig, 'label'>;
   kbd?: Omit<KbdConfig, 'keys'>;
@@ -79,7 +79,7 @@ export interface PinfoldComponentDefaults {
   select?: Omit<SelectConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'placeholder' | 'open' | 'defaultOpen' | 'onOpenChange'>;
   stepper?: Omit<StepperConfig, 'items' | 'value' | 'defaultValue' | 'onChange'>;
   pagination?: Omit<PaginationConfig, 'count' | 'page' | 'defaultPage' | 'onChange'>;
-  breadcrumb?: Omit<BreadcrumbConfig, 'items'>;
+  breadcrumb?: Omit<BreadcrumbConfig, 'items' | 'onChange'>;
   tabs?: Omit<TabsConfig, 'label' | 'items' | 'value' | 'defaultValue' | 'onChange'>;
   otp?: Omit<OtpConfig, 'label' | 'value' | 'defaultValue' | 'onChange' | 'onComplete'>;
   number?: Omit<NumberFieldConfig, 'label' | 'value' | 'defaultValue' | 'onChange'>;
@@ -91,11 +91,11 @@ export interface PinfoldComponentDefaults {
   checkbox?: Omit<CheckboxConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'checked' | 'defaultChecked' | 'indeterminate' | 'formValue' | 'onChange' | 'items' | 'value' | 'defaultValue'>;
   input?: Omit<InputConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'value' | 'defaultValue' | 'onChange' | 'placeholder'>;
   toast?: Omit<ToastConfig, 'store'>;
-  menu?: Omit<MenuConfig, 'items' | 'trigger' | 'open' | 'defaultOpen' | 'onOpenChange' | 'label'>;
-  dialog?: Omit<DialogConfig, 'title' | 'description' | 'content' | 'actions' | 'trigger' | 'open' | 'defaultOpen' | 'onOpenChange'>;
-  popover?: Omit<PopoverConfig, 'title' | 'description' | 'content' | 'actions' | 'trigger' | 'open' | 'defaultOpen' | 'onOpenChange'>;
+  menu?: Omit<MenuConfig, 'items' | 'trigger' | 'open' | 'defaultOpen' | 'onOpenChange' | 'label' | 'header' | 'footer' | 'value' | 'defaultValue' | 'onValueChange' | 'onAction' | 'onSearchChange' | 'loading' | 'emptyContent' | 'renderItem' | 'filter'>;
+  dialog?: Omit<DialogConfig, 'title' | 'description' | 'content' | 'header' | 'footer' | 'actions' | 'trigger' | 'open' | 'defaultOpen' | 'onOpenChange' | 'onOpen' | 'onClose' | 'initialFocus'>;
+  popover?: Omit<PopoverConfig, 'title' | 'description' | 'content' | 'header' | 'footer' | 'actions' | 'trigger' | 'open' | 'defaultOpen' | 'onOpenChange' | 'onOpen' | 'onClose'>;
   tooltip?: Omit<TooltipConfig, 'content' | 'trigger' | 'open' | 'defaultOpen' | 'onOpenChange'>;
-  progress?: Omit<ProgressConfig, 'value' | 'label'>;
+  progress?: Omit<ProgressConfig, 'value' | 'label' | 'buffer' | 'description' | 'onComplete'>;
   card?: Omit<CardConfig, 'title' | 'description' | 'content' | 'image' | 'actions' | 'href' | 'target' | 'rel'>;
   avatar?: Omit<AvatarConfig, 'name' | 'src' | 'alt' | 'initials' | 'status' | 'items' | 'label'>;
   alert?: Omit<AlertConfig, 'title' | 'description' | 'actions' | 'onDismiss'>;
