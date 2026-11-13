@@ -143,28 +143,59 @@ export function typeaheadIndex(labels: readonly string[], query: string, from: n
 }
 
 /** Options with no visible effect in the current config. */
-export function inactivePopoverOptions(config: { openOn?: string }): Record<string, string> {
+export function inactivePopoverOptions(config: { openOn?: string; closeButton?: boolean; modal?: boolean; arrow?: boolean; matchTriggerWidth?: boolean; size?: string }): Record<string, string> {
   const out: Record<string, string> = {};
   if (config.openOn !== 'hover') {
     out.delay = 'only used with `openOn: "hover"`.';
     out.closeDelay = 'only used with `openOn: "hover"`.';
   }
+  if (!config.closeButton) out.closeLabel = 'only used with `closeButton`.';
+  if (config.openOn === 'hover' || config.openOn === 'focus') out.modal = 'a hover or focus popover never takes focus, so there is nothing to trap.';
+  if (config.matchTriggerWidth) out.size = '`matchTriggerWidth` sets the width.';
   return out;
 }
 
-export function inactiveDialogOptions(config: { placement?: string; closeButton?: boolean; modal?: boolean }): Record<string, string> {
+export function inactiveDialogOptions(config: {
+  placement?: string;
+  closeButton?: boolean;
+  modal?: boolean;
+  size?: string;
+  dismissible?: boolean;
+  scrollBehavior?: string;
+}): Record<string, string> {
   const out: Record<string, string> = {};
-  if (config.placement && config.placement !== 'center') out.size = 'a sheet takes its size from `dimensions`.';
-  if (config.closeButton === false) out.closeLabel = 'only used with the close button.';
-  if (config.modal === false) out.closeOnOutside = 'a non-modal dialog leaves the page usable: outside presses are ordinary clicks.';
+  const sheet = config.placement === 'top' || config.placement === 'bottom';
+  if (sheet && config.size !== 'full') out.size = 'a top or bottom sheet spans the width; only `full` changes it (the whole screen).';
+  if (config.closeButton === false || config.dismissible === false) out.closeLabel = 'only used with the close button.';
+  if (config.modal === false) {
+    out.closeOnOutside = 'a non-modal dialog leaves the page usable: outside presses are ordinary clicks.';
+    out.closeOnOutsidePress = 'a non-modal dialog leaves the page usable: outside presses are ordinary clicks.';
+    out.backdrop = 'a non-modal dialog has no backdrop.';
+  }
+  if (config.dismissible === false) {
+    out.closeButton = '`dismissible: false` removes the close button.';
+    out.closeOnEscape = '`dismissible: false` ignores Escape.';
+    out.closeOnOutsidePress = '`dismissible: false` ignores outside presses.';
+    out.closeOnOutside = '`dismissible: false` ignores outside presses.';
+  }
+  if (config.placement && config.placement !== 'center' && config.scrollBehavior === 'outside') out.scrollBehavior = 'a sheet always scrolls inside.';
   return out;
 }
 
-export function inactiveMenuOptions(config: { mode?: string }): Record<string, string> {
+export function inactiveMenuOptions(config: { mode?: string; searchable?: boolean; selectionMode?: string }): Record<string, string> {
   const out: Record<string, string> = {};
   if (config.mode === 'context') {
     out.placement = 'a context menu opens at the pointer.';
     out.offset = 'a context menu opens at the pointer.';
+  }
+  if (!config.searchable) {
+    out.filter = 'only used with `searchable`.';
+    out.onSearchChange = 'only used with `searchable`.';
+  }
+  if (!config.selectionMode || config.selectionMode === 'none') {
+    out.value = 'only used with a `selectionMode`.';
+    out.defaultValue = 'only used with a `selectionMode`.';
+    out.onValueChange = 'only used with a `selectionMode`.';
   }
   return out;
 }

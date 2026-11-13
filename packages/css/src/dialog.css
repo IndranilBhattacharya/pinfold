@@ -1,12 +1,18 @@
 /* Pinfold — dialog. The `<dialog>` element itself is a transparent full-viewport box (a press on it
    is a press on the backdrop); the panel sits inside it and carries the surface tokens, so style
-   packs restyle it. Never set `display` on a closed dialog: that would show it. */
+   packs restyle it. The panel is three bands: a header and a footer that stay, and the content that
+   scrolls between them; `data-overflow-top/-bottom` (set by the view) lays a shadow under the header
+   or over the footer while content hides there. Never set `display` on a closed dialog: that would
+   show it. */
 
 @layer pinfold.components {
   .pinfold-dialog {
     --pinfold-dlg-width: var(--pinfold-dialog-width, 32rem);
     --pinfold-dlg-pad: var(--pinfold-dialog-padding, var(--pinfold-space-6));
-    --pinfold-dlg-radius: var(--pinfold-dialog-radius, var(--pinfold-radius-xl));
+    --pinfold-dlg-radius: var(--pinfold-dialog-radius, calc(1rem * var(--pinfold-radius-scale, 1)));
+    --pinfold-dlg-edge: var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-color-border) 80%, transparent));
+    --pinfold-dlg-shade: color-mix(in oklab, var(--pinfold-shadow-color, var(--pinfold-neutral-950)) 30%, transparent);
+    --pinfold-dlg-gutter: var(--pinfold-space-4);
 
     position: fixed;
     inset: 0;
@@ -17,7 +23,7 @@
     max-inline-size: none;
     max-block-size: none;
     margin: 0;
-    padding: var(--pinfold-space-4);
+    padding: var(--pinfold-dlg-gutter);
     color: var(--pinfold-color-text);
     background: transparent;
     border: 0;
@@ -29,10 +35,17 @@
     justify-content: center;
   }
   .pinfold-dialog:not([data-modal]) { pointer-events: none; }
-  .pinfold-dialog::backdrop {
-    background: var(--pinfold-color-overlay);
-    backdrop-filter: blur(3px);
+  .pinfold-dialog[data-state='closed'] { pointer-events: none; }
+
+  /* The backdrop: dim (default), a lighter dim that blurs the page, or nothing. */
+  .pinfold-dialog::backdrop { background: var(--pinfold-color-overlay); }
+  .pinfold-dialog[data-backdrop='blur']::backdrop {
+    background: color-mix(in oklab, var(--pinfold-color-overlay) 55%, transparent);
+    -webkit-backdrop-filter: blur(10px) saturate(1.2);
+    backdrop-filter: blur(10px) saturate(1.2);
   }
+  .pinfold-dialog[data-backdrop='none']::backdrop { background: transparent; }
+
   .pinfold-dialog[data-size='sm'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 24rem); }
   .pinfold-dialog[data-size='lg'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 44rem); }
   .pinfold-dialog[data-size='xl'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 60rem); }
@@ -42,27 +55,129 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: var(--pinfold-space-2);
     box-sizing: border-box;
     inline-size: 100%;
     max-inline-size: var(--pinfold-dlg-width);
-    max-block-size: 100%;
-    padding: var(--pinfold-dlg-pad);
-    overflow-y: auto;
+    block-size: var(--pinfold-dialog-height, auto);
+    max-block-size: min(var(--pinfold-dialog-max-height, 100%), 100%);
     overflow-wrap: anywhere;
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-text-sm);
-    line-height: 1.5;
+    line-height: 1.55;
     pointer-events: auto;
-    background-color: var(--pinfold-color-surface);
+    background-color: var(--pinfold-color-surface-raised, var(--pinfold-color-surface));
     background-image: var(--pinfold-texture);
-    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border: var(--pinfold-border-width) solid var(--pinfold-dlg-edge);
     border-radius: var(--pinfold-dlg-radius);
-    box-shadow: var(--pinfold-shadow-xl);
+    box-shadow: var(--pinfold-highlight), var(--pinfold-shadow-xl);
+    outline: none;
   }
-  .pinfold-dialog[data-size='full'] .pinfold-dialog__panel { block-size: 100%; }
+  /* The panel takes focus only as a starting point for reading (`initialFocus: 'panel'`): no ring around the whole dialog. */
+  .pinfold-dialog .pinfold-dialog__panel:focus-visible { outline: none; box-shadow: var(--pinfold-highlight), var(--pinfold-shadow-xl); }
 
-  /* Sheets: flush with one edge, no padding around the panel. */
+  /* ---- the three bands ---- */
+  .pinfold-dialog__header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    gap: var(--pinfold-space-1);
+    padding: var(--pinfold-dlg-pad) var(--pinfold-dlg-pad) var(--pinfold-space-3);
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+    transition: box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out);
+  }
+  /* Clear of the close button. */
+  .pinfold-dialog__panel[data-close-button] > .pinfold-dialog__header { padding-inline-end: calc(var(--pinfold-dlg-pad) + var(--pinfold-space-6)); }
+  .pinfold-dialog__title {
+    margin: 0;
+    font-size: var(--pinfold-text-lg);
+    font-weight: var(--pinfold-weight-semibold);
+    line-height: 1.3;
+    letter-spacing: var(--pinfold-tracking-tight);
+  }
+  .pinfold-dialog__description { margin: 0; color: var(--pinfold-color-text-muted); }
+
+  .pinfold-dialog__content {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    min-block-size: 0;
+    padding: var(--pinfold-space-1) var(--pinfold-dlg-pad);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--pinfold-color-text) 22%, transparent) transparent;
+  }
+  /* A scroller the keyboard can focus: the ring sits inside the panel, rounded, clear of its edges. */
+  .pinfold-dialog__content:focus-visible {
+    outline: 2px solid var(--pinfold-color-ring);
+    outline-offset: -2px;
+    box-shadow: none;
+  }
+  .pinfold-dialog[data-scroll-behavior='inside'] .pinfold-dialog__content {
+    margin-inline: var(--pinfold-space-2);
+    padding-inline: calc(var(--pinfold-dlg-pad) - var(--pinfold-space-2));
+    border-radius: var(--pinfold-radius-md);
+  }
+  .pinfold-dialog__panel:not([data-header]) > .pinfold-dialog__content { padding-block-start: var(--pinfold-dlg-pad); }
+  .pinfold-dialog__panel:not([data-footer]) > .pinfold-dialog__content { padding-block-end: var(--pinfold-dlg-pad); }
+  .pinfold-dialog__panel[data-close-button]:not([data-header]) > .pinfold-dialog__content { padding-inline-end: calc(var(--pinfold-dlg-pad) + var(--pinfold-space-6)); }
+
+  .pinfold-dialog__footer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pinfold-space-2) var(--pinfold-space-3);
+    padding: var(--pinfold-space-4) var(--pinfold-dlg-pad) var(--pinfold-dlg-pad);
+    border-end-start-radius: inherit;
+    border-end-end-radius: inherit;
+    transition: box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out);
+  }
+  .pinfold-dialog__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--pinfold-space-2);
+    margin-inline-start: auto;
+  }
+
+  /* Content hidden under a band: a hairline and a soft shadow on that band's inner edge. */
+  .pinfold-dialog__panel[data-overflow-top] > .pinfold-dialog__header { box-shadow: 0 var(--pinfold-border-width) 0 var(--pinfold-dlg-edge), 0 0.5rem 0.75rem -0.5rem var(--pinfold-dlg-shade); }
+  .pinfold-dialog__panel[data-overflow-bottom] > .pinfold-dialog__footer { box-shadow: 0 calc(-1 * var(--pinfold-border-width)) 0 var(--pinfold-dlg-edge), 0 -0.5rem 0.75rem -0.5rem var(--pinfold-dlg-shade); }
+
+  .pinfold-dialog__close {
+    position: absolute;
+    z-index: 2;
+    inset-block-start: calc(var(--pinfold-dlg-pad) - var(--pinfold-space-2));
+    inset-inline-end: calc(var(--pinfold-dlg-pad) - var(--pinfold-space-2));
+    display: inline-flex;
+  }
+
+  /* ---- scroll with the page: the panel grows, the backdrop scrolls ---- */
+  .pinfold-dialog[data-scroll-behavior='outside'][open] {
+    align-items: flex-start;
+    padding-block: var(--pinfold-space-10);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .pinfold-dialog[data-scroll-behavior='outside'] .pinfold-dialog__panel { max-block-size: none; margin-block: auto; }
+  .pinfold-dialog[data-scroll-behavior='outside'] .pinfold-dialog__content { overflow: visible; }
+
+  /* ---- full screen: edge to edge, square ---- */
+  .pinfold-dialog[data-size='full'][open] { padding: 0; }
+  .pinfold-dialog[data-size='full'] .pinfold-dialog__panel {
+    max-inline-size: 100%;
+    block-size: 100%;
+    max-block-size: 100%;
+    border: 0;
+    border-radius: 0;
+  }
+
+  /* ---- sheets (top, bottom) and drawers (start, end): flush with one edge ---- */
   .pinfold-dialog:not([data-placement='center'])[open] { padding: 0; }
   .pinfold-dialog[data-placement='top'][open] { align-items: flex-start; }
   .pinfold-dialog[data-placement='bottom'][open] { align-items: flex-end; }
@@ -71,52 +186,76 @@
   .pinfold-dialog[data-placement='top'] .pinfold-dialog__panel,
   .pinfold-dialog[data-placement='bottom'] .pinfold-dialog__panel {
     max-inline-size: 100%;
-    block-size: var(--pinfold-dialog-height, auto);
+    max-block-size: min(var(--pinfold-dialog-max-height, 85dvh), 100%);
     border-radius: 0;
+    border-inline-width: 0;
   }
-  .pinfold-dialog[data-placement='bottom'] .pinfold-dialog__panel { border-start-start-radius: var(--pinfold-dlg-radius); border-start-end-radius: var(--pinfold-dlg-radius); }
-  .pinfold-dialog[data-placement='top'] .pinfold-dialog__panel { border-end-start-radius: var(--pinfold-dlg-radius); border-end-end-radius: var(--pinfold-dlg-radius); }
+  .pinfold-dialog[data-placement='bottom'] .pinfold-dialog__panel { border-block-end-width: 0; border-start-start-radius: var(--pinfold-dlg-radius); border-start-end-radius: var(--pinfold-dlg-radius); }
+  .pinfold-dialog[data-placement='top'] .pinfold-dialog__panel { border-block-start-width: 0; border-end-start-radius: var(--pinfold-dlg-radius); border-end-end-radius: var(--pinfold-dlg-radius); }
+  /* A grabber on a bottom sheet: says it came from below. Decoration only. */
+  .pinfold-dialog[data-placement='bottom'] .pinfold-dialog__panel::before {
+    content: '';
+    position: absolute;
+    inset-block-start: var(--pinfold-space-2);
+    inset-inline-start: 50%;
+    inline-size: 2.25rem;
+    block-size: 0.25rem;
+    margin-inline-start: -1.125rem;
+    border-radius: var(--pinfold-radius-full);
+    background: color-mix(in oklab, var(--pinfold-color-text) 18%, transparent);
+  }
+  .pinfold-dialog[data-placement='start'],
+  .pinfold-dialog[data-placement='end'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 24rem); }
+  .pinfold-dialog[data-placement='start'][data-size='sm'],
+  .pinfold-dialog[data-placement='end'][data-size='sm'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 20rem); }
+  .pinfold-dialog[data-placement='start'][data-size='lg'],
+  .pinfold-dialog[data-placement='end'][data-size='lg'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 32rem); }
+  .pinfold-dialog[data-placement='start'][data-size='xl'],
+  .pinfold-dialog[data-placement='end'][data-size='xl'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 44rem); }
+  .pinfold-dialog[data-placement='start'][data-size='full'],
+  .pinfold-dialog[data-placement='end'][data-size='full'] { --pinfold-dlg-width: var(--pinfold-dialog-width, 100%); }
   .pinfold-dialog[data-placement='start'] .pinfold-dialog__panel,
   .pinfold-dialog[data-placement='end'] .pinfold-dialog__panel {
-    max-inline-size: min(var(--pinfold-dialog-width, 24rem), 100%);
+    max-inline-size: min(var(--pinfold-dlg-width), 100%);
+    block-size: 100%;
+    max-block-size: 100%;
     border-radius: 0;
+    border-block-width: 0;
   }
+  .pinfold-dialog[data-placement='start'] .pinfold-dialog__panel { border-inline-start-width: 0; border-start-end-radius: var(--pinfold-dlg-radius); border-end-end-radius: var(--pinfold-dlg-radius); }
+  .pinfold-dialog[data-placement='end'] .pinfold-dialog__panel { border-inline-end-width: 0; border-start-start-radius: var(--pinfold-dlg-radius); border-end-start-radius: var(--pinfold-dlg-radius); }
+  .pinfold-dialog[data-placement][data-size='full'] .pinfold-dialog__panel { border-radius: 0; }
 
-  .pinfold-dialog__title {
-    margin: 0;
-    /* Clear of the close button. */
-    padding-inline-end: var(--pinfold-space-6);
-    font-size: var(--pinfold-text-lg);
-    font-weight: var(--pinfold-weight-semibold);
-    line-height: 1.3;
-  }
-  .pinfold-dialog__description { margin: 0; color: var(--pinfold-color-text-muted); }
-  .pinfold-dialog__content { min-inline-size: 0; margin-block-start: var(--pinfold-space-2); }
-  .pinfold-dialog__actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: var(--pinfold-space-2);
-    margin-block-start: auto;
-    padding-block-start: var(--pinfold-space-4);
-  }
-  .pinfold-dialog__close {
-    position: absolute;
-    inset-block-start: var(--pinfold-space-3);
-    inset-inline-end: var(--pinfold-space-3);
-    display: inline-flex;
-  }
-
-  .pinfold-dialog[data-animate][open] .pinfold-dialog__panel { animation: pinfold-dialog-in var(--pinfold-duration-md) var(--pinfold-ease-out); }
-  .pinfold-dialog[data-animate][open]::backdrop { animation: pinfold-dialog-fade var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  /* ---- motion: in from where it lives, back out the same way ---- */
+  .pinfold-dialog { --pinfold-dlg-from: translate(0, 0.75rem) scale(0.97); }
+  .pinfold-dialog[data-placement='top'] { --pinfold-dlg-from: translateY(-100%); }
+  .pinfold-dialog[data-placement='bottom'] { --pinfold-dlg-from: translateY(100%); }
+  .pinfold-dialog[data-placement='start'] { --pinfold-dlg-from: translateX(-100%); }
+  .pinfold-dialog[data-placement='end'] { --pinfold-dlg-from: translateX(100%); }
+  [dir='rtl'] .pinfold-dialog[data-placement='start'],
+  .pinfold-dialog[dir='rtl'][data-placement='start'] { --pinfold-dlg-from: translateX(100%); }
+  [dir='rtl'] .pinfold-dialog[data-placement='end'],
+  .pinfold-dialog[dir='rtl'][data-placement='end'] { --pinfold-dlg-from: translateX(-100%); }
+  .pinfold-dialog[data-animate][data-state='open'] .pinfold-dialog__panel { animation: pinfold-dialog-in var(--pinfold-duration-slow) var(--pinfold-ease-out); }
+  .pinfold-dialog[data-animate][data-state='closed'] .pinfold-dialog__panel { animation: pinfold-dialog-out var(--pinfold-duration-md) var(--pinfold-ease-in-out) forwards; }
+  .pinfold-dialog[data-animate][data-state='open']::backdrop { animation: pinfold-dialog-fade var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-dialog[data-animate][data-state='closed']::backdrop { animation: pinfold-dialog-fade-out var(--pinfold-duration-md) var(--pinfold-ease-in-out) forwards; }
   @keyframes pinfold-dialog-in {
-    from { opacity: 0; transform: translateY(0.5rem); }
+    from { opacity: 0; transform: var(--pinfold-dlg-from); }
+  }
+  @keyframes pinfold-dialog-out {
+    to { opacity: 0; transform: var(--pinfold-dlg-from); }
   }
   @keyframes pinfold-dialog-fade {
     from { opacity: 0; }
   }
+  @keyframes pinfold-dialog-fade-out {
+    to { opacity: 0; }
+  }
 
   @media (forced-colors: active) {
-    .pinfold-dialog__panel { border-color: CanvasText; }
+    .pinfold-dialog__panel { border: 1px solid CanvasText; }
+    .pinfold-dialog__panel[data-overflow-top] > .pinfold-dialog__header { border-block-end: 1px solid CanvasText; }
+    .pinfold-dialog__panel[data-overflow-bottom] > .pinfold-dialog__footer { border-block-start: 1px solid CanvasText; }
   }
 }

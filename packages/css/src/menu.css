@@ -1,32 +1,41 @@
-/* Pinfold — menu. A panel from the surface tokens, so style packs restyle it. One highlight for
-   pointer and keyboard: the focused row. Position comes from JS (top and left). */
+/* Pinfold — menu. A raised panel from the surface tokens, so style packs restyle it: an optional
+   header and search field, the `role="menu"` list that scrolls, loading or empty, an optional footer.
+   One highlight for pointer and keyboard: the focused row. Position comes from JS (top and left);
+   `data-overflow-top/-bottom` (set by the view) fades the edge of the list that hides more. */
 
 @layer pinfold.components {
   .pinfold-menu {
     --pinfold-mnu-row: 2.25rem;
     --pinfold-mnu-px: var(--pinfold-space-2);
+    --pinfold-mnu-pad: var(--pinfold-space-1);
     --pinfold-mnu-font: var(--pinfold-text-sm);
+    --pinfold-mnu-edge: var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-color-border) 85%, transparent));
+    --pinfold-mnu-radius: calc(0.625rem * var(--pinfold-radius-scale, 1));
+    --pinfold-mnu-row-radius: calc(0.375rem * var(--pinfold-radius-scale, 1));
+    --pinfold-mnu-fade: 1.25rem;
 
     z-index: var(--pinfold-z-dropdown);
+    display: flex;
+    flex-direction: column;
     box-sizing: border-box;
     inline-size: var(--pinfold-menu-width, max-content);
-    min-inline-size: 10rem;
+    min-inline-size: 11rem;
     max-inline-size: calc(100vw - 1rem);
     max-block-size: min(var(--pinfold-menu-max-height, 24rem), calc(100dvh - 1rem));
-    padding: var(--pinfold-space-1);
-    overflow-y: auto;
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-mnu-font);
+    line-height: 1.4;
     color: var(--pinfold-color-text);
-    background-color: var(--pinfold-color-surface);
+    background-color: var(--pinfold-color-surface-raised, var(--pinfold-color-surface));
     background-image: var(--pinfold-texture);
-    border: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));
-    border-radius: var(--pinfold-radius-md);
-    box-shadow: var(--pinfold-shadow-lg);
+    border: var(--pinfold-border-width) solid var(--pinfold-mnu-edge);
+    border-radius: var(--pinfold-mnu-radius);
+    box-shadow: var(--pinfold-highlight), var(--pinfold-shadow-lg);
     outline: none;
+    transform-origin: var(--pinfold-overlay-arrow, 1rem) top;
   }
   .pinfold-menu[data-size='sm'] {
-    --pinfold-mnu-row: 1.75rem;
+    --pinfold-mnu-row: 1.875rem;
     --pinfold-mnu-font: var(--pinfold-text-xs);
   }
   .pinfold-menu[data-size='lg'] {
@@ -34,8 +43,90 @@
     --pinfold-mnu-px: var(--pinfold-space-3);
     --pinfold-mnu-font: var(--pinfold-text-md);
   }
-  .pinfold-menu[data-animate] { animation: pinfold-menu-in var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-menu[data-state='closed'] { pointer-events: none; }
 
+  /* ---- the list: scrolls, fades the edge that hides more ---- */
+  .pinfold-menu__list {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    padding: var(--pinfold-mnu-pad);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    outline: none;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--pinfold-color-text) 22%, transparent) transparent;
+    border-radius: inherit;
+    --pinfold-mnu-ft: 0px;
+    --pinfold-mnu-fb: 0px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--pinfold-mnu-ft), black calc(100% - var(--pinfold-mnu-fb)), transparent);
+    mask-image: linear-gradient(to bottom, transparent, black var(--pinfold-mnu-ft), black calc(100% - var(--pinfold-mnu-fb)), transparent);
+  }
+  .pinfold-menu[data-overflow-top] > .pinfold-menu__list { --pinfold-mnu-ft: var(--pinfold-mnu-fade); }
+  .pinfold-menu[data-overflow-bottom] > .pinfold-menu__list { --pinfold-mnu-fb: var(--pinfold-mnu-fade); }
+  /* A submenu panel is a list itself. */
+  .pinfold-menu.pinfold-menu__submenu { display: block; padding: var(--pinfold-mnu-pad); overflow-y: auto; }
+
+  /* ---- header, search, footer, states ---- */
+  .pinfold-menu__header {
+    flex: none;
+    padding: var(--pinfold-space-3) var(--pinfold-space-3) var(--pinfold-space-2);
+    border-block-end: var(--pinfold-border-width) solid var(--pinfold-color-border);
+  }
+  .pinfold-menu__footer {
+    flex: none;
+    padding: var(--pinfold-space-2) var(--pinfold-space-3);
+    color: var(--pinfold-color-text-muted);
+    font-size: var(--pinfold-text-xs);
+    border-block-start: var(--pinfold-border-width) solid var(--pinfold-color-border);
+  }
+  .pinfold-menu__search {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--pinfold-space-2);
+    padding-inline: calc(var(--pinfold-mnu-px) + var(--pinfold-mnu-pad));
+    border-block-end: var(--pinfold-border-width) solid var(--pinfold-color-border);
+    color: var(--pinfold-color-text-muted);
+  }
+  .pinfold-menu__search > svg { flex-shrink: 0; inline-size: 1rem; block-size: 1rem; }
+  .pinfold-menu__search > input {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    block-size: calc(var(--pinfold-mnu-row) + var(--pinfold-space-1));
+    padding: 0;
+    font: inherit;
+    color: var(--pinfold-color-text);
+    background: transparent;
+    border: 0;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .pinfold-menu__search > input::placeholder { color: var(--pinfold-color-text-subtle, var(--pinfold-color-text-muted)); }
+  .pinfold-menu__search > input::-webkit-search-cancel-button { display: none; }
+  .pinfold-menu__empty,
+  .pinfold-menu__loading {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pinfold-space-2);
+    padding: var(--pinfold-space-4) var(--pinfold-space-3);
+    color: var(--pinfold-color-text-muted);
+  }
+  .pinfold-menu__loading > [data-spinner] {
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    border: 2px solid color-mix(in oklab, var(--pinfold-color-text) 18%, transparent);
+    border-block-start-color: var(--pinfold-color-accent);
+    border-radius: var(--pinfold-radius-full);
+    animation: pinfold-menu-spin 0.8s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pinfold-menu__loading > [data-spinner] { animation-duration: 2.4s; }
+  }
+
+  /* ---- rows ---- */
   .pinfold-menu__item {
     --pinfold-mnu-tone: var(--pinfold-color-text);
     display: flex;
@@ -43,10 +134,11 @@
     gap: var(--pinfold-space-2);
     box-sizing: border-box;
     min-block-size: var(--pinfold-mnu-row);
+    padding-block: var(--pinfold-space-1);
     padding-inline: var(--pinfold-mnu-px);
     color: var(--pinfold-mnu-tone);
     text-decoration: none;
-    border-radius: var(--pinfold-radius-sm);
+    border-radius: var(--pinfold-mnu-row-radius);
     cursor: pointer;
     user-select: none;
   }
@@ -56,10 +148,10 @@
   .pinfold-menu .pinfold-menu__item:focus {
     outline: 2px solid transparent;
     box-shadow: none;
-    background: color-mix(in oklab, var(--pinfold-mnu-tone) 12%, transparent);
+    background: color-mix(in oklab, var(--pinfold-mnu-tone) 10%, transparent);
   }
   .pinfold-menu__item[data-disabled] {
-    opacity: 0.55;
+    opacity: 0.5;
     cursor: not-allowed;
   }
   .pinfold-menu__indicator {
@@ -67,43 +159,72 @@
     flex-shrink: 0;
     justify-content: center;
     inline-size: 1em;
+    color: var(--pinfold-color-accent);
     font-weight: var(--pinfold-weight-semibold);
   }
+  .pinfold-menu__item[data-tone] > .pinfold-menu__indicator { color: inherit; }
   .pinfold-menu__indicator > svg { inline-size: 1em; block-size: 1em; }
-  .pinfold-menu__icon { display: inline-flex; flex-shrink: 0; }
+  .pinfold-menu__indicator[data-position='end'] { margin-inline-start: auto; }
+  .pinfold-menu__item[data-selected] { font-weight: var(--pinfold-weight-medium); }
+  .pinfold-menu__icon { display: inline-flex; flex-shrink: 0; align-items: center; color: var(--pinfold-color-text-muted); }
+  .pinfold-menu__item[data-tone] > .pinfold-menu__icon { color: inherit; }
   .pinfold-menu__icon > svg { inline-size: 1.15em; block-size: 1.15em; }
+  .pinfold-menu__text { display: flex; flex: 1 1 auto; flex-direction: column; min-inline-size: 0; }
   .pinfold-menu__label { flex: 1 1 auto; min-inline-size: 0; overflow-wrap: anywhere; }
+  .pinfold-menu__description { color: var(--pinfold-color-text-muted); font-size: 0.86em; line-height: 1.35; }
+  .pinfold-menu__end { display: inline-flex; flex-shrink: 0; align-items: center; margin-inline-start: auto; color: var(--pinfold-color-text-muted); }
   /* A submenu row: a chevron at the end; it keeps its fill while its menu is open. */
   .pinfold-menu__chevron { display: inline-grid; flex-shrink: 0; inline-size: 1rem; block-size: 1rem; margin-inline-start: auto; color: var(--pinfold-color-text-muted); }
   .pinfold-menu__chevron > svg { inline-size: 100%; block-size: 100%; }
   [dir="rtl"] .pinfold-menu__chevron > svg { scale: -1 1; }
-  .pinfold-menu .pinfold-menu__item[data-open] { background: color-mix(in oklab, var(--pinfold-mnu-tone) 8%, transparent); }
+  .pinfold-menu .pinfold-menu__item[data-open] { background: color-mix(in oklab, var(--pinfold-mnu-tone) 7%, transparent); }
   .pinfold-menu__shortcut {
     flex-shrink: 0;
-    margin-inline-start: var(--pinfold-space-6);
+    margin-inline-start: auto;
+    padding-inline-start: var(--pinfold-space-4);
     color: var(--pinfold-color-text-muted);
-    font-size: 0.9em;
+    font-size: 0.86em;
+    letter-spacing: var(--pinfold-tracking-wide);
   }
+  .pinfold-menu__end + .pinfold-menu__shortcut { margin-inline-start: 0; }
   .pinfold-menu__separator {
     block-size: var(--pinfold-border-width);
     margin-block: var(--pinfold-space-1);
-    margin-inline: calc(-1 * var(--pinfold-space-1));
+    margin-inline: calc(-1 * var(--pinfold-mnu-pad));
     background: var(--pinfold-color-border);
   }
+  /* A section header. */
   .pinfold-menu__group-label {
-    padding: var(--pinfold-space-1) var(--pinfold-mnu-px);
+    padding: var(--pinfold-space-2) var(--pinfold-mnu-px) var(--pinfold-space-1);
     color: var(--pinfold-color-text-muted);
     font-size: var(--pinfold-text-xs);
-    font-weight: var(--pinfold-weight-medium);
+    font-weight: var(--pinfold-weight-semibold);
+    letter-spacing: var(--pinfold-tracking-wide);
   }
 
+  /* ---- motion: grows out of the side it opened on; shrinks back on close ---- */
+  .pinfold-menu[data-side='top'] { transform-origin: var(--pinfold-overlay-arrow, 1rem) bottom; --pinfold-mnu-from: 0 0.25rem; }
+  .pinfold-menu[data-side='bottom'] { --pinfold-mnu-from: 0 -0.25rem; }
+  .pinfold-menu[data-side='left'] { transform-origin: right top; --pinfold-mnu-from: 0.25rem 0; }
+  .pinfold-menu[data-side='right'] { transform-origin: left top; --pinfold-mnu-from: -0.25rem 0; }
+  .pinfold-menu[data-animate][data-state='open'] { animation: pinfold-menu-in var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-menu[data-animate][data-state='closed'] { animation: pinfold-menu-out var(--pinfold-duration-fast) var(--pinfold-ease-in-out) forwards; }
+
   @keyframes pinfold-menu-in {
-    from { opacity: 0; transform: translateY(0.25rem); }
+    from { opacity: 0; translate: var(--pinfold-mnu-from, 0 -0.25rem); scale: 0.97; }
+  }
+  @keyframes pinfold-menu-out {
+    to { opacity: 0; scale: 0.98; }
+  }
+  @keyframes pinfold-menu-spin {
+    to { rotate: 360deg; }
   }
 
   @media (forced-colors: active) {
     .pinfold-menu { border-color: CanvasText; }
     .pinfold-menu .pinfold-menu__item:focus { outline-color: Highlight; }
     .pinfold-menu__separator { background: CanvasText; }
+    .pinfold-menu__item[aria-checked='true'] > .pinfold-menu__indicator,
+    .pinfold-menu__item[data-selected] > .pinfold-menu__indicator { color: Highlight; }
   }
 }

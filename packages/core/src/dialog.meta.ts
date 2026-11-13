@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
-const SLOTS = ['root', 'panel', 'title', 'description', 'content', 'actions', 'close'] as const;
+const SLOTS = ['root', 'panel', 'header', 'title', 'description', 'content', 'footer', 'actions', 'close'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -13,7 +13,7 @@ const len = (description: string): PropMeta => ({ type: 'length', description, g
 export const dialogMeta: ComponentMeta = {
   name: 'dialog',
   displayName: 'Dialog',
-  description: 'A native modal dialog from one config: centred, or a sheet from any edge; an alert dialog with one option. Focus trap, Escape and focus return come from the browser.',
+  description: 'A native modal dialog from one config: centred, full screen, or a sheet or drawer from any edge; an alert dialog with one option. Free content, header and footer, the body scrolls inside or with the page and its edges show what is hidden. Focus trap, Escape and focus return come from the browser.',
   pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/',
   importPath: '@pinfold/react/dialog',
   requires: ['button'],
@@ -21,8 +21,10 @@ export const dialogMeta: ComponentMeta = {
   props: {
     title: { type: 'node', description: 'The heading, and the accessible name. A real `<h2>`.', group: 'data' },
     description: { type: 'node', description: 'Read when the dialog opens.', group: 'data' },
-    content: { type: 'node', description: 'Anything. Scrolls inside the panel when it is too tall.', group: 'data' },
-    actions: { type: 'array', description: 'Buttons at the bottom, each a button config. The last is solid, the rest ghost, as in `[Cancel, Save]`. Each closes the dialog unless its `onClick` returns `false`; a promise closes when it resolves and stays open if it rejects.', group: 'data' },
+    content: { type: 'node', description: 'Anything. A function receives `{ close, isOpen }`. Scrolls between the header and the footer when it is too tall (`scrollBehavior`). On the tag, `children` work too.', group: 'data' },
+    header: { type: 'node', description: 'Your own header content, under the title (or the whole header without one). A node or a function of `{ close, isOpen }`.', group: 'data' },
+    footer: { type: 'node', description: 'Your own footer content, at the start of the footer, before the actions (or the whole footer without them). A node or a function of `{ close, isOpen }`.', group: 'data' },
+    actions: { type: 'array', description: 'Buttons at the bottom, each a button config. The last is solid, the rest ghost, as in `[Cancel, Save]`. Each closes the dialog unless its `onClick` returns `false`; a promise shows the loading state, closes when it resolves and stays open if it rejects.', group: 'data' },
     trigger: { type: 'object', description: 'What opens it: a button config, or any element that passes props to its root. Unset: call `.open()`, or control `open`.', group: 'data' },
     role: {
       type: 'enum',
@@ -32,22 +34,35 @@ export const dialogMeta: ComponentMeta = {
       group: 'behaviour',
       control: true,
     },
-    placement: { type: 'enum', values: ['center', 'top', 'bottom', 'start', 'end'], default: 'center', description: 'Centred, or a sheet from an edge. `start` and `end` swap in RTL.', group: 'appearance', control: true },
+    placement: { type: 'enum', values: ['center', 'top', 'bottom', 'start', 'end'], default: 'center', description: 'Centred, a sheet from the top or bottom edge, or a drawer from the `start` or `end` side (they swap in RTL).', group: 'appearance', control: true },
     radius: RADIUS_PROP,
-    size: { type: 'enum', values: ['sm', 'md', 'lg', 'xl', 'full'], default: 'md', description: 'Width of a centred dialog. Independent of the provider size: it is a layout choice, not a density.', group: 'appearance', control: true },
+    size: { type: 'enum', values: ['sm', 'md', 'lg', 'xl', 'full'], default: 'md', description: 'Width of a centred dialog (24, 32, 44, 60rem) or a drawer (20, 24, 32, 44rem); `full` fills the screen, square-cornered. Independent of the provider size: it is a layout choice, not a density.', group: 'appearance', control: true },
+    scrollBehavior: { type: 'enum', values: ['inside', 'outside'], default: 'inside', description: '`inside`: the panel fits the screen and its content scrolls between a fixed header and footer, which show a shadow while content hides under them. `outside`: the panel grows with its content and the backdrop scrolls.', group: 'appearance', control: true },
+    backdrop: { type: 'enum', values: ['dim', 'blur', 'none'], default: 'dim', description: 'What covers the page behind a modal dialog: a dim layer, a lighter one that blurs the page, or nothing.', group: 'appearance', control: true },
     modal: { type: 'boolean', default: true, description: 'Modal: the rest of the page is inert and scroll is locked. `false` opens it without either.', group: 'behaviour' },
+    dismissible: { type: 'boolean', default: true, description: '`false`: no close button, Escape and outside presses do nothing; only an action or your code closes it.', group: 'behaviour', control: true, silent: true },
     closeButton: { type: 'boolean', description: 'Show a close button in the corner.', group: 'behaviour', auto: 'on, off for an alert dialog' },
     closeLabel: { type: 'string', default: 'Close', description: 'Accessible name and tooltip of the close button.', group: 'behaviour' },
-    closeOnOutside: { type: 'boolean', description: 'A press on the backdrop closes it.', group: 'behaviour', auto: 'on, off for an alert dialog' },
-    closeOnEscape: { type: 'boolean', default: true, description: 'Escape closes it.', group: 'behaviour' },
+    closeOnOutsidePress: { type: 'boolean', description: 'A press on the backdrop closes it.', group: 'behaviour', auto: 'on, off for an alert dialog' },
+    closeOnOutside: { type: 'boolean', description: 'Deprecated alias of `closeOnOutsidePress`.', group: 'behaviour', status: 'deprecated', alias: 'closeOnOutsidePress' },
+    closeOnEscape: { type: 'boolean', default: true, description: 'Escape closes it. Nested dialogs close one at a time.', group: 'behaviour' },
+    initialFocus: { type: 'object', orString: true, description: 'Where focus goes on open: `"panel"` (the panel itself, good for long reading), a CSS selector inside the dialog, or a ref.', group: 'behaviour', auto: 'a control with `data-autofocus`, else the first control' },
     open: { type: 'boolean', description: 'Controlled state.', group: 'behaviour' },
     defaultOpen: { type: 'boolean', default: false, description: 'Initial state when uncontrolled.', group: 'behaviour' },
-    onOpenChange: { type: 'function', description: 'Called with the next state.', group: 'behaviour' },
+    onOpenChange: { type: 'function', description: '`(open, reason)`: the next state, and why (`trigger`, `escape`, `outside`, `closeButton`, `action`, `form`, `api`).', group: 'events' },
+    onOpen: { type: 'function', description: 'It asked to open.', group: 'events' },
+    onClose: { type: 'function', description: '`(reason)`: it asked to close, and why (as `onOpenChange`).', group: 'events' },
     dimensions: {
       type: 'object',
       description: 'Exact measurements. Numbers are px.',
       group: 'appearance',
-      keys: { width: len('Panel width.'), height: len('Panel height (a top or bottom sheet).'), padding: len('Inner padding.'), radius: len('Corner radius.') },
+      keys: {
+        width: len('Panel width (a centred dialog or a drawer).'),
+        height: len('Panel height (a centred dialog, or a top or bottom sheet).'),
+        maxHeight: len('Tallest the panel grows before its content scrolls.'),
+        padding: len('Inner padding.'),
+        radius: len('Corner radius.'),
+      },
     },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },
@@ -66,17 +81,26 @@ export const dialogMeta: ComponentMeta = {
     'Named by the title (`aria-labelledby`), described by the description (`aria-describedby`). Without a title it warns in development.',
     'Focus goes to the first control inside; add `data-autofocus` to a control (through `slotProps`) to choose another. An alert dialog focuses its first action, so put the safe one first.',
     'Scroll is locked without the page shifting sideways.',
+    'Nested dialogs stack: Escape and the backdrop close the top one first, and focus returns to what opened it.',
   ],
   dataAttributes: [
     { name: 'data-placement', on: 'root', values: '"center" | "top" | "bottom" | "start" | "end"' },
     { name: 'data-size', on: 'root', values: '"sm" | "md" | "lg" | "xl" | "full"' },
     { name: 'data-modal', on: 'root', values: 'present when modal' },
+    { name: 'data-scroll-behavior', on: 'root', values: '"inside" | "outside"' },
+    { name: 'data-backdrop', on: 'root', values: '"dim" | "blur" | "none"' },
+    { name: 'data-state', on: 'root', values: '"open", or "closed" while the exit animation runs' },
+    { name: 'data-overflow-top / -bottom', on: 'panel', values: 'present while the content hides more above or below' },
   ],
-  cssVariables: ['--pinfold-dialog-width', '--pinfold-dialog-height', '--pinfold-dialog-padding', '--pinfold-dialog-radius'],
+  cssVariables: ['--pinfold-dialog-width', '--pinfold-dialog-height', '--pinfold-dialog-max-height', '--pinfold-dialog-padding', '--pinfold-dialog-radius'],
   examples: [
     {
       title: 'Presets',
       code: "import { defineDialog } from '@pinfold/react/dialog';\n\nexport const Confirm = defineDialog({ role: 'alertdialog', size: 'sm' });\nexport const Panel = defineDialog({ placement: 'end' });\n\n<Confirm\n  title=\"Delete this project?\"\n  description=\"This cannot be undone.\"\n  trigger={{ label: 'Delete', tone: 'danger', variant: 'soft' }}\n  actions={[{ label: 'Cancel' }, { label: 'Delete', tone: 'danger', onClick: remove }]}\n/>",
+    },
+    {
+      title: 'Free content, scrolling body',
+      code: "<Dialog\n  title=\"Terms\"\n  size=\"lg\"\n  header={<Badge label=\"v2\" />}\n  content={({ close }) => <Terms onDecline={close} />}\n  footer={<Checkbox label=\"Don't show again\" />}\n  actions={[{ label: 'Decline' }, { label: 'Accept', onClick: accept }]}\n/>",
     },
     { title: 'From code', code: "const Welcome = useDialog({ title: 'Welcome', content: <Tour /> });\nWelcome.open();\nreturn <Welcome />;" },
   ],

@@ -1,19 +1,28 @@
-/* Pinfold — popover. A panel from the surface tokens, so style packs restyle it. Position comes
-   from JS (top and left), the side it landed on from `data-side`. */
+/* Pinfold — popover. A raised panel from the surface tokens, so style packs restyle it. Position
+   comes from JS (top and left), the side it landed on from `data-side`; it grows out of that side.
+   Header and footer stay put while the content scrolls; `data-overflow-*` (set by the view) fades
+   the edge that hides more. */
 
 @layer pinfold.components {
   .pinfold-popover {
-    --pinfold-pop-bg: var(--pinfold-color-surface);
-    --pinfold-pop-edge: var(--pinfold-control-edge, var(--pinfold-color-border));
+    --pinfold-pop-bg: var(--pinfold-color-surface-raised, var(--pinfold-color-surface));
+    --pinfold-pop-edge: var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-color-border) 85%, transparent));
+    --pinfold-pop-w: 20rem;
+    --pinfold-pop-pad: var(--pinfold-space-4);
+    --pinfold-pop-gap: var(--pinfold-space-3);
+    --pinfold-pop-fade: 2rem;
+    --pinfold-pop-radius: calc(0.75rem * var(--pinfold-radius-scale, 1));
 
     z-index: var(--pinfold-z-dropdown);
+    position: fixed;
     display: flex;
     flex-direction: column;
-    gap: var(--pinfold-space-2);
+    gap: var(--pinfold-pop-gap);
     box-sizing: border-box;
-    inline-size: min(var(--pinfold-popover-width, 20rem), calc(100vw - 1rem));
-    max-block-size: calc(100dvh - 1rem);
-    padding: var(--pinfold-popover-padding, var(--pinfold-space-4));
+    inline-size: min(var(--pinfold-popover-width, var(--pinfold-pop-w)), calc(100vw - 1rem));
+    max-inline-size: min(var(--pinfold-popover-max-width, calc(100vw - 1rem)), calc(100vw - 1rem));
+    max-block-size: min(var(--pinfold-popover-max-height, calc(100dvh - 1rem)), calc(100dvh - 1rem));
+    padding: var(--pinfold-popover-padding, var(--pinfold-pop-pad));
     overflow: visible;
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-text-sm);
@@ -23,20 +32,69 @@
     background-color: var(--pinfold-pop-bg);
     background-image: var(--pinfold-texture);
     border: var(--pinfold-border-width) solid var(--pinfold-pop-edge);
-    border-radius: var(--pinfold-radius-lg);
-    box-shadow: var(--pinfold-shadow-lg);
+    border-radius: var(--pinfold-pop-radius);
+    box-shadow: var(--pinfold-highlight), var(--pinfold-shadow-xl);
     outline: none;
+    transform-origin: var(--pinfold-overlay-arrow, 50%) top;
   }
-  .pinfold-popover[data-animate] { animation: pinfold-popover-in var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-popover[data-size='sm'] { --pinfold-pop-w: 16rem; --pinfold-pop-pad: var(--pinfold-space-3); --pinfold-pop-gap: var(--pinfold-space-2); }
+  .pinfold-popover[data-size='lg'] { --pinfold-pop-w: 28rem; --pinfold-pop-pad: var(--pinfold-space-5); --pinfold-pop-gap: var(--pinfold-space-4); }
+  .pinfold-popover[data-size='auto'] { --pinfold-pop-w: max-content; }
+  .pinfold-popover[data-match-trigger-width] { inline-size: var(--pinfold-overlay-anchor-width, var(--pinfold-pop-w)); min-inline-size: 0; }
+  .pinfold-popover:focus-visible { box-shadow: var(--pinfold-highlight), var(--pinfold-shadow-xl), var(--pinfold-focus-ring); }
+  .pinfold-popover[data-state='closed'] { pointer-events: none; }
 
-  .pinfold-popover__title { font-weight: var(--pinfold-weight-semibold); }
+  .pinfold-popover__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pinfold-space-1);
+    min-inline-size: 0;
+  }
+  .pinfold-popover[data-close-button] .pinfold-popover__header { padding-inline-end: var(--pinfold-space-6); }
+  .pinfold-popover__title {
+    font-size: var(--pinfold-text-md);
+    font-weight: var(--pinfold-weight-semibold);
+    line-height: 1.35;
+    letter-spacing: var(--pinfold-tracking-tight);
+  }
   .pinfold-popover__description { color: var(--pinfold-color-text-muted); }
-  .pinfold-popover__content { min-inline-size: 0; }
+
+  /* The content scrolls when the panel reaches its max height. The padding lends focus rings room. */
+  .pinfold-popover__content {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    min-block-size: 0;
+    margin: -0.25rem;
+    padding: 0.25rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--pinfold-color-text) 22%, transparent) transparent;
+    --pinfold-pop-ft: 0px;
+    --pinfold-pop-fb: 0px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--pinfold-pop-ft), black calc(100% - var(--pinfold-pop-fb)), transparent);
+    mask-image: linear-gradient(to bottom, transparent, black var(--pinfold-pop-ft), black calc(100% - var(--pinfold-pop-fb)), transparent);
+  }
+  .pinfold-popover[data-overflow-top] > .pinfold-popover__content { --pinfold-pop-ft: var(--pinfold-pop-fade); }
+  .pinfold-popover[data-overflow-bottom] > .pinfold-popover__content { --pinfold-pop-fb: var(--pinfold-pop-fade); }
+
+  .pinfold-popover__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pinfold-space-2);
+    min-inline-size: 0;
+  }
   .pinfold-popover__actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--pinfold-space-2);
-    margin-block-start: var(--pinfold-space-1);
+  }
+  .pinfold-popover__close {
+    position: absolute;
+    inset-block-start: var(--pinfold-space-2);
+    inset-inline-end: var(--pinfold-space-2);
+    display: inline-flex;
   }
 
   /* A square turned 45°, half out of the edge it sits on. */
@@ -58,8 +116,19 @@
   .pinfold-popover[data-side='left'] .pinfold-popover__arrow { left: auto; right: -0.375rem; transform: rotate(-45deg); }
   .pinfold-popover[data-side='right'] .pinfold-popover__arrow { left: -0.375rem; transform: rotate(135deg); }
 
+  /* Grows out of the side it opened on, from the point nearest the trigger; shrinks back on close. */
+  .pinfold-popover[data-side='top'] { transform-origin: var(--pinfold-overlay-arrow, 50%) bottom; --pinfold-pop-from: 0 0.375rem; }
+  .pinfold-popover[data-side='bottom'] { transform-origin: var(--pinfold-overlay-arrow, 50%) top; --pinfold-pop-from: 0 -0.375rem; }
+  .pinfold-popover[data-side='left'] { transform-origin: right var(--pinfold-overlay-arrow, 50%); --pinfold-pop-from: 0.375rem 0; }
+  .pinfold-popover[data-side='right'] { transform-origin: left var(--pinfold-overlay-arrow, 50%); --pinfold-pop-from: -0.375rem 0; }
+  .pinfold-popover[data-animate][data-state='open'] { animation: pinfold-popover-in var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-popover[data-animate][data-state='closed'] { animation: pinfold-popover-out var(--pinfold-duration-fast) var(--pinfold-ease-in-out) forwards; }
+
   @keyframes pinfold-popover-in {
-    from { opacity: 0; transform: translateY(0.25rem); }
+    from { opacity: 0; translate: var(--pinfold-pop-from, 0 -0.375rem); scale: 0.96; }
+  }
+  @keyframes pinfold-popover-out {
+    to { opacity: 0; translate: var(--pinfold-pop-from, 0 -0.375rem); scale: 0.97; }
   }
 
   @media (forced-colors: active) {

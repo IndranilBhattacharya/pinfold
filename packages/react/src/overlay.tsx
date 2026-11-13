@@ -40,10 +40,12 @@ interface FloatingOptions {
   offset?: number;
   /** Changes when the anchor moves to a new place without closing (a second right-click). */
   key?: unknown;
+  /** Also write the anchor's width as `--pinfold-overlay-anchor-width` on the floating element. */
+  matchWidth?: boolean;
 }
 
 /** While open: top layer, then keep the element next to its anchor through scrolling and resizing. */
-export function useFloating({ open, anchor, floating, placement, offset, key }: FloatingOptions): void {
+export function useFloating({ open, anchor, floating, placement, offset, key, matchWidth }: FloatingOptions): void {
   useIsomorphicLayoutEffect(() => {
     const el = floating.current;
     if (!open || !el) return;
@@ -61,6 +63,7 @@ export function useFloating({ open, anchor, floating, placement, offset, key }: 
       // Its anchor scrolled out of view: hide rather than pin it to the edge, detached from its source.
       const out = vw > 0 && vh > 0 && (rect.y + rect.height < 0 || rect.y > vh || rect.x + rect.width < 0 || rect.x > vw);
       el.style.visibility = out ? 'hidden' : '';
+      if (matchWidth) el.style.setProperty('--pinfold-overlay-anchor-width', `${rect.width}px`);
       const box = el.getBoundingClientRect();
       const position = computePosition({
         anchor: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
@@ -96,7 +99,46 @@ export function useFloating({ open, anchor, floating, placement, offset, key }: 
       window.removeEventListener('resize', schedule);
       observer?.disconnect();
     };
-  }, [open, placement, offset, key]);
+  }, [open, placement, offset, key, matchWidth]);
+}
+
+/**
+ * Whether a closing overlay is still on screen: true while `open`, and after it turns false until
+ * the exit animation of `ref` ends (at once when nothing animates: no CSS, reduced motion, or
+ * `disableAnimation`). The element shows `data-state="closed"` meanwhile, which starts that animation.
+ */
+export function usePresence(open: boolean, ref: React.RefObject<HTMLElement | null>): boolean {
+  const [present, setPresent] = React.useState(open);
+  if (open && !present) setPresent(true);
+  useIsomorphicLayoutEffect(() => {
+    if (open || !present) return;
+    const el = ref.current;
+    const name = el && typeof getComputedStyle === 'function' ? getComputedStyle(el).animationName : '';
+    if (!el || !name || name === 'none') {
+      setPresent(false);
+      return;
+    }
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      setPresent(false);
+    };
+    const onEnd = (event: Event) => {
+      if (event.target === el) finish();
+    };
+    el.addEventListener('animationend', onEnd);
+    el.addEventListener('animationcancel', onEnd);
+    // A safety net: an animation that never reports its end must not keep the overlay forever.
+    const timer = setTimeout(finish, 400);
+    return () => {
+      done = true;
+      clearTimeout(timer);
+      el.removeEventListener('animationend', onEnd);
+      el.removeEventListener('animationcancel', onEnd);
+    };
+  }, [open, present]);
+  return open || present;
 }
 
 /** While active: on the dismiss stack, so Escape and outside presses reach the topmost overlay first. */

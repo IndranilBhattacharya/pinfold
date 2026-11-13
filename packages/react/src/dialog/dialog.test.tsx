@@ -98,9 +98,115 @@ describe('Dialog', () => {
     act(() => ctrl.open());
     expect(ctrl.isOpen).toBe(true);
     expect(root(container).hasAttribute('open')).toBe(true);
-    expect(onOpenChange).toHaveBeenCalledWith(true);
+    expect(onOpenChange).toHaveBeenCalledWith(true, 'api');
     act(() => ctrl.close());
     expect(root(container).hasAttribute('open')).toBe(false);
+  });
+
+  it('free content (a function of { close }), header and footer content, and children on the tag', () => {
+    const { container } = render(
+      <Dialog title="T" defaultOpen header={<span>Badge</span>} footer={({ close }) => <button onClick={close}>Later</button>} content={({ isOpen }) => <p>{isOpen ? 'Body' : 'x'}</p>} actions={[{ label: 'OK' }]} />,
+    );
+    expect(container.querySelector('.pinfold-dialog__header')!.textContent).toContain('Badge');
+    expect(container.querySelector('.pinfold-dialog__content')!.textContent).toBe('Body');
+    expect(container.querySelector('.pinfold-dialog__footer')!.textContent).toContain('Later');
+    fireEvent.click(screen.getByRole('button', { name: 'Later' }));
+    expect(root(container).hasAttribute('open')).toBe(false);
+    const view = render(<Dialog title="Kids" defaultOpen>{'From children'}</Dialog>);
+    expect(view.container.querySelector('.pinfold-dialog__content')!.textContent).toBe('From children');
+  });
+
+  it('reports why it opened and closed', () => {
+    const onClose = vi.fn();
+    const onOpen = vi.fn();
+    const onOpenChange = vi.fn();
+    const { container } = render(<Dialog title="x" trigger={{ label: 'Open' }} actions={[{ label: 'Save' }]} onClose={onClose} onOpen={onOpen} onOpenChange={onOpenChange} />);
+    const open = () => fireEvent.click(screen.getByRole('button', { name: 'Open', hidden: true }));
+    open();
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenLastCalledWith(true, 'trigger');
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(onClose).toHaveBeenLastCalledWith('escape');
+    open();
+    fireEvent.pointerDown(root(container));
+    expect(onClose).toHaveBeenLastCalledWith('outside');
+    open();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(onClose).toHaveBeenLastCalledWith('closeButton');
+    open();
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(onClose).toHaveBeenLastCalledWith('action');
+    expect(onOpenChange).toHaveBeenLastCalledWith(false, 'action');
+  });
+
+  it('closeOnOutsidePress and closeOnEscape can be turned off; the deprecated closeOnOutside still works', () => {
+    const { container, rerender } = render(<Dialog title="x" defaultOpen closeOnOutsidePress={false} closeOnEscape={false} />);
+    fireEvent.pointerDown(root(container));
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(root(container).hasAttribute('open')).toBe(true);
+    rerender(<Dialog title="x" defaultOpen closeOnOutside={false} />);
+    fireEvent.pointerDown(root(container));
+    expect(root(container).hasAttribute('open')).toBe(true);
+  });
+
+  it('dismissible: false has no close button and ignores Escape and the backdrop', () => {
+    const { container } = render(<Dialog title="x" defaultOpen dismissible={false} actions={[{ label: 'Done' }]} />);
+    expect(container.querySelector('.pinfold-dialog__close')).toBeNull();
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    fireEvent.pointerDown(root(container));
+    expect(root(container).hasAttribute('open')).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+    expect(root(container).hasAttribute('open')).toBe(false);
+  });
+
+  it('reflects size, placement, scroll behaviour and backdrop; dimensions reach custom properties', () => {
+    const { container } = render(<Dialog title="x" defaultOpen size="full" placement="bottom" backdrop="blur" scrollBehavior="outside" dimensions={{ maxHeight: 500 }} />);
+    const el = root(container);
+    expect(el.getAttribute('data-size')).toBe('full');
+    expect(el.getAttribute('data-placement')).toBe('bottom');
+    expect(el.getAttribute('data-backdrop')).toBe('blur');
+    // A sheet always scrolls inside.
+    expect(el.getAttribute('data-scroll-behavior')).toBe('inside');
+    expect(el.getAttribute('data-state')).toBe('open');
+    expect(el.style.getPropertyValue('--pinfold-dialog-max-height')).toBe('500px');
+    const center = render(<Dialog title="y" defaultOpen scrollBehavior="outside" />);
+    expect(root(center.container).getAttribute('data-scroll-behavior')).toBe('outside');
+  });
+
+  it('initialFocus: the panel, a selector or a ref', () => {
+    const { container } = render(<Dialog title="x" defaultOpen initialFocus="panel" content={<input aria-label="A" />} />);
+    expect(document.activeElement).toBe(container.querySelector('.pinfold-dialog__panel'));
+    render(<Dialog title="y" defaultOpen initialFocus="[name=b]" content={<><input aria-label="A2" /><input name="b" aria-label="B" /></>} />);
+    expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'B' }));
+    function WithRef() {
+      const ref = React.useRef<HTMLInputElement>(null);
+      return <Dialog title="z" defaultOpen initialFocus={ref} content={<><input aria-label="C1" /><input ref={ref} aria-label="C2" /></>} />;
+    }
+    render(<WithRef />);
+    expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'C2' }));
+  });
+
+  it('an async action shows loading and closes when it resolves', async () => {
+    let resolve!: () => void;
+    const { container } = render(<Dialog title="x" defaultOpen actions={[{ label: 'Cancel' }, { label: 'Delete', onClick: () => new Promise<void>((r) => (resolve = r)) }]} />);
+    const del = screen.getByRole('button', { name: 'Delete' });
+    fireEvent.click(del);
+    expect(del.getAttribute('aria-busy')).toBe('true');
+    expect(root(container).hasAttribute('open')).toBe(true);
+    await act(async () => resolve());
+    expect(root(container).hasAttribute('open')).toBe(false);
+  });
+
+  it('nested dialogs close one at a time on Escape', () => {
+    const { container } = render(<Dialog title="Outer" defaultOpen content={<Dialog title="Inner" trigger={{ label: 'More' }} />} />);
+    fireEvent.click(screen.getByRole('button', { name: 'More' }));
+    const dialogs = container.querySelectorAll('dialog');
+    expect(dialogs[1].hasAttribute('open')).toBe(true);
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(dialogs[1].hasAttribute('open')).toBe(false);
+    expect(dialogs[0].hasAttribute('open')).toBe(true);
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(dialogs[0].hasAttribute('open')).toBe(false);
   });
 
   it('renders closed on the server, without an open attribute or content', () => {
@@ -115,7 +221,7 @@ describePinfoldConformance({
   name: 'dialog',
   inherits: [],
   variants: false,
-  slots: ['root', 'panel', 'title', 'description', 'content', 'actions', 'close'],
+  slots: ['root', 'panel', 'header', 'title', 'description', 'content', 'footer', 'actions', 'close'],
   dimension: { key: 'width', value: 400 },
   cssFile: 'packages/css/src/dialog.css',
   meta: dialogMeta,

@@ -4,8 +4,24 @@ import type { PinfoldComponent } from '../component';
 import type { OverlayTrigger } from '../overlay';
 import type { SlotOverrides } from '../types';
 
-export type MenuSlot = 'root' | 'item' | 'indicator' | 'icon' | 'label' | 'shortcut' | 'separator' | 'group' | 'groupLabel' | 'submenu' | 'chevron';
+export type MenuSlot =
+  | 'root' | 'list' | 'item' | 'indicator' | 'icon' | 'text' | 'label' | 'description' | 'end' | 'shortcut'
+  | 'separator' | 'group' | 'groupLabel' | 'submenu' | 'chevron' | 'header' | 'footer' | 'search' | 'empty' | 'loading';
 export type MenuMode = 'dropdown' | 'context';
+export type MenuSelectionMode = 'none' | 'single' | 'multiple';
+/** Why the menu opened or closed. */
+export type MenuChangeReason = 'trigger' | 'keyboard' | 'contextmenu' | 'escape' | 'outside' | 'select' | 'tab' | 'api';
+
+/** What a row's `content` function receives. */
+export interface MenuRowState {
+  checked: boolean;
+  selected: boolean;
+  disabled: boolean;
+}
+/** What a function in the menu's `header` or `footer` receives. */
+export interface MenuRenderContext {
+  close: () => void;
+}
 
 interface MenuRowBase {
   /** React key; the position is used without one. */
@@ -21,8 +37,20 @@ interface MenuRowBase {
   disabled?: boolean;
   /** Called on click, Enter or Space. */
   onSelect?: (event: React.SyntheticEvent<HTMLElement>) => void;
-  /** Close after selecting. On; off for checkbox and radio rows. */
+  /** Close after selecting. Wins over the menu's `closeOnSelect`. */
   closeOnSelect?: boolean;
+  /** A muted line under the label. */
+  description?: React.ReactNode;
+  /** Anything before the label (an avatar, a dot). Takes the place of `icon`. */
+  startContent?: React.ReactNode;
+  /** Anything at the end, before the shortcut (a badge, a count). */
+  endContent?: React.ReactNode;
+  /** Replaces the row's inside (all but the check mark). The row keeps its role and `label` as its name. */
+  content?: React.ReactNode | ((state: MenuRowState) => React.ReactNode);
+  /** Text for typeahead and search when `label` is not a string. */
+  textValue?: string;
+  /** Why a disabled row is disabled: its tooltip and accessible description. */
+  disabledReason?: string;
 }
 
 export interface MenuActionItem extends MenuRowBase {
@@ -30,6 +58,8 @@ export interface MenuActionItem extends MenuRowBase {
   /** Makes the row a real link. */
   href?: string;
   target?: string;
+  /** The current choice (the current workspace): a check at the end and `aria-current`. @default false */
+  selected?: boolean;
   checked?: never;
 }
 export interface MenuCheckItem extends MenuRowBase {
@@ -48,6 +78,14 @@ export interface MenuGroupItem {
   /** Names the group. */
   label: React.ReactNode;
   items: readonly MenuItem[];
+  /** The menu checks this group's rows for you: radio rows (`single`) or checkbox rows (`multiple`). */
+  selectionMode?: 'single' | 'multiple';
+  /** Checked row ids (one id for `single`). Controlled. */
+  value?: string | readonly string[];
+  /** Initial ids, uncontrolled. */
+  defaultValue?: string | readonly string[];
+  /** The new id (`single`) or ids (`multiple`). */
+  onValueChange?: (value: string & string[], item: MenuItem) => void;
 }
 /** A row that opens a menu beside it: on hover, a press, Enter, Space or the arrow toward it. */
 export interface MenuSubmenuItem {
@@ -66,6 +104,15 @@ export interface MenuState {
   open: boolean;
   mode: MenuMode;
   size: PinfoldSize;
+}
+
+export interface MenuLabels {
+  /** @default 'Search' */
+  search?: string;
+  /** @default 'No results' */
+  empty?: string;
+  /** @default 'Loading' */
+  loading?: string;
 }
 
 export interface MenuDimensions {
@@ -102,7 +149,35 @@ export interface MenuConfig extends SlotOverrides<MenuSlot, MenuState, MenuItemC
   open?: boolean;
   /** @default false */
   defaultOpen?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  /** The next state, and why. */
+  onOpenChange?: (open: boolean, reason: MenuChangeReason) => void;
+  /** Any row was chosen. `id` is the row's `id`, or its position. */
+  onAction?: (id: string, item: MenuItem) => void;
+  /** Close after a row is chosen. On; off for checkbox and radio rows. */
+  closeOnSelect?: boolean;
+  /** The menu checks its rows for you. @default 'none' */
+  selectionMode?: MenuSelectionMode;
+  /** Checked row ids (one id for `single`). Controlled. */
+  value?: string | readonly string[];
+  /** Initial ids, uncontrolled. */
+  defaultValue?: string | readonly string[];
+  /** The new id (`single`) or ids (`multiple`). */
+  onValueChange?: (value: string & string[], item: MenuItem) => void;
+  /** A search field filters the rows. @default false */
+  searchable?: boolean;
+  /** Your own match. */
+  filter?: (item: MenuItem, query: string) => boolean;
+  /** The search text changed. */
+  onSearchChange?: (query: string) => void;
+  /** @default false */
+  loading?: boolean;
+  /** Shown when there are no rows, or none match. */
+  emptyContent?: React.ReactNode;
+  labels?: MenuLabels;
+  /** Your own content above the rows. */
+  header?: React.ReactNode | ((context: MenuRenderContext) => React.ReactNode);
+  /** Your own content below the rows. */
+  footer?: React.ReactNode | ((context: MenuRenderContext) => React.ReactNode);
   dimensions?: MenuDimensions;
   /** @default false */
   unstyled?: boolean;
@@ -120,7 +195,10 @@ export interface MenuApi {
   toggle: () => void;
   /** Spread on your own element when `trigger` is unset. */
   getTriggerProps: (props?: PropsBag) => PropsBag;
+  /** The panel (header, search, list, footer). */
   getRootProps: (props?: PropsBag) => PropsBag;
+  /** The `role="menu"` list of rows. */
+  getListProps: (props?: PropsBag) => PropsBag;
   render: (props?: MenuRootProps) => React.ReactElement;
 }
 export type MenuComponent = PinfoldComponent<MenuApi, MenuRootProps>;

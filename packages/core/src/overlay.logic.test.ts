@@ -52,10 +52,14 @@ describe('typeaheadIndex', () => {
 
 describe('inactive options', () => {
   it('lists what has no effect', () => {
-    expect(Object.keys(inactivePopoverOptions({}))).toEqual(['delay', 'closeDelay']);
-    expect(inactivePopoverOptions({ openOn: 'hover' })).toEqual({});
-    expect(Object.keys(inactiveDialogOptions({ placement: 'end', closeButton: false, modal: false }))).toEqual(['size', 'closeLabel', 'closeOnOutside']);
-    expect(Object.keys(inactiveMenuOptions({ mode: 'context' }))).toEqual(['placement', 'offset']);
+    expect(Object.keys(inactivePopoverOptions({}))).toEqual(['delay', 'closeDelay', 'closeLabel']);
+    expect(inactivePopoverOptions({ openOn: 'hover', closeButton: true })).toEqual({ modal: expect.any(String) });
+    expect(Object.keys(inactivePopoverOptions({ closeButton: true, matchTriggerWidth: true }))).toEqual(['delay', 'closeDelay', 'size']);
+    expect(Object.keys(inactiveDialogOptions({ placement: 'end', closeButton: false, modal: false }))).toEqual(['closeLabel', 'closeOnOutside', 'closeOnOutsidePress', 'backdrop']);
+    expect(Object.keys(inactiveDialogOptions({ placement: 'bottom', size: 'lg', scrollBehavior: 'outside' }))).toEqual(['size', 'scrollBehavior']);
+    expect(Object.keys(inactiveDialogOptions({ placement: 'bottom', size: 'full', dismissible: false }))).toEqual(['closeLabel', 'closeButton', 'closeOnEscape', 'closeOnOutsidePress', 'closeOnOutside']);
+    expect(Object.keys(inactiveMenuOptions({ mode: 'context', searchable: true, selectionMode: 'single' }))).toEqual(['placement', 'offset']);
+    expect(Object.keys(inactiveMenuOptions({}))).toEqual(['filter', 'onSearchChange', 'value', 'defaultValue', 'onValueChange']);
   });
 });
 
