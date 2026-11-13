@@ -642,6 +642,44 @@
       ],
       "hook": "useCursor",
       "snippet": "<Pointer variant=\"blob\"><Gallery /></Pointer>"
+    },
+    {
+      "name": "treeview",
+      "import": "@pinfold/react/treeview",
+      "styles": "@pinfold/css/treeview.css",
+      "status": "experimental",
+      "description": "Nested data you can open, select, check, search and reorder: the WAI-ARIA tree with typeahead, tri-state checkboxes, lazy children and drag to reorder.",
+      "variants": [
+        "soft",
+        "solid",
+        "ghost"
+      ],
+      "hook": "useTreeView",
+      "snippet": "<TreeView label=\"Files\" items={[{ label: \"src\", children: [\"index.ts\"] }, \"package.json\"]} />"
+    },
+    {
+      "name": "fileupload",
+      "import": "@pinfold/react/fileupload",
+      "styles": "@pinfold/css/fileupload.css",
+      "status": "experimental",
+      "description": "Pick or drop files: a keyboard-first drop zone with rules and reasons, image previews, and uploads with progress, abort and retry.",
+      "variants": [
+        "dropzone",
+        "button",
+        "compact"
+      ],
+      "hook": "useFileUpload",
+      "snippet": "<FileUpload accept=\"image/*\" maxSize={5000000} name=\"photos\" />"
+    },
+    {
+      "name": "tour",
+      "import": "@pinfold/react/tour",
+      "styles": "@pinfold/css/tour.css",
+      "status": "experimental",
+      "description": "A guided tour over the real interface: an animated spotlight around each target, a card with Next, Back and Skip, progress, keyboard and focus handled.",
+      "variants": [],
+      "hook": "useTour",
+      "snippet": "<Tour defaultOpen steps={[{ target: \"#search\", title: \"Search\", content: \"Press / anywhere.\" }]} />"
     }
   ],
   "planned": [

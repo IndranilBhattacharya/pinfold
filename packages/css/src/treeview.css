@@ -1,0 +1,287 @@
+/* Pinfold — tree view. Drawn flat: each row is one line, indented by a guide per level, so the hairlines
+   of open levels join from row to row. A selected row is tinted (soft), filled (solid) or marked with a
+   bar (ghost); the focused row carries the ring. */
+
+@layer pinfold.components {
+  .pinfold-treeview {
+    --pinfold-tv-row-base: 2rem;
+    --pinfold-tv-indent-base: 1.25rem;
+    --pinfold-tv-gap: 0.5rem;
+    --pinfold-tv-icon: 1rem;
+    --pinfold-tv-pad: 0.375rem;
+    --pinfold-tv-font: var(--pinfold-text-sm);
+    --pinfold-tv-row: var(--pinfold-treeview-row-height, var(--pinfold-tv-row-base));
+    --pinfold-tv-indent: var(--pinfold-treeview-indent, var(--pinfold-tv-indent-base));
+    --pinfold-tv-radius: calc(var(--pinfold-control-radius-unit, 0.375rem) * var(--pinfold-radius-scale, 1));
+    --pinfold-tv-tone: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-tv-tone-text: var(--pinfold-tone-text, var(--pinfold-color-accent));
+    --pinfold-tv-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    --pinfold-tv-hover: color-mix(in oklab, var(--pinfold-color-text) 5.5%, transparent);
+    --pinfold-tv-line: color-mix(in oklab, var(--pinfold-color-border-strong) 80%, transparent);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--pinfold-space-2);
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-tv-font);
+    line-height: 1.4;
+    color: var(--pinfold-color-text);
+  }
+  .pinfold-treeview[data-size='sm'] { --pinfold-tv-row-base: 1.75rem; --pinfold-tv-indent-base: 1.125rem; --pinfold-tv-icon: 0.875rem; --pinfold-tv-gap: 0.375rem; --pinfold-tv-font: var(--pinfold-text-xs); }
+  .pinfold-treeview[data-size='lg'] { --pinfold-tv-row-base: 2.375rem; --pinfold-tv-indent-base: 1.5rem; --pinfold-tv-icon: 1.125rem; --pinfold-tv-gap: 0.625rem; --pinfold-tv-pad: 0.5rem; --pinfold-tv-font: var(--pinfold-text-md); }
+  .pinfold-treeview[data-density='compact'] { --pinfold-tv-row-base: 1.625rem; }
+  .pinfold-treeview[data-density='compact'][data-size='sm'] { --pinfold-tv-row-base: 1.375rem; }
+  .pinfold-treeview[data-density='compact'][data-size='lg'] { --pinfold-tv-row-base: 2rem; }
+
+  /* The search field. */
+  .pinfold-treeview__search {
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: calc(var(--pinfold-tv-row) + 0.25rem);
+    padding-inline: 0.625rem;
+    font: inherit;
+    color: var(--pinfold-color-text);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border: var(--pinfold-border-width, 1px) solid var(--pinfold-control-edge, var(--pinfold-color-border));
+    border-radius: var(--pinfold-tv-radius);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+    outline: none;
+  }
+  .pinfold-treeview__search::placeholder { color: var(--pinfold-color-text-subtle); }
+  .pinfold-treeview__search:focus-visible { border-color: var(--pinfold-color-border-accent); box-shadow: var(--pinfold-focus-ring); }
+
+  /* The tree. A little padding so a focus ring is never cut where the tree scrolls. */
+  .pinfold-treeview__tree {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    max-block-size: var(--pinfold-treeview-height, none);
+    block-size: var(--pinfold-treeview-height, auto);
+    margin: -0.1875rem;
+    padding: 0.1875rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    outline: none;
+  }
+
+  /* A row. */
+  .pinfold-treeview__item,
+  .pinfold-treeview__status {
+    position: relative;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: var(--pinfold-tv-row);
+    padding-inline: var(--pinfold-tv-pad);
+    border-radius: var(--pinfold-tv-radius);
+    outline: none;
+    cursor: default;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pinfold-treeview__item:hover { background-color: var(--pinfold-tv-hover); }
+  .pinfold-treeview[data-animate] .pinfold-treeview__item { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out), opacity var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+
+  /* Indent: one guide per level, its hairline under the chevron of the level above. */
+  .pinfold-treeview__guide,
+  .pinfold-treeview__toggle,
+  .pinfold-treeview__spacer {
+    position: relative;
+    flex: none;
+    align-self: stretch;
+    inline-size: var(--pinfold-tv-indent);
+  }
+  .pinfold-treeview[data-guides] .pinfold-treeview__guide::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: calc(50% - 0.5px);
+    inline-size: 1px;
+    background-color: var(--pinfold-tv-line);
+  }
+  .pinfold-treeview__item:first-child .pinfold-treeview__guide::before { inset-block-start: 0.25rem; }
+
+  .pinfold-treeview__toggle {
+    display: grid;
+    place-items: center;
+    color: var(--pinfold-color-text-subtle);
+    cursor: pointer;
+  }
+  .pinfold-treeview__toggle > svg { inline-size: 0.875rem; block-size: 0.875rem; }
+  .pinfold-treeview[data-animate] .pinfold-treeview__toggle > svg { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-treeview__toggle[data-expanded] > svg { transform: rotate(90deg); }
+  [dir='rtl'] .pinfold-treeview__toggle:not([data-expanded]) > svg { transform: scaleX(-1); }
+  .pinfold-treeview__item:hover > .pinfold-treeview__toggle { color: var(--pinfold-color-text-muted); }
+
+  /* The checkbox. */
+  .pinfold-treeview__checkbox {
+    display: grid;
+    place-items: center;
+    flex: none;
+    box-sizing: border-box;
+    inline-size: 1rem;
+    block-size: 1rem;
+    margin-inline-end: var(--pinfold-tv-gap);
+    color: var(--pinfold-tv-on);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border: 1.5px solid var(--pinfold-color-border-strong);
+    border-radius: calc(0.25rem * var(--pinfold-radius-scale, 1));
+  }
+  .pinfold-treeview__checkbox > svg { inline-size: 0.75rem; block-size: 0.75rem; }
+  .pinfold-treeview__checkbox[data-checked='true'],
+  .pinfold-treeview__checkbox[data-checked='mixed'] { background-color: var(--pinfold-tv-tone); border-color: var(--pinfold-tv-tone); }
+  .pinfold-treeview__item:hover > .pinfold-treeview__checkbox[data-checked='false'] { border-color: color-mix(in oklab, var(--pinfold-tv-tone) 60%, var(--pinfold-color-border-strong)); }
+  .pinfold-treeview__checkbox[data-disabled] { opacity: 0.5; }
+  .pinfold-treeview[data-animate] .pinfold-treeview__checkbox { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), border-color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+
+  .pinfold-treeview__icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--pinfold-tv-icon);
+    block-size: var(--pinfold-tv-icon);
+    margin-inline-end: var(--pinfold-tv-gap);
+    font-size: var(--pinfold-tv-icon);
+    line-height: 1;
+    color: var(--pinfold-color-text-muted);
+  }
+  .pinfold-treeview__icon > svg { inline-size: 100%; block-size: 100%; }
+  .pinfold-treeview__label {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pinfold-treeview__match {
+    color: inherit;
+    font-weight: var(--pinfold-weight-semibold);
+    background-color: color-mix(in oklab, var(--pinfold-tv-tone) 22%, transparent);
+    border-radius: 0.1875rem;
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--pinfold-tv-tone) 22%, transparent);
+  }
+  .pinfold-treeview__badge {
+    flex: none;
+    margin-inline-start: var(--pinfold-tv-gap);
+    padding: 0 0.4375rem;
+    font-size: var(--pinfold-text-xs);
+    font-weight: var(--pinfold-weight-medium);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25rem;
+    color: var(--pinfold-color-text-muted);
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 7%, transparent);
+    border-radius: var(--pinfold-radius-full);
+  }
+  .pinfold-treeview__handle {
+    display: grid;
+    place-items: center;
+    flex: none;
+    align-self: stretch;
+    inline-size: 1.25rem;
+    margin-inline: 0.25rem calc(var(--pinfold-tv-pad) * -0.5);
+    color: var(--pinfold-color-text-subtle);
+    cursor: grab;
+    touch-action: none;
+    opacity: 0;
+  }
+  .pinfold-treeview__handle > svg { inline-size: 0.875rem; block-size: 0.875rem; }
+  .pinfold-treeview__item:hover > .pinfold-treeview__handle,
+  .pinfold-treeview__item:focus-visible > .pinfold-treeview__handle,
+  .pinfold-treeview__item[data-drag-source] > .pinfold-treeview__handle { opacity: 1; }
+  .pinfold-treeview__handle:hover { color: var(--pinfold-color-text); }
+  .pinfold-treeview[data-animate] .pinfold-treeview__handle { transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+
+  /* Selected: soft (a tint), solid (filled) or ghost (text and a bar). */
+  .pinfold-treeview__item[data-selected] { color: var(--pinfold-tv-tone-text); font-weight: var(--pinfold-weight-medium); }
+  .pinfold-treeview__item[data-selected] > .pinfold-treeview__icon { color: var(--pinfold-tv-tone-text); }
+  .pinfold-treeview[data-variant='soft'] .pinfold-treeview__item[data-selected] { background-color: color-mix(in oklab, var(--pinfold-tv-tone) 13%, transparent); }
+  .pinfold-treeview[data-variant='soft'] .pinfold-treeview__item[data-selected]:hover { background-color: color-mix(in oklab, var(--pinfold-tv-tone) 18%, transparent); }
+  .pinfold-treeview[data-variant='solid'] .pinfold-treeview__item[data-selected] { color: var(--pinfold-tv-on); background-color: var(--pinfold-tv-tone); --pinfold-tv-line: color-mix(in oklab, var(--pinfold-tv-on) 35%, transparent); }
+  .pinfold-treeview[data-variant='solid'] .pinfold-treeview__item[data-selected] :is(.pinfold-treeview__icon, .pinfold-treeview__toggle, .pinfold-treeview__handle) { color: var(--pinfold-tv-on); }
+  .pinfold-treeview[data-variant='solid'] .pinfold-treeview__item[data-selected] .pinfold-treeview__badge { color: var(--pinfold-tv-on); background-color: color-mix(in oklab, var(--pinfold-tv-on) 20%, transparent); }
+  .pinfold-treeview[data-variant='ghost'] .pinfold-treeview__item[data-selected] { font-weight: var(--pinfold-weight-semibold); }
+  .pinfold-treeview[data-variant='ghost'] .pinfold-treeview__item[data-selected]::after {
+    content: '';
+    position: absolute;
+    inset-block: 0.3125rem;
+    inset-inline-start: 0;
+    inline-size: 2px;
+    background-color: var(--pinfold-tv-tone);
+    border-radius: var(--pinfold-radius-full);
+  }
+  /* With checkboxes, a checked row is not painted as selected: the box says it. */
+  .pinfold-treeview[data-checkable] .pinfold-treeview__item[data-selected] { color: inherit; font-weight: inherit; background-color: transparent; }
+  .pinfold-treeview[data-checkable] .pinfold-treeview__item[data-selected]::after { content: none; }
+  .pinfold-treeview[data-checkable] .pinfold-treeview__item[data-selected] > .pinfold-treeview__icon { color: var(--pinfold-color-text-muted); }
+  .pinfold-treeview[data-checkable] .pinfold-treeview__item[data-selected]:hover { background-color: var(--pinfold-tv-hover); }
+
+  .pinfold-treeview__item[data-disabled] { color: var(--pinfold-color-text-disabled); }
+  .pinfold-treeview__item[data-disabled] > .pinfold-treeview__icon { color: var(--pinfold-color-text-disabled); }
+  .pinfold-treeview[data-selection-mode='none'] .pinfold-treeview__item:not([data-disabled]),
+  .pinfold-treeview__item[data-has-children]:not([data-disabled]) { cursor: pointer; }
+
+  /* Loading and error rows. */
+  .pinfold-treeview__status { gap: 0; color: var(--pinfold-color-text-muted); font-size: 0.95em; }
+  .pinfold-treeview__status[data-status='error'] { color: var(--pinfold-color-danger); cursor: pointer; }
+  .pinfold-treeview__status[data-status='error']:hover { background-color: color-mix(in oklab, var(--pinfold-color-danger) 8%, transparent); }
+  .pinfold-treeview__spacer { display: grid; place-items: center; }
+  .pinfold-treeview__spinner {
+    box-sizing: border-box;
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    border: 1.5px solid color-mix(in oklab, currentColor 25%, transparent);
+    border-block-start-color: currentColor;
+    border-radius: var(--pinfold-radius-full);
+    animation: pinfold-treeview-spin 0.7s linear infinite;
+  }
+  .pinfold-treeview__status-text { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pinfold-treeview__retry { margin-inline-start: var(--pinfold-tv-gap); font-weight: var(--pinfold-weight-medium); text-decoration: underline; text-underline-offset: 2px; }
+  @keyframes pinfold-treeview-spin { to { transform: rotate(1turn); } }
+
+  .pinfold-treeview__empty { padding: var(--pinfold-space-4) var(--pinfold-space-3); text-align: center; color: var(--pinfold-color-text-muted); }
+
+  /* Dragging. */
+  .pinfold-treeview[data-dragging],
+  .pinfold-treeview[data-dragging] * { cursor: grabbing; }
+  .pinfold-treeview__item[data-drag-source] { opacity: 0.45; }
+  .pinfold-treeview__item[data-drop='before']::before,
+  .pinfold-treeview__item[data-drop='after']::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset-inline: calc(var(--pinfold-tv-pad) + var(--pinfold-tv-indent) * (var(--pinfold-treeview-i-depth, 0) + 1)) 0;
+    block-size: 2px;
+    background-color: var(--pinfold-tv-tone);
+    border-radius: var(--pinfold-radius-full);
+    pointer-events: none;
+  }
+  .pinfold-treeview__item[data-drop='before']::before { inset-block-start: -1px; }
+  .pinfold-treeview__item[data-drop='after']::before { inset-block-end: -1px; }
+  .pinfold-treeview__item[data-drop='inside'] { background-color: color-mix(in oklab, var(--pinfold-tv-tone) 12%, transparent); box-shadow: inset 0 0 0 1.5px var(--pinfold-tv-tone); }
+
+  /* The focus ring, after every variant. */
+  .pinfold-treeview__item:focus-visible,
+  .pinfold-treeview__status:focus-visible { box-shadow: var(--pinfold-focus-ring); }
+
+  @media (pointer: coarse) {
+    .pinfold-treeview__item,
+    .pinfold-treeview__status { min-block-size: max(var(--pinfold-tv-row), 2.75rem); }
+    .pinfold-treeview__handle { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pinfold-treeview__spinner { animation-duration: 1.6s; }
+  }
+  @media (forced-colors: active) {
+    .pinfold-treeview__item[data-selected] { color: HighlightText; background-color: Highlight; forced-color-adjust: none; }
+    .pinfold-treeview__checkbox { border-color: CanvasText; }
+    .pinfold-treeview__checkbox[data-checked='true'],
+    .pinfold-treeview__checkbox[data-checked='mixed'] { color: HighlightText; background-color: Highlight; border-color: Highlight; forced-color-adjust: none; }
+    .pinfold-treeview__item[data-drop]::before { background-color: Highlight; }
+    .pinfold-treeview[data-guides] .pinfold-treeview__guide::before { background-color: GrayText; }
+  }
+}

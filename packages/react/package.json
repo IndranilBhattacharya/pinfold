@@ -59,7 +59,10 @@
     "scrollarea",
     "appshell",
     "navbar",
-    "cursor"
+    "cursor",
+    "treeview",
+    "fileupload",
+    "tour"
   ],
   "license": "MIT",
   "homepage": "https://pinfold.indranildev.in",
@@ -565,6 +568,36 @@
         "default": "./dist/cursor/index.cjs"
       }
     },
+    "./treeview": {
+      "import": {
+        "types": "./dist/treeview/index.d.ts",
+        "default": "./dist/treeview/index.js"
+      },
+      "require": {
+        "types": "./dist/treeview/index.d.cts",
+        "default": "./dist/treeview/index.cjs"
+      }
+    },
+    "./fileupload": {
+      "import": {
+        "types": "./dist/fileupload/index.d.ts",
+        "default": "./dist/fileupload/index.js"
+      },
+      "require": {
+        "types": "./dist/fileupload/index.d.cts",
+        "default": "./dist/fileupload/index.cjs"
+      }
+    },
+    "./tour": {
+      "import": {
+        "types": "./dist/tour/index.d.ts",
+        "default": "./dist/tour/index.js"
+      },
+      "require": {
+        "types": "./dist/tour/index.d.cts",
+        "default": "./dist/tour/index.cjs"
+      }
+    },
     "./accordion/lazy": {
       "import": {
         "types": "./dist/accordion/lazy.d.ts",
@@ -725,6 +758,15 @@
       ],
       "cursor": [
         "./dist/cursor/index.d.cts"
+      ],
+      "treeview": [
+        "./dist/treeview/index.d.cts"
+      ],
+      "fileupload": [
+        "./dist/fileupload/index.d.cts"
+      ],
+      "tour": [
+        "./dist/tour/index.d.cts"
       ]
     }
   },
@@ -774,6 +816,9 @@
     "sidebar",
     "navmenu",
     "colorpicker",
+    "tour",
+    "fileupload",
+    "treeview",
     "cursor",
     "navbar",
     "appshell",

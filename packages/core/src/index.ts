@@ -58,3 +58,6 @@ export type {
 /** Package version. Set with `npm run version:set -- x.y.z` (versions.test.ts keeps every copy in sync). */
 export const version = '0.23.0';
 export * from './color.logic';
+export * from './treeview.logic';
+export * from './fileupload.logic';
+export * from './tour.logic';

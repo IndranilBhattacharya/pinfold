@@ -1,0 +1,217 @@
+/* Pinfold — file upload. The zone is a button: a dashed drop zone, a plain button, or a one-line zone.
+   It lights up in the tone while files are dragged over it (the danger tone when they break `accept`).
+   Files sit in a list of raised rows, with a thumbnail, their size and status, and a progress line. */
+
+@layer pinfold.components {
+  .pinfold-fileupload {
+    --pinfold-fu-tone: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-fu-tone-text: var(--pinfold-tone-text, var(--pinfold-color-accent));
+    --pinfold-fu-radius: calc(var(--pinfold-control-radius-unit, 0.375rem) * var(--pinfold-radius-scale, 1));
+    --pinfold-fu-zone-radius: calc(var(--pinfold-control-radius-unit, 0.375rem) * 2 * var(--pinfold-radius-scale, 1));
+    --pinfold-fu-min-h: 9.5rem;
+    --pinfold-fu-pad: var(--pinfold-space-6);
+    --pinfold-fu-icon: 2.75rem;
+    --pinfold-fu-thumb: var(--pinfold-fileupload-thumb-size, 2.5rem);
+    --pinfold-fu-edge: var(--pinfold-control-edge, var(--pinfold-color-border));
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--pinfold-space-3);
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-text-sm);
+    line-height: 1.45;
+    color: var(--pinfold-color-text);
+  }
+  .pinfold-fileupload[data-size='sm'] { --pinfold-fu-min-h: 7.5rem; --pinfold-fu-pad: var(--pinfold-space-4); --pinfold-fu-icon: 2.25rem; --pinfold-fu-thumb: var(--pinfold-fileupload-thumb-size, 2rem); font-size: var(--pinfold-text-xs); }
+  .pinfold-fileupload[data-size='lg'] { --pinfold-fu-min-h: 12rem; --pinfold-fu-pad: var(--pinfold-space-8); --pinfold-fu-icon: 3.25rem; --pinfold-fu-thumb: var(--pinfold-fileupload-thumb-size, 3rem); font-size: var(--pinfold-text-md); }
+
+  /* The zone. */
+  .pinfold-fileupload__zone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pinfold-space-3);
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: var(--pinfold-fileupload-min-height, var(--pinfold-fu-min-h));
+    margin: 0;
+    padding: var(--pinfold-fu-pad);
+    font: inherit;
+    text-align: center;
+    color: inherit;
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 2.5%, var(--pinfold-control-surface, var(--pinfold-color-surface)));
+    border: 1.5px dashed color-mix(in oklab, var(--pinfold-color-border-strong) 85%, var(--pinfold-color-text-subtle));
+    border-radius: var(--pinfold-fu-zone-radius);
+    outline: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pinfold-fileupload[data-animate] .pinfold-fileupload__zone { transition: background-color var(--pinfold-duration-md) var(--pinfold-ease-out), border-color var(--pinfold-duration-md) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-fileupload__zone:hover { background-color: color-mix(in oklab, var(--pinfold-fu-tone) 4%, var(--pinfold-control-surface, var(--pinfold-color-surface))); border-color: color-mix(in oklab, var(--pinfold-fu-tone) 55%, var(--pinfold-color-border-strong)); }
+  .pinfold-fileupload__zone[data-dragging] { background-color: color-mix(in oklab, var(--pinfold-fu-tone) 9%, var(--pinfold-control-surface, var(--pinfold-color-surface))); border-color: var(--pinfold-fu-tone); border-style: solid; box-shadow: 0 0 0 4px color-mix(in oklab, var(--pinfold-fu-tone) 14%, transparent); }
+  .pinfold-fileupload__zone[data-invalid] { --pinfold-fu-tone: var(--pinfold-color-danger); --pinfold-fu-tone-text: var(--pinfold-color-danger); }
+  .pinfold-fileupload[data-disabled] .pinfold-fileupload__zone { cursor: not-allowed; opacity: 0.55; background-color: color-mix(in oklab, var(--pinfold-color-text) 3%, transparent); border-color: var(--pinfold-color-border); }
+
+  .pinfold-fileupload__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: var(--pinfold-fu-icon);
+    block-size: var(--pinfold-fu-icon);
+    color: var(--pinfold-fu-tone-text);
+    background-color: color-mix(in oklab, var(--pinfold-fu-tone) 12%, transparent);
+    border-radius: var(--pinfold-radius-full);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--pinfold-fu-tone) 18%, transparent);
+  }
+  .pinfold-fileupload__icon > svg { inline-size: 46%; block-size: 46%; }
+  .pinfold-fileupload[data-animate] .pinfold-fileupload__icon { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-spring, var(--pinfold-ease-out)); }
+  .pinfold-fileupload__zone[data-dragging] .pinfold-fileupload__icon { transform: translateY(-3px) scale(1.06); }
+  .pinfold-fileupload__text { display: flex; flex-direction: column; align-items: center; gap: var(--pinfold-space-1); min-inline-size: 0; }
+  .pinfold-fileupload__title { font-weight: var(--pinfold-weight-medium); }
+  .pinfold-fileupload__browse { font-weight: var(--pinfold-weight-semibold); color: var(--pinfold-fu-tone-text); text-decoration: underline; text-decoration-color: color-mix(in oklab, currentColor 35%, transparent); text-underline-offset: 3px; }
+  .pinfold-fileupload__zone:hover .pinfold-fileupload__browse { text-decoration-color: currentColor; }
+  .pinfold-fileupload__description { font-size: var(--pinfold-text-xs); color: var(--pinfold-color-text-muted); }
+
+  /* Compact: one line. */
+  .pinfold-fileupload[data-variant='compact'] .pinfold-fileupload__zone { flex-direction: row; justify-content: flex-start; gap: var(--pinfold-space-3); min-block-size: 0; padding: var(--pinfold-space-3) var(--pinfold-space-4); text-align: start; }
+  .pinfold-fileupload[data-variant='compact'] { --pinfold-fu-icon: 2.25rem; }
+  .pinfold-fileupload[data-variant='compact'] .pinfold-fileupload__text { align-items: flex-start; }
+  .pinfold-fileupload[data-variant='compact'] > .pinfold-fileupload__description { margin-block-start: calc(var(--pinfold-space-2) * -1); }
+
+  /* Button: a raised control with the hint beside it. */
+  .pinfold-fileupload__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--pinfold-space-2) var(--pinfold-space-3); min-inline-size: 0; }
+  .pinfold-fileupload[data-variant='button'] { --pinfold-fu-icon: 1rem; }
+  .pinfold-fileupload[data-variant='button'] .pinfold-fileupload__zone {
+    flex-direction: row;
+    gap: var(--pinfold-space-2);
+    inline-size: auto;
+    min-block-size: 2.25rem;
+    padding: 0 var(--pinfold-space-4) 0 var(--pinfold-space-3);
+    font-weight: var(--pinfold-weight-medium);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border: var(--pinfold-border-width, 1px) solid var(--pinfold-fu-edge);
+    border-radius: var(--pinfold-fu-radius);
+    box-shadow: var(--pinfold-highlight), var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+  }
+  .pinfold-fileupload[data-variant='button'] .pinfold-fileupload__zone:hover { background-color: var(--pinfold-color-surface-hover); }
+  .pinfold-fileupload[data-variant='button'] .pinfold-fileupload__zone[data-dragging] { border-color: var(--pinfold-fu-tone); box-shadow: 0 0 0 3px color-mix(in oklab, var(--pinfold-fu-tone) 18%, transparent); }
+  .pinfold-fileupload[data-variant='button'] .pinfold-fileupload__icon { background: none; box-shadow: none; }
+  .pinfold-fileupload[data-variant='button'] .pinfold-fileupload__icon > svg { inline-size: 100%; block-size: 100%; }
+  .pinfold-fileupload[data-variant='button'] .pinfold-fileupload__browse { color: inherit; font-weight: inherit; text-decoration: none; }
+
+  .pinfold-fileupload__zone:focus-visible { box-shadow: var(--pinfold-focus-ring); }
+
+  /* Rejected files. */
+  .pinfold-fileupload__rejections {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--pinfold-space-3);
+    padding: var(--pinfold-space-3) var(--pinfold-space-3) var(--pinfold-space-3) var(--pinfold-space-4);
+    font-size: var(--pinfold-text-xs);
+    background-color: color-mix(in oklab, var(--pinfold-color-danger) 7%, transparent);
+    border: 1px solid color-mix(in oklab, var(--pinfold-color-danger) 28%, transparent);
+    border-radius: var(--pinfold-fu-radius);
+  }
+  .pinfold-fileupload__rejections > ul { flex: 1; display: flex; flex-direction: column; gap: var(--pinfold-space-1); min-inline-size: 0; margin: 0; padding: 0; list-style: none; }
+  .pinfold-fileupload__rejection { display: flex; align-items: flex-start; gap: var(--pinfold-space-2); min-inline-size: 0; overflow-wrap: anywhere; }
+  .pinfold-fileupload__rejection > svg { flex: none; inline-size: 0.875rem; block-size: 0.875rem; margin-block-start: 0.125rem; color: var(--pinfold-color-danger); }
+  .pinfold-fileupload__rejection strong { font-weight: var(--pinfold-weight-semibold); }
+  .pinfold-fileupload__dismiss {
+    flex: none;
+    margin: -0.25rem 0;
+    padding: 0.25rem 0.5rem;
+    font: inherit;
+    font-weight: var(--pinfold-weight-medium);
+    color: var(--pinfold-color-danger);
+    background: none;
+    border: 0;
+    border-radius: var(--pinfold-radius-sm, 0.25rem);
+    cursor: pointer;
+    outline: none;
+  }
+  .pinfold-fileupload__dismiss:hover { background-color: color-mix(in oklab, var(--pinfold-color-danger) 10%, transparent); }
+  .pinfold-fileupload__dismiss:focus-visible { box-shadow: var(--pinfold-focus-ring); }
+
+  /* The list. */
+  .pinfold-fileupload__list { display: flex; flex-direction: column; gap: var(--pinfold-space-2); margin: 0; padding: 0; list-style: none; min-inline-size: 0; }
+  .pinfold-fileupload__item {
+    display: flex;
+    align-items: center;
+    gap: var(--pinfold-space-3);
+    min-inline-size: 0;
+    padding: var(--pinfold-space-2) var(--pinfold-space-2) var(--pinfold-space-2) var(--pinfold-space-2);
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border: var(--pinfold-border-width, 1px) solid var(--pinfold-fu-edge);
+    border-radius: calc(var(--pinfold-fu-radius) + 0.25rem);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
+  }
+  .pinfold-fileupload__item[data-status='error'] { border-color: color-mix(in oklab, var(--pinfold-color-danger) 40%, var(--pinfold-fu-edge)); background-color: color-mix(in oklab, var(--pinfold-color-danger) 4%, var(--pinfold-control-surface, var(--pinfold-color-surface))); }
+  .pinfold-fileupload__thumb {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: var(--pinfold-fu-thumb);
+    block-size: var(--pinfold-fu-thumb);
+    overflow: hidden;
+    color: var(--pinfold-color-text-muted);
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent);
+    border-radius: var(--pinfold-fu-radius);
+  }
+  .pinfold-fileupload__thumb > svg { inline-size: 50%; block-size: 50%; }
+  .pinfold-fileupload__thumb > img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+  .pinfold-fileupload__info { display: flex; flex: 1 1 auto; flex-direction: column; gap: 0.125rem; min-inline-size: 0; }
+  .pinfold-fileupload__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--pinfold-weight-medium); }
+  .pinfold-fileupload__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--pinfold-space-2); font-size: var(--pinfold-text-xs); color: var(--pinfold-color-text-muted); font-variant-numeric: tabular-nums; }
+  .pinfold-fileupload__meta > * + *::before { content: '·'; margin-inline-end: var(--pinfold-space-2); color: var(--pinfold-color-text-subtle); }
+  .pinfold-fileupload__status { display: inline-flex; align-items: center; gap: 0.25rem; min-inline-size: 0; }
+  .pinfold-fileupload__status > svg { inline-size: 0.8125rem; block-size: 0.8125rem; }
+  .pinfold-fileupload__item[data-status='done'] .pinfold-fileupload__status { color: var(--pinfold-color-success); }
+  .pinfold-fileupload__item[data-status='error'] .pinfold-fileupload__status { color: var(--pinfold-color-danger); }
+  .pinfold-fileupload__progress { position: relative; display: block; block-size: 0.25rem; margin-block-start: 0.25rem; overflow: hidden; background-color: color-mix(in oklab, var(--pinfold-color-text) 10%, transparent); border-radius: var(--pinfold-radius-full); }
+  .pinfold-fileupload__bar { position: absolute; inset-block: 0; inset-inline-start: 0; background-color: var(--pinfold-fu-tone); border-radius: inherit; }
+  .pinfold-fileupload[data-animate] .pinfold-fileupload__bar { transition: inline-size var(--pinfold-duration-md) var(--pinfold-ease-out); }
+  .pinfold-fileupload__item[data-status='queued'] .pinfold-fileupload__bar { inline-size: 0; }
+  .pinfold-fileupload__actions { display: flex; flex: none; align-items: center; gap: 0.125rem; }
+  .pinfold-fileupload__retry,
+  .pinfold-fileupload__remove {
+    display: grid;
+    place-items: center;
+    inline-size: 1.875rem;
+    block-size: 1.875rem;
+    margin: 0;
+    padding: 0;
+    color: var(--pinfold-color-text-muted);
+    background: none;
+    border: 0;
+    border-radius: var(--pinfold-fu-radius);
+    cursor: pointer;
+    outline: none;
+  }
+  .pinfold-fileupload__retry > svg,
+  .pinfold-fileupload__remove > svg { inline-size: 0.9375rem; block-size: 0.9375rem; }
+  .pinfold-fileupload__retry:hover,
+  .pinfold-fileupload__remove:hover { color: var(--pinfold-color-text); background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); }
+  .pinfold-fileupload__retry { color: var(--pinfold-color-danger); }
+  .pinfold-fileupload__retry:focus-visible,
+  .pinfold-fileupload__remove:focus-visible { box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-fileupload__remove[aria-disabled='true'] { cursor: not-allowed; opacity: 0.5; }
+
+  @media (pointer: coarse) {
+    .pinfold-fileupload__retry,
+    .pinfold-fileupload__remove { inline-size: 2.75rem; block-size: 2.75rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pinfold-fileupload__zone[data-dragging] .pinfold-fileupload__icon { transform: none; }
+  }
+  @media (forced-colors: active) {
+    .pinfold-fileupload__zone[data-dragging] { border-color: Highlight; }
+    .pinfold-fileupload__bar { background-color: Highlight; forced-color-adjust: none; }
+    .pinfold-fileupload__rejections { border-color: CanvasText; }
+  }
+}
