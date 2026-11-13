@@ -29,7 +29,7 @@ export const tourMeta: ComponentMeta = {
       group: 'data',
       items: {
         id: { type: 'string', description: 'Names the step (handed back in events).', group: 'data' },
-        target: { type: 'string', description: 'What to point at: a CSS selector, a ref, or `() => Element`. None: the card sits in the middle.', group: 'data' },
+        target: { type: 'node', description: 'What to point at: a CSS selector, a ref, or `() => Element`. None: the card sits in the middle.', group: 'data' },
         title: { type: 'node', description: 'The card\'s heading.', group: 'data' },
         content: { type: 'node', description: 'The card\'s text, or anything.', group: 'data' },
         placement: { type: 'enum', values: PLACEMENTS, description: 'This step\'s side of the target.', group: 'appearance' },
