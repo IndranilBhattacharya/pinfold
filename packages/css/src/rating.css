@@ -33,6 +33,14 @@
   [dir='rtl'] .pinfold-rating[data-animate]:not([data-readonly]):not([data-disabled]) .pinfold-rating__symbol:hover { transform: scaleX(-1.15) scaleY(1.15); }
   .pinfold-rating[data-disabled] .pinfold-rating__symbols { opacity: 0.5; cursor: not-allowed; }
   .pinfold-rating__value { font-weight: var(--pinfold-weight-semibold); font-variant-numeric: tabular-nums; }
+  /* Your own empty symbol (an outline) is drawn, not faded to a ghost. */
+  .pinfold-rating__empty[data-own] { color: color-mix(in oklab, var(--pinfold-color-text) 40%, transparent); }
+  .pinfold-rating__symbol > span > :not(svg) { display: inline-grid; place-items: center; inline-size: 100%; block-size: 100%; font-size: calc(var(--pinfold-rtg-size) * 0.8); line-height: 1; }
+  /* A preview under the pointer is a touch lighter than the chosen value. */
+  .pinfold-rating[data-previewing] .pinfold-rating__full { opacity: 0.8; }
+  .pinfold-rating[data-animate] .pinfold-rating__full { transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+  .pinfold-rating__hint { min-inline-size: 4.5em; font-weight: var(--pinfold-weight-medium); color: var(--pinfold-color-text-muted); }
+  .pinfold-rating__hint[data-preview] { color: var(--pinfold-color-text); }
 
   @media (forced-colors: active) {
     .pinfold-rating__full { forced-color-adjust: none; color: Highlight; }

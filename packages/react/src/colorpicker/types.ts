@@ -2,8 +2,9 @@ import type * as React from 'react';
 import type { ColorFormat, PinfoldSize, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
+import type { FieldStatus, FieldValidationApi, FieldValidationConfig } from '../field';
 
-export type ColorPickerSlot = 'root' | 'area' | 'thumb' | 'controls' | 'hue' | 'alpha' | 'preview' | 'eyedropper' | 'field' | 'input' | 'swatches' | 'swatch';
+export type ColorPickerSlot = 'root' | 'area' | 'thumb' | 'controls' | 'hue' | 'alpha' | 'preview' | 'eyedropper' | 'field' | 'input' | 'swatches' | 'swatchGroup' | 'swatchLabel' | 'swatch' | 'description' | 'error' | 'statusIcon' | 'validating';
 export type ColorPickerFormat = ColorFormat;
 
 /** The colour in every form, passed to `onChange`. */
@@ -23,13 +24,27 @@ export interface ColorPickerState {
   /** The colour as text in `format`. */
   value: string;
   disabled: boolean;
+  invalid: boolean;
+  /** The resolved status: an error, or a warning or success from `status` or `validate`. */
+  status: FieldStatus | null;
+  /** An async `validate` is running. */
+  validating: boolean;
+}
+
+/** A swatch: a colour, or a colour with its own name ("Brand blue"). */
+export type ColorPickerSwatch = string | { value: string; label?: string };
+
+/** A named row of swatches: `{ label: 'Brand', colors: ['#4f46e5', '#0ea5e9'] }`. */
+export interface ColorPickerSwatchGroup {
+  label: string;
+  colors: readonly ColorPickerSwatch[];
 }
 
 /**
  *   const BrandColor = defineColorPicker({ format: 'oklch', alpha: true });
  *   <BrandColor label="Brand colour" value={color} onChange={setColor} swatches={['#4f46e5', '#0ea5e9']} />
  */
-export interface ColorPickerConfig extends SlotOverrides<ColorPickerSlot, ColorPickerState> {
+export interface ColorPickerConfig extends Pick<FieldValidationConfig<string>, 'error' | 'validate' | 'validateOn' | 'onValidate' | 'status'>, SlotOverrides<ColorPickerSlot, ColorPickerState, ColorPickerSwatchContext> {
   /** Names the picker, e.g. "Brand colour". */
   label: string;
   /** Any CSS colour in hex, rgb(), hsl() or oklch(), controlled. */
@@ -42,8 +57,15 @@ export interface ColorPickerConfig extends SlotOverrides<ColorPickerSlot, ColorP
   format?: ColorPickerFormat;
   /** An opacity slider. @default false */
   alpha?: boolean;
-  /** Colours one press away. */
-  swatches?: readonly string[];
+  /**
+   * Colours one press away: colours, named colours `{ value, label }`, or named rows of them
+   * `{ label: 'Brand', colors: [...] }` (presets).
+   */
+  swatches?: ReadonlyArray<ColorPickerSwatch | ColorPickerSwatchGroup>;
+  /** Help text under the picker, linked with `aria-describedby`. */
+  description?: React.ReactNode;
+  /** Marks the picker invalid without a message. @default false */
+  invalid?: boolean;
   /** The text field for typing or pasting a colour. @default true */
   showInput?: boolean;
   /** A button that picks a colour from the screen, where the browser can (EyeDropper API). @default true */
@@ -67,7 +89,20 @@ export interface ColorPickerConfig extends SlotOverrides<ColorPickerSlot, ColorP
 export type ColorPickerRootProps = Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'onChange' | 'defaultValue'> & { [key: `data-${string}`]: unknown };
 export type ColorPickerTagProps = ColorPickerConfig & Omit<ColorPickerRootProps, keyof ColorPickerConfig>;
 
-export interface ColorPickerApi {
+/** One swatch, as a `render.swatch` override gets it. */
+export interface ColorPickerSwatchContext {
+  /** The colour as written. */
+  value: string;
+  /** Its name: its `label`, else the colour. */
+  label: string;
+  /** The colour is the current one. */
+  selected: boolean;
+  /** Its row's label, for a swatch in a group. */
+  group?: string;
+  index: number;
+}
+
+export interface ColorPickerApi extends FieldValidationApi {
   /** The colour as text in `format`. */
   value: string;
   /** Set it from any CSS colour; ignored when it does not parse. */

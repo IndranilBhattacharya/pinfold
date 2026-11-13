@@ -171,7 +171,7 @@ describe('Combobox', () => {
 describePinfoldConformance({
   name: 'select',
   slots: ['root', 'label', 'control', 'value', 'chevron'],
-  optionalSlots: ['placeholder', 'chip', 'clear', 'popup', 'group', 'groupLabel', 'option', 'check', 'icon', 'detail', 'description', 'empty', 'error'],
+  optionalSlots: ['placeholder', 'chip', 'chipRemove', 'clear', 'popup', 'group', 'groupLabel', 'option', 'check', 'avatar', 'icon', 'detail', 'endContent', 'description', 'empty', 'error', 'statusIcon', 'validating'],
   cssFile: 'packages/css/src/select.css',
   meta: selectMeta,
   preset: { define: defineSelect as any, props: { label: 'Size', items: ['S', 'M'] } },
@@ -183,7 +183,7 @@ describePinfoldConformance({
   name: 'combobox',
   block: 'select',
   slots: ['root', 'label', 'control', 'input', 'chevron'],
-  optionalSlots: ['chip', 'clear', 'popup', 'group', 'groupLabel', 'option', 'check', 'icon', 'detail', 'empty', 'description', 'error'],
+  optionalSlots: ['values', 'chips', 'chip', 'chipRemove', 'clear', 'popup', 'group', 'groupLabel', 'option', 'check', 'avatar', 'icon', 'detail', 'endContent', 'empty', 'loadMore', 'description', 'error', 'statusIcon', 'validating'],
   cssFile: 'packages/css/src/select.css',
   meta: comboboxMeta,
   preset: { define: defineCombobox as any, props: { label: 'City', items: ['Oslo'] } },

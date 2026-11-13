@@ -29,6 +29,17 @@
   .pinfold-colorpicker[data-size='sm'] { --pinfold-cp-area: 8rem; --pinfold-cp-knob: 1rem; inline-size: 14rem; }
   .pinfold-colorpicker[data-size='lg'] { --pinfold-cp-area: 12.5rem; --pinfold-cp-knob: 1.25rem; inline-size: 19rem; }
   .pinfold-colorpicker[data-disabled] { opacity: 0.6; }
+  /* Validation: the field tokens, so the message lines read as every field's do. */
+  .pinfold-colorpicker {
+    --pinfold-fld-danger: color-mix(in oklab, var(--pinfold-color-danger) 82%, var(--pinfold-color-text));
+    --pinfold-fld-status: var(--pinfold-fld-danger);
+  }
+  .pinfold-colorpicker[data-validity='warning'] { --pinfold-fld-status: color-mix(in oklab, var(--pinfold-color-warning) 88%, var(--pinfold-color-text)); }
+  .pinfold-colorpicker[data-validity='success'] { --pinfold-fld-status: color-mix(in oklab, var(--pinfold-color-success) 88%, var(--pinfold-color-text)); }
+  .pinfold-colorpicker[data-validity] { border-color: color-mix(in oklab, var(--pinfold-fld-status) 60%, var(--pinfold-control-edge, var(--pinfold-color-border))); }
+  .pinfold-colorpicker[data-invalid] .pinfold-colorpicker__input { border-color: var(--pinfold-fld-danger); }
+  .pinfold-colorpicker__description,
+  .pinfold-colorpicker__error { margin-block-start: -0.25rem; font-size: 0.8125rem; line-height: 1.4; }
 
   .pinfold-colorpicker__area {
     position: relative;
@@ -137,6 +148,11 @@
   .pinfold-colorpicker__input[aria-invalid='true'] { border-color: var(--pinfold-color-danger); }
 
   .pinfold-colorpicker__swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(1.5rem, 1fr)); gap: 0.375rem; }
+  /* Named rows (presets): a small heading over each row, the rows a little apart. */
+  .pinfold-colorpicker__swatches[data-grouped] { display: flex; flex-direction: column; gap: 0.625rem; }
+  .pinfold-colorpicker__swatchGroup { display: flex; flex-direction: column; gap: 0.375rem; }
+  .pinfold-colorpicker__swatchLabel { font-size: 0.75rem; font-weight: var(--pinfold-weight-medium); color: var(--pinfold-color-text-muted); }
+  .pinfold-colorpicker__swatchRow { display: grid; grid-template-columns: repeat(auto-fill, minmax(1.5rem, 1fr)); gap: 0.375rem; }
   .pinfold-colorpicker__swatch {
     aspect-ratio: 1;
     min-block-size: 1.5rem;

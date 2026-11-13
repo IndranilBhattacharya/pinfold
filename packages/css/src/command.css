@@ -71,7 +71,11 @@
   .pinfold-command__icon { display: inline-grid; flex-shrink: 0; place-items: center; inline-size: 1.75rem; block-size: 1.75rem; color: var(--pinfold-color-text-muted); background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, transparent); border-radius: var(--pinfold-radius-sm); }
   .pinfold-command__option[data-active] .pinfold-command__icon { color: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 84%, var(--pinfold-color-text)); }
   .pinfold-command__icon > svg { inline-size: 1rem; block-size: 1rem; }
+  .pinfold-command__avatar { display: inline-grid; flex-shrink: 0; place-items: center; inline-size: 1.75rem; block-size: 1.75rem; overflow: hidden; font-size: 0.75em; font-weight: var(--pinfold-weight-semibold); color: var(--pinfold-color-text-muted); background-color: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent); border-radius: var(--pinfold-radius-full); }
+  .pinfold-command__avatar > img { inline-size: 100%; block-size: 100%; object-fit: cover; }
   .pinfold-command__detail { font-size: 0.875em; color: var(--pinfold-color-text-muted); }
+  .pinfold-command__endContent { display: inline-flex; flex-shrink: 0; align-items: center; gap: 0.25rem; margin-inline-start: auto; font-size: 0.8125em; color: var(--pinfold-color-text-muted); }
+  .pinfold-command__endContent + .pinfold-command__shortcut { margin-inline-start: 0.5rem; }
   .pinfold-command__shortcut { margin-inline-start: auto; }
   .pinfold-command__shortcut,
   .pinfold-command__footer kbd {
@@ -100,7 +104,10 @@
     color: var(--pinfold-color-text-muted);
     border-block-start: var(--pinfold-border-width) solid var(--pinfold-color-border);
   }
-  .pinfold-command__footer span { display: inline-flex; align-items: center; gap: 0.25rem; }
+  .pinfold-command__hints { display: inline-flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
+  .pinfold-command__hint { display: inline-flex; align-items: center; gap: 0.25rem; }
+  .pinfold-command__footerContent { display: inline-flex; align-items: center; gap: 0.375rem; margin-inline-start: auto; }
+  .pinfold-command__loadMore { padding-block: 0.625rem; font-size: 0.875em; }
 
   /* As a dialog: near the top, over a dimmed and blurred page. */
   dialog.pinfold-command {

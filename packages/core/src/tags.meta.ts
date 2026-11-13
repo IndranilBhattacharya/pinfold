@@ -1,6 +1,6 @@
 import type { ComponentMeta, PropMeta } from './meta';
 
-const SLOTS = ['root', 'label', 'list', 'tag', 'icon', 'text', 'remove', 'more', 'empty'] as const;
+const SLOTS = ['root', 'label', 'body', 'list', 'tag', 'icon', 'text', 'editInput', 'remove', 'more', 'add', 'empty'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -33,6 +33,7 @@ export const tagsMeta: ComponentMeta = {
         tone: { type: 'enum', values: TONES, description: 'This tag\'s colour.', group: 'appearance' },
         href: { type: 'string', description: 'A link, routed by the provider\'s `navigate`.', group: 'data' },
         removable: { type: 'boolean', description: 'With `onRemove`, every tag can go; `false` keeps this one.', group: 'behaviour' },
+        editable: { type: 'boolean', description: 'With `onEdit`, every tag can be renamed; `false` keeps this one.', group: 'behaviour' },
         disabled: { type: 'boolean', description: 'Shown, never chosen or removed.', group: 'behaviour' },
       },
     },
@@ -48,10 +49,16 @@ export const tagsMeta: ComponentMeta = {
     defaultValue: { type: 'string[]', description: 'The chosen values when uncontrolled.', group: 'data' },
     onChange: { type: 'function', description: '`(values, event) => void` when the choice changes.', group: 'events' },
     onRemove: { type: 'function', description: '`(value, event) => void`: tags get a remove button (a mark plus Delete when they can be picked); focus moves to the next tag.', group: 'events' },
+    onAdd: { type: 'function', description: '`(text, event) => void`: a text field after the tags; Enter (or a `delimiters` key, or a paste with them) hands you the trimmed text. Add it in your state.', group: 'events' },
+    addLabel: { type: 'string', default: 'Add tag', description: 'The add field\'s placeholder and name.', group: 'data' },
+    delimiters: { type: 'string[]', description: 'Keys that also add what is typed, e.g. `[","]`; pasted text is split on them.', group: 'behaviour' },
+    onEdit: { type: 'function', description: '`(value, text, event) => void`: tags can be renamed in place (the text is a button on tags to read; F2 or a double-click on tags to pick). Enter or leaving keeps, Escape cancels.', group: 'events' },
+    editLabel: { type: 'string', default: 'Rename', description: 'Starts the rename button\'s and field\'s name: "Rename React".', group: 'data' },
+    onReorder: { type: 'function', description: '`(values, event) => void`: tags can be dragged, or moved with Alt + Left / Right; you get the new order. The move is announced politely.', group: 'events' },
     maxVisible: { type: 'number', description: 'Tags shown before a "+3" button that shows the rest.', group: 'behaviour' },
     moreLabel: { type: 'string', default: 'Show all', description: 'The "+3" button\'s name.', group: 'data' },
     removeLabel: { type: 'string', default: 'Remove', description: 'Starts each remove button\'s name: "Remove React".', group: 'data' },
-    removeHint: { type: 'string', default: 'Press Delete to remove', description: 'Read with a removable tag that can be picked.', group: 'data' },
+    removeHint: { type: 'string', default: 'Press Delete to remove', description: 'Read with a tag that can be picked and removed; with `onEdit` or `onReorder` the default adds "F2 to rename" and "Alt and an arrow key to move".', group: 'data' },
     emptyText: { type: 'node', description: 'Shown when there are no tags.', group: 'data' },
     variant: { type: 'enum', values: ['soft', 'solid', 'outline'], default: 'soft', description: 'Tinted, filled, or framed. Chosen tags fill with the tone.', group: 'appearance', control: true },
     radius: { type: 'enum', values: ['sm', 'md', 'full'], default: 'full', description: 'Corner shape: tight, the theme radius, or a pill.', group: 'appearance', control: true },
@@ -70,12 +77,17 @@ export const tagsMeta: ComponentMeta = {
     { keys: 'Arrow keys / Home / End', action: 'Tags to pick: move between tags, following the reading direction; wraps.' },
     { keys: 'Space / Enter', action: 'Pick or unpick the focused tag.' },
     { keys: 'Delete / Backspace', action: 'Remove the focused tag (with `onRemove`); focus moves to the next.' },
+    { keys: 'F2 / double-click', action: 'Tags to pick, with `onEdit`: rename the focused tag. Enter keeps, Escape cancels.' },
+    { keys: 'Alt + ArrowLeft / ArrowRight', action: 'With `onReorder`: move the tag (from the tag, or any of its buttons).' },
+    { keys: 'Enter / delimiters', action: 'In the add field (`onAdd`): add what is typed. Backspace in the empty field goes back to the last tag.' },
   ],
   aria: [
     'Tags to read are a list named by `label`; each remove button is named "Remove <tag>".',
     'Tags to pick are a `listbox` (`aria-multiselectable` with `multiple`, horizontal) of `option`s with `aria-selected`, one tab stop.',
     'A tag that can be picked and removed has `aria-keyshortcuts="Delete"` and is described by `removeHint`; its mark is for pointers (a button inside an option is not allowed).',
     'Picked tags are filled and bold, never colour alone.',
+    'The add field is a text input named by `addLabel`. A rename field is named "Rename <tag>" and returns focus to the tag when done.',
+    'Reordering also works with Alt + arrow keys (`aria-keyshortcuts`); each move is read from a polite live region ("React: 2 of 5").',
   ],
   dataAttributes: [
     { name: 'data-variant', on: 'root', values: '"soft" | "solid" | "outline"' },
@@ -83,11 +95,18 @@ export const tagsMeta: ComponentMeta = {
     { name: 'data-selection', on: 'root', values: '"single" | "multiple" when tags can be picked' },
     { name: 'data-selected', on: 'tag', values: 'present on picked tags' },
     { name: 'data-tone', on: 'tag', values: 'the tag\'s own tone' },
+    { name: 'data-editing', on: 'tag', values: 'present while it is renamed' },
+    { name: 'data-dragging / data-drop', on: 'tag', values: 'the tag being dragged; the tag it would drop on' },
+    { name: 'data-reorderable', on: 'root', values: 'present with `onReorder`' },
   ],
   cssVariables: [],
   examples: [
     { title: 'Filters to remove', code: "import { defineTags } from '@pinfold/react/tags';\n\nexport const Chips = defineTags();\n\n<Chips label=\"Filters\" items={filters} onRemove={(v) => setFilters((f) => f.filter((x) => x !== v))} />" },
     { title: 'Pick several', code: "<Chips label=\"Topics\" selection=\"multiple\" items={['Design', 'Code', 'Writing']} value={topics} onChange={setTopics} />" },
+    {
+      title: 'A tag input: add, rename, reorder',
+      code: "<Chips label=\"Keywords\" items={words} delimiters={[',']}\n  onAdd={(t) => setWords((w) => [...w, t])}\n  onRemove={(v) => setWords((w) => w.filter((x) => x !== v))}\n  onEdit={(v, t) => setWords((w) => w.map((x) => (x === v ? t : x)))}\n  onReorder={setWords} />",
+    },
     { title: 'Status labels', code: "<Chips label=\"Status\" hideLabel items={[{ value: 'live', tone: 'success' }, { value: 'beta', tone: 'warning' }]} />" },
   ],
 };

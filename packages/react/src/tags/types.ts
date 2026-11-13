@@ -3,7 +3,7 @@ import type { PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { NoInfer, SlotOverrides } from '../types';
 
-export type TagsSlot = 'root' | 'label' | 'list' | 'tag' | 'icon' | 'text' | 'remove' | 'more' | 'empty';
+export type TagsSlot = 'root' | 'label' | 'body' | 'list' | 'tag' | 'icon' | 'text' | 'editInput' | 'remove' | 'more' | 'add' | 'empty';
 export type TagsVariant = 'soft' | 'solid' | 'outline';
 
 /** One tag. A string is a tag whose value and label are that string. */
@@ -19,6 +19,8 @@ export interface TagsItem<V extends string = string> {
   href?: string;
   /** With `onRemove`, every tag can be removed; `false` keeps this one. */
   removable?: boolean;
+  /** With `onEdit`, every tag can be renamed; `false` keeps this one. */
+  editable?: boolean;
   /** Shown, never chosen or removed. */
   disabled?: boolean;
 }
@@ -39,7 +41,22 @@ export interface TagsState {
  *   <Chips label="Size" items={['S', 'M', 'L']} selection="single" value={size} onChange={([v]) => setSize(v)} />
  */
 /** One tag, its position, whether it is picked, and `remove` when it can be removed. `render` overrides of the repeating parts get it as `item`. */
-export type TagsItemContext = { value: string; label: React.ReactNode; text: string; icon?: React.ReactNode; tone?: string; disabled?: boolean; href?: string; index: number; selected: boolean; remove?: (event: React.SyntheticEvent) => void };
+export type TagsItemContext = {
+  value: string;
+  label: React.ReactNode;
+  text: string;
+  icon?: React.ReactNode;
+  tone?: string;
+  disabled?: boolean;
+  href?: string;
+  index: number;
+  selected: boolean;
+  /** Being renamed (`onEdit`). */
+  editing: boolean;
+  remove?: (event: React.SyntheticEvent) => void;
+  /** Start renaming it (`onEdit`). */
+  edit?: () => void;
+};
 
 export interface TagsConfig<V extends string = string> extends SlotOverrides<TagsSlot, TagsState, TagsItemContext> {
   /** Names the group, e.g. "Filters". */
@@ -57,13 +74,25 @@ export interface TagsConfig<V extends string = string> extends SlotOverrides<Tag
   onChange?: (values: V[], event: React.SyntheticEvent) => void;
   /** Tags get a remove mark (and Delete removes the focused one). Remove it in your state. */
   onRemove?: (value: V, event: React.SyntheticEvent) => void;
+  /** A text field after the tags: Enter (or a `delimiters` key) calls `(text, event)` with the trimmed text. Add it in your state. */
+  onAdd?: (text: string, event: React.SyntheticEvent) => void;
+  /** The add field's placeholder and name. @default 'Add tag' */
+  addLabel?: string;
+  /** Keys that also add what is typed, e.g. `[',']`. Pasted text is split on them too. */
+  delimiters?: readonly string[];
+  /** Tags can be renamed: double-click, F2, or the tag's text button; Enter keeps, Escape cancels. `(value, text, event)`. */
+  onEdit?: (value: V, text: string, event: React.SyntheticEvent) => void;
+  /** @default 'Rename' */
+  editLabel?: string;
+  /** Tags can be reordered: dragged, or moved with Alt + arrow keys. `(values, event)`: the new order. */
+  onReorder?: (values: V[], event: React.SyntheticEvent) => void;
   /** Tags shown before "+3 more", which shows the rest. */
   maxVisible?: number;
   /** @default 'Show all' */
   moreLabel?: string;
   /** @default 'Remove' */
   removeLabel?: string;
-  /** Read with a removable tag that can be chosen. @default 'Press Delete to remove' */
+  /** Read with a tag that can be picked and removed (and renamed or moved: the keys for those are added). @default 'Press Delete to remove' */
   removeHint?: string;
   /** Shown when there are no tags. */
   emptyText?: React.ReactNode;
@@ -89,6 +118,10 @@ export interface TagsApi {
   setValue: (values: readonly string[]) => void;
   /** Show every tag (past `maxVisible`). */
   expand: () => void;
+  /** Start renaming a tag (`onEdit`). */
+  edit: (value: string) => void;
+  /** Focus the add field (`onAdd`). */
+  focusAdd: () => void;
   getRootProps: (props?: PropsBag) => PropsBag;
   render: (props?: TagsRootProps) => React.ReactElement;
 }

@@ -17,10 +17,13 @@ export function ratingFill(value: number, max: number): number[] {
 }
 
 /** Options with no visible effect in the current config. */
-export function inactiveRatingOptions(config: { readOnly?: boolean }): Record<string, string> {
-  if (!config.readOnly) return {};
-  const why = 'a read-only rating cannot be changed.';
-  return { clearable: why, onChange: why };
+export function inactiveRatingOptions(config: { readOnly?: boolean; icon?: unknown }): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (config.readOnly) {
+    const why = 'a read-only rating cannot be changed.';
+    Object.assign(out, { clearable: why, onChange: why, onHover: why });
+  }
+  return out;
 }
 
 export function inactiveTimelineOptions(config: { orientation?: string; variant?: string; collapsible?: boolean; items?: ReadonlyArray<unknown> }): Record<string, string> {

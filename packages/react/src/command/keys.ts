@@ -1,11 +1,15 @@
-/** Every config key of the command palette. Tag and preset props with these names are config; the rest go to the
- * root element. `config-keys.test.ts` keeps this equal to the meta. */
+/** Every config key of the command. Tag and preset props with these names are config; the rest go to the root
+ * element. `config-keys.test.ts` keeps this equal to the meta. */
 export const COMMAND_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'label',
   'items',
+  'loadItems',
+  'debounce',
   'onSelect',
+  'onHighlight',
   'placeholder',
   'emptyText',
+  'labels',
   'filter',
   'inputValue',
   'defaultInputValue',
@@ -18,6 +22,8 @@ export const COMMAND_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'hotkey',
   'closeOnSelect',
   'footer',
+  'hints',
+  'footerContent',
   'radius',
   'size',
   'tone',

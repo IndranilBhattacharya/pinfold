@@ -1,8 +1,8 @@
 import type { ComponentMeta, PropMeta } from './meta';
-import { FIELD_ARIA, fieldProps } from './field.meta';
+import { FIELD_ARIA, VALIDATION_ARIA, fieldProps, validationProps } from './field.meta';
 import { listChoiceProps, listItemsProp } from './select.meta';
 
-const SLOTS = ['root', 'label', 'control', 'chips', 'chip', 'input', 'clear', 'chevron', 'popup', 'group', 'groupLabel', 'option', 'check', 'icon', 'detail', 'empty', 'description', 'error'] as const;
+const SLOTS = ['root', 'label', 'control', 'values', 'chips', 'chip', 'chipRemove', 'input', 'clear', 'chevron', 'popup', 'group', 'groupLabel', 'option', 'check', 'avatar', 'icon', 'detail', 'endContent', 'empty', 'loadMore', 'description', 'error', 'statusIcon', 'validating'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -21,7 +21,8 @@ export const comboboxMeta: ComponentMeta = {
   slots: SLOTS,
   props: {
     ...fieldProps,
-    items: { ...listItemsProp, required: false, description: 'The rows: strings, or `{ value, label, description, icon, group, disabled }`. Not needed with `loadItems`. Long lists draw only the rows in view.' },
+    ...validationProps,
+    items: { ...listItemsProp, required: false, description: 'The rows: strings, or `{ value, label, description, icon, avatar, endContent, tone, group, disabled }`; extra fields reach `render` and `renderList` as `item.data`. Not needed with `loadItems`. Long lists draw only the rows in view.' },
     multiple: { type: 'boolean', default: false, description: 'Choose several: chips before the text, Backspace in an empty field removes the last.', group: 'behaviour', control: true },
     value: { type: 'string[]', orString: true, description: 'The chosen value (an array with `multiple`), controlled; `null` for none.', group: 'data' },
     defaultValue: { type: 'string[]', orString: true, description: 'The chosen value when uncontrolled.', group: 'data' },
@@ -29,10 +30,29 @@ export const comboboxMeta: ComponentMeta = {
     inputValue: { type: 'string', description: 'What is typed, controlled.', group: 'data' },
     defaultInputValue: { type: 'string', default: '', description: 'What is typed at first.', group: 'data' },
     onInputChange: { type: 'function', description: '`(text) => void` on every keystroke: fetch matching `items` here for a server search.', group: 'events' },
-    loadItems: { type: 'function', description: '`(query, { signal }) => rows | Promise<rows>`: fetch the rows for what is typed (`\'\'` when the list opens). Debounced, cancelled when no longer needed, cached per query, a loading row while it runs; results are not filtered again.', group: 'data' },
-    debounce: { type: 'number', default: 250, description: 'Milliseconds `loadItems` waits after the last keystroke.', group: 'behaviour' },
+    loadItems: {
+      type: 'function',
+      description:
+        '`(query, { signal, cursor, page }) => rows | { items, hasMore, cursor } | Promise<…>`: fetch the rows for what is typed (`\'\'` when the list opens). Debounced, cancelled when no longer needed, cached per query, a loading row while it runs; results are not filtered again. A page with `hasMore` fetches the next one (with its `cursor`) as the list scrolls near its end.',
+      group: 'data',
+    },
+    debounce: { type: 'number', default: 250, description: 'Milliseconds `loadItems` and `onSearch` wait after the last keystroke.', group: 'behaviour' },
+    hasMore: { type: 'boolean', default: false, description: 'Your own `items` have a next page: `onLoadMore` runs as the list scrolls near its end (or the arrow keys reach it), with a loading row while `loading`.', group: 'behaviour' },
+    onLoadMore: { type: 'function', description: '`() => void`: fetch the next page of your own `items`. Called once per row count.', group: 'events' },
+    onSearch: { type: 'function', description: '`(query) => void` once typing pauses for `debounce` ms.', group: 'events' },
+    onCreate: { type: 'function', description: '`(text) => void | false | value | row | Promise<…>`: with `allowCustom`, typed text is about to become a value. Nothing keeps the text, `false` refuses it, a value or `{ value, label }` (from your server) is added instead.', group: 'events' },
+    onRemove: { type: 'function', description: '`(value, item) => void`: a value left a multiple choice (a chip, Backspace, the list).', group: 'events' },
+    onClear: { type: 'function', description: '`() => void`: the clear button emptied the field.', group: 'events' },
+    renderList: {
+      type: 'function',
+      description:
+        '`(context) => node`: your own dropdown body (a table, cards) in place of the listbox. `context`: `{ items, query, value, loading, loadingMore, error, hasMore, loadMore, select, deselect, toggle, isSelected, activeValue, setActiveValue, getRowProps, close }`. The arrow keys and Enter still move and choose; the body owns its roles (`popupRole`).',
+      group: 'data',
+    },
+    popupRole: { type: 'enum', values: ['dialog', 'listbox', 'grid', 'tree'], default: 'dialog', description: 'With `renderList`: the popup\'s role and the input\'s `aria-haspopup`. `listbox`, `grid` or `tree` when your rows spread `getRowProps` (the active row is then `aria-activedescendant`).', group: 'behaviour' },
     selectedInList: { type: 'enum', values: ['check', 'disable', 'hide'], default: 'check', description: 'Multiple: chosen rows keep a check (pick again to remove), show but cannot be picked again (remove with the chip), or leave the list.', group: 'behaviour', control: true },
-    chipsPlacement: { type: 'enum', values: ['inside', 'below'], default: 'inside', description: 'Multiple: chips inside the field (up to `maxChips`, then +n), or every chip as a tag group under it.', group: 'appearance', control: true },
+    chipsPlacement: { type: 'enum', values: ['inside', 'above', 'below', 'none'], default: 'inside', description: 'Multiple: chips inside the field (up to `maxChips`, then +n); every chip as a tag group above or under it; or `none` to draw them yourself (a Tag group bound to `value`).', group: 'appearance', control: true },
+    chipVariant: { type: 'enum', values: ['soft', 'solid', 'outline'], default: 'soft', description: 'Multiple: the chips\' look. A row\'s `tone` colours its chip.', group: 'appearance', control: true },
     filter: {
       type: 'enum',
       values: ['contains', 'startsWith', 'none'],
@@ -47,7 +67,7 @@ export const comboboxMeta: ComponentMeta = {
     highlight: { type: 'boolean', default: true, description: 'Mark the typed text in each row.', group: 'appearance', control: true },
     openOnFocus: { type: 'boolean', default: false, description: 'Open on focus, before anything is typed.', group: 'behaviour', control: true, silent: true },
     clearable: { type: 'boolean', default: false, description: 'A button that empties the field.', group: 'behaviour', control: true },
-    maxChips: { type: 'number', default: 3, description: 'With `multiple`: chips shown before "+3".', group: 'appearance' },
+    maxChips: { type: 'number', auto: '3 inside the field, all outside it', description: 'With `multiple`: chips shown before a "+3" chip, which shows the rest (then "Show less").', group: 'appearance' },
     placeholder: { type: 'string', description: 'A hint inside an empty field. Never instead of a label.', group: 'data' },
     labels: {
       type: 'object',
@@ -58,6 +78,11 @@ export const comboboxMeta: ComponentMeta = {
         loading: { type: 'node', description: 'Default "Loading…".', group: 'data' },
         clear: { type: 'string', description: 'Default "Clear".', group: 'data' },
         create: { type: 'function', description: '`(text) => node`: the row that adds what was typed. Default `Add "…"`.', group: 'data' },
+        error: { type: 'node', description: 'Default "Could not load results".', group: 'data' },
+        loadingMore: { type: 'node', description: 'Default "Loading more…".', group: 'data' },
+        more: { type: 'function', description: '`(count) => string`: the "+3" chip\'s name. Default "Show 3 more".', group: 'data' },
+        less: { type: 'string', description: 'Default "Show less".', group: 'data' },
+        remove: { type: 'string', description: 'Starts each chip\'s remove name. Default "Remove".', group: 'data' },
       },
     },
     ...listChoiceProps('combobox'),
@@ -71,18 +96,28 @@ export const comboboxMeta: ComponentMeta = {
     { keys: 'ArrowDown / ArrowUp', action: 'Open the list, or move through the rows past disabled ones. Alt+ArrowUp closes.' },
     { keys: 'Enter', action: 'Choose the active row; with `allowCustom` and no row, keep what was typed.' },
     { keys: 'Escape', action: 'Close the list; pressed again, clear the text.' },
-    { keys: 'Backspace', action: 'With `multiple` and nothing typed, remove the last chip.' },
+    { keys: 'Backspace', action: 'With `multiple` and nothing typed, remove the last chip (not with `chipsPlacement: "none"`).' },
+    { keys: 'Tab', action: 'Chips above or under the field: to each remove button, and the "+3" button.' },
   ],
   aria: [
     'The input is `role="combobox"` with `aria-autocomplete="list"`, `aria-expanded` and `aria-controls`; focus stays in it and `aria-activedescendant` names the active row.',
     'The list is `role="listbox"`, `aria-busy` while `loading`; rows are `role="option"` with `aria-selected`; matches are `<mark>`.',
     'With `name`, hidden inputs submit the chosen values.',
+    'Chips above or under the field are a `group` named "<label>: 3" with a real remove button each; inside the field their marks are for pointers (Backspace and the list are the keyboard ways).',
+    'A `renderList` body sits in a popup with `popupRole` (`dialog` by default), which is also the input\'s `aria-haspopup`. The body owns its roles: rows that spread `getRowProps` get ids, the matching row role and `aria-selected`, so `aria-activedescendant` names the active one.',
+    'Several values have no native `required`: with `multiple`, `required` checks that one is chosen ("Choose at least one", or `messages.required`).',
     ...FIELD_ARIA,
+    ...VALIDATION_ARIA,
   ],
   dataAttributes: [
     { name: 'data-open', on: 'root', values: 'present while the list is open' },
     { name: 'data-filled', on: 'root', values: 'present when there is a value or text' },
     { name: 'data-loading', on: 'root', values: 'present while `loading`' },
+    { name: 'data-chips', on: 'root', values: 'multiple: "inside" | "above" | "below" | "none"' },
+    { name: 'data-chip-variant', on: 'root', values: 'multiple: "soft" | "solid" | "outline"' },
+    { name: 'data-validity', on: 'root', values: '"error" | "warning" | "success": the resolved status' },
+    { name: 'data-validating', on: 'root', values: 'present while an async `validate` runs' },
+    { name: 'data-custom', on: 'popup', values: 'present with `renderList`' },
     { name: 'data-active / data-selected', on: 'option', values: 'the active row; chosen rows' },
   ],
   cssVariables: ['--pinfold-select-width', '--pinfold-select-max-height'],
@@ -93,5 +128,9 @@ export const comboboxMeta: ComponentMeta = {
       code: "const [query, setQuery] = useState('');\nconst { data = [], isFetching } = useRepos(query);\n\n<Search label=\"Repository\" filter=\"none\" items={data} loading={isFetching} onInputChange={setQuery} />",
     },
     { title: 'A tag input', code: "<Search label=\"Tags\" multiple allowCustom items={suggestions} value={tags} onChange={setTags} />" },
+    {
+      title: 'Search a server, paged, chips above',
+      code: "<Search label=\"People\" multiple chipsPlacement=\"above\" value={ids} onChange={setIds}\n  loadItems={async (q, { signal, cursor }) => {\n    const res = await fetch(`/api/people?q=${q}&after=${cursor ?? ''}`, { signal }).then((r) => r.json());\n    return { items: res.people.map((p) => ({ value: p.id, label: p.name, avatar: p.photo, description: p.email })), hasMore: !!res.next, cursor: res.next };\n  }} />",
+    },
   ],
 };

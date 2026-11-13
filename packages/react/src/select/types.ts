@@ -1,7 +1,7 @@
 import type * as React from 'react';
 import type { Length, OverlayPlacement, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
-import type { FieldConfig } from '../field';
+import type { FieldConfig, FieldStatus, FieldValidationApi, FieldValidationConfig } from '../field';
 import type { NoInfer, SlotOverrides } from '../types';
 import type { ListItem } from './listbox';
 
@@ -13,6 +13,7 @@ export type SelectSlot =
   | 'value'
   | 'placeholder'
   | 'chip'
+  | 'chipRemove'
   | 'clear'
   | 'chevron'
   | 'popup'
@@ -20,11 +21,15 @@ export type SelectSlot =
   | 'groupLabel'
   | 'option'
   | 'check'
+  | 'avatar'
   | 'icon'
   | 'detail'
+  | 'endContent'
   | 'description'
   | 'empty'
-  | 'error';
+  | 'error'
+  | 'statusIcon'
+  | 'validating';
 export type SelectVariant = 'outline' | 'filled' | 'underline';
 
 /** Passed to slot `render` overrides. */
@@ -38,6 +43,10 @@ export interface SelectState {
   disabled: boolean;
   /** The chosen values. */
   value: readonly string[];
+  /** The resolved status: an error, or a warning or success from `status` or `validate`. */
+  status: FieldStatus | null;
+  /** An async `validate` is running. */
+  validating: boolean;
 }
 
 export interface SelectDimensions {
@@ -50,8 +59,8 @@ export interface SelectDimensions {
 /** An option (with its live state) or a chosen chip (with `remove`). `render` overrides of the repeating parts get it as `item`. */
 export type SelectItemContext = import('./listbox').ListItemContext;
 
-interface SelectShared<V extends string> extends FieldConfig, SlotOverrides<SelectSlot, SelectState, SelectItemContext> {
-  /** The rows: strings, or `{ value, label, description, icon, group, disabled }`. */
+interface SelectShared<V extends string> extends Omit<FieldConfig, 'error'>, Omit<FieldValidationConfig<V | null | V[]>, 'validate' | 'onValidate'>, SlotOverrides<SelectSlot, SelectState, SelectItemContext> {
+  /** The rows: strings, or `{ value, label, description, icon, avatar, endContent, tone, group, disabled }` (extra fields reach `render` as `item.data`). */
   items: ReadonlyArray<ListItem<V> | V>;
   /** @default 'Select…' */
   placeholder?: string;
@@ -63,6 +72,17 @@ interface SelectShared<V extends string> extends FieldConfig, SlotOverrides<Sele
   display?: 'chips' | 'text';
   /** Multiple: chips shown before "+3". @default 3 */
   maxChips?: number;
+  /** Multiple: the chips' look; a row's `tone` colours its chip. @default 'soft' */
+  chipVariant?: 'soft' | 'solid' | 'outline';
+  /**
+   * Draw the chosen value yourself, in the field: `(selected, state) => node`. `selected` holds each
+   * chosen row with its state and `remove`. Empty when nothing is chosen (the placeholder shows).
+   */
+  renderValue?: (selected: SelectItemContext[], state: SelectState) => React.ReactNode;
+  /** Multiple: a chip's remove mark unchose a value: `(value, item)`. */
+  onRemove?: (value: V, item: SelectItemContext) => void;
+  /** The clear button emptied the field. */
+  onClear?: () => void;
   /** @default 'No options' */
   emptyText?: React.ReactNode;
   /** The list, controlled. */
@@ -95,6 +115,10 @@ export interface SelectSingleConfig<V extends string = string> extends SelectSha
   defaultValue?: NoInfer<V>;
   /** `(value, event)`: `null` when cleared. */
   onChange?: (value: V | null, event?: React.SyntheticEvent) => void;
+  /** Your check of the value: a message, nothing, or `{ status, message }`; may be async. */
+  validate?: FieldValidationConfig<V | null>['validate'];
+  /** After every validation run. */
+  onValidate?: FieldValidationConfig<V | null>['onValidate'];
 }
 
 export interface SelectMultipleConfig<V extends string = string> extends SelectShared<V> {
@@ -102,6 +126,10 @@ export interface SelectMultipleConfig<V extends string = string> extends SelectS
   value?: ReadonlyArray<NoInfer<V>>;
   defaultValue?: ReadonlyArray<NoInfer<V>>;
   onChange?: (value: V[], event?: React.SyntheticEvent) => void;
+  /** Your check of the values: a message, nothing, or `{ status, message }`; may be async. */
+  validate?: FieldValidationConfig<V[]>['validate'];
+  /** After every validation run. */
+  onValidate?: FieldValidationConfig<V[]>['onValidate'];
 }
 
 /**
@@ -115,7 +143,7 @@ export type SelectConfig<V extends string = string> = SelectSingleConfig<V> | Se
 export type SelectRootProps = Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'onChange' | 'defaultValue'> & { [key: `data-${string}`]: unknown };
 export type SelectTagProps<V extends string = string> = SelectConfig<V> & Omit<SelectRootProps, keyof SelectShared<V> | 'multiple' | 'value' | 'defaultValue' | 'onChange'>;
 
-export interface SelectApi {
+export interface SelectApi extends FieldValidationApi {
   /** The chosen values (one at most without `multiple`). */
   value: readonly string[];
   isOpen: boolean;
@@ -123,6 +151,8 @@ export interface SelectApi {
   close: () => void;
   /** Choose values (none with `[]`). */
   setValue: (value: readonly string[]) => void;
+  /** Empty the value. */
+  clear: () => void;
   focus: () => void;
   getRootProps: (props?: PropsBag) => PropsBag;
   render: (props?: SelectRootProps) => React.ReactElement;

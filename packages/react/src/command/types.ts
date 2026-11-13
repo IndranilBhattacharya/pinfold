@@ -2,8 +2,9 @@ import type * as React from 'react';
 import type { Length, ListFilter, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
+import type { LoadItems } from '../select/listbox';
 
-export type CommandSlot = 'root' | 'panel' | 'search' | 'searchIcon' | 'input' | 'list' | 'group' | 'groupLabel' | 'option' | 'icon' | 'detail' | 'shortcut' | 'empty' | 'footer';
+export type CommandSlot = 'root' | 'panel' | 'search' | 'searchIcon' | 'input' | 'list' | 'group' | 'groupLabel' | 'option' | 'avatar' | 'icon' | 'detail' | 'endContent' | 'shortcut' | 'empty' | 'loadMore' | 'footer' | 'hint' | 'footerContent';
 
 /** One command. A string is a command whose value and label are that string. */
 export interface CommandItem {
@@ -17,6 +18,10 @@ export interface CommandItem {
   /** A second line. */
   description?: React.ReactNode;
   icon?: React.ReactNode;
+  /** Before the label, in a circle: an image URL or your own node (people, workspaces). */
+  avatar?: React.ReactNode;
+  /** At the end of the row, before the shortcut: a badge, a count, "Jump to". */
+  endContent?: React.ReactNode;
   /** A hint at the end, e.g. "⌘N". It does not bind the key. */
   shortcut?: React.ReactNode;
   /** Commands with the same group sit together under its name. */
@@ -40,6 +45,22 @@ export interface CommandState {
   query: string;
 }
 
+/** One key hint in the footer: `{ keys: ['↑', '↓'], label: 'to move' }`. */
+export interface CommandHint {
+  keys: readonly string[];
+  label: React.ReactNode;
+}
+
+/** Text shown and read, for translation. */
+export interface CommandLabels {
+  /** @default 'Loading…' */
+  loading?: React.ReactNode;
+  /** @default 'Loading more…' */
+  loadingMore?: React.ReactNode;
+  /** `loadItems` failed. @default 'Could not load results' */
+  error?: React.ReactNode;
+}
+
 export interface CommandDimensions {
   width?: Length;
   maxHeight?: Length;
@@ -58,14 +79,25 @@ export type CommandItemContext = import('../select/listbox').ListItemContext;
 export interface CommandConfig extends SlotOverrides<CommandSlot, CommandState, CommandItemContext> {
   /** Names the palette, e.g. "Commands". */
   label: string;
-  /** The commands. */
-  items: ReadonlyArray<CommandItem | string>;
+  /** The commands. Not needed with `loadItems`. */
+  items?: ReadonlyArray<CommandItem | string>;
+  /**
+   * Fetch the commands for what is typed (`''` at first), as a combobox does: debounced, aborted
+   * when no longer needed, cached per query, not filtered again. Return the rows or a page
+   * `{ items, hasMore, cursor }`; the next page loads as the list scrolls near its end.
+   */
+  loadItems?: LoadItems<CommandItem | string>;
+  /** Milliseconds `loadItems` waits after the last keystroke. @default 250 */
+  debounce?: number;
+  /** The keyboard or the pointer moved to a command: `(value)`, `null` when none. */
+  onHighlight?: (value: string | null) => void;
   /** Any command was chosen: `(value, event)`. */
   onSelect?: (value: string, event: React.SyntheticEvent) => void;
   /** @default 'Type a command or search…' */
   placeholder?: string;
-  /** @default 'No results' */
-  emptyText?: React.ReactNode;
+  /** Shown when nothing matches: a node, or `(query) => node`. @default 'No results' */
+  emptyText?: React.ReactNode | ((query: string) => React.ReactNode);
+  labels?: CommandLabels;
   /** @default 'contains' */
   filter?: ListFilter;
   inputValue?: string;
@@ -88,6 +120,10 @@ export interface CommandConfig extends SlotOverrides<CommandSlot, CommandState, 
   closeOnSelect?: boolean;
   /** Key hints under the list. @default true */
   footer?: boolean;
+  /** Your key hints in place of move / run / close. */
+  hints?: readonly CommandHint[];
+  /** At the end of the footer: a link, a brand, a count. */
+  footerContent?: React.ReactNode;
   /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
   radius?: RadiusOption;
   /** @default 'md' */
@@ -111,6 +147,8 @@ export interface CommandApi {
   /** What is typed. */
   inputValue: string;
   focus: () => void;
+  /** Set what is typed. */
+  setInputValue: (text: string) => void;
   getRootProps: (props?: PropsBag) => PropsBag;
   render: (props?: CommandRootProps) => React.ReactElement;
 }

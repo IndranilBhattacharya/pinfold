@@ -61,7 +61,7 @@ export interface PinfoldComponentDefaults {
   kbd?: Omit<KbdConfig, 'keys'>;
   skeleton?: Omit<SkeletonConfig, 'content' | 'loading'>;
   badge?: Omit<BadgeConfig, 'label' | 'count' | 'anchor' | 'avatar' | 'onClick' | 'href' | 'target' | 'rel' | 'onDismiss'>;
-  colorpicker?: Omit<ColorPickerConfig, 'label'>;
+  colorpicker?: Omit<ColorPickerConfig, 'label' | 'description' | 'error' | 'invalid' | 'onValidate'>;
   tour?: Omit<TourConfig, 'steps' | 'open' | 'defaultOpen' | 'step' | 'defaultStep' | 'beforeStep' | 'onOpenChange' | 'onStepChange' | 'onComplete' | 'onSkip'>;
   fileupload?: Omit<FileUploadConfig, 'label' | 'description' | 'name' | 'value' | 'defaultValue' | 'validate' | 'upload' | 'disabled' | 'onChange' | 'onReject' | 'onUploadComplete' | 'onUploadError'>;
   treeview?: Omit<TreeViewConfig, 'label' | 'items' | 'value' | 'defaultValue' | 'expanded' | 'defaultExpanded' | 'loadChildren' | 'filter' | 'disabled' | 'onSelectionChange' | 'onExpandedChange' | 'onAction' | 'onMove' | 'onFilterChange' | 'onLoadError'>;
@@ -75,14 +75,14 @@ export interface PinfoldComponentDefaults {
   carousel?: Omit<CarouselConfig, 'label' | 'slides' | 'index' | 'defaultIndex' | 'onIndexChange'>;
   empty?: Omit<EmptyConfig, 'title' | 'description' | 'media' | 'actions'>;
   timeline?: Omit<TimelineConfig, 'label' | 'items' | 'onOpenChange' | 'onItemClick'>;
-  rating?: Omit<RatingConfig, 'label' | 'value' | 'defaultValue' | 'onChange' | 'name' | 'disabled'>;
+  rating?: Omit<RatingConfig, 'label' | 'value' | 'defaultValue' | 'onChange' | 'onHover' | 'name' | 'disabled'>;
   table?: Omit<TableConfig, 'label' | 'rows' | 'columns' | 'rowKey' | 'sort' | 'defaultSort' | 'onSortChange' | 'selected' | 'defaultSelected' | 'onSelectionChange' | 'page' | 'defaultPage' | 'onPageChange' | 'total' | 'onRowAction' | 'loading'>;
   datepicker?: Omit<DatePickerConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'isDateDisabled' | 'open' | 'defaultOpen' | 'onOpenChange' | 'placeholder'>;
   calendar?: Omit<CalendarConfig, 'value' | 'defaultValue' | 'onChange' | 'month' | 'defaultMonth' | 'onMonthChange' | 'min' | 'max' | 'isDateDisabled'>;
-  command?: Omit<CommandConfig, 'label' | 'items' | 'onSelect' | 'inputValue' | 'defaultInputValue' | 'onInputChange' | 'loading' | 'open' | 'defaultOpen' | 'onOpenChange'>;
-  tags?: Omit<TagsConfig, 'label' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'onRemove'>;
-  combobox?: Omit<ComboboxConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'inputValue' | 'defaultInputValue' | 'onInputChange' | 'placeholder' | 'loading' | 'open' | 'defaultOpen' | 'onOpenChange'>;
-  select?: Omit<SelectConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'placeholder' | 'open' | 'defaultOpen' | 'onOpenChange'>;
+  command?: Omit<CommandConfig, 'label' | 'items' | 'onSelect' | 'inputValue' | 'defaultInputValue' | 'onInputChange' | 'loading' | 'open' | 'defaultOpen' | 'onOpenChange' | 'loadItems' | 'onHighlight'>;
+  tags?: Omit<TagsConfig, 'label' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'onRemove' | 'onAdd' | 'onEdit' | 'onReorder'>;
+  combobox?: Omit<ComboboxConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'inputValue' | 'defaultInputValue' | 'onInputChange' | 'placeholder' | 'loading' | 'open' | 'defaultOpen' | 'onOpenChange' | 'onValidate' | 'onInvalid' | 'onRemove' | 'onClear' | 'onCreate' | 'onSearch' | 'onLoadMore' | 'hasMore'>;
+  select?: Omit<SelectConfig, 'label' | 'description' | 'error' | 'invalid' | 'required' | 'disabled' | 'name' | 'id' | 'items' | 'value' | 'defaultValue' | 'onChange' | 'placeholder' | 'open' | 'defaultOpen' | 'onOpenChange' | 'onValidate' | 'onInvalid' | 'onRemove' | 'onClear'>;
   stepper?: Omit<StepperConfig, 'items' | 'value' | 'defaultValue' | 'onChange' | 'beforeChange'>;
   pagination?: Omit<PaginationConfig, 'count' | 'page' | 'defaultPage' | 'onChange' | 'hasPrevious' | 'onPageSizeChange'>;
   breadcrumb?: Omit<BreadcrumbConfig, 'items' | 'onChange'>;

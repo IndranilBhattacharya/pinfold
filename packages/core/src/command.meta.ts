@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
-const SLOTS = ['root', 'panel', 'search', 'searchIcon', 'input', 'list', 'group', 'groupLabel', 'option', 'icon', 'detail', 'shortcut', 'empty', 'footer'] as const;
+const SLOTS = ['root', 'panel', 'search', 'searchIcon', 'input', 'list', 'group', 'groupLabel', 'option', 'avatar', 'icon', 'detail', 'endContent', 'shortcut', 'empty', 'loadMore', 'footer', 'hint', 'footerContent'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -23,8 +23,7 @@ export const commandMeta: ComponentMeta = {
     items: {
       type: 'array',
       orString: true,
-      required: true,
-      description: 'The commands. A string is a command whose value and label are that string.',
+      description: 'The commands. A string is a command whose value and label are that string. Not needed with `loadItems`.',
       group: 'data',
       items: {
         value: { type: 'string', description: 'What `onSelect` receives. Default the label.', group: 'data' },
@@ -33,6 +32,8 @@ export const commandMeta: ComponentMeta = {
         keywords: { type: 'string[]', description: 'Other words that find it: "settings" finds "Preferences".', group: 'data' },
         description: { type: 'node', description: 'A second line.', group: 'data' },
         icon: { type: 'node', description: 'Before the label.', group: 'data' },
+        avatar: { type: 'node', description: 'Before the label, in a circle: an image URL or your own node.', group: 'data' },
+        endContent: { type: 'node', description: 'At the end of the row, before the shortcut: a badge, a count.', group: 'data' },
         shortcut: { type: 'node', description: 'A hint at the end, e.g. "⌘N". It does not bind the key.', group: 'data' },
         group: { type: 'string', description: 'Commands with the same group sit together under it.', group: 'data' },
         href: { type: 'string', description: 'Go there, through the provider\'s `navigate`.', group: 'data' },
@@ -40,9 +41,26 @@ export const commandMeta: ComponentMeta = {
         onSelect: { type: 'function', description: '`(event) => void`: runs when chosen.', group: 'events' },
       },
     },
+    loadItems: {
+      type: 'function',
+      description: '`(query, { signal, cursor, page }) => rows | { items, hasMore, cursor } | Promise<…>`: fetch the commands for what is typed, as a combobox does: debounced, aborted when no longer needed, cached per query, not filtered again; a page with `hasMore` loads the next one near the end of the scroll.',
+      group: 'data',
+    },
+    debounce: { type: 'number', default: 250, description: 'Milliseconds `loadItems` waits after the last keystroke.', group: 'behaviour' },
     onSelect: { type: 'function', description: '`(value, event) => void` for any command.', group: 'events' },
+    onHighlight: { type: 'function', description: '`(value) => void`: the keyboard or the pointer moved to a command (`null`: none), e.g. to preview it.', group: 'events' },
     placeholder: { type: 'string', default: 'Type a command or search…', description: 'In the empty search field.', group: 'data' },
-    emptyText: { type: 'node', default: 'No results', description: 'Shown when nothing matches.', group: 'data' },
+    emptyText: { type: 'node', default: 'No results', description: 'Shown when nothing matches: a node, or `(query) => node`.', group: 'data' },
+    labels: {
+      type: 'object',
+      description: 'Text shown and read, for translation.',
+      group: 'data',
+      keys: {
+        loading: { type: 'node', description: 'Default "Loading…".', group: 'data' },
+        loadingMore: { type: 'node', description: 'Default "Loading more…".', group: 'data' },
+        error: { type: 'node', description: 'Default "Could not load results".', group: 'data' },
+      },
+    },
     filter: { type: 'enum', values: ['contains', 'startsWith', 'none'], default: 'contains', description: 'How typing narrows the commands; `none` when your `items` are already the results.', group: 'behaviour', control: true, silent: true },
     inputValue: { type: 'string', description: 'What is typed, controlled.', group: 'data' },
     defaultInputValue: { type: 'string', default: '', description: 'What is typed at first.', group: 'data' },
@@ -55,6 +73,8 @@ export const commandMeta: ComponentMeta = {
     hotkey: { type: 'string', default: 'mod+k', description: 'Dialog: the key that opens it from anywhere (`mod` is ⌘ on Apple, Ctrl elsewhere). An empty string for none.', group: 'behaviour' },
     closeOnSelect: { type: 'boolean', default: true, description: 'Dialog: close after a command runs.', group: 'behaviour' },
     footer: { type: 'boolean', default: true, description: 'Key hints under the list.', group: 'appearance', control: true },
+    hints: { type: 'array', description: 'Your key hints in place of move / run / close: `[{ keys: [\'⇥\'], label: \'to complete\' }]`.', group: 'data', items: { keys: { type: 'string[]', required: true, description: 'The keys, each a `<kbd>`.', group: 'data' }, label: { type: 'node', required: true, description: 'What they do.', group: 'data' } } },
+    footerContent: { type: 'node', description: 'At the end of the footer: a link, a brand, a count.', group: 'data' },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.command`, the provider, then md.', group: 'appearance', control: true },
     tone: {
@@ -84,7 +104,8 @@ export const commandMeta: ComponentMeta = {
   aria: [
     'The search field is a `combobox` named by `label`, controlling a `listbox` of `option`s; focus stays in it and `aria-activedescendant` names the active command.',
     'The dialog is the browser\'s modal `<dialog>`: top layer, the page inert, Escape closes, focus returns to where it was.',
-    'Shortcut hints are `<kbd>` text; the key hints footer is decorative (`aria-hidden`), the keys are also in the docs.',
+    'Shortcut hints are `<kbd>` text; the key hints in the footer are decorative (`aria-hidden`), the keys are also in the docs. `footerContent` is not hidden.',
+    'While `loadItems` runs the list is `aria-busy`, with a loading row; a failure says so in the list.',
   ],
   dataAttributes: [
     { name: 'data-mode', on: 'root', values: '"inline" | "dialog"' },
@@ -96,6 +117,10 @@ export const commandMeta: ComponentMeta = {
     {
       title: 'A ⌘K palette',
       code: "import { defineCommand } from '@pinfold/react/command';\n\nexport const Palette = defineCommand({ mode: 'dialog' });\n\n<Palette label=\"Commands\" items={[\n  { label: 'New file', shortcut: '⌘N', group: 'File', onSelect: newFile },\n  { label: 'Settings', keywords: ['preferences'], href: '/settings', group: 'Go to' },\n]} />",
+    },
+    {
+      title: 'Search a server',
+      code: "<Palette label=\"Go to\" loadItems={async (q, { signal }) => (await fetch(`/api/search?q=${q}`, { signal }).then((r) => r.json())).map((hit) => ({ value: hit.url, label: hit.title, description: hit.path, href: hit.url, group: hit.kind }))}\n  emptyText={(q) => `Nothing for \"${q}\"`} />",
     },
     { title: 'On the page', code: "<Palette mode=\"inline\" label=\"Jump to\" items={pages.map((p) => ({ label: p.title, href: p.url }))} />" },
   ],

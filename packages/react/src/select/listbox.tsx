@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { edgeEnabled, gridWindow, matchRanges, nextEnabled, RowSizes, typeaheadIndex, type PropsBag } from '@pinfold/core';
+import { edgeEnabled, gridWindow, matchRanges, nextEnabled, RowSizes, typeaheadIndex, type PinfoldTone, type PropsBag } from '@pinfold/core';
 import { useIsomorphicLayoutEffect } from '../hooks';
 import { CHECK_ICON } from '../nav-icons';
 import { ITEM } from '../slots';
@@ -21,6 +21,12 @@ export interface ListItem<V extends string = string> {
   description?: React.ReactNode;
   /** Before the label. */
   icon?: React.ReactNode;
+  /** Before the label, in a circle: an image URL or your own node (an Avatar). */
+  avatar?: React.ReactNode;
+  /** At the end of the row: a role, a count, a badge. */
+  endContent?: React.ReactNode;
+  /** The chip's colour once chosen (the field's tone otherwise). */
+  tone?: PinfoldTone;
   /** Rows with the same group sit together under its name. */
   group?: string;
   /** Shown, never chosen. */
@@ -38,8 +44,13 @@ export interface ListItemContext {
   text: string;
   description?: React.ReactNode;
   icon?: React.ReactNode;
+  avatar?: React.ReactNode;
+  endContent?: React.ReactNode;
+  tone?: PinfoldTone;
   group?: string;
   disabled: boolean;
+  /** The row as you wrote it (a string, or your object with any extra fields). */
+  data: ListItem | string;
   /** Chosen. Always true for a chip. */
   selected: boolean;
   /** The keyboard is on it (options). */
@@ -56,18 +67,30 @@ export interface Row {
   text: string;
   description?: React.ReactNode;
   icon?: React.ReactNode;
+  avatar?: React.ReactNode;
+  endContent?: React.ReactNode;
+  tone?: PinfoldTone;
   group?: string;
   disabled: boolean;
   /** After the label: a shortcut hint (a command). */
   end?: React.ReactNode;
+  /** The row as it was written. */
+  data: ListItem | string;
+}
+
+export function toRow(item: ListItem | string): Row {
+  if (typeof item === 'string') return { value: item, label: item, text: item, disabled: false, data: item };
+  const text = item.textValue ?? (typeof item.label === 'string' ? item.label : item.value);
+  return { value: item.value, label: item.label ?? item.value, text, description: item.description, icon: item.icon, avatar: item.avatar, endContent: item.endContent, tone: item.tone, group: item.group, disabled: !!item.disabled, data: item };
+}
+
+/** A row and its live state, as `render` overrides and custom list bodies get it. */
+export function rowContext(row: Row, index: number, selected: boolean, active: boolean, remove?: ListItemContext['remove']): ListItemContext {
+  return { value: row.value, label: row.label, text: row.text, description: row.description, icon: row.icon, avatar: row.avatar, endContent: row.endContent, tone: row.tone, group: row.group, disabled: row.disabled, data: row.data, selected, active, index, ...(remove ? { remove } : {}) };
 }
 
 export function toRows(items: ReadonlyArray<ListItem | string> | undefined): Row[] {
-  const rows = (items ?? []).map((item): Row => {
-    if (typeof item === 'string') return { value: item, label: item, text: item, disabled: false };
-    const text = item.textValue ?? (typeof item.label === 'string' ? item.label : item.value);
-    return { value: item.value, label: item.label ?? item.value, text, description: item.description, icon: item.icon, group: item.group, disabled: !!item.disabled };
-  });
+  const rows = (items ?? []).map(toRow);
   // Rows of one group sit together, in the order the groups first appear.
   const order = [...new Set(rows.map((r) => r.group ?? ''))];
   return order.length > 1 ? order.flatMap((g) => rows.filter((r) => (r.group ?? '') === g)) : rows;
@@ -218,6 +241,11 @@ interface RenderOptions {
   busy?: boolean;
 }
 
+/** An avatar: a string is an image URL. */
+export function avatarNode(avatar: React.ReactNode): React.ReactNode {
+  return typeof avatar === 'string' && /^(https?:|data:|blob:|\/|\.)/.test(avatar) ? <img src={avatar} alt="" loading="lazy" decoding="async" /> : avatar;
+}
+
 /** The rows, in groups when they have them. Pointer down keeps focus on the trigger. */
 export function renderRows(o: RenderOptions): React.ReactNode {
   const groups: Array<{ name?: string; rows: Array<[Row, number]> }> = [];
@@ -235,16 +263,18 @@ export function renderRows(o: RenderOptions): React.ReactNode {
           'option',
           <>
             {o.checks === false ? null : o.slot('check', isSelected ? CHECK_ICON : null, 'span', { 'aria-hidden': true })}
+            {row.avatar != null ? o.slot('avatar', avatarNode(row.avatar), 'span', { 'aria-hidden': true }) : null}
             {row.icon != null ? o.slot('icon', row.icon, 'span', { 'aria-hidden': true }) : null}
             <span className={o.unstyled ? undefined : 'pinfold-select__text'}>
               <span className={o.unstyled ? undefined : 'pinfold-select__label'}>{label}</span>
               {row.description != null ? o.slot('detail', row.description, 'span') : null}
             </span>
+            {row.endContent != null ? o.slot('endContent', row.endContent, 'span') : null}
             {row.end != null ? o.slot('shortcut', row.end, 'kbd') : null}
           </>,
           'div',
           {
-            [ITEM]: { value: row.value, label: row.label, text: row.text, description: row.description, icon: row.icon, group: row.group, disabled: row.disabled, selected: isSelected, active: i === o.active, index: i } satisfies ListItemContext,
+            [ITEM]: rowContext(row, i, isSelected, i === o.active),
             id: o.optionId(i),
             role: 'option',
             'aria-selected': isSelected,
@@ -298,4 +328,172 @@ export function renderRows(o: RenderOptions): React.ReactNode {
           ),
         );
   return body;
+}
+
+/* ------------------------------------------------------------ async rows */
+
+/** One page of results: the rows, whether more follow, and what to pass to fetch the next page. */
+export interface ListPage<T> {
+  items: ReadonlyArray<T>;
+  /** More rows follow: the list fetches the next page as it scrolls near its end. */
+  hasMore?: boolean;
+  /** Handed back to `loadItems` for the next page (an offset, a token). Default the row count so far. */
+  cursor?: unknown;
+}
+
+/** What `loadItems` gets besides the query. */
+export interface LoadItemsOptions {
+  /** Aborted when the request is no longer needed (the query moved on, the list closed for good, unmount). */
+  signal: AbortSignal;
+  /** The next page's cursor, from the previous page (undefined for the first page). */
+  cursor?: unknown;
+  /** 0 for the first page. */
+  page: number;
+}
+
+/** Rows for a query: the rows themselves, or a page `{ items, hasMore, cursor }`. */
+export type LoadItems<T> = (query: string, options: LoadItemsOptions) => Promise<ReadonlyArray<T> | ListPage<T>> | ReadonlyArray<T> | ListPage<T>;
+
+interface Loaded<T> {
+  query: string;
+  items: ReadonlyArray<T>;
+  hasMore: boolean;
+  cursor: unknown;
+  page: number;
+}
+
+const asPage = <T,>(out: ReadonlyArray<T> | ListPage<T>): ListPage<T> => (Array.isArray(out) ? { items: out as ReadonlyArray<T> } : (out as ListPage<T>));
+
+interface AsyncRowsOptions<T> {
+  load: LoadItems<T> | undefined;
+  query: string;
+  /** Fetch now (the list is open, or something is typed). */
+  active: boolean;
+  /** Milliseconds after the last keystroke. */
+  debounce: number;
+}
+
+/**
+ * Rows from `loadItems`: debounced per query, a request that is no longer needed is aborted, pages
+ * are cached per query (the oldest of 30 queries goes first), and `loadMore()` appends the next page.
+ */
+export function useAsyncRows<T>({ load, query, active, debounce }: AsyncRowsOptions<T>) {
+  const [loaded, setLoaded] = React.useState<Loaded<T> | null>(null);
+  const [fetching, setFetching] = React.useState(false);
+  const [fetchingMore, setFetchingMore] = React.useState(false);
+  const [failed, setFailed] = React.useState(false);
+  const cache = React.useRef(new Map<string, Loaded<T>>());
+  const loader = React.useRef(load);
+  loader.current = load;
+  const more = React.useRef<AbortController | null>(null);
+  const latest = React.useRef(loaded);
+  latest.current = loaded;
+  const on = !!load;
+
+  const remember = (entry: Loaded<T>) => {
+    cache.current.delete(entry.query);
+    cache.current.set(entry.query, entry);
+    if (cache.current.size > 30) cache.current.delete(cache.current.keys().next().value as string);
+  };
+
+  React.useEffect(() => {
+    const run = loader.current;
+    if (!run || !active) return;
+    const hit = cache.current.get(query);
+    if (hit) {
+      setLoaded(hit);
+      setFetching(false);
+      setFailed(false);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(
+      async () => {
+        setFetching(true);
+        setFailed(false);
+        try {
+          const page = asPage(await run(query, { signal: controller.signal, page: 0 }));
+          if (controller.signal.aborted) return;
+          const entry: Loaded<T> = { query, items: page.items, hasMore: !!page.hasMore, cursor: page.cursor ?? page.items.length, page: 0 };
+          remember(entry);
+          setLoaded(entry);
+        } catch {
+          if (!controller.signal.aborted) setFailed(true);
+        } finally {
+          if (!controller.signal.aborted) setFetching(false);
+        }
+      },
+      query ? debounce : 0,
+    );
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+      // A page on its way for the old query is no longer needed either.
+      more.current?.abort();
+      more.current = null;
+      setFetchingMore(false);
+    };
+  }, [query, active, on]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  React.useEffect(() => () => more.current?.abort(), []);
+
+  /** Fetch and append the next page, once at a time. */
+  const loadMore = () => {
+    const run = loader.current;
+    const now = latest.current;
+    if (!run || !now || !now.hasMore || more.current || now.query !== query) return;
+    const controller = new AbortController();
+    more.current = controller;
+    setFetchingMore(true);
+    setFailed(false);
+    let out: ReturnType<LoadItems<T>>;
+    try {
+      out = run(now.query, { signal: controller.signal, cursor: now.cursor, page: now.page + 1 });
+    } catch (error) {
+      out = Promise.reject(error);
+    }
+    Promise.resolve(out)
+      .then(
+        (out) => {
+          if (controller.signal.aborted) return;
+          const page = asPage(out);
+          const items = [...now.items, ...page.items];
+          const entry: Loaded<T> = { query: now.query, items, hasMore: !!page.hasMore && page.items.length > 0, cursor: page.cursor ?? items.length, page: now.page + 1 };
+          remember(entry);
+          setLoaded(entry);
+        },
+        () => {
+          if (!controller.signal.aborted) setFailed(true);
+        },
+      )
+      .finally(() => {
+        if (more.current === controller) {
+          more.current = null;
+          setFetchingMore(false);
+        }
+      });
+  };
+
+  return { items: loaded?.items, loading: fetching, loadingMore: fetchingMore, failed, hasMore: !!loaded?.hasMore && loaded.query === query, loadMore };
+}
+
+/**
+ * Calls `onEnd` when the list is scrolled to within `margin` px of its end, and when the active
+ * row reaches one of the last three (keyboard paging).
+ */
+export function useNearEnd(list: React.RefObject<HTMLElement | null>, on: boolean, active: number, count: number, onEnd: () => void, margin = 48) {
+  const latest = React.useRef(onEnd);
+  latest.current = onEnd;
+  React.useEffect(() => {
+    const el = list.current;
+    if (!on || !el) return;
+    const check = () => {
+      if (el.scrollHeight - el.scrollTop - el.clientHeight <= margin) latest.current();
+    };
+    el.addEventListener('scroll', check, { passive: true });
+    return () => el.removeEventListener('scroll', check);
+  }, [on, list, margin]);
+  React.useEffect(() => {
+    if (on && count > 0 && active >= count - 3) latest.current();
+  }, [on, active, count]);
 }

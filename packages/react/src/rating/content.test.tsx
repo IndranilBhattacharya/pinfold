@@ -74,7 +74,7 @@ describePinfoldConformance({
   inherits: ['size'],
   variants: false,
   slots: ['root', 'label', 'symbols', 'symbol'],
-  optionalSlots: ['value'],
+  optionalSlots: ['value', 'hint'],
   cssFile: 'packages/css/src/rating.css',
   meta: ratingMeta,
   preset: { define: defineRating as any, props: { label: 'R' } },

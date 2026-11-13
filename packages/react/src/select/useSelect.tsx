@@ -5,14 +5,16 @@ import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { ITEM, renderSlot, slotProps } from '../slots';
-import { filled, hiddenStyle, labelContent, useField } from '../field';
+import { filled, hiddenStyle, labelContent, renderFieldMessages, useField, validationAttrs } from '../field';
 import { useFloating, useMounted, useOverlayLayer } from '../overlay';
 import { VISUALLY_HIDDEN } from '../a11y';
 import { CHEVRON_DOWN_ICON, CLOSE_ICON } from '../nav-icons';
-import { renderRows, toRows, useListNav, useListWindow, type Row } from './listbox';
+import { avatarNode, renderRows, rowContext, toRow, toRows, useListNav, useListWindow, type Row } from './listbox';
+import type { ListItemContext } from './listbox';
 import type { SelectApi, SelectComponent, SelectConfig, SelectRootProps, SelectSlot, SelectState } from './types';
 
 const asList = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : v == null || v === '' ? [] : [String(v)]);
+const SHARED: Record<string, string> = { label: 'pinfold-field__label', description: 'pinfold-field__description', error: 'pinfold-field__error', statusIcon: 'pinfold-field__icon', validating: 'pinfold-field__validating' };
 
 /**
  * A field that opens a list to choose one value, or several with `multiple`, as a hook that hands
@@ -28,15 +30,20 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
   const ctx = usePinfold();
   const own = input as unknown as SelectConfig;
   const config = ctx.defaults.select ? (mergeConfig<SelectConfig>(ctx.defaults.select as SelectConfig, own) as SelectConfig) : own;
-  const field = useField(config);
   const multiple = !!config.multiple;
   const rows = toRows(config.items);
   const [rawValue, setRawValue] = useControllableState<unknown>({ value: config.value === undefined ? undefined : config.value ?? null, defaultValue: config.defaultValue ?? (multiple ? [] : null) });
   const value = asList(rawValue);
+  // What validation reads: the value as of the last commit, before React has re-rendered.
+  const current = React.useRef(value);
+  current.current = value;
+  const native = React.useRef<HTMLSelectElement | null>(null);
+  const field = useField(config as never, { value: () => (multiple ? current.current : current.current[0] ?? null), control: () => native.current });
+  const frame = React.useRef(0);
+  React.useEffect(() => () => cancelAnimationFrame(frame.current), []);
   const [isOpen, setOpenState] = useControllableState<boolean>({ value: config.open, defaultValue: config.defaultOpen ?? false });
   const trigger = React.useRef<HTMLDivElement | null>(null);
   const popup = React.useRef<HTMLDivElement | null>(null);
-  const native = React.useRef<HTMLSelectElement | null>(null);
   const mounted = useMounted();
   const listId = `${field.base}-list`;
   const disabled = !!config.disabled;
@@ -54,7 +61,7 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
     warnOnce(new Set(rows.map((r) => r.value)).size !== rows.length, 'Select: every row needs its own `value`.');
   }
 
-  const state: SelectState = { variant: config.variant ?? 'outline', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, open, multiple, invalid: field.invalid, disabled, value };
+  const state: SelectState = { variant: config.variant ?? 'outline', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, open, multiple, invalid: field.invalid, disabled, value, status: field.status, validating: field.validating };
 
   const setOpen = (next: boolean, edge?: 'first' | 'last') => {
     if (next === open || (next && disabled)) return;
@@ -63,10 +70,26 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
     config.onOpenChange?.(next);
   };
   const commit = (next: string[], event?: React.SyntheticEvent) => {
+    current.current = next;
     setRawValue(multiple ? next : next[0] ?? null);
     (config.onChange as ((v: unknown, e?: React.SyntheticEvent) => void) | undefined)?.(multiple ? next : next[0] ?? null, event);
-    // The native select follows, so a required field revalidates.
-    requestAnimationFrame(() => native.current && field.revalidate(native.current as unknown as HTMLInputElement));
+    const el = native.current as unknown as HTMLInputElement | null;
+    if (!el) return;
+    field.revalidate(el);
+    // The native select follows on the next render: a browser message showing is checked again then.
+    cancelAnimationFrame(frame.current);
+    if (filled(field.message)) frame.current = requestAnimationFrame(() => field.revalidate(el));
+  };
+  const rowOf = (v: string): Row => rows.find((r) => r.value === v) ?? toRow(v);
+  const remove = (v: string, event?: React.SyntheticEvent) => {
+    const index = current.current.indexOf(v);
+    if (index < 0) return;
+    commit(current.current.filter((x) => x !== v), event);
+    (config.onRemove as ((v: string, item: ListItemContext) => void) | undefined)?.(v, rowContext(rowOf(v), index, false, false));
+  };
+  const clear = (event?: React.SyntheticEvent) => {
+    commit([], event);
+    config.onClear?.();
   };
   const pick = (row: Row, event?: React.SyntheticEvent) => {
     if (row.disabled) return;
@@ -133,6 +156,8 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
         'data-invalid': dataAttr(field.invalid),
         'data-disabled': dataAttr(disabled),
         'data-multiple': dataAttr(multiple),
+        'data-chip-variant': multiple ? config.chipVariant ?? 'soft' : undefined,
+        ...validationAttrs(field),
         'data-animate': dataAttr(!ctx.disableAnimation),
         'data-unstyled': dataAttr(config.unstyled),
       },
@@ -149,18 +174,21 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
       'root',
       getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-select pinfold-field', config.className), style: vars || config.style ? { ...vars, ...config.style } : undefined }, rootProps)),
     );
-    const chosen = value.map((v) => rows.find((r) => r.value === v) ?? { value: v, label: v, text: v, disabled: false });
+    const chosen = value.map(rowOf);
     const valueId = `${field.base}-value`;
     const max = config.maxChips ?? 3;
-    const remove = (v: string, event: React.SyntheticEvent) => {
+    const unchoose = (v: string, event: React.SyntheticEvent) => {
       event.stopPropagation();
-      commit(value.filter((x) => x !== v), event);
+      remove(v, event);
       trigger.current?.focus();
     };
+    const contexts = chosen.map((r, index) => rowContext(r, index, true, false, (e?: React.SyntheticEvent) => (e ? unchoose(r.value, e) : remove(r.value))));
+    const lead = (r: Row) => (r.avatar != null ? slot('avatar', avatarNode(r.avatar), 'span', { 'aria-hidden': true }) : r.icon != null ? slot('icon', r.icon, 'span', { 'aria-hidden': true }) : null);
     let shown: React.ReactNode;
-    if (!chosen.length) shown = slot('placeholder', config.placeholder ?? 'Select…', 'span');
-    else if (!multiple) shown = <>{chosen[0].icon != null ? slot('icon', chosen[0].icon, 'span', { 'aria-hidden': true }) : null}{chosen[0].label}</>;
-    else if ((config.display ?? 'chips') === 'text') shown = chosen.map((r) => r.text).join(', ');
+    if (config.renderValue && chosen.length) shown = config.renderValue(contexts, state);
+    else if (!chosen.length) shown = slot('placeholder', config.placeholder ?? 'Select…', 'span');
+    else if (!multiple) shown = <>{lead(chosen[0])}<span className={cls('pinfold-select__valueText')}>{chosen[0].label}</span></>;
+    else if ((config.display ?? 'chips') === 'text') shown = <span className={cls('pinfold-select__valueText')}>{chosen.map((r) => r.text).join(', ')}</span>;
     else
       shown = (
         <>
@@ -169,24 +197,23 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
               {slot(
                 'chip',
                 <>
-                  <span>{r.label}</span>
-                  {disabled ? null : (
-                    // Pointer only: the list itself is the keyboard way to unchoose.
-                    <span aria-hidden="true" className={cls('pinfold-select__chipRemove')} onPointerDown={(e) => e.preventDefault()} onClick={(e) => remove(r.value, e)}>
-                      {CLOSE_ICON}
-                    </span>
-                  )}
+                  {lead(r)}
+                  <span className={cls('pinfold-select__chipLabel')}>{r.label}</span>
+                  {disabled
+                    ? null
+                    : // Pointer only: the list itself is the keyboard way to unchoose.
+                      slot('chipRemove', CLOSE_ICON, 'span', { 'aria-hidden': true, title: `${config.clearLabel ?? 'Clear'} ${r.text}`, onPointerDown: (e: React.PointerEvent) => e.preventDefault(), onClick: (e: React.MouseEvent) => unchoose(r.value, e) })}
                 </>,
                 'span',
-                { [ITEM]: { value: r.value, label: r.label, text: r.text, description: r.description, icon: r.icon, group: r.group, disabled: r.disabled, selected: true, active: false, index, remove: (e?: React.SyntheticEvent) => remove(r.value, e as React.SyntheticEvent) } },
+                { [ITEM]: contexts[index], 'data-tone': r.tone, title: r.text },
               )}
             </React.Fragment>
           ))}
-          {chosen.length > max ? slot('chip', `+${chosen.length - max}`, 'span', { 'data-more': '' }) : null}
+          {chosen.length > max ? slot('chip', `+${chosen.length - max}`, 'span', { 'data-more': '', title: chosen.slice(max).map((r) => r.text).join(', ') }) : null}
         </>
       );
     const canClear = !!config.clearable && value.length > 0 && !disabled;
-    const label = slot('label', labelContent(config, config.unstyled), 'label', { id: field.labelId, ...hiddenStyle(config.hideLabel), onClick: (e: React.MouseEvent) => (e.preventDefault(), trigger.current?.focus()) }, 'pinfold-field__label');
+    const label = slot('label', labelContent(config, config.unstyled), 'label', { id: field.labelId, ...hiddenStyle(config.hideLabel), onClick: (e: React.MouseEvent) => (e.preventDefault(), trigger.current?.focus()) }, SHARED.label);
     const control = slot(
       'control',
       <>
@@ -200,11 +227,12 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
               onPointerDown: (e: React.PointerEvent) => e.preventDefault(),
               onClick: (e: React.MouseEvent) => {
                 e.stopPropagation();
-                commit([], e);
+                clear(e);
                 trigger.current?.focus();
               },
             })
           : null}
+        {field.validating ? slot('validating', null, 'span', { 'aria-hidden': true }, SHARED.validating) : null}
         {slot('chevron', CHEVRON_DOWN_ICON, 'span', { 'aria-hidden': true })}
       </>,
       'div',
@@ -222,8 +250,13 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
         'aria-invalid': field.invalid || undefined,
         'aria-required': config.required || undefined,
         'aria-disabled': disabled || undefined,
+        'aria-busy': field.validating || undefined,
         onKeyDown,
         onClick: () => setOpen(!open),
+        onBlur: (event: React.FocusEvent) => {
+          if (popup.current?.contains(event.relatedTarget as Node | null)) return;
+          field.onBlur(native.current);
+        },
       },
     );
     const list =
@@ -259,7 +292,11 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
         disabled={disabled}
         value={multiple ? value : value[0] ?? ''}
         onChange={(event) => commit(Array.from(event.target.selectedOptions, (o) => o.value), event)}
-        onInvalid={field.onInvalid as unknown as React.FormEventHandler<HTMLSelectElement>}
+        onInvalid={(event) => {
+          field.onInvalid(event as unknown as React.FormEvent<HTMLInputElement>);
+          // The native copy is hidden: the field takes the focus the browser gives it.
+          if (typeof document !== 'undefined' && document.activeElement === native.current) trigger.current?.focus();
+        }}
         tabIndex={-1}
         aria-hidden="true"
         style={VISUALLY_HIDDEN}
@@ -278,8 +315,7 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
         {control}
         {form}
         {list}
-        {filled(config.description) ? slot('description', config.description, 'div', { id: field.descriptionId }, 'pinfold-field__description') : null}
-        {filled(field.message) ? slot('error', field.message, 'div', { id: field.errorId }, 'pinfold-field__error') : null}
+        {renderFieldMessages(field, config.description, (n, c, t, b) => slot(n as SelectSlot, c, t, b, SHARED[n]), true)}
       </>
     );
     return renderSlot(config, 'root', root, state, content, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;
@@ -290,8 +326,13 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
     isOpen: open,
     open: () => setOpen(true),
     close: () => setOpen(false),
-    setValue: (next) => setRawValue(multiple ? [...next] : next[0] ?? null),
+    setValue: (next) => {
+      current.current = [...next];
+      setRawValue(multiple ? [...next] : next[0] ?? null);
+    },
+    clear: () => clear(),
     focus: () => trigger.current?.focus(),
+    ...field.api,
     getRootProps,
     render,
   };

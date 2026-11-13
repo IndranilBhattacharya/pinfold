@@ -39,10 +39,13 @@ describe('listbox logic', () => {
   });
 
   it('inactive options', () => {
-    expect(Object.keys(inactiveSelectOptions({}))).toEqual(['display', 'maxChips']);
-    expect(inactiveSelectOptions({ multiple: true })).toEqual({});
-    expect(Object.keys(inactiveComboboxOptions({}))).toEqual(['maxChips', 'selectedInList', 'chipsPlacement', 'debounce']);
-    expect(inactiveComboboxOptions({ multiple: true, loadItems: () => [] })).toEqual({});
+    expect(Object.keys(inactiveSelectOptions({}))).toEqual(['display', 'maxChips', 'chipVariant', 'onRemove', 'onClear']);
+    expect(inactiveSelectOptions({ multiple: true, clearable: true })).toEqual({});
+    expect(Object.keys(inactiveSelectOptions({ multiple: true, clearable: true, display: 'text' }))).toEqual(['maxChips', 'chipVariant']);
+    expect(Object.keys(inactiveComboboxOptions({}))).toEqual(['maxChips', 'selectedInList', 'chipsPlacement', 'chipVariant', 'onRemove', 'debounce', 'popupRole', 'onCreate']);
+    expect(inactiveComboboxOptions({ multiple: true, loadItems: () => [], renderList: () => null, allowCustom: true })).toEqual({ hasMore: expect.any(String), onLoadMore: expect.any(String) });
+    expect(inactiveComboboxOptions({ multiple: true, onSearch: () => {}, renderList: () => null, allowCustom: true })).toEqual({});
+    expect(Object.keys(inactiveComboboxOptions({ multiple: true, chipsPlacement: 'none', onSearch: () => {}, renderList: () => null, allowCustom: true }))).toEqual(['maxChips', 'chipVariant']);
   });
 });
 
@@ -55,9 +58,9 @@ describe('hotkeys, tags and command options', () => {
     expect(matchHotkey(k({ ctrlKey: true }), 'mod+k', false)).toBe(true);
     expect(matchHotkey(k({ ctrlKey: true, shiftKey: true }), 'mod+k', false)).toBe(false);
     expect(matchHotkey(k({ key: '/', shiftKey: true }), 'shift+/', false)).toBe(true);
-    expect(Object.keys(inactiveTagsOptions({}))).toEqual(['value', 'defaultValue', 'onChange', 'removeHint', 'removeLabel', 'moreLabel']);
-    expect(inactiveTagsOptions({ selection: 'single', onRemove: 1, maxVisible: 3 })).toEqual({});
-    expect(Object.keys(inactiveCommandOptions({}))).toEqual(['open', 'defaultOpen', 'onOpenChange', 'hotkey', 'closeOnSelect']);
-    expect(inactiveCommandOptions({ mode: 'dialog' })).toEqual({});
+    expect(Object.keys(inactiveTagsOptions({}))).toEqual(['value', 'defaultValue', 'onChange', 'removeHint', 'removeLabel', 'editLabel', 'addLabel', 'delimiters', 'moreLabel']);
+    expect(inactiveTagsOptions({ selection: 'single', onRemove: 1, onEdit: 1, onAdd: 1, maxVisible: 3 })).toEqual({});
+    expect(Object.keys(inactiveCommandOptions({}))).toEqual(['open', 'defaultOpen', 'onOpenChange', 'hotkey', 'closeOnSelect', 'debounce']);
+    expect(inactiveCommandOptions({ mode: 'dialog', loadItems: () => [] })).toEqual({});
   });
 });

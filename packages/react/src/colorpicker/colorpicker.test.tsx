@@ -74,7 +74,7 @@ describePinfoldConformance({
   variants: false,
   inherits: ['size'],
   slots: ['root', 'area', 'thumb', 'controls', 'hue', 'preview', 'field', 'input'],
-  optionalSlots: ['alpha', 'eyedropper', 'swatches', 'swatch'],
+  optionalSlots: ['alpha', 'eyedropper', 'swatches', 'swatchGroup', 'swatchLabel', 'swatch', 'description', 'error', 'statusIcon', 'validating'],
   cssFile: 'packages/css/src/colorpicker.css',
   meta: colorpickerMeta,
   preset: { define: defineColorPicker as any, props: { label: 'C' } },

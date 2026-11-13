@@ -60,26 +60,39 @@ export function toggleValue(values: readonly string[], value: string, multiple: 
 }
 
 /** Options with no visible effect in the current config. */
-export function inactiveSelectOptions(config: { multiple?: boolean; clearable?: boolean }): Record<string, string> {
-  const out: Record<string, string> = {};
-  if (!config.multiple) {
-    out.display = 'only used with `multiple`.';
-    out.maxChips = out.display;
-  }
-  return out;
-}
-
-export function inactiveComboboxOptions(config: { multiple?: boolean; loadItems?: unknown }): Record<string, string> {
+export function inactiveSelectOptions(config: { multiple?: boolean; clearable?: boolean; display?: string; renderValue?: unknown }): Record<string, string> {
   const out: Record<string, string> = {};
   if (!config.multiple) {
     const why = 'only used with `multiple`.';
-    Object.assign(out, { maxChips: why, selectedInList: why, chipsPlacement: why });
+    Object.assign(out, { display: why, maxChips: why, chipVariant: why, onRemove: why });
+  } else if (config.display === 'text' || config.renderValue) {
+    const why = config.renderValue ? 'you draw the value with `renderValue`.' : 'only used with `display: "chips"`.';
+    Object.assign(out, { maxChips: why, chipVariant: why });
   }
-  if (!config.loadItems) out.debounce = 'only used with `loadItems`.';
+  if (!config.clearable) out.onClear = 'only used with `clearable`.';
   return out;
 }
 
-export function inactiveTagsOptions(config: { selection?: string; onRemove?: unknown; maxVisible?: number }): Record<string, string> {
+export function inactiveComboboxOptions(config: { multiple?: boolean; loadItems?: unknown; onSearch?: unknown; renderList?: unknown; allowCustom?: boolean; chipsPlacement?: string }): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!config.multiple) {
+    const why = 'only used with `multiple`.';
+    Object.assign(out, { maxChips: why, selectedInList: why, chipsPlacement: why, chipVariant: why, onRemove: why });
+  } else if (config.chipsPlacement === 'none') {
+    const why = 'no chips are drawn with `chipsPlacement: "none"`.';
+    Object.assign(out, { maxChips: why, chipVariant: why });
+  }
+  if (!config.loadItems && !config.onSearch) out.debounce = 'only used with `loadItems` or `onSearch`.';
+  if (config.loadItems) {
+    const why = 'your own `items` only: `loadItems` pages by returning `{ items, hasMore }`.';
+    Object.assign(out, { hasMore: why, onLoadMore: why });
+  }
+  if (!config.renderList) out.popupRole = 'only used with `renderList`.';
+  if (!config.allowCustom) out.onCreate = 'only used with `allowCustom`.';
+  return out;
+}
+
+export function inactiveTagsOptions(config: { selection?: string; onRemove?: unknown; onEdit?: unknown; onReorder?: unknown; onAdd?: unknown; maxVisible?: number }): Record<string, string> {
   const out: Record<string, string> = {};
   if (!config.selection || config.selection === 'none') {
     const why = 'only used with `selection`: tags are labels to read.';
@@ -88,7 +101,12 @@ export function inactiveTagsOptions(config: { selection?: string; onRemove?: unk
   if (!config.onRemove) {
     const why = 'only used with `onRemove`.';
     out.removeLabel = why;
-    out.removeHint = why;
+    if (!config.onEdit && !config.onReorder) out.removeHint = why;
+  }
+  if (!config.onEdit) out.editLabel = 'only used with `onEdit`.';
+  if (!config.onAdd) {
+    const why = 'only used with `onAdd`.';
+    Object.assign(out, { addLabel: why, delimiters: why });
   }
   if (config.maxVisible === undefined) out.moreLabel = 'only used with `maxVisible`.';
   return out;
@@ -105,8 +123,16 @@ export function matchHotkey(event: { key: string; metaKey: boolean; ctrlKey: boo
   return event.key.toLowerCase() === key && event.metaKey === want.meta && event.ctrlKey === want.ctrl && event.shiftKey === want.shift && event.altKey === want.alt;
 }
 
-export function inactiveCommandOptions(config: { mode?: string }): Record<string, string> {
-  if (config.mode === 'dialog') return {};
-  const why = 'only used with `mode: "dialog"`.';
-  return { open: why, defaultOpen: why, onOpenChange: why, hotkey: why, closeOnSelect: why };
+export function inactiveCommandOptions(config: { mode?: string; loadItems?: unknown; footer?: boolean }): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (config.mode !== 'dialog') {
+    const why = 'only used with `mode: "dialog"`.';
+    Object.assign(out, { open: why, defaultOpen: why, onOpenChange: why, hotkey: why, closeOnSelect: why });
+  }
+  if (!config.loadItems) out.debounce = 'only used with `loadItems`.';
+  if (config.footer === false) {
+    const why = 'the footer is off (`footer: false`).';
+    Object.assign(out, { hints: why, footerContent: why });
+  }
+  return out;
 }

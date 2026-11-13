@@ -4,9 +4,9 @@ import { useControllableState, useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
+import { ITEM, renderSlot, slotProps } from '../slots';
 import { VISUALLY_HIDDEN } from '../a11y';
-import type { RatingApi, RatingComponent, RatingConfig, RatingRootProps, RatingSlot, RatingState } from './types';
+import type { RatingApi, RatingComponent, RatingConfig, RatingIcon, RatingRootProps, RatingSlot, RatingState, RatingSymbolContext } from './types';
 
 const STAR = (
   <svg viewBox="0 0 24 24" fill="currentColor" focusable="false" aria-hidden="true">
@@ -31,7 +31,12 @@ export function useRating(input: RatingConfig): RatingComponent {
   const base = useId();
   const max = Math.max(1, Math.round(config.max ?? 5));
   const [value, setValue] = useControllableState<number>({ value: config.value, defaultValue: config.defaultValue ?? 0 });
-  const [hover, setHover] = React.useState<number | null>(null);
+  const [hover, setHoverState] = React.useState<number | null>(null);
+  const setHover = (next: number | null) => {
+    if (next === hover) return;
+    setHoverState(next);
+    config.onHover?.(next);
+  };
   const symbols = React.useRef<HTMLDivElement | null>(null);
 
   if (process.env.NODE_ENV !== 'production') {
@@ -46,8 +51,11 @@ export function useRating(input: RatingConfig): RatingComponent {
   const readOnly = !!config.readOnly;
   const disabled = !!config.disabled;
   const step = config.allowHalf ? 0.5 : 1;
-  const state: RatingState = { size: config.size ?? ctx.size, tone: config.tone ?? 'warning', value, readOnly };
-  const spoken = (v: number) => (config.getValueLabel ? config.getValueLabel(v) : `${v} star${v === 1 ? '' : 's'}`);
+  const state: RatingState = { size: config.size ?? ctx.size, tone: config.tone ?? 'warning', value, readOnly, hover };
+  /** The word for a value: its whole step's (3.5 reads as the fourth). */
+  // A half value takes the word of the whole step it has reached (3.5 reads as 3); 0.5 as the first.
+  const wordOf = (v: number) => (v > 0 ? config.valueLabels?.[Math.max(1, Math.floor(v)) - 1] : undefined);
+  const spoken = (v: number) => (config.getValueLabel ? config.getValueLabel(v) : wordOf(v) && v % 1 === 0 ? `${wordOf(v)}, ${v} star${v === 1 ? '' : 's'}` : `${v} star${v === 1 ? '' : 's'}`);
   const choose = (v: number) => {
     if (readOnly || disabled) return;
     const next = v === value && config.clearable !== false ? 0 : v;
@@ -66,6 +74,7 @@ export function useRating(input: RatingConfig): RatingComponent {
         'data-size': state.size,
         'data-tone': state.tone,
         'data-readonly': dataAttr(readOnly),
+        'data-previewing': dataAttr(hover !== null),
         'data-disabled': dataAttr(disabled),
         'data-animate': dataAttr(!ctx.disableAnimation),
         'data-unstyled': dataAttr(config.unstyled),
@@ -80,23 +89,30 @@ export function useRating(input: RatingConfig): RatingComponent {
     const root = slotProps(config, 'root', getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-rating', config.className), style: config.style }, rootProps)));
     const shown = hover ?? value;
     const fill = ratingFill(shown, max);
-    const icon = config.icon ?? STAR;
     const labelId = `${base}-label`;
-    const marks = fill.map((f, i) => (
-      <React.Fragment key={i}>
-        {slot(
-          'symbol',
-          <>
-            <span className={cls('pinfold-rating__empty')}>{icon}</span>
-            <span className={cls('pinfold-rating__full')} style={{ clipPath: f === 1 ? 'none' : f === 0.5 ? 'inset(0 50% 0 0)' : 'inset(0 100% 0 0)' }}>
-              {icon}
-            </span>
-          </>,
-          'span',
-          { 'aria-hidden': true, 'data-fill': String(f) },
-        )}
-      </React.Fragment>
-    ));
+    const draw = (icon: RatingIcon | undefined, symbol: RatingSymbolContext) => (typeof icon === 'function' ? icon(symbol) : icon);
+    const marks = fill.map((f, i) => {
+      const symbol: RatingSymbolContext = { index: i, value: i + 1, fill: f, previewing: hover !== null, label: config.valueLabels?.[i] };
+      const full = draw(config.icon, symbol) ?? STAR;
+      const empty = draw(config.emptyIcon, symbol) ?? full;
+      return (
+        <React.Fragment key={i}>
+          {slot(
+            'symbol',
+            <>
+              <span className={cls('pinfold-rating__empty')} data-own={config.emptyIcon !== undefined ? '' : undefined}>
+                {empty}
+              </span>
+              <span className={cls('pinfold-rating__full')} style={{ clipPath: f === 1 ? 'none' : f === 0.5 ? 'inset(0 50% 0 0)' : 'inset(0 100% 0 0)' }}>
+                {full}
+              </span>
+            </>,
+            'span',
+            { [ITEM]: symbol, 'aria-hidden': true, 'data-fill': String(f), title: readOnly ? undefined : symbol.label },
+          )}
+        </React.Fragment>
+      );
+    });
     // Choices: each step a native radio, visually hidden over the row; pointer picks by position.
     const choices = readOnly
       ? null
@@ -145,6 +161,8 @@ export function useRating(input: RatingConfig): RatingComponent {
               },
         )}
         {config.showValue ? slot('value', `${value % 1 ? value.toFixed(1) : value}`, 'span', { 'aria-hidden': true }) : null}
+        {/* The word for the value under the pointer, else the chosen one; the radios already speak it. */}
+        {config.valueLabels?.length ? slot('hint', wordOf(shown) ?? '', 'span', { 'aria-hidden': true, 'data-preview': dataAttr(hover !== null) }) : null}
       </>
     );
     return renderSlot(config, 'root', root, state, content, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;

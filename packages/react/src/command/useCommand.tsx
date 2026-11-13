@@ -5,8 +5,8 @@ import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
-import { renderRows, useListNav, type Row } from '../select/listbox';
-import type { CommandApi, CommandComponent, CommandConfig, CommandItem, CommandRootProps, CommandSlot, CommandState } from './types';
+import { renderRows, useAsyncRows, useListNav, useNearEnd, type Row } from '../select/listbox';
+import type { CommandApi, CommandComponent, CommandConfig, CommandHint, CommandItem, CommandRootProps, CommandSlot, CommandState } from './types';
 
 const SEARCH_ICON = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" focusable="false" aria-hidden="true">
@@ -35,17 +35,29 @@ export function useCommand(input: CommandConfig): CommandComponent {
   const root = React.useRef<HTMLElement | null>(null);
   const field = React.useRef<HTMLInputElement | null>(null);
   const listId = `${base}-list`;
-  const items: CommandItem[] = (config.items ?? []).map((item) => (typeof item === 'string' ? { label: item } : item));
+  const list = React.useRef<HTMLDivElement | null>(null);
+  const async = !!config.loadItems;
+  const remote = useAsyncRows<CommandItem | string>({ load: config.loadItems, query, active: open, debounce: config.debounce ?? 250 });
+  const items: CommandItem[] = ((async ? remote.items : config.items) ?? []).map((item) => (typeof item === 'string' ? { label: item } : item));
   const valueOf = (item: CommandItem, i: number) => item.value ?? (typeof item.label === 'string' ? item.label : item.textValue ?? String(i));
   const textOf = (item: CommandItem) => item.textValue ?? (typeof item.label === 'string' ? item.label : item.value ?? '');
   const matched = items
     .map((item, i) => ({ item, i }))
-    .filter(({ item }) => [textOf(item), ...(item.keywords ?? [])].some((t) => matchesQuery(t, query, config.filter ?? 'contains')));
+    .filter(({ item }) => [textOf(item), ...(item.keywords ?? [])].some((t) => matchesQuery(t, query, config.filter ?? (async ? 'none' : 'contains'))));
   // Grouped in the order groups first appear, as a select's rows are.
   const order = [...new Set(matched.map(({ item }) => item.group ?? ''))];
   const sorted = order.length > 1 ? order.flatMap((g) => matched.filter(({ item }) => (item.group ?? '') === g)) : matched;
-  const rows: Row[] = sorted.map(({ item, i }) => ({ value: valueOf(item, i), label: item.label, text: textOf(item), description: item.description, icon: item.icon, group: item.group, disabled: !!item.disabled, end: item.shortcut }));
+  const rows: Row[] = sorted.map(({ item, i }) => ({ value: valueOf(item, i), label: item.label, text: textOf(item), description: item.description, icon: item.icon, avatar: item.avatar, endContent: item.endContent, group: item.group, disabled: !!item.disabled, end: item.shortcut, data: item as never }));
   const nav = useListNav({ rows, open, selected: [], listId });
+  const loading = !!config.loading || (async && remote.loading);
+  useNearEnd(list, open && async && remote.hasMore && !loading, nav.active, rows.length, remote.loadMore);
+  const highlighted = rows[nav.active]?.value ?? null;
+  const lastHighlight = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    if (!config.onHighlight || lastHighlight.current === highlighted) return;
+    lastHighlight.current = highlighted;
+    config.onHighlight(highlighted);
+  });
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ commandMeta, validateConfig }) => {
@@ -56,7 +68,7 @@ export function useCommand(input: CommandConfig): CommandComponent {
     warnOnce(!config.label, 'Command: give it a `label`, e.g. "Commands": it names the palette for screen readers.');
   }
 
-  const state: CommandState = { mode: dialog ? 'dialog' : 'inline', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, open, loading: !!config.loading, query };
+  const state: CommandState = { mode: dialog ? 'dialog' : 'inline', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, open, loading, query };
 
   const setOpen = (next: boolean) => {
     if (!dialog || next === isOpen) return;
@@ -152,6 +164,9 @@ export function useCommand(input: CommandConfig): CommandComponent {
     const slot = (name: CommandSlot, content: React.ReactNode, tag: string, own: PropsBag = {}) =>
       renderSlot(config, name, slotProps(config, name, { className: cls(`pinfold-command__${name}`), ...own }), state, content, (p, c) => React.createElement(tag, p, c));
     const vars = dimensionVars('command', config.dimensions);
+    const labels = config.labels ?? {};
+    const empty = typeof config.emptyText === 'function' ? config.emptyText(query) : config.emptyText ?? 'No results';
+    const hints: readonly CommandHint[] = config.hints ?? [{ keys: ['↑', '↓'], label: 'to move' }, { keys: ['↵'], label: 'to run' }, ...(dialog ? [{ keys: ['esc'], label: 'to close' }] : [])];
     const rootBag = slotProps(
       config,
       'root',
@@ -223,25 +238,41 @@ export function useCommand(input: CommandConfig): CommandComponent {
             query,
             checks: false,
             unstyled: config.unstyled,
-            status: rows.length ? undefined : config.loading ? 'Loading…' : config.emptyText ?? 'No results',
+            status: rows.length ? undefined : loading ? labels.loading ?? 'Loading…' : async && remote.failed ? labels.error ?? 'Could not load results' : empty,
           })}
-          {/* Commands being refreshed stay, with a loading row under them. */}
-          {config.loading && rows.length ? slot('empty', 'Loading…', 'div', { role: 'presentation', 'data-pending': '' }) : null}
+          {/* Commands being refreshed stay, with a loading row under them; so does a page on its way. */}
+          {(loading || remote.loadingMore) && rows.length
+            ? slot('loadMore', remote.loadingMore ? labels.loadingMore ?? 'Loading more…' : labels.loading ?? 'Loading…', 'div', { role: 'presentation', 'data-pending': '', className: cls('pinfold-command__loadMore pinfold-command__empty') })
+            : null}
           </>,
           'div',
-          { id: listId, role: 'listbox', 'aria-label': config.label, 'aria-busy': config.loading || undefined },
+          { ref: list, id: listId, role: 'listbox', 'aria-label': config.label, 'aria-busy': loading || undefined },
         )}
         {config.footer === false
           ? null
           : slot(
               'footer',
               <>
-                <span><kbd>↑</kbd><kbd>↓</kbd> to move</span>
-                <span><kbd>↵</kbd> to run</span>
-                {dialog ? <span><kbd>esc</kbd> to close</span> : null}
+                {/* Decorative: the keys are the field's own and are in the docs. */}
+                <span aria-hidden="true" className={cls('pinfold-command__hints')}>
+                  {hints.map((h, n) => (
+                    <React.Fragment key={n}>
+                      {slot(
+                        'hint',
+                        <>
+                          {h.keys.map((k) => (
+                            <kbd key={k}>{k}</kbd>
+                          ))}
+                          <span>{h.label}</span>
+                        </>,
+                        'span',
+                      )}
+                    </React.Fragment>
+                  ))}
+                </span>
+                {config.footerContent != null ? slot('footerContent', config.footerContent, 'span') : null}
               </>,
               'div',
-              { 'aria-hidden': true },
             )}
       </>,
       'div',
@@ -250,6 +281,6 @@ export function useCommand(input: CommandConfig): CommandComponent {
     return renderSlot(config, 'root', rootBag, state, dialog && !isOpen ? null : panel, (p, c) => (dialog ? <dialog {...p}>{c}</dialog> : <div {...p}>{c}</div>)) as React.ReactElement;
   };
 
-  const api: CommandApi = { isOpen: open, open: () => setOpen(true), close: () => setOpen(false), inputValue: query, focus: () => field.current?.focus(), getRootProps, render };
+  const api: CommandApi = { isOpen: open, open: () => setOpen(true), close: () => setOpen(false), inputValue: query, focus: () => field.current?.focus(), setInputValue: setQuery, getRootProps, render };
   return usePinfoldComponent<CommandApi, CommandRootProps>('Command', api, (props) => render(props));
 }

@@ -4,8 +4,9 @@ import { useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
-import { renderSlot, slotProps } from '../slots';
-import type { ColorPickerApi, ColorPickerComponent, ColorPickerConfig, ColorPickerRootProps, ColorPickerSlot, ColorPickerState, ColorPickerValue } from './types';
+import { ITEM, renderSlot, slotProps } from '../slots';
+import { renderFieldMessages, useField, validationAttrs } from '../field';
+import type { ColorPickerApi, ColorPickerComponent, ColorPickerConfig, ColorPickerRootProps, ColorPickerSlot, ColorPickerState, ColorPickerSwatch, ColorPickerSwatchContext, ColorPickerSwatchGroup, ColorPickerValue } from './types';
 
 const FALLBACK = '#6366f1';
 const FORMAT_NAME = { hex: 'Hex', rgb: 'RGB', hsl: 'HSL', oklch: 'OKLCH' } as const;
@@ -24,6 +25,8 @@ const every = (c: Rgba): ColorPickerValue => ({ hex: formatColor(c, 'hex'), rgb:
 /** A grey has no hue, black no saturation: keep what the picker had so the thumbs do not jump. */
 const keepShape = (next: Hsva, prev: Hsva): Hsva => ({ ...next, h: next.s === 0 || next.v === 0 ? prev.h : next.h, s: next.v === 0 ? prev.s : next.s });
 const clamp = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
+const isGroup = (s: ColorPickerSwatch | ColorPickerSwatchGroup): s is ColorPickerSwatchGroup => typeof s === 'object' && 'colors' in s;
+const SHARED: Record<string, string> = { description: 'pinfold-field__description', error: 'pinfold-field__error', statusIcon: 'pinfold-field__icon', validating: 'pinfold-field__validating' };
 
 /**
  * A colour picker: a saturation and brightness area, hue and opacity sliders, a text field for any
@@ -47,6 +50,13 @@ export function useColorPicker(input: ColorPickerConfig): ColorPickerComponent {
   const sent = React.useRef<string | undefined>(undefined);
   const area = React.useRef<HTMLDivElement | null>(null);
   const thumb = React.useRef<HTMLDivElement | null>(null);
+  const textField = React.useRef<HTMLInputElement | null>(null);
+  // What validation reads: the value as of the last change, before React has re-rendered.
+  const current = React.useRef(text);
+  const field = useField({ label: config.label, description: config.description, invalid: config.invalid, disabled: config.disabled, error: config.error, validate: config.validate, validateOn: config.validateOn, onValidate: config.onValidate, status: config.status } as never, {
+    value: () => current.current,
+    control: () => textField.current,
+  });
   const canDrop = React.useSyncExternalStore(subscribe, () => typeof window !== 'undefined' && 'EyeDropper' in window, () => false);
 
   if (process.env.NODE_ENV !== 'production') {
@@ -70,7 +80,10 @@ export function useColorPicker(input: ColorPickerConfig): ColorPickerComponent {
     const c = hsvToRgba(next);
     const value = formatColor(c, format);
     sent.current = value;
+    current.current = value;
     config.onChange?.(value, every(c));
+    // Validation follows every change; the text field carries the native validity when shown.
+    field.revalidate(textField.current ?? ({ validity: { valid: true } } as HTMLInputElement));
   };
   const setValue = (color: string) => {
     const c = parseColor(color);
@@ -83,18 +96,24 @@ export function useColorPicker(input: ColorPickerConfig): ColorPickerComponent {
     commit({ ...hsva, s: clamp((event.clientX - box.left) / box.width), v: clamp(1 - (event.clientY - box.top) / box.height) });
   };
 
-  const state: ColorPickerState = { size: config.size ?? ctx.size, value: text, disabled };
+  current.current = text;
+  const state: ColorPickerState = { size: config.size ?? ctx.size, value: text, disabled, invalid: field.invalid, status: field.status, validating: field.validating };
   const labels = config.labels ?? {};
 
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
         ...radiusProps(config.radius),
+        ref: field.root,
         role: 'group',
         'aria-label': config.label,
+        'aria-describedby': field.describedBy,
+        'aria-invalid': field.invalid || undefined,
         'data-size': state.size,
         'data-disabled': dataAttr(disabled),
         'data-alpha': dataAttr(config.alpha),
+        'data-invalid': dataAttr(field.invalid),
+        ...validationAttrs(field),
         'data-animate': dataAttr(!ctx.disableAnimation),
         'data-unstyled': dataAttr(config.unstyled),
       },
@@ -108,7 +127,19 @@ export function useColorPicker(input: ColorPickerConfig): ColorPickerComponent {
     const root = slotProps(
       config,
       'root',
-      getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-colorpicker', config.className), style: { ...config.style, '--pinfold-cp-i-color': opaque(rgba), '--pinfold-cp-i-value': formatColor(rgba, 'rgb') } }, rootProps)),
+      getRootProps(
+        mergeProps(
+          {
+            className: config.unstyled ? config.className : cn('pinfold pinfold-colorpicker', config.className),
+            style: { ...config.style, '--pinfold-cp-i-color': opaque(rgba), '--pinfold-cp-i-value': formatColor(rgba, 'rgb') },
+            // Leaving the picker after a change shows what validation found (`validateOn: 'blur'`).
+            onBlur: (event: React.FocusEvent<HTMLElement>) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) field.onBlur(textField.current);
+            },
+          },
+          rootProps,
+        ),
+      ),
     );
     const s = Math.round(hsva.s * 100);
     const v = Math.round(hsva.v * 100);
@@ -193,8 +224,37 @@ export function useColorPicker(input: ColorPickerConfig): ColorPickerComponent {
     };
     const invalid = draft !== null && draft.trim() !== '' && !parseColor(draft);
 
-    const swatches = config.swatches ?? [];
-    const current = formatColor(rgba, 'hex');
+    const currentHex = formatColor(rgba, 'hex');
+    // Loose swatches next to each other form one unnamed row; a group is a named row.
+    const swatchGroups: Array<{ label?: string; colors: readonly ColorPickerSwatch[] }> = [];
+    for (const sw of config.swatches ?? []) {
+      if (isGroup(sw)) swatchGroups.push(sw);
+      else if (swatchGroups.length && swatchGroups[swatchGroups.length - 1].label === undefined) (swatchGroups[swatchGroups.length - 1].colors as ColorPickerSwatch[]).push(sw);
+      else swatchGroups.push({ colors: [sw] });
+    }
+    const grouped = swatchGroups.some((g) => g.label !== undefined);
+    let at = 0;
+    const swatch = (sw: ColorPickerSwatch, group: string | undefined) => {
+      const raw = typeof sw === 'string' ? sw : sw.value;
+      const c = parseColor(raw);
+      if (!c) return null;
+      const name = typeof sw === 'string' ? sw : sw.label ?? sw.value;
+      const item: ColorPickerSwatchContext = { value: raw, label: name, selected: formatColor(c, 'hex') === currentHex, group, index: at++ };
+      return (
+        <React.Fragment key={raw + item.index}>
+          {slot('swatch', null, 'button', {
+            [ITEM]: item,
+            type: 'button',
+            disabled,
+            'aria-label': name,
+            title: name === raw ? raw : `${name} (${raw})`,
+            'aria-pressed': item.selected,
+            style: { '--pinfold-cp-i-swatch': formatColor(c, 'rgb') },
+            onClick: () => setValue(raw),
+          })}
+        </React.Fragment>
+      );
+    };
     const content = (
       <>
         {areaEl}
@@ -228,6 +288,7 @@ export function useColorPicker(input: ColorPickerConfig): ColorPickerComponent {
           ? slot(
               'field',
               slot('input', null, 'input', {
+                ref: textField,
                 id: `${base}-input`,
                 type: 'text',
                 value: draft ?? text,
@@ -235,7 +296,9 @@ export function useColorPicker(input: ColorPickerConfig): ColorPickerComponent {
                 spellCheck: false,
                 autoComplete: 'off',
                 'aria-label': labels.input ?? FORMAT_NAME[format] ?? 'Colour',
-                'aria-invalid': invalid || undefined,
+                'aria-invalid': invalid || field.invalid || undefined,
+                'aria-describedby': field.describedBy,
+                'aria-busy': field.validating || undefined,
                 onChange: (event: React.ChangeEvent<HTMLInputElement>) => setDraft(event.target.value),
                 onBlur: commitDraft,
                 onKeyDown: (event: React.KeyboardEvent) => {
@@ -248,34 +311,43 @@ export function useColorPicker(input: ColorPickerConfig): ColorPickerComponent {
               'div',
             )
           : null}
-        {swatches.length
+        {swatchGroups.length
           ? slot(
               'swatches',
-              swatches.map((sw) => {
-                const c = parseColor(sw);
-                return c ? (
-                  <React.Fragment key={sw}>
-                    {slot('swatch', null, 'button', {
-                      type: 'button',
-                      disabled,
-                      'aria-label': sw,
-                      'aria-pressed': formatColor(c, 'hex') === current,
-                      style: { '--pinfold-cp-i-swatch': formatColor(c, 'rgb') },
-                      onClick: () => setValue(sw),
-                    })}
+              swatchGroups.map((g, n) =>
+                g.label === undefined ? (
+                  grouped ? (
+                    <span key={n} className={cls('pinfold-colorpicker__swatchRow')}>
+                      {g.colors.map((sw) => swatch(sw, undefined))}
+                    </span>
+                  ) : (
+                    <React.Fragment key={n}>{g.colors.map((sw) => swatch(sw, undefined))}</React.Fragment>
+                  )
+                ) : (
+                  <React.Fragment key={g.label + n}>
+                    {slot(
+                      'swatchGroup',
+                      <>
+                        {slot('swatchLabel', g.label, 'span', { id: `${base}-swatches-${n}` })}
+                        <span className={cls('pinfold-colorpicker__swatchRow')}>{g.colors.map((sw) => swatch(sw, g.label))}</span>
+                      </>,
+                      'div',
+                      { role: 'group', 'aria-labelledby': `${base}-swatches-${n}` },
+                    )}
                   </React.Fragment>
-                ) : null;
-              }),
+                ),
+              ),
               'div',
-              { role: 'group', 'aria-label': labels.swatches ?? 'Swatches' },
+              { role: 'group', 'aria-label': labels.swatches ?? 'Swatches', 'data-grouped': dataAttr(grouped) },
             )
           : null}
+        {renderFieldMessages(field, config.description, (n, c, t, b) => slot(n as ColorPickerSlot, c, t, { ...b, className: config.unstyled ? undefined : `pinfold-colorpicker__${n} ${SHARED[n]}` }))}
         {config.name ? <input type="hidden" name={config.name} value={text} disabled={disabled} /> : null}
       </>
     );
     return renderSlot(config, 'root', root, state, content, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;
   };
 
-  const api: ColorPickerApi = { value: text, setValue, getRootProps, render };
+  const api: ColorPickerApi = { value: text, setValue, ...field.api, getRootProps, render };
   return usePinfoldComponent<ColorPickerApi, ColorPickerRootProps>('ColorPicker', api, (props) => render(props));
 }
