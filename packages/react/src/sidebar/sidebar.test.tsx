@@ -76,8 +76,8 @@ describe('Sidebar', () => {
 
 describePinfoldConformance({
   name: 'sidebar',
-  slots: ['root', 'body', 'group', 'list', 'item', 'link', 'icon', 'badge', 'chevron', 'sublist'],
-  optionalSlots: ['header', 'groupLabel', 'footer', 'toggle'],
+  slots: ['root', 'body', 'group', 'list', 'item', 'link', 'badge', 'chevron', 'sublist'],
+  optionalSlots: ['icon', 'header', 'groupLabel', 'footer', 'toggle'],
   cssFile: 'packages/css/src/sidebar.css',
   meta: sidebarMeta,
   preset: { define: defineSidebar as any, props: { label: 'S', items } },

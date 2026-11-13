@@ -141,8 +141,8 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
       const isCurrent = !section && key === current;
       const subId = `${base}-${path}`;
       const text = <span className={cls('pinfold-sidebar__text')}>{item.label}</span>;
-      // In a rail the icon stands for the entry: the first letter when there is none.
-      const icon = item.icon ?? (depth === 0 ? <span className={cls('pinfold-sidebar__initial')}>{item.label.charAt(0)}</span> : null);
+      // In a rail the icon stands for the entry: the first letter when there is none. A sidebar that never folds needs no stand-in.
+      const icon = item.icon ?? (depth === 0 && (config.collapsible || folded) ? <span className={cls('pinfold-sidebar__initial')}>{item.label.charAt(0)}</span> : null);
       const inner = (
         <>
           {icon ? slot('icon', icon, 'span', { 'aria-hidden': true }) : null}
