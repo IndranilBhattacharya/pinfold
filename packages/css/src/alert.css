@@ -6,10 +6,14 @@
 @layer pinfold.components {
   .pinfold-alert {
     --pinfold-alt-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-alt-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
     --pinfold-alt-text: color-mix(in oklab, var(--pinfold-tone-text, var(--pinfold-color-accent)) 86%, var(--pinfold-color-text));
     --pinfold-alt-pad: var(--pinfold-alert-padding, var(--pinfold-space-4));
     --pinfold-alt-gap: var(--pinfold-alert-gap, var(--pinfold-space-3));
     --pinfold-alt-icon: var(--pinfold-alert-icon-size, 1.125rem);
+    --pinfold-alt-tile: calc(var(--pinfold-alt-icon) + 0.625rem);
+    --pinfold-alt-title: var(--pinfold-color-text);
+    --pinfold-alt-muted: var(--pinfold-color-text-muted);
 
     position: relative;
     display: flex;
@@ -31,42 +35,63 @@
   .pinfold-alert[hidden] { display: none; }
 
   .pinfold-alert[data-variant='soft'] {
-    background-color: color-mix(in oklab, var(--pinfold-alt-solid) 7%, var(--pinfold-color-surface));
-    border-color: var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-alt-solid) 22%, var(--pinfold-color-border)));
+    background-color: color-mix(in oklab, var(--pinfold-alt-solid) 8%, var(--pinfold-color-surface));
+    border-color: var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-alt-solid) 24%, var(--pinfold-color-border)));
   }
   .pinfold-alert[data-variant='outline'] {
     background-color: var(--pinfold-color-surface);
-    border-color: var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-alt-solid) 42%, var(--pinfold-color-border)));
+    border-color: var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-alt-solid) 46%, var(--pinfold-color-border)));
   }
-  /* A plain card with the tone along its leading edge. */
+  /* Filled in the tone: every word in the tone's on-colour, which is checked for contrast. */
+  .pinfold-alert[data-variant='solid'] {
+    --pinfold-alt-text: var(--pinfold-alt-on);
+    --pinfold-alt-title: var(--pinfold-alt-on);
+    --pinfold-alt-muted: color-mix(in oklab, var(--pinfold-alt-on) 86%, var(--pinfold-alt-solid));
+    color: var(--pinfold-alt-on);
+    background-color: var(--pinfold-alt-solid);
+    border-color: var(--pinfold-control-edge, transparent);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-highlight), var(--pinfold-shadow-sm));
+  }
+  /* A plain card with the tone along its leading edge (a border, so nothing is clipped). */
   .pinfold-alert[data-variant='accent'] {
     background-color: var(--pinfold-color-surface);
-    overflow: hidden;
+    border-inline-start: 0.25rem solid var(--pinfold-alt-solid);
   }
-  .pinfold-alert[data-variant='accent']::before {
-    content: '';
-    position: absolute;
-    inset-block: 0;
-    inset-inline-start: 0;
-    inline-size: 0.1875rem;
-    background: var(--pinfold-alt-solid);
+  /* A full-width strip for the top of a page or a panel: no corners, a hairline below. */
+  .pinfold-alert[data-variant='banner'] {
+    --pinfold-alt-pad: var(--pinfold-alert-padding, var(--pinfold-space-3) var(--pinfold-space-4));
+    background-color: color-mix(in oklab, var(--pinfold-alt-solid) 10%, var(--pinfold-color-surface));
+    border-width: 0 0 var(--pinfold-border-width);
+    border-color: color-mix(in oklab, var(--pinfold-alt-solid) 26%, var(--pinfold-color-border));
+    border-radius: var(--pinfold-alert-radius, 0);
+    box-shadow: none;
   }
 
-  /* The icon on a small tinted tile. */
+  /* The icon: on a small tinted tile (default), bare, or on a filled tile. */
   .pinfold-alert__icon {
     display: inline-grid;
     flex-shrink: 0;
     place-items: center;
-    inline-size: calc(var(--pinfold-alt-icon) + 0.625rem);
-    block-size: calc(var(--pinfold-alt-icon) + 0.625rem);
+    inline-size: var(--pinfold-alt-tile);
+    block-size: var(--pinfold-alt-tile);
     color: var(--pinfold-alt-text);
-    background: color-mix(in oklab, var(--pinfold-alt-solid) 13%, transparent);
+    background: color-mix(in oklab, var(--pinfold-alt-solid) 14%, transparent);
     border-radius: calc(var(--pinfold-radius-md) * 0.9);
   }
   .pinfold-alert__icon > svg {
     inline-size: var(--pinfold-alt-icon);
     block-size: var(--pinfold-alt-icon);
   }
+  .pinfold-alert[data-icon-variant='plain'] { --pinfold-alt-tile: calc(var(--pinfold-alt-icon) + 0.125rem); }
+  .pinfold-alert[data-icon-variant='plain'] .pinfold-alert__icon { background: none; }
+  .pinfold-alert[data-icon-variant='solid'] .pinfold-alert__icon {
+    color: var(--pinfold-alt-on);
+    background: var(--pinfold-alt-solid);
+    box-shadow: var(--pinfold-highlight);
+  }
+  .pinfold-alert[data-variant='solid'] .pinfold-alert__icon { background: color-mix(in oklab, var(--pinfold-alt-on) 18%, transparent); }
+  .pinfold-alert[data-variant='solid'][data-icon-variant='plain'] .pinfold-alert__icon { background: none; }
+
   .pinfold-alert__content {
     display: flex;
     flex: 1 1 0;
@@ -74,29 +99,98 @@
     gap: 0.125rem;
     min-inline-size: 0;
     /* The first line sits level with the middle of the icon tile. */
-    padding-block-start: 0.25rem;
+    padding-block-start: max(0px, calc((var(--pinfold-alt-tile) - 1.5em) / 2));
     overflow-wrap: anywhere;
   }
   .pinfold-alert__title {
     font-weight: var(--pinfold-weight-semibold);
-    color: var(--pinfold-color-text);
+    color: var(--pinfold-alt-title);
   }
-  .pinfold-alert__description { color: var(--pinfold-color-text-muted); }
+  .pinfold-alert__description { color: var(--pinfold-alt-muted); }
   .pinfold-alert__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--pinfold-space-1);
+    gap: var(--pinfold-space-2);
     margin-block-start: var(--pinfold-space-3);
   }
+  /* The × is a plain button in the text colour, so it reads on every variant and tone. */
   .pinfold-alert__dismiss {
-    display: inline-flex;
+    display: inline-grid;
     flex-shrink: 0;
-    margin-block: calc(-1 * var(--pinfold-space-1));
-    margin-inline-end: calc(-1 * var(--pinfold-space-1));
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    margin: calc((var(--pinfold-alt-tile) - 1.75rem) / 2) calc(-1 * var(--pinfold-space-1)) 0 0;
+    margin-inline: 0 calc(-1 * var(--pinfold-space-1));
+    padding: 0;
+    color: var(--pinfold-alt-muted);
+    background: none;
+    border: 0;
+    border-radius: var(--pinfold-radius-md);
+    cursor: pointer;
+    appearance: none;
+  }
+  .pinfold-alert__dismiss > svg { inline-size: 1rem; block-size: 1rem; }
+  .pinfold-alert__dismiss:hover { color: var(--pinfold-alt-title); background: color-mix(in oklab, currentColor 12%, transparent); }
+  .pinfold-alert[data-animate] .pinfold-alert__dismiss { transition: background-color var(--pinfold-duration-fast) var(--pinfold-ease-out), color var(--pinfold-duration-fast) var(--pinfold-ease-out); }
+
+  /* Icon placement. `end`: after the text (and the end buttons), before the ×. */
+  .pinfold-alert[data-icon-placement='end'] .pinfold-alert__icon { order: 2; }
+  .pinfold-alert[data-icon-placement='end'] .pinfold-alert__dismiss { order: 3; }
+  /* `top`: the icon on its own row; the × stays in the corner. */
+  .pinfold-alert[data-icon-placement='top'] { flex-wrap: wrap; }
+  .pinfold-alert[data-icon-placement='top'] .pinfold-alert__icon { margin-inline-end: 100%; }
+  .pinfold-alert[data-icon-placement='top'] .pinfold-alert__content { flex-basis: 12rem; padding-block-start: 0; }
+  .pinfold-alert[data-icon-placement='top'] .pinfold-alert__dismiss {
+    position: absolute;
+    inset-block-start: calc(var(--pinfold-alt-pad) - var(--pinfold-space-1));
+    inset-inline-end: calc(var(--pinfold-alt-pad) - var(--pinfold-space-1));
+    margin: 0;
+  }
+  /* `center`: the icon and the × centred on the whole message. */
+  .pinfold-alert[data-icon-align='center']:not([data-icon-placement='top']) { align-items: center; }
+  .pinfold-alert[data-icon-align='center']:not([data-icon-placement='top']) .pinfold-alert__content { padding-block-start: 0; }
+  .pinfold-alert[data-icon-align='center']:not([data-icon-placement='top']) .pinfold-alert__dismiss { margin-block: 0; }
+
+  /* Buttons on the same row, at the end. */
+  .pinfold-alert[data-actions-placement='end'] { flex-wrap: wrap; align-items: center; }
+  .pinfold-alert[data-actions-placement='end'] .pinfold-alert__content { flex-basis: 12rem; }
+  .pinfold-alert[data-actions-placement='end'] > .pinfold-alert__actions { flex-shrink: 0; margin-block-start: 0; }
+
+  /* Compact: tighter, a bare icon, title and description on one line. */
+  .pinfold-alert[data-density='compact'] {
+    --pinfold-alt-pad: var(--pinfold-alert-padding, var(--pinfold-space-2) var(--pinfold-space-3));
+    --pinfold-alt-gap: var(--pinfold-alert-gap, var(--pinfold-space-2));
+    --pinfold-alt-icon: var(--pinfold-alert-icon-size, 1rem);
+    --pinfold-alt-tile: calc(var(--pinfold-alt-icon) + 0.25rem);
+    align-items: center;
+  }
+  .pinfold-alert[data-density='compact'] .pinfold-alert__icon { background: none; }
+  .pinfold-alert[data-density='compact'] .pinfold-alert__content {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.375rem;
+    padding-block-start: 0;
+  }
+  .pinfold-alert[data-density='compact'] .pinfold-alert__content > .pinfold-alert__actions { margin-block-start: 0; margin-inline-start: auto; }
+  .pinfold-alert[data-density='compact'] .pinfold-alert__dismiss { margin-block: -0.25rem; }
+
+  /* The exit after a dismiss. */
+  .pinfold-alert[data-animate][data-state='closing'] { animation: pinfold-alert-out 200ms var(--pinfold-ease-out) forwards; }
+  @keyframes pinfold-alert-out {
+    to { opacity: 0; transform: translateY(-0.25rem) scale(0.985); }
+  }
+
+  .pinfold-alert__dismiss:focus-visible {
+    outline: none;
+    box-shadow: var(--pinfold-focus-ring);
   }
 
   @media (forced-colors: active) {
     .pinfold-alert { border-color: CanvasText; }
-    .pinfold-alert[data-variant='accent']::before { background: CanvasText; }
+    .pinfold-alert[data-variant='accent'] { border-inline-start-color: CanvasText; }
+    .pinfold-alert__dismiss:focus-visible { outline: 2px solid Highlight; }
   }
 }

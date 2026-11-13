@@ -27,7 +27,9 @@ function Invalid() {
   // @ts-expect-error every action needs a label
   useAlert({ actions: [{ onClick: () => {} }] });
   // @ts-expect-error not an alert variant
-  useAlert({ variant: 'solid' });
+  useAlert({ variant: 'glass' });
+  // @ts-expect-error not an icon placement
+  useAlert({ iconPlacement: 'bottom' });
   // @ts-expect-error not a live setting
   useAlert({ live: 'loud' });
   // @ts-expect-error instance data does not belong in app-wide defaults

@@ -4,4 +4,4 @@
 export { Avatar, useAvatar } from './client';
 export { Avatar as default } from './client';
 export { defineAvatar, type DefinedAvatar, type AvatarPresetProps } from './define';
-export type { AvatarApi, AvatarComponent, AvatarConfig, AvatarRootProps, AvatarTagProps, AvatarSlot, AvatarState, AvatarPerson, AvatarShape, AvatarStatus, AvatarDimensions } from './types';
+export type { AvatarApi, AvatarComponent, AvatarConfig, AvatarRootProps, AvatarTagProps, AvatarSlot, AvatarState, AvatarPerson, AvatarShape, AvatarStatus, AvatarDimensions, AvatarSize, AvatarTone, AvatarStatusPlacement, AvatarLoadingStatus, AvatarSurplus } from './types';

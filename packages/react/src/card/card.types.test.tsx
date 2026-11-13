@@ -26,10 +26,14 @@ defineConfig({ defaults: { card: { variant: 'filled', headingLevel: 4 } } });
 function Invalid() {
   // @ts-expect-error an image needs alt text (use '' for decoration)
   useCard({ image: { src: '/c.png' } });
+  // @ts-expect-error not a media position
+  useCard({ mediaPosition: 'left' });
+  // @ts-expect-error not a selection kind
+  useCard({ selectable: 'switch' });
   // @ts-expect-error headings go from 2 to 6
   useCard({ headingLevel: 1 });
   // @ts-expect-error not a card variant
-  useCard({ variant: 'glass' });
+  useCard({ variant: 'neon' });
   // @ts-expect-error instance data does not belong in app-wide defaults
   defineConfig({ defaults: { card: { title: 'x' } } });
   return null;

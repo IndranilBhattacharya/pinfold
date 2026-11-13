@@ -26,6 +26,10 @@ function Valid() {
 defineConfig({ defaults: { badge: { variant: 'soft', size: 'sm', anchorShape: 'circle' } } });
 
 function Invalid() {
+  // @ts-expect-error not an anchor shape
+  useBadge({ anchorShape: 'oval' });
+  // @ts-expect-error formatCount takes a function
+  useBadge({ formatCount: 'k' });
   // @ts-expect-error count is a number
   useBadge({ count: '3' });
   // @ts-expect-error not a badge variant

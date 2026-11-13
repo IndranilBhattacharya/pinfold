@@ -41,7 +41,7 @@ describe('Alert', () => {
     expect(retry).toHaveBeenCalledTimes(1);
   });
 
-  it('dismisses, calls onDismiss, and shows again from the controller', () => {
+  it('dismisses, calls onDismiss, and shows again from the controller', async () => {
     const onDismiss = vi.fn();
     let ctrl: AlertComponent | null = null;
     function Host(props: AlertConfig) {
@@ -52,10 +52,58 @@ describe('Alert', () => {
     const { container } = render(<Host title="x" dismissible onDismiss={onDismiss} dismissLabel="Close notice" />);
     fireEvent.click(screen.getByRole('button', { name: 'Close notice' }));
     expect(onDismiss).toHaveBeenCalledTimes(1);
-    expect(root(container).hidden).toBe(true);
+    // The exit plays first, then it is hidden.
+    expect(root(container).getAttribute('data-state')).toBe('closing');
+    await vi.waitFor(() => expect(root(container).hidden).toBe(true));
+    expect(root(container).getAttribute('data-state')).toBe('closed');
     expect(ctrl!.dismissed).toBe(true);
     act(() => ctrl!.show());
     expect(root(container).hidden).toBe(false);
+  });
+
+  it('hides at once with animation off', () => {
+    const { container } = render(
+      <PinfoldProvider disableAnimation>
+        <Alert title="x" dismissible />
+      </PinfoldProvider>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(root(container).hidden).toBe(true);
+  });
+
+  it('icon placement, alignment and look reach the root; a per-tone icon and a function icon work', () => {
+    const { container, rerender } = render(<Alert title="x" tone="danger" iconPlacement="top" iconAlign="center" iconVariant="solid" icons={{ danger: <b>!</b> }} />);
+    const el = root(container);
+    expect(el.getAttribute('data-icon-placement')).toBe('top');
+    expect(el.getAttribute('data-icon-align')).toBe('center');
+    expect(el.getAttribute('data-icon-variant')).toBe('solid');
+    expect(el.querySelector('.pinfold-alert__icon')!.textContent).toBe('!');
+    rerender(<Alert title="x" tone="success" icons={{ danger: <b>!</b> }} icon={(s) => <i>{s.tone}</i>} />);
+    expect(root(container).querySelector('.pinfold-alert__icon')!.textContent).toBe('success');
+  });
+
+  it('title and description take a function of the live state', () => {
+    const { container } = render(<Alert tone="warning" title={(s) => `tone ${s.tone}`} description={(s) => (s.dismissed ? 'gone' : 'here')} />);
+    expect(root(container).querySelector('.pinfold-alert__title')!.textContent).toBe('tone warning');
+    expect(root(container).querySelector('.pinfold-alert__description')!.textContent).toBe('here');
+  });
+
+  it('actions can sit at the end, outside the text', () => {
+    const { container } = render(<Alert title="x" actions={[{ label: 'Open' }]} actionsPlacement="end" />);
+    const actions = root(container).querySelector('.pinfold-alert__actions')!;
+    expect(actions.parentElement).toBe(root(container));
+    expect(root(container).getAttribute('data-actions-placement')).toBe('end');
+  });
+
+  it('a solid alert gives its buttons solid neutral defaults', () => {
+    const { container } = render(<Alert title="x" variant="solid" tone="danger" actions={[{ label: 'A' }, { label: 'B' }]} />);
+    const buttons = Array.from(root(container).querySelectorAll('.pinfold-button'));
+    expect(buttons.map((b) => `${b.getAttribute('data-variant')}/${b.getAttribute('data-tone')}`)).toEqual(['solid/neutral', 'solid/neutral']);
+  });
+
+  it('compact density is reflected; live roles stay whatever the variant', () => {
+    render(<Alert title="x" density="compact" variant="banner" live="assertive" />);
+    expect(screen.getByRole('alert').getAttribute('data-density')).toBe('compact');
   });
 
   it('never takes the provider tone', () => {

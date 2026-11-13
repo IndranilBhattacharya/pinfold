@@ -2,6 +2,7 @@ import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
 const SLOTS = ['root', 'image', 'fallback', 'status', 'item', 'overflow'] as const;
+const TONES = ['auto', 'primary', 'neutral', 'success', 'warning', 'danger', 'info'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -15,6 +16,9 @@ const person: Record<string, PropMeta> = {
   alt: { type: 'string', description: 'Accessible name when it should differ from `name`.', group: 'data' },
   initials: { type: 'string', description: 'Overrides the initials made from `name`.', group: 'data' },
   status: { type: 'enum', values: ['online', 'away', 'busy', 'offline'], description: 'A presence dot, also read: "Ada Lovelace, online".', group: 'data', control: true },
+  colorFrom: { type: 'string', description: 'What the `auto` colour is worked out from, when it should not be the name (a user id, so two people called Alex differ).', group: 'data' },
+  href: { type: 'string', description: 'Makes the avatar a link, with a focus ring.', group: 'behaviour' },
+  onClick: { type: 'function', description: 'Makes the avatar a button: `(event) => void`.', group: 'events' },
 };
 
 export const avatarMeta: ComponentMeta = {
@@ -41,13 +45,54 @@ export const avatarMeta: ComponentMeta = {
       control: true,
     },
     max: { type: 'number', default: 4, description: 'Group: how many avatars show before "+N".', group: 'behaviour' },
+    surplus: {
+      type: 'function',
+      description: 'Group: your own "+N" content, `({ count, hidden }) => node`; `hidden` are the folded people. It stays inside the "N more" tile.',
+      group: 'data',
+    },
+    expandOnHover: { type: 'boolean', default: false, description: 'Group: the faces spread apart while the pointer or focus is on the group.', group: 'behaviour', control: true },
+    fallback: { type: 'node', description: 'Your own fallback, or a function of the live state: replaces the initials and the icon while the picture loads, fails, or is missing.', group: 'data' },
+    icon: { type: 'node', description: 'Shown when there is no picture and no initials (no name). A person glyph by default.', group: 'data', auto: 'a person glyph' },
+    onLoadingStatusChange: { type: 'function', description: 'Called as the picture goes `"loading"` → `"loaded"` or `"error"`: `(status) => void`.', group: 'events' },
+    ring: {
+      type: 'enum',
+      values: TONES,
+      orBoolean: true,
+      default: false,
+      description: 'A ring around each face with a gap in the page colour: `true` or `"auto"` in the face\'s own colour, or a tone.',
+      group: 'appearance',
+      control: true,
+    },
+    statusPlacement: {
+      type: 'enum',
+      values: ['bottom-end', 'top-end', 'bottom-start', 'top-start'],
+      default: 'bottom-end',
+      description: 'Which corner the presence dot sits on. It is centred on the edge of the shape (the circle, or the rounded corner), and flips in RTL.',
+      group: 'appearance',
+      control: true,
+    },
     label: { type: 'string', description: 'Group: accessible name of the group, e.g. "Project members".', group: 'data' },
     radius: RADIUS_PROP,
-    size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Size preset. Precedence: this config, `defaults.avatar`, the provider, then md.', group: 'appearance', control: true },
-    shape: { type: 'enum', values: ['circle', 'square'], default: 'circle', description: 'A circle for people, a rounded square for teams and apps.', group: 'appearance', control: true },
+    size: {
+      type: 'enum',
+      values: ['xs', 'sm', 'md', 'lg', 'xl'],
+      orLength: true,
+      default: 'md',
+      description: 'Size preset, or a length (`48` is px). Precedence: this config, `defaults.avatar`, the provider, then md.',
+      group: 'appearance',
+      control: true,
+    },
+    shape: {
+      type: 'enum',
+      values: ['circle', 'rounded', 'square'],
+      default: 'circle',
+      description: 'A circle for people; a rounded square (`rounded`) or a squarer tile (`square`) for teams, apps and things.',
+      group: 'appearance',
+      control: true,
+    },
     tone: {
       type: 'enum',
-      values: ['auto', 'primary', 'neutral', 'success', 'warning', 'danger', 'info'],
+      values: TONES,
       default: 'auto',
       description: 'Colour behind the initials. `auto` picks one from the name, so a person keeps the same colour everywhere.',
       group: 'appearance',
@@ -57,7 +102,13 @@ export const avatarMeta: ComponentMeta = {
       type: 'object',
       description: 'Exact measurements. Numbers are px.',
       group: 'appearance',
-      keys: { size: len('Avatar size.'), fontSize: len('Initials size.'), overlap: len('Group: how far each avatar tucks under the previous one.') },
+      keys: {
+        size: len('Avatar size.'),
+        fontSize: len('Initials size.'),
+        overlap: len('Group: how far each avatar tucks under the previous one.'),
+        statusSize: len('Diameter of the presence dot.'),
+        ringWidth: len('Width of the ring.'),
+      },
     },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the roles and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },
@@ -74,19 +125,33 @@ export const avatarMeta: ComponentMeta = {
     'A group is `role="group"` named by `label`; "+N" is read as "N more" and its tooltip lists the hidden names.',
     'With `tooltip` each face takes keyboard focus, so the tooltip works without a pointer.',
     'The presence dot is never the only signal: the status is part of the name.',
+    'With `onClick` or `href` a face is a real `<button>` or `<a>` with the same name and a focus ring; in a group, set them per person.',
   ],
   dataAttributes: [
     { name: 'data-size', on: 'root', values: 'the resolved size' },
-    { name: 'data-shape', on: 'root', values: '"circle" | "square"' },
+    { name: 'data-shape', on: 'root', values: '"circle" | "rounded" | "square"' },
+    { name: 'data-ring', on: 'root', values: 'the ring tone, when `ring` is on' },
+    { name: 'data-status-placement', on: 'root', values: 'the presence dot corner' },
+    { name: 'data-expand', on: 'root', values: 'present with `expandOnHover`' },
+    { name: 'data-status', on: 'status', values: '"online" | "away" | "busy" | "offline"' },
+    { name: 'data-fallback', on: 'fallback', values: '"initials" | "icon" | "custom"' },
     { name: 'data-tone', on: 'root / item', values: 'the resolved tone' },
     { name: 'data-loaded', on: 'root / item', values: 'present when the image shows' },
     { name: 'data-group', on: 'root', values: 'present on a group' },
   ],
-  cssVariables: ['--pinfold-avatar-size', '--pinfold-avatar-font-size', '--pinfold-avatar-overlap'],
+  cssVariables: ['--pinfold-avatar-size', '--pinfold-avatar-font-size', '--pinfold-avatar-overlap', '--pinfold-avatar-status-size', '--pinfold-avatar-ring-width'],
   examples: [
     {
       title: 'Presets',
       code: "import { defineAvatar } from '@pinfold/react/avatar';\n\nexport const Person = defineAvatar();\nexport const Team = defineAvatar({ size: 'sm', max: 3, label: 'Project members' });\n\n<Person name=\"Ada Lovelace\" src={user.photo} status=\"online\" />\n<Team items={members} />   // 3 avatars, then \"+5\"",
+    },
+    {
+      title: 'Ring, status, shapes, a clickable face',
+      code: "<Avatar name=\"Ada Lovelace\" src={photo} ring status=\"online\" size=\"lg\" onClick={openProfile} />\n<Avatar name=\"Acme\" shape=\"rounded\" status=\"busy\" statusPlacement=\"top-end\" />\n<Avatar size={72} fallback={<BotIcon />} />",
+    },
+    {
+      title: 'A group with your own surplus',
+      code: "<Avatar items={members} max={3} expandOnHover label=\"Reviewers\" surplus={({ count }) => `${count}+`} />",
     },
   ],
 };

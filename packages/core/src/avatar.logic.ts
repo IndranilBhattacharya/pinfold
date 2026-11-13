@@ -5,6 +5,7 @@ export interface AvatarAppearanceInput {
   /** Every face shows a picture, so nothing shows the colour behind it. */
   src?: unknown;
   shape?: string;
+  status?: unknown;
 }
 
 /** Up to two initials: the first letters of the first and last words ("Ada Lovelace" is "AL"). */
@@ -35,13 +36,21 @@ export function avatarOverflow(count: number, max = 4): { shown: number; rest: n
 export function inactiveAvatarOptions(config: AvatarAppearanceInput): Record<string, string> {
   const out: Record<string, string> = {};
   const group = Array.isArray(config.items);
-  if (config.shape !== 'square') out.radius = 'a circle has no corners: set `shape: \'square\'`.';
+  if (config.shape !== 'square' && config.shape !== 'rounded') out.radius = 'a circle has no corners: set `shape: \'rounded\'` or `\'square\'`.';
   if (config.src) out.tone = 'the colour is behind the initials, and the picture covers it.';
   const why = group ? 'set it per person in `items`.' : '';
-  if (group) for (const k of ['name', 'src', 'alt', 'initials', 'status']) out[k] = why;
+  if (group) for (const k of ['name', 'src', 'alt', 'initials', 'status', 'colorFrom', 'href', 'onClick']) out[k] = why;
   else {
     out.max = 'only used with `items` (a group).';
     out.label = 'only used with `items` (a group).';
+    out.surplus = 'only used with `items` (a group).';
+    out.expandOnHover = 'only used with `items` (a group).';
+    if (!config.status) out.statusPlacement = 'only used with a `status`.';
   }
   return out;
+}
+
+/** A link or a click handler makes a face a control. */
+export function avatarClickable(person: { href?: unknown; onClick?: unknown }): boolean {
+  return typeof person.onClick === 'function' || (typeof person.href === 'string' && person.href !== '');
 }

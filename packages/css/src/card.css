@@ -1,20 +1,28 @@
 /* Pinfold — card. A surface from the theme tokens, so style packs restyle it (glass panes,
-   material depth, brutalist offsets). A linked card stretches its title link over the whole
-   card and draws the focus ring around it. */
+   material depth, brutalist offsets). The card never clips itself: the media clips its own
+   corners, so the focus ring of a linked, pressable or selectable card is drawn outside it. */
 
 @layer pinfold.components {
   .pinfold-card {
     --pinfold-crd-pad: var(--pinfold-card-padding, var(--pinfold-space-5));
     --pinfold-crd-gap: var(--pinfold-card-gap, var(--pinfold-space-2));
+    --pinfold-crd-hgap: var(--pinfold-card-header-gap, var(--pinfold-space-3));
     --pinfold-crd-radius: var(--pinfold-card-radius, var(--pinfold-radius-lg));
+    --pinfold-crd-inner: calc(var(--pinfold-crd-radius) - var(--pinfold-border-width));
+    --pinfold-crd-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
+    --pinfold-crd-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
+    --pinfold-crd-title: var(--pinfold-color-text);
+    --pinfold-crd-muted: var(--pinfold-color-text-muted);
+    --pinfold-crd-line: var(--pinfold-color-border);
 
     position: relative;
+    isolation: isolate;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
     min-inline-size: 0;
     max-inline-size: 100%;
-    overflow: hidden;
+    margin: 0;
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-text-sm);
     line-height: 1.5;
@@ -25,67 +33,64 @@
   }
   li.pinfold-card { list-style: none; }
   .pinfold-card[data-padding='none'] { --pinfold-crd-pad: var(--pinfold-card-padding, 0px); }
-  .pinfold-card[data-padding='sm'] { --pinfold-crd-pad: var(--pinfold-card-padding, var(--pinfold-space-3)); }
+  .pinfold-card[data-padding='sm'] { --pinfold-crd-pad: var(--pinfold-card-padding, var(--pinfold-space-4)); }
   .pinfold-card[data-padding='lg'] { --pinfold-crd-pad: var(--pinfold-card-padding, var(--pinfold-space-8)); }
 
+  /* Variants. */
   .pinfold-card[data-variant='outline'] {
     background-color: var(--pinfold-color-surface);
-    border-color: var(--pinfold-color-border);
-    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-sm));
+    border-color: var(--pinfold-control-edge, var(--pinfold-color-border));
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
     backdrop-filter: var(--pinfold-backdrop);
   }
   .pinfold-card[data-variant='elevated'] {
-    background-color: var(--pinfold-color-surface);
-    border-color: var(--pinfold-control-edge, transparent);
-    box-shadow: var(--pinfold-shadow-md);
+    background-color: var(--pinfold-color-surface-raised, var(--pinfold-color-surface));
+    border-color: var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-color-border) 55%, transparent));
+    box-shadow: var(--pinfold-highlight), var(--pinfold-shadow-md);
     backdrop-filter: var(--pinfold-backdrop);
   }
   .pinfold-card[data-variant='filled'] {
     background-color: var(--pinfold-color-bg-subtle);
     border-color: var(--pinfold-control-edge, transparent);
   }
+  .pinfold-card[data-variant='soft'] {
+    --pinfold-crd-line: color-mix(in oklab, var(--pinfold-crd-solid) 22%, var(--pinfold-color-border));
+    background-color: color-mix(in oklab, var(--pinfold-crd-solid) 9%, var(--pinfold-color-surface));
+    border-color: var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-crd-solid) 28%, var(--pinfold-color-border)));
+  }
   .pinfold-card[data-variant='ghost'] { background-image: none; }
+  /* Frosted glass over whatever is behind it. */
+  .pinfold-card[data-variant='glass'] {
+    --pinfold-crd-line: color-mix(in oklab, var(--pinfold-color-text) 12%, transparent);
+    background-color: color-mix(in oklab, var(--pinfold-color-surface) 58%, transparent);
+    border-color: color-mix(in oklab, var(--pinfold-color-text) 14%, transparent);
+    box-shadow: var(--pinfold-highlight), var(--pinfold-shadow-sm);
+    backdrop-filter: blur(1rem) saturate(1.6);
+  }
 
+  /* Media: clips its own corners (not the card's), so nothing cuts a focus ring. */
   .pinfold-card__media {
-    display: block;
-    inline-size: 100%;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    aspect-ratio: var(--pinfold-crd-ratio, auto);
     block-size: var(--pinfold-card-media-size, auto);
     max-block-size: 20rem;
-    object-fit: cover;
     background: var(--pinfold-color-bg-subtle);
   }
-  .pinfold-card__body {
-    box-sizing: border-box;
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    gap: var(--pinfold-crd-gap);
-    min-inline-size: 0;
-    padding: var(--pinfold-crd-pad);
-    overflow-wrap: anywhere;
+  .pinfold-card__media > img,
+  .pinfold-card__media > video,
+  .pinfold-card__media > picture {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
   }
-  .pinfold-card__title {
-    margin: 0;
-    font-size: var(--pinfold-text-lg, 1.125rem);
-    font-weight: var(--pinfold-weight-semibold);
-    line-height: 1.3;
-    color: var(--pinfold-color-text);
-  }
-  .pinfold-card__description {
-    margin: 0;
-    color: var(--pinfold-color-text-muted);
-  }
-  .pinfold-card__content { min-inline-size: 0; }
-  .pinfold-card__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--pinfold-space-2);
-    margin-block-start: auto;
-    padding-block-start: var(--pinfold-space-2);
-  }
+  .pinfold-card[data-media-position='top'] > .pinfold-card__media { border-start-start-radius: var(--pinfold-crd-inner); border-start-end-radius: var(--pinfold-crd-inner); }
+  .pinfold-card[data-media-position='bottom'] > .pinfold-card__media { border-end-start-radius: var(--pinfold-crd-inner); border-end-end-radius: var(--pinfold-crd-inner); }
 
-  /* Image at the start. The two parts wrap onto separate rows when the card is narrower than
-     both minimums together (about 30rem): responsive with no media or container query. */
+  /* Media at the start or the end. The two parts wrap onto separate rows when the card is narrower
+     than both minimums together (about 30rem): responsive with no media or container query. */
   .pinfold-card[data-orientation='horizontal'] {
     flex-direction: row;
     flex-wrap: wrap;
@@ -99,42 +104,322 @@
     max-block-size: none;
   }
   .pinfold-card[data-orientation='horizontal'] > .pinfold-card__body { flex: 999 1 18rem; }
+  .pinfold-card[data-media-position='start'] > .pinfold-card__media { border-start-start-radius: var(--pinfold-crd-inner); border-end-start-radius: var(--pinfold-crd-inner); }
+  .pinfold-card[data-media-position='end'] > .pinfold-card__media { border-start-end-radius: var(--pinfold-crd-inner); border-end-end-radius: var(--pinfold-crd-inner); }
 
-  /* A linked card: the title link covers the card; buttons inside sit above it. */
-  .pinfold-card__link {
-    color: inherit;
-    text-decoration: none;
+  /* Cover: the media fills the card behind the text; a scrim keeps the words readable. */
+  .pinfold-card[data-media-position='cover'] {
+    --pinfold-crd-title: var(--pinfold-neutral-50);
+    --pinfold-crd-muted: color-mix(in oklab, var(--pinfold-neutral-50) 80%, transparent);
+    --pinfold-crd-line: color-mix(in oklab, var(--pinfold-neutral-50) 22%, transparent);
+    min-block-size: var(--pinfold-card-media-size, 18rem);
+    color: var(--pinfold-neutral-50);
+    background-color: var(--pinfold-neutral-900);
+    border-color: transparent;
   }
-  /* The ring goes around the card (below), not around the title text. */
-  .pinfold-card__link:focus-visible {
-    outline: none;
-    box-shadow: none;
+  .pinfold-card[data-media-position='cover'] > .pinfold-card__media {
+    position: absolute;
+    inset: calc(-1 * var(--pinfold-border-width));
+    z-index: -1;
+    block-size: auto;
+    max-block-size: none;
+    aspect-ratio: auto;
+    border-radius: var(--pinfold-crd-radius);
+  }
+  .pinfold-card[data-media-position='cover'] > .pinfold-card__body { justify-content: flex-end; }
+  .pinfold-card[data-scrim='gradient'] > .pinfold-card__media::after,
+  .pinfold-card[data-scrim='full'] > .pinfold-card__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, color-mix(in oklab, var(--pinfold-neutral-950) 82%, transparent), color-mix(in oklab, var(--pinfold-neutral-950) 38%, transparent) 50%, color-mix(in oklab, var(--pinfold-neutral-950) 0%, transparent) 80%);
+  }
+  .pinfold-card[data-scrim='full'] > .pinfold-card__media::after { background: color-mix(in oklab, var(--pinfold-neutral-950) 58%, transparent); }
+
+  /* Body, header and text. */
+  .pinfold-card__body {
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: var(--pinfold-crd-gap);
+    min-inline-size: 0;
+    padding: var(--pinfold-crd-pad);
+    overflow-wrap: anywhere;
+  }
+  .pinfold-card__header {
+    display: flex;
+    align-items: center;
+    gap: var(--pinfold-crd-hgap);
+    min-inline-size: 0;
+  }
+  .pinfold-card__avatar { display: inline-flex; flex-shrink: 0; }
+  .pinfold-card__heading {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-inline-size: 0;
+  }
+  .pinfold-card__eyebrow {
+    font-size: var(--pinfold-text-xs, 0.75rem);
+    font-weight: var(--pinfold-weight-medium);
+    letter-spacing: 0.02em;
+    color: var(--pinfold-crd-muted);
+  }
+  .pinfold-card__title {
+    margin: 0;
+    font-size: var(--pinfold-text-lg, 1.125rem);
+    font-weight: var(--pinfold-weight-semibold);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    color: var(--pinfold-crd-title);
+  }
+  .pinfold-card__subtitle { font-size: var(--pinfold-text-sm); color: var(--pinfold-crd-muted); }
+  .pinfold-card__headerAction {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-inline-start: auto;
+  }
+  .pinfold-card__description {
+    margin: 0;
+    color: var(--pinfold-crd-muted);
+  }
+  .pinfold-card__content { min-inline-size: 0; }
+
+  /* Footer: a note, then the buttons. */
+  .pinfold-card__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pinfold-space-2) var(--pinfold-space-3);
+    margin-block-start: auto;
+    padding-block-start: var(--pinfold-space-2);
+  }
+  .pinfold-card__note {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    color: var(--pinfold-crd-muted);
+  }
+  .pinfold-card__actions {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pinfold-space-2);
+  }
+  .pinfold-card[data-actions-align='end'] .pinfold-card__actions { margin-inline-start: auto; }
+  .pinfold-card[data-actions-align='stretch'] .pinfold-card__actions { flex: 1 1 100%; }
+  .pinfold-card[data-actions-align='stretch'] .pinfold-card__actions > * { flex: 1 1 0; }
+  .pinfold-card[data-actions-align='between'] .pinfold-card__actions { flex: 1 1 100%; justify-content: space-between; }
+
+  /* Hairlines under the header and above the footer, edge to edge. */
+  .pinfold-card[data-dividers] .pinfold-card__header,
+  .pinfold-card[data-dividers] .pinfold-card__footer {
+    margin-inline: calc(-1 * var(--pinfold-crd-pad));
+    padding-inline: var(--pinfold-crd-pad);
+    border: 0 solid var(--pinfold-crd-line);
+  }
+  .pinfold-card[data-dividers] .pinfold-card__header { padding-block-end: var(--pinfold-crd-pad); margin-block-end: calc(var(--pinfold-crd-pad) - var(--pinfold-crd-gap)); border-block-end-width: var(--pinfold-border-width); }
+  .pinfold-card[data-dividers] .pinfold-card__footer { padding-block-start: var(--pinfold-crd-pad); border-block-start-width: var(--pinfold-border-width); }
+
+  /* Corner badge and ribbon. */
+  .pinfold-card__badge {
+    position: absolute;
+    inset-block-start: var(--pinfold-space-3);
+    inset-inline-end: var(--pinfold-space-3);
+    z-index: 3;
+    display: inline-flex;
+  }
+  .pinfold-card__ribbon {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    z-index: 3;
+    overflow: hidden;
+    inline-size: 6.5rem;
+    block-size: 6.5rem;
+    border-start-end-radius: var(--pinfold-crd-inner);
+    pointer-events: none;
+  }
+  .pinfold-card__ribbonText {
+    position: absolute;
+    inset-block-start: 1.35rem;
+    inset-inline-end: -2.4rem;
+    box-sizing: border-box;
+    inline-size: 9.5rem;
+    padding-block: 0.3125rem;
+    font-size: 0.6875rem;
+    font-weight: var(--pinfold-weight-semibold);
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    text-align: center;
+    color: var(--pinfold-crd-on);
+    background: var(--pinfold-crd-solid);
+    box-shadow: var(--pinfold-highlight), var(--pinfold-shadow-sm);
+    transform: rotate(45deg);
+  }
+  [dir='rtl'] .pinfold-card__ribbonText { transform: rotate(-45deg); }
+
+  /* A linked or pressable card: the title control covers the card; parts that act sit above it. */
+  .pinfold-card__link {
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    text-align: start;
+    text-decoration: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    appearance: none;
   }
   .pinfold-card__link::after {
     content: '';
     position: absolute;
-    inset: 0;
+    inset: calc(-1 * var(--pinfold-border-width));
     z-index: 1;
-    border-radius: inherit;
+    border-radius: var(--pinfold-crd-radius);
   }
-  .pinfold-card[data-link] .pinfold-card__actions,
-  .pinfold-card[data-link] .pinfold-card__content a,
-  .pinfold-card[data-link] .pinfold-card__content button {
+  .pinfold-card__content a,
+  .pinfold-card__content button,
+  .pinfold-card__content input,
+  .pinfold-card__content select,
+  .pinfold-card__content textarea {
     position: relative;
     z-index: 2;
   }
-  .pinfold-card[data-link]:hover .pinfold-card__link { text-decoration: underline; text-underline-offset: 0.2em; }
-  .pinfold-card[data-link]:hover { border-color: var(--pinfold-control-edge, var(--pinfold-color-border-strong)); }
-  .pinfold-card[data-link][data-variant='outline']:hover,
-  .pinfold-card[data-link][data-variant='elevated']:hover { box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-lg)); transform: translateY(-2px); }
-  .pinfold-card[data-link][data-animate] { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-out), box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out), border-color var(--pinfold-duration-md) var(--pinfold-ease-out); }
-  .pinfold-card__link:focus-visible::after {
-    /* Inset: the card clips its corners (overflow hidden), an outer ring would be cut off. */
-    box-shadow: inset 0 0 0 2px var(--pinfold-color-ring, var(--pinfold-color-accent)), inset 0 0 0 4px var(--pinfold-color-bg);
+  .pinfold-card[data-link]:not([data-disabled]):hover .pinfold-card__link,
+  .pinfold-card[data-pressable]:not([data-disabled]):hover .pinfold-card__link { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+
+  /* A selection card: a native checkbox or radio covers it, drawing the selected frame itself. */
+  .pinfold-card__select {
+    position: absolute;
+    inset: calc(-1 * var(--pinfold-border-width));
+    z-index: 1;
+    margin: 0;
+    background: transparent;
+    border: 0;
+    border-radius: var(--pinfold-crd-radius);
+    cursor: pointer;
+    appearance: none;
   }
+  .pinfold-card__select:checked {
+    background: color-mix(in oklab, var(--pinfold-crd-solid) 5%, transparent);
+    box-shadow: inset 0 0 0 2px var(--pinfold-crd-solid);
+  }
+  .pinfold-card__select:disabled { cursor: not-allowed; }
+  .pinfold-card__indicator {
+    position: absolute;
+    inset-block-start: var(--pinfold-space-3);
+    inset-inline-end: var(--pinfold-space-3);
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    background: var(--pinfold-color-surface);
+    border: 1.5px solid var(--pinfold-color-border-strong);
+    border-radius: calc(0.3125rem * var(--pinfold-radius-scale, 1));
+    pointer-events: none;
+  }
+  .pinfold-card__indicator[data-type='radio'] { border-radius: 50%; }
+  .pinfold-card__select:checked ~ .pinfold-card__indicator {
+    background: var(--pinfold-crd-solid);
+    border-color: var(--pinfold-crd-solid);
+  }
+  .pinfold-card__select:checked ~ .pinfold-card__indicator::after {
+    content: '';
+    box-sizing: border-box;
+    inline-size: 0.3125rem;
+    block-size: 0.5625rem;
+    margin-block-start: -0.125rem;
+    border: solid var(--pinfold-crd-on);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .pinfold-card__select:checked ~ .pinfold-card__indicator[data-type='radio']::after {
+    inline-size: 0.4375rem;
+    block-size: 0.4375rem;
+    margin: 0;
+    background: var(--pinfold-crd-on);
+    border: 0;
+    border-radius: 50%;
+    transform: none;
+  }
+  /* The corner is taken: a badge pushes the mark to the bottom; a ribbon moves it before the header. */
+  .pinfold-card__badge ~ .pinfold-card__indicator { inset-block-start: auto; inset-block-end: var(--pinfold-space-3); }
+  .pinfold-card__ribbon ~ .pinfold-card__indicator { inset-block-start: var(--pinfold-crd-pad); inset-inline-end: auto; inset-inline-start: var(--pinfold-crd-pad); }
+  .pinfold-card[data-selectable] > .pinfold-card__ribbon ~ .pinfold-card__body > .pinfold-card__header > :first-child { margin-inline-start: 1.75rem; }
+
+  /* Hover effects (`auto` resolves to lift for an interactive card). */
+  .pinfold-card[data-animate] {
+    transition:
+      transform var(--pinfold-duration-md) var(--pinfold-ease-out),
+      box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out),
+      border-color var(--pinfold-duration-md) var(--pinfold-ease-out);
+  }
+  .pinfold-card[data-animate] .pinfold-card__media > * { transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-out); }
+  .pinfold-card[data-hover-effect='lift']:hover {
+    transform: translateY(-0.125rem);
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-highlight)), var(--pinfold-shadow-lg);
+  }
+  .pinfold-card[data-hover-effect='glow']:hover {
+    border-color: color-mix(in oklab, var(--pinfold-crd-solid) 50%, var(--pinfold-color-border));
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--pinfold-crd-solid) 35%, transparent), 0 0.5rem 1.75rem -0.375rem color-mix(in oklab, var(--pinfold-crd-solid) 40%, transparent);
+  }
+  .pinfold-card[data-hover-effect='border']:hover { border-color: color-mix(in oklab, var(--pinfold-crd-solid) 60%, var(--pinfold-color-border)); }
+  .pinfold-card[data-hover-effect='zoom']:hover .pinfold-card__media > * { transform: scale(1.05); }
+
+  /* Disabled and loading. */
+  .pinfold-card[data-disabled] { opacity: 0.55; }
+  .pinfold-card[data-disabled] .pinfold-card__link { cursor: not-allowed; }
+  .pinfold-card__placeholder {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pinfold-space-2);
+  }
+  .pinfold-card__bar {
+    display: block;
+    block-size: 0.75rem;
+    border-radius: var(--pinfold-radius-full);
+  }
+  .pinfold-card__bar:nth-child(2) { block-size: 1.125rem; }
+  .pinfold-card__bar,
+  .pinfold-card__media[data-placeholder] {
+    background: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent);
+    background-image: linear-gradient(90deg, color-mix(in oklab, var(--pinfold-color-text) 0%, transparent) 30%, color-mix(in oklab, var(--pinfold-color-text) 7%, transparent) 50%, color-mix(in oklab, var(--pinfold-color-text) 0%, transparent) 70%);
+    background-size: 220% 100%;
+  }
+  .pinfold-card__media[data-placeholder] { min-block-size: 10rem; }
+  .pinfold-card[data-animate] .pinfold-card__bar,
+  .pinfold-card[data-animate] .pinfold-card__media[data-placeholder] { animation: pinfold-card-shimmer 1.4s linear infinite; }
+  @keyframes pinfold-card-shimmer {
+    from { background-position: 110% 0; }
+    to { background-position: -110% 0; }
+  }
+
+  /* Focus rings, after the variants and hover shadows, around the whole card. */
+  /* The ring goes around the card (below), not around the title text. */
+  .pinfold-card__link:focus-visible { outline: none; box-shadow: none; }
+  .pinfold-card__link:focus-visible::after,
+  .pinfold-card__select:focus-visible {
+    outline: none;
+    box-shadow: var(--pinfold-focus-ring);
+  }
+  .pinfold-card__select:checked:focus-visible { box-shadow: inset 0 0 0 2px var(--pinfold-crd-solid), var(--pinfold-focus-ring); }
 
   @media (forced-colors: active) {
     .pinfold-card { border-color: CanvasText; }
-    .pinfold-card__link:focus-visible::after { outline: 2px solid Highlight; outline-offset: -2px; }
+    .pinfold-card__link:focus-visible::after,
+    .pinfold-card__select:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+    .pinfold-card__select:checked { outline: 3px solid Highlight; outline-offset: -3px; }
+    .pinfold-card__indicator { forced-color-adjust: none; border-color: CanvasText; background: Canvas; }
+    .pinfold-card__select:checked ~ .pinfold-card__indicator { background: Highlight; border-color: Highlight; }
   }
 }

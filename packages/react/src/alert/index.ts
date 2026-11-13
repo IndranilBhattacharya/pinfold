@@ -4,4 +4,4 @@
 export { Alert, useAlert } from './client';
 export { Alert as default } from './client';
 export { defineAlert, type DefinedAlert, type AlertPresetProps } from './define';
-export type { AlertApi, AlertComponent, AlertConfig, AlertRootProps, AlertTagProps, AlertSlot, AlertState, AlertTone, AlertVariant, AlertLive, AlertDimensions } from './types';
+export type { AlertApi, AlertComponent, AlertConfig, AlertRootProps, AlertTagProps, AlertSlot, AlertState, AlertTone, AlertIconPlacement, AlertIconAlign, AlertIconVariant, AlertActionsPlacement, AlertDensity, AlertNode, AlertIcons, AlertVariant, AlertLive, AlertDimensions } from './types';

@@ -57,7 +57,7 @@ export interface PinfoldComponentDefaults {
   separator?: Omit<SeparatorConfig, 'label'>;
   kbd?: Omit<KbdConfig, 'keys'>;
   skeleton?: Omit<SkeletonConfig, 'content' | 'loading'>;
-  badge?: Omit<BadgeConfig, 'label' | 'count' | 'anchor'>;
+  badge?: Omit<BadgeConfig, 'label' | 'count' | 'anchor' | 'avatar' | 'onClick' | 'href' | 'target' | 'rel' | 'onDismiss'>;
   colorpicker?: Omit<ColorPickerConfig, 'label'>;
   cursor?: Omit<CursorConfig, 'content' | 'label' | 'shape' | 'onStateChange' | 'onVisibleChange' | 'disabled'>;
   navbar?: Omit<NavbarConfig, 'label' | 'items' | 'brand' | 'value' | 'defaultValue' | 'onChange' | 'onNavigate' | 'start' | 'center' | 'end' | 'actions'>;
@@ -96,8 +96,8 @@ export interface PinfoldComponentDefaults {
   popover?: Omit<PopoverConfig, 'title' | 'description' | 'content' | 'header' | 'footer' | 'actions' | 'trigger' | 'open' | 'defaultOpen' | 'onOpenChange' | 'onOpen' | 'onClose'>;
   tooltip?: Omit<TooltipConfig, 'content' | 'trigger' | 'open' | 'defaultOpen' | 'onOpenChange'>;
   progress?: Omit<ProgressConfig, 'value' | 'label' | 'buffer' | 'description' | 'onComplete'>;
-  card?: Omit<CardConfig, 'title' | 'description' | 'content' | 'image' | 'actions' | 'href' | 'target' | 'rel'>;
-  avatar?: Omit<AvatarConfig, 'name' | 'src' | 'alt' | 'initials' | 'status' | 'items' | 'label'>;
+  card?: Omit<CardConfig, 'title' | 'description' | 'content' | 'image' | 'actions' | 'href' | 'target' | 'rel' | 'eyebrow' | 'subtitle' | 'avatar' | 'headerAction' | 'footer' | 'media' | 'badge' | 'ribbon' | 'label' | 'onPress' | 'selected' | 'defaultSelected' | 'onSelectedChange' | 'name' | 'value' | 'onAction'>;
+  avatar?: Omit<AvatarConfig, 'name' | 'src' | 'alt' | 'initials' | 'status' | 'items' | 'label' | 'colorFrom' | 'href' | 'onClick' | 'onLoadingStatusChange'>;
   alert?: Omit<AlertConfig, 'title' | 'description' | 'actions' | 'onDismiss'>;
 }
 

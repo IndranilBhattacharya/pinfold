@@ -73,11 +73,13 @@ describe('badge logic', () => {
   });
 
   it('lists what a missing count, a missing anchor or a lone dot ignores', () => {
-    expect(Object.keys(inactiveBadgeOptions({}))).toEqual(['max', 'showZero', 'placement', 'anchorShape']);
-    expect(inactiveBadgeOptions({ count: 0, anchor: 'x' })).toEqual({});
-    expect(Object.keys(inactiveBadgeOptions({ count: 3, anchor: 'x' }))).toEqual(['showZero']);
-    expect(Object.keys(inactiveBadgeOptions({ dot: true, anchor: 'x' }))).toEqual(['max', 'showZero', 'radius', 'variant']);
-    expect(Object.keys(inactiveBadgeOptions({ dot: true, label: 'Online', anchor: 'x' }))).toEqual(['max', 'showZero']);
+    expect(Object.keys(inactiveBadgeOptions({}))).toEqual(['max', 'showZero', 'formatCount', 'placement', 'anchorShape', 'dismissLabel', 'onDismiss', 'target', 'rel']);
+    expect(Object.keys(inactiveBadgeOptions({ count: 0, anchor: 'x' }))).toEqual(['dismissLabel', 'onDismiss', 'target', 'rel']);
+    expect(inactiveBadgeOptions({ count: 0, anchor: 'x', dismissible: true, href: '/x' })).toEqual({});
+    expect(Object.keys(inactiveBadgeOptions({ count: 3, anchor: 'x' }))).toEqual(['showZero', 'dismissLabel', 'onDismiss', 'target', 'rel']);
+    expect(Object.keys(inactiveBadgeOptions({ dot: true, anchor: 'x' }))).toEqual(['max', 'showZero', 'formatCount', 'radius', 'variant', 'dismissLabel', 'onDismiss', 'target', 'rel']);
+    expect(Object.keys(inactiveBadgeOptions({ dot: true, label: 'Online', anchor: 'x' }))).toEqual(['max', 'showZero', 'formatCount', 'dismissLabel', 'onDismiss', 'target', 'rel']);
+    expect(badgeDotOnly({ dot: true, dismissible: true })).toBe(false);
   });
 
   it('a dot is alone only with nothing beside it', () => {
@@ -105,8 +107,10 @@ describe('avatar logic', () => {
   });
 
   it('lists per-person options as inactive in a group', () => {
-    expect(Object.keys(inactiveAvatarOptions({}))).toEqual(['radius', 'max', 'label']);
-    expect(Object.keys(inactiveAvatarOptions({ shape: 'square' }))).toEqual(['max', 'label']);
+    expect(Object.keys(inactiveAvatarOptions({}))).toEqual(['radius', 'max', 'label', 'surplus', 'expandOnHover', 'statusPlacement']);
+    expect(Object.keys(inactiveAvatarOptions({ shape: 'rounded', status: 'online' }))).toEqual(['max', 'label', 'surplus', 'expandOnHover']);
+    expect(Object.keys(inactiveAvatarOptions({ shape: 'square' }))).toEqual(['max', 'label', 'surplus', 'expandOnHover', 'statusPlacement']);
+    expect(Object.keys(inactiveAvatarOptions({ items: [] }))).toContain('onClick');
     expect(Object.keys(inactiveAvatarOptions({ items: [] }))).toContain('src');
     expect(Object.keys(inactiveAvatarOptions({ src: '/a.png' }))).toContain('tone');
   });
