@@ -26,7 +26,7 @@ describe('Cursor', () => {
     move(area);
     expect(cursor.hasAttribute('data-visible')).toBe(true);
     expect(area.hasAttribute(HIDDEN)).toBe(true);
-    expect((cursor.querySelector('[data-part="dot"]') as HTMLElement).style.transform).toBe('translate3d(40px, 50px, 0)');
+    expect((cursor.querySelector('[data-part="dot"]') as HTMLElement).style.transform).toMatch(/^translate3d\(40px, 50px, 0(px)?\)$/);
   });
 
   it('takes a state from what it is over: pressable things, text fields, and anything marked data-cursor', () => {
