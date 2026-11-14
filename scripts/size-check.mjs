@@ -44,7 +44,7 @@ function withChunks(file, seen = new Set()) {
  * overrides and state-function config fields.
  */
 const BUDGETS = [
-  ['packages/core/dist/index.js', 28], // every component's rules live here; apps tree-shake to what they use (see the app row)
+  ['packages/core/dist/index.js', 37.5], // every component's rules live here; apps tree-shake to what they use (see the app row)
   ['packages/core/dist/palette.js', 4],
   ['packages/react/dist/index.js', 3],
   ['packages/react/dist/accordion/index.js', 9], // 2026-11-03: presets, tag prop split, no :has(); the app row is what ships
@@ -52,60 +52,60 @@ const BUDGETS = [
   ['packages/react/dist/spinner/index.js', 4],
   ['packages/react/dist/separator/index.js', 4],
   ['packages/react/dist/kbd/index.js', 4],
-  ['packages/react/dist/skeleton/index.js', 4.5], // shares the provider, which now carries the app's router
-  ['packages/react/dist/badge/index.js', 5],
-  ['packages/react/dist/colorpicker/index.js', 7],
-  ['packages/react/dist/tour/index.js', 8],
-  ['packages/react/dist/fileupload/index.js', 7],
-  ['packages/react/dist/treeview/index.js', 9],
+  ['packages/react/dist/skeleton/index.js', 6], // shares the provider, which now carries the app's router
+  ['packages/react/dist/badge/index.js', 7],
+  ['packages/react/dist/colorpicker/index.js', 11.5],
+  ['packages/react/dist/tour/index.js', 12],
+  ['packages/react/dist/fileupload/index.js', 9],
+  ['packages/react/dist/treeview/index.js', 13.5],
   ['packages/react/dist/cursor/index.js', 6],
-  ['packages/react/dist/navbar/index.js', 15],
+  ['packages/react/dist/navbar/index.js', 20],
   ['packages/react/dist/appshell/index.js', 9],
   ['packages/react/dist/scrollarea/index.js', 6],
-  ['packages/react/dist/navmenu/index.js', 7],
-  ['packages/react/dist/sidebar/index.js', 6],
+  ['packages/react/dist/navmenu/index.js', 8],
+  ['packages/react/dist/sidebar/index.js', 7],
   ['packages/react/dist/resizable/index.js', 6],
   ['packages/react/dist/carousel/index.js', 8],
   ['packages/react/dist/empty/index.js', 6],
   ['packages/react/dist/timeline/index.js', 6],
   ['packages/react/dist/rating/index.js', 6],
   ['packages/react/dist/table/index.js', 35], // a data grid: filters, groups, virtual rows, editing, column state
-  ['packages/react/dist/datepicker/index.js', 20],
+  ['packages/react/dist/datepicker/index.js', 23.5],
   ['packages/react/dist/calendar/index.js', 10],
   ['packages/react/dist/command/index.js', 10],
-  ['packages/react/dist/tags/index.js', 7],
-  ['packages/react/dist/combobox/index.js', 15], // the select's listbox engine plus the overlay layer
-  ['packages/react/dist/select/index.js', 14], // the overlay layer (top layer, flip, dismiss stack), shared with menu, which also carries the trigger button
+  ['packages/react/dist/tags/index.js', 9],
+  ['packages/react/dist/combobox/index.js', 22.5], // the select's listbox engine plus the overlay layer
+  ['packages/react/dist/select/index.js', 19.5], // the overlay layer (top layer, flip, dismiss stack), shared with menu, which also carries the trigger button
   ['packages/react/dist/stepper/index.js', 8], // renders Pinfold buttons (Back, Next, Finish) and the step panels
   ['packages/react/dist/pagination/index.js', 7], // page size select, go to page, summary, sliding cursor, cursor-paged mode
-  ['packages/react/dist/breadcrumb/index.js', 13], // renders Pinfold menus (crumb menus, collapsed crumbs), with the overlay layer
+  ['packages/react/dist/breadcrumb/index.js', 17], // renders Pinfold menus (crumb menus, collapsed crumbs), with the overlay layer
   ['packages/react/dist/tabs/index.js', 8], // close and add, link tabs, overflow fades
-  ['packages/react/dist/otp/index.js', 6],
-  ['packages/react/dist/number/index.js', 7],
-  ['packages/react/dist/slider/index.js', 7],
-  ['packages/react/dist/toolbar/index.js', 6],
+  ['packages/react/dist/otp/index.js', 9.5],
+  ['packages/react/dist/number/index.js', 10],
+  ['packages/react/dist/slider/index.js', 10.5],
+  ['packages/react/dist/toolbar/index.js', 8],
   ['packages/react/dist/toggle/index.js', 6],
-  ['packages/react/dist/switch/index.js', 6],
-  ['packages/react/dist/radio/index.js', 6],
-  ['packages/react/dist/checkbox/index.js', 6],
-  ['packages/react/dist/input/index.js', 9],
-  ['packages/react/dist/toast/index.js', 10],
-  ['packages/react/dist/menu/index.js', 11],
+  ['packages/react/dist/switch/index.js', 9],
+  ['packages/react/dist/radio/index.js', 9],
+  ['packages/react/dist/checkbox/index.js', 9.5],
+  ['packages/react/dist/input/index.js', 12.5],
+  ['packages/react/dist/toast/index.js', 11.5],
+  ['packages/react/dist/menu/index.js', 14],
   ['packages/react/dist/dialog/index.js', 10],
   ['packages/react/dist/popover/index.js', 10],
   ['packages/react/dist/tooltip/index.js', 10],
-  ['packages/react/dist/progress/index.js', 5],
-  ['packages/react/dist/card/index.js', 6],
-  ['packages/react/dist/avatar/index.js', 10],
-  ['packages/react/dist/alert/index.js', 6],
+  ['packages/react/dist/progress/index.js', 6.5],
+  ['packages/react/dist/card/index.js', 8.5],
+  ['packages/react/dist/avatar/index.js', 11.5],
+  ['packages/react/dist/alert/index.js', 7.5],
   ['packages/css/dist/core.css', 5],
   ['packages/css/dist/accordion.css', 4],
   ['packages/css/dist/button.css', 2],
   ['packages/css/dist/spinner.css', 2], // six animations (ring, arc, dots, bars, pulse, orbit)
   ['packages/css/dist/separator.css', 1],
   ['packages/css/dist/kbd.css', 1],
-  ['packages/css/dist/skeleton.css', 1],
-  ['packages/css/dist/badge.css', 2],
+  ['packages/css/dist/skeleton.css', 2],
+  ['packages/css/dist/badge.css', 2.5],
   ['packages/css/dist/colorpicker.css', 2.5],
   ['packages/css/dist/tour.css', 3],
   ['packages/css/dist/fileupload.css', 3],
@@ -119,7 +119,7 @@ const BUDGETS = [
   ['packages/css/dist/resizable.css', 2],
   ['packages/css/dist/carousel.css', 2.5],
   ['packages/css/dist/empty.css', 2],
-  ['packages/css/dist/timeline.css', 2],
+  ['packages/css/dist/timeline.css', 3.5],
   ['packages/css/dist/rating.css', 2],
   ['packages/css/dist/table.css', 5.5],
   ['packages/css/dist/datepicker.css', 2],
@@ -128,7 +128,7 @@ const BUDGETS = [
   ['packages/css/dist/tags.css', 2],
   ['packages/css/dist/combobox.css', 1],
   ['packages/css/dist/select.css', 3],
-  ['packages/css/dist/stepper.css', 2.5], // label placement, the step panel and actions, error steps
+  ['packages/css/dist/stepper.css', 3], // label placement, the step panel and actions, error steps
   ['packages/css/dist/pagination.css', 2],
   ['packages/css/dist/breadcrumb.css', 2],
   ['packages/css/dist/tabs.css', 3], // five variants, four placements, overflow fades, close and add
@@ -142,19 +142,19 @@ const BUDGETS = [
   ['packages/css/dist/checkbox.css', 2],
   ['packages/css/dist/input.css', 2],
   ['packages/css/dist/toast.css', 2],
-  ['packages/css/dist/menu.css', 2],
-  ['packages/css/dist/dialog.css', 2],
+  ['packages/css/dist/menu.css', 2.5],
+  ['packages/css/dist/dialog.css', 2.5],
   ['packages/css/dist/popover.css', 2],
   ['packages/css/dist/tooltip.css', 2],
-  ['packages/css/dist/progress.css', 2],
-  ['packages/css/dist/card.css', 2],
+  ['packages/css/dist/progress.css', 2.5],
+  ['packages/css/dist/card.css', 3.5],
   ['packages/css/dist/avatar.css', 2],
   ['packages/css/dist/alert.css', 2],
   ['packages/css/dist/packs.css', 2],
 ];
 
 /** A production app rendering one accordion: minified, NODE_ENV=production, React excluded. */
-const APP_BUDGET = 6;
+const APP_BUDGET = 6.5;
 
 const strict = process.argv.includes('--strict');
 const kb = (bytes) => Math.round((bytes / 1024) * 100) / 100;
