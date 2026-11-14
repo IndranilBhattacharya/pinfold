@@ -57,8 +57,8 @@ dark: the pressed text is the tone pulled toward the theme text, so it clears 4.
 | `outline` | one framed bar, hairlines between buttons | the tone's tint with a ring in the tone |
 | `ghost` | no surface until hover | the tone's tint and tone text |
 
-**Sliding selection.** In a single selection, one indicator carries the pressed look and slides to
-the chosen button when the root has `data-animate` (the default; the provider's `disableAnimation`
+**Sliding selection.** In a single selection, one indicator carries the pressed look and glides
+(`--pinfold-ease-glide`, no overshoot) to the chosen button when the root has `data-animate` (the default; the provider's `disableAnimation`
 turns it off, `prefers-reduced-motion` makes it instant). It is measured from the selected button,
 so it fits buttons of any width, in a row or a column (one ResizeObserver per group). Before it is
 measured, the selected button draws the pressed look itself, so the first paint is right without

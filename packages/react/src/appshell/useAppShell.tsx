@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveAppShellOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { useControllableState, useEvent, useId, useIsomorphicLayoutEffect } from '../hooks';
@@ -32,6 +32,9 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ appshellMeta, validateConfig }) => {
       for (const problem of validateConfig(appshellMeta, input)) warnOnce(true, problem.message);
+      // Only what the config alone rules out: whether an `auto` sidebar is a drawer depends on the width.
+      const inactive = inactiveAppShellOptions(config);
+      for (const key in inactive) warnOnce((input as unknown as Record<string, unknown>)[key] !== undefined, `AppShell: \`${key}\` has no visible effect here. ${inactive[key]}`);
     });
   }
 

@@ -242,18 +242,28 @@ function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
-/** Nearest key by edit distance, for "did you mean" hints. */
+/**
+ * Nearest key by edit distance, for "did you mean" hints. One edit is always a likely typo. Two edits
+ * are one only for long keys (6+ characters both) or the same letters swapped round (`titel`):
+ * between short words two edits make a different word (`role` is not a misspelt `tone`).
+ */
 function closest(key: string, keys: string[]): string | undefined {
+  const a = key.toLowerCase();
   let best: string | undefined;
   let bestScore = 3;
   for (const k of keys) {
-    const d = distance(key.toLowerCase(), k.toLowerCase());
-    if (d < bestScore) {
-      bestScore = d;
-      best = k;
-    }
+    const b = k.toLowerCase();
+    const d = distance(a, b);
+    if (d >= bestScore) continue;
+    if (d === 2 && !((a.length >= 6 && b.length >= 6) || sameLetters(a, b))) continue;
+    bestScore = d;
+    best = k;
   }
   return best;
+}
+
+function sameLetters(a: string, b: string): boolean {
+  return a.length === b.length && [...a].sort().join('') === [...b].sort().join('');
 }
 
 function distance(a: string, b: string): number {

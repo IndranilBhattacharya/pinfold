@@ -137,6 +137,29 @@ describe('Tour', () => {
     expect(api!.open).toBe(false);
   });
 
+  it('places the card at the new target after Next, not at the last one', () => {
+    const html = document.documentElement;
+    const size = (key: 'clientWidth' | 'clientHeight', value: number | undefined) =>
+      value === undefined ? delete (html as unknown as Record<string, unknown>)[key] : Object.defineProperty(html, key, { configurable: true, value });
+    size('clientWidth', 1200);
+    size('clientHeight', 800);
+    try {
+      render(<Page><Tour steps={steps} defaultOpen /></Page>);
+      const box = (x: number, y: number) => () => ({ x, y, left: x, top: y, width: 100, height: 30, right: x + 100, bottom: y + 30, toJSON() {} });
+      document.getElementById('search')!.getBoundingClientRect = box(100, 100);
+      document.getElementById('create')!.getBoundingClientRect = box(900, 400);
+      // Re-measure the first step now that its target has a box.
+      fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+      const card = dialog();
+      // Below the second target (offset 12 from the spotlight's padded box), centred on it.
+      expect(parseFloat(card.style.top)).toBeGreaterThan(400);
+      expect(dialog().textContent).toContain('2 of 3');
+    } finally {
+      size('clientWidth', undefined);
+      size('clientHeight', undefined);
+    }
+  });
+
   it('cuts the hole with one even-odd path that keeps its commands', () => {
     const hole = spotlightRect({ x: 100, y: 50, width: 80, height: 30 }, 8, { width: 800, height: 600 });
     expect(hole).toEqual({ x: 92, y: 42, width: 96, height: 46 });

@@ -3,7 +3,8 @@ import { useIsomorphicLayoutEffect } from './hooks';
 
 /**
  * A sliding indicator (a pill, an underline) measured from the selected element in a box: writes
- * `<prefix>x/y/w/h` in px on the box and marks it `data-placed`. One observer per box, only while
+ * `<prefix>x/y/w/h` in px on the box and marks it `data-placed`. One observer per box (it also watches
+ * the candidates, so a label that changes width moves the indicator), only while
  * `on`; until placed (first paint, no script) the selected element draws the indicator itself.
  */
 export function useSlidingIndicator(box: React.RefObject<HTMLElement | null>, on: boolean, selector: string, index: number, prefix: string, extra?: unknown): void {
@@ -23,8 +24,10 @@ export function useSlidingIndicator(box: React.RefObject<HTMLElement | null>, on
       el.setAttribute('data-placed', '');
     };
     place();
+    // The box, and every candidate: a label that changes width (a count, a late font) moves the others.
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place);
     observer?.observe(el);
+    if (observer) el.querySelectorAll<HTMLElement>(selector).forEach((item) => observer.observe(item));
     return () => observer?.disconnect();
   }, [on, index, extra]);
 }

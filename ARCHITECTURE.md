@@ -338,6 +338,15 @@ A literal colour in a component stylesheet is a bug. The conformance suite fails
 - **Two-tone focus ring.** Nothing may clip it.
 - **Decelerating easing** (`--pinfold-ease-out`) for anything that appears. Content settles about 35%
   behind its container.
+- **No overshoot inside a frame.** A part that slides within a scrolling or clipping box (the tabs
+  indicator, the toggle pill, the pagination cursor) uses `--pinfold-ease-glide`: a long, soft landing.
+  `--pinfold-ease-spring` overshoots, which makes the box scroll for a moment or cuts the part off; it
+  is for things that appear on their own (a check mark, a switch thumb).
+- **A selected pill reads as lifted** over its tray: `--pinfold-color-pill` is the raised surface in
+  light themes and a step lighter in dark ones, where shadows barely show.
+- **Strips that hide items scroll by mouse.** A row of tabs or links wider than its box can be dragged
+  and wheeled (`useDragScroll`), fades at an edge that hides items, and never moves the page to show
+  its selected item (`revealInStrip`, not `scrollIntoView`).
 - Reduced motion and forced colours are handled in CSS, once, in the reset.
 
 ---

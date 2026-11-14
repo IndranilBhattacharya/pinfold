@@ -71,6 +71,10 @@ or the dropdown that holds it.
 ## Behaviour
 - The bar measures itself (not the window): links that do not fit move under "More" one by one and come back as room
   returns; under `collapseAt` they fold into a panel that lists every link, dropdown links included, and the actions.
+- With `overflow: 'scroll'` the links stay in one row that scrolls: by keyboard, touch, a mouse drag (no text
+  is selected and the release does not follow a link) or a vertical wheel. An edge that hides links fades
+  (`data-overflow-start` / `-end` on the list), and the current link is brought into the row's view when it
+  changes, without moving the page.
 - Every observer and listener is removed on unmount; each use is its own instance.
 - Controller: `value`, `setValue(key)`, `scrolled`, `collapsed`, `menuOpen`, `openMenu()`, `closeMenu()`.
 

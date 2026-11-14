@@ -135,9 +135,9 @@
   }
   .pinfold-toggle[data-animate] .pinfold-toggle__indicator {
     transition:
-      transform var(--pinfold-duration-slow) var(--pinfold-ease-spring),
-      inline-size var(--pinfold-duration-slow) var(--pinfold-ease-spring),
-      block-size var(--pinfold-duration-slow) var(--pinfold-ease-spring);
+      transform var(--pinfold-duration-slow) var(--pinfold-ease-glide),
+      inline-size var(--pinfold-duration-slow) var(--pinfold-ease-glide),
+      block-size var(--pinfold-duration-slow) var(--pinfold-ease-glide);
   }
 
   /* ---------------------------------------------------------------- segmented */

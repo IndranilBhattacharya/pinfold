@@ -75,7 +75,12 @@ Closing the selected tab selects its neighbour first (the next one, else the one
 moves to the tab that takes the closed one's place. A row wider than its box scrolls
 (`watchScrollEdges` marks the header `data-overflow-start` / `-end`, or `-top` / `-bottom` in a
 column): its edges fade where there is more, a scroll button shows over that edge, and the selected
-tab scrolls into view. `fullWidth` makes the tabs share the row (fitted tabs). After a change (never on load),
+tab is brought into the row's view when the selection changes (the row scrolls, the page never does).
+With a mouse the row can also be dragged (a press that moves more than a few pixels becomes a drag:
+no text is selected, and the release does not pick a tab) or turned with a vertical wheel; touch
+scrolls natively. A tab marked for reordering keeps its own drag. The list keeps a little room
+around the tabs so the indicator's shadow and the focus ring are never cut off.
+`fullWidth` makes the tabs share the row (fitted tabs). After a change (never on load),
 the new panel slides in from the side the selection moved to.
 
 Tray, pill, panel card and edges read the control tokens, so every style pack reaches them.
@@ -91,8 +96,11 @@ Tray, pill, panel card and edges read the control tokens, so every style pack re
 - A closable tab has `aria-keyshortcuts="Delete"` and is described by `closeLabel`. The close mark
   is for pointers only: a button inside a tab is not allowed. The + button sits outside the tab
   list, which may hold only tabs.
-- The indicator is measured from the selected tab (one `ResizeObserver` per list) and slides;
-  before it is placed, the selected tab draws it, so the first paint is right without script.
+- The indicator is measured from the selected tab (one `ResizeObserver` per list, which also watches
+  the tabs, so a label that changes width moves it) and glides (`--pinfold-ease-glide`: no overshoot,
+  which inside the scrolling row would make the row scroll for a moment or cut the indicator off);
+  before it is placed, the selected tab draws it, so the first paint is right without script. The
+  segmented pill is `--pinfold-color-pill`, a step lighter than the tray in dark themes.
 
 ## Deliberately excluded
 - Touch reordering: dragging uses the native drag and drop, which phones do not start from a tab;

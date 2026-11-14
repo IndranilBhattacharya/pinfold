@@ -55,6 +55,24 @@ describe('style packs', () => {
     expect(names('[data-pinfold-theme="light"] {')).toContain('--pinfold-focus-ring');
   });
 
+  it('defines the pill colour in every theme block, and glides sliding indicators without overshoot', () => {
+    const tokens = readFileSync(resolve(import.meta.dirname, 'src/tokens.css'), 'utf8');
+    // :root, the nested light block, the system dark block and the nested dark block.
+    expect(tokens.match(/--pinfold-color-pill:/g)).toHaveLength(4);
+    expect(tokens).toMatch(/--pinfold-ease-glide: cubic-bezier\(/);
+    // An overshoot inside a scrolling or clipping box makes it scroll for a moment and is cut off.
+    for (const name of ['tabs', 'toggle', 'pagination']) {
+      const css = readFileSync(resolve(import.meta.dirname, `src/${name}.css`), 'utf8');
+      // Every rule whose selector names the sliding part, with its declarations.
+      const indicator = css
+        .split('}')
+        .filter((rule) => /__(indicator|cursor)\b[^{]*\{/.test(rule) && /transition/.test(rule))
+        .join('}');
+      expect(indicator, name).toContain('--pinfold-ease-glide');
+      expect(indicator, name).not.toContain('--pinfold-ease-spring');
+    }
+  });
+
   it('follows the palette: every colour is mixed from palette tokens (white highlights aside)', () => {
     expect(css).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i);
     for (const [, args] of css.matchAll(/oklch\(([^)]*)\)/g)) expect(args).toBe('1 0 0');

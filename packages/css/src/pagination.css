@@ -119,7 +119,7 @@
   .pinfold-pagination[data-tone='neutral'] .pinfold-pagination__cursor { box-shadow: var(--pinfold-shadow-sm); }
   .pinfold-pagination [data-current] { color: var(--pinfold-pgn-on); cursor: default; }
   .pinfold-pagination__list[data-placed] [data-current] { background: transparent; border-color: transparent; box-shadow: none; }
-  .pinfold-pagination[data-animate] .pinfold-pagination__cursor { transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-spring), inline-size var(--pinfold-duration-slow) var(--pinfold-ease-spring); }
+  .pinfold-pagination[data-animate] .pinfold-pagination__cursor { transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-glide), inline-size var(--pinfold-duration-slow) var(--pinfold-ease-glide); }
   .pinfold-pagination[data-loading] .pinfold-pagination__cursor { animation: pinfold-pagination-wait 0.8s var(--pinfold-ease-out) infinite alternate; }
   @keyframes pinfold-pagination-wait {
     to { opacity: 0.45; }

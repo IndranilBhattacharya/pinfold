@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, mergeProps, radiusProps, warnOnce, type PropsBag } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, mergeProps, radiusProps, warnOnce, watchScrollEdges, type PropsBag } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { useControllableState, useEvent, useId, useIsomorphicLayoutEffect } from '../hooks';
@@ -7,6 +7,7 @@ import { mergeConfig } from '../preset';
 import { ITEM, renderSlot, slotProps } from '../slots';
 import { followLink } from '../link';
 import { useSlidingIndicator } from '../indicator';
+import { revealInStrip, useDragScroll } from '../drag-scroll';
 import { useOverlayLayer } from '../overlay';
 import { CHEVRON_DOWN_ICON } from '../nav-icons';
 import { Button } from '../button/Button';
@@ -177,6 +178,19 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
   const currentIndex = items.findIndex((item) => holds(item, value));
   const marker = config.indicator ?? 'pill';
   const at = hover ?? (currentIndex >= 0 && currentIndex < shown ? currentIndex : -1);
+  // overflow: 'scroll': the links that do not fit are reached by dragging or wheeling the row.
+  const scrolls = overflow === 'scroll' && !collapsed;
+  useDragScroll(list as React.RefObject<HTMLElement | null>, scrolls);
+  // The row marks the edges that hide links (data-overflow-start / -end), so they fade.
+  useIsomorphicLayoutEffect(() => {
+    const el = list.current as HTMLElement | null;
+    if (!el || !scrolls) return;
+    return watchScrollEdges(el);
+  }, [scrolls, count]);
+  React.useEffect(() => {
+    const el = list.current as HTMLElement | null;
+    if (scrolls && el) revealInStrip(el, el.querySelector('[data-current]')?.closest('[data-nav-item]'));
+  }, [scrolls, value]);
   useSlidingIndicator(list as React.RefObject<HTMLElement | null>, marker !== 'none' && !collapsed, ':scope > [data-nav-item]', at, '--pinfold-navbar-i-', `${shown}:${value}:${collapsed}`);
 
   const getRootProps = (props?: PropsBag): PropsBag =>

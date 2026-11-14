@@ -57,6 +57,8 @@ export function useTour(input: TourConfig = {}): TourComponent {
   const current: TourStep | undefined = steps[index];
   const [pending, setPending] = React.useState(false);
   const [target, setTarget] = React.useState<Element | null>(null);
+  // Which step `target` was found for: the card is placed again only once the new step has its own target.
+  const [placed, setPlaced] = React.useState(-1);
   const [moving, setMoving] = React.useState(false);
   const showing = open && mounted && total > 0;
 
@@ -155,6 +157,7 @@ export function useTour(input: TourConfig = {}): TourComponent {
     const el = find(current.target);
     if (!el && current.target != null && process.env.NODE_ENV !== 'production') warnOnce(true, `Tour: the target of step ${index + 1} is not on the page; the card is shown in the middle.`);
     setTarget(el);
+    setPlaced(index);
     if (el && config.scroll !== false && typeof el.scrollIntoView === 'function') {
       const box = el.getBoundingClientRect();
       const vh = document.documentElement.clientHeight;
@@ -232,7 +235,7 @@ export function useTour(input: TourConfig = {}): TourComponent {
     floating: card,
     placement: current?.placement ?? config.placement ?? 'bottom',
     offset: 12,
-    key: `${index}:${!!target}`,
+    key: `${placed}:${!!target}`,
   });
 
   // The focus moves into the card on every step.

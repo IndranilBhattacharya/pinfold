@@ -55,3 +55,39 @@ export function inactiveCarouselOptions(config: { slidesPerView?: number; slides
 export function inactiveResizableOptions(_config: object): Record<string, string> {
   return {};
 }
+
+/**
+ * App shell options with no visible effect in the current config. `drawer` is what the shell
+ * measured when `sidebarBehavior` is `auto` (whether it is narrower than `breakpoint`); leave it
+ * out when that is not known, and only what the config alone rules out is listed.
+ */
+export function inactiveAppShellOptions(
+  config: { sidebar?: unknown; navbar?: unknown; sidebarBehavior?: string; scroll?: string },
+  drawer?: boolean,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  const hasSidebar = config.sidebar != null && config.sidebar !== false;
+  const behavior = config.sidebarBehavior ?? 'auto';
+  const why = !hasSidebar
+    ? 'there is no `sidebar`.'
+    : behavior === 'inline'
+      ? 'with `sidebarBehavior: "inline"` the sidebar always sits beside the page: there is no drawer.'
+      : behavior === 'auto' && drawer === false
+        ? 'the shell is wider than `breakpoint`, so the sidebar sits beside the page; this applies once it is a drawer.'
+        : '';
+  if (why) {
+    out.sidebarTrigger = why;
+    out.backdrop = why;
+    out.closeOnNavigate = why;
+  }
+  if (!hasSidebar) {
+    out.sidebarBehavior = why;
+    out.breakpoint = why;
+  } else if (behavior !== 'auto') out.breakpoint = 'only `sidebarBehavior: "auto"` measures the shell against it.';
+  if (config.navbar == null) {
+    out.navbarPosition = 'there is no `navbar`.';
+    if (!out.sidebarTrigger) out.sidebarTrigger = 'there is no `navbar` to hold the button: place `Shell.SidebarTrigger` yourself.';
+    if (!hasSidebar) out.layout = 'there is no `navbar` and no `sidebar` to arrange.';
+  } else if ((config.scroll ?? 'page') === 'content') out.navbarPosition = 'with `scroll: "content"` only the page region scrolls: the bar never leaves the top.';
+  return out;
+}

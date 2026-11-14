@@ -81,6 +81,8 @@
     /* A surface that sits on another and must read as lifted (a segmented pill): the surface in
        light themes, a step lighter in dark ones, where shadows barely show. */
     --pinfold-color-raised: oklch(1 0 0);
+    /* The selected pill of a tray (segmented tabs): lifted over the tray on any backdrop. */
+    --pinfold-color-pill: var(--pinfold-color-raised);
     --pinfold-color-surface-raised: oklch(1 0 0);
     --pinfold-color-surface-sunken: var(--pinfold-neutral-100);
 
@@ -193,6 +195,9 @@
     --pinfold-ease: cubic-bezier(0.32, 0.72, 0, 1);
     --pinfold-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --pinfold-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    /* A long, soft landing with no overshoot: for a part that slides inside a frame (an indicator
+       in a tray, a cursor in a row), where an overshoot would leave the frame or be clipped by it. */
+    --pinfold-ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
     /* One gentle overshoot, for things that appear rather than move. */
     --pinfold-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
@@ -213,6 +218,7 @@
       --pinfold-color-bg-subtle: oklch(0.178 0.019 274);
       --pinfold-color-surface: oklch(0.196 0.020 274);
       --pinfold-color-raised: oklch(0.262 0.022 274);
+      --pinfold-color-pill: color-mix(in oklab, var(--pinfold-color-raised) 90%, var(--pinfold-neutral-100));
       --pinfold-color-surface-raised: oklch(0.232 0.021 274);
       --pinfold-color-surface-sunken: oklch(0.165 0.018 274);
       --pinfold-color-border: oklch(0.286 0.023 274);
@@ -257,6 +263,7 @@
     --pinfold-color-bg-subtle: oklch(0.178 0.019 274);
     --pinfold-color-surface: oklch(0.196 0.020 274);
     --pinfold-color-raised: oklch(0.262 0.022 274);
+    --pinfold-color-pill: color-mix(in oklab, var(--pinfold-color-raised) 90%, var(--pinfold-neutral-100));
     --pinfold-color-surface-raised: oklch(0.232 0.021 274);
     --pinfold-color-surface-sunken: oklch(0.165 0.018 274);
     --pinfold-color-border: oklch(0.286 0.023 274);
@@ -311,6 +318,7 @@
     --pinfold-color-bg-subtle: var(--pinfold-neutral-100);
     --pinfold-color-surface: oklch(1 0 0);
     --pinfold-color-raised: oklch(1 0 0);
+    --pinfold-color-pill: var(--pinfold-color-raised);
     --pinfold-color-surface-raised: oklch(1 0 0);
     --pinfold-color-surface-sunken: var(--pinfold-neutral-100);
     --pinfold-color-border: var(--pinfold-neutral-200);

@@ -79,7 +79,7 @@ const BUDGETS = [
   ['packages/react/dist/stepper/index.js', 8], // renders Pinfold buttons (Back, Next, Finish) and the step panels
   ['packages/react/dist/pagination/index.js', 7], // page size select, go to page, summary, sliding cursor, cursor-paged mode
   ['packages/react/dist/breadcrumb/index.js', 17], // renders Pinfold menus (crumb menus, collapsed crumbs), with the overlay layer
-  ['packages/react/dist/tabs/index.js', 8], // close and add, link tabs, overflow fades
+  ['packages/react/dist/tabs/index.js', 9.9], // close and add, link tabs, overflow fades; mouse drag and wheel scrolling, reveal without moving the page (8.99 measured)
   ['packages/react/dist/otp/index.js', 9.5],
   ['packages/react/dist/number/index.js', 10],
   ['packages/react/dist/slider/index.js', 10.5],
@@ -131,7 +131,7 @@ const BUDGETS = [
   ['packages/css/dist/stepper.css', 3], // label placement, the step panel and actions, error steps
   ['packages/css/dist/pagination.css', 2],
   ['packages/css/dist/breadcrumb.css', 2],
-  ['packages/css/dist/tabs.css', 3], // five variants, four placements, overflow fades, close and add
+  ['packages/css/dist/tabs.css', 3.4], // five variants, four placements, overflow fades, close and add; room for the indicator's shadow, drag rules (3.06 measured)
   ['packages/css/dist/otp.css', 2],
   ['packages/css/dist/number.css', 2],
   ['packages/css/dist/slider.css', 2.5], // three variants (line, bar, minimal), step dots, marks, value bubble

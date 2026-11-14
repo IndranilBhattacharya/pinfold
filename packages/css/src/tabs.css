@@ -46,17 +46,32 @@
     flex: 0 1 auto;
     gap: 0.25rem;
     min-inline-size: 0;
+    /* A scrolling box clips at its padding edge. The bleed is padding taken back by a negative
+       margin: the tabs sit where they did, and the indicator's shadow has room on every side. */
+    --pinfold-tab-bleed: 0.75rem;
+    --pinfold-tab-cs: 0px;
+    --pinfold-tab-ce: 0px;
+    --pinfold-tab-mask: linear-gradient(var(--pinfold-tab-md, to right), transparent var(--pinfold-tab-cs), currentColor calc(var(--pinfold-tab-cs) + var(--pinfold-tab-fs)), currentColor calc(100% - var(--pinfold-tab-ce) - var(--pinfold-tab-fe)), transparent calc(100% - var(--pinfold-tab-ce)));
+    padding: var(--pinfold-tab-bleed);
+    margin: calc(var(--pinfold-tab-bleed) * -1);
     overflow: auto hidden;
-    scroll-padding-inline: 2.5rem;
+    scroll-padding-inline: calc(2.5rem + var(--pinfold-tab-bleed));
     scrollbar-width: none;
-    -webkit-mask-image: linear-gradient(to right, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent);
-    mask-image: linear-gradient(to right, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent);
+    overscroll-behavior-inline: contain;
+    -webkit-mask-image: var(--pinfold-tab-mask);
+    mask-image: var(--pinfold-tab-mask);
+    /* The bleed lies over what is next to the tabs: only the tabs themselves take the pointer. */
+    pointer-events: none;
   }
+  .pinfold-tabs__list > * { pointer-events: auto; }
+  /* Dragged with the mouse to scroll (the script sets data-dragging once the pointer has moved). */
+  .pinfold-tabs__list[data-dragging] { cursor: grabbing; user-select: none; -webkit-user-select: none; pointer-events: auto; }
+  .pinfold-tabs__list[data-dragging] > * { pointer-events: none; }
   .pinfold-tabs[data-full-width] .pinfold-tabs__list { flex-grow: 1; }
   .pinfold-tabs__list::-webkit-scrollbar { display: none; }
-  /* Where there is more to scroll to, that edge fades. */
-  :is([data-overflow-start], [data-overflow-top]) > .pinfold-tabs__list { --pinfold-tab-fs: 2rem; }
-  :is([data-overflow-end], [data-overflow-bottom]) > .pinfold-tabs__list { --pinfold-tab-fe: 2rem; }
+  /* Where there is more to scroll to, that edge fades, starting where the tabs' own box ends. */
+  :is([data-overflow-start], [data-overflow-top]) > .pinfold-tabs__list { --pinfold-tab-fs: 2rem; --pinfold-tab-cs: var(--pinfold-tab-bleed); }
+  :is([data-overflow-end], [data-overflow-bottom]) > .pinfold-tabs__list { --pinfold-tab-fe: 2rem; --pinfold-tab-ce: var(--pinfold-tab-bleed); }
 
   /* Scroll buttons: only on a side that hides tabs. */
   .pinfold-tabs__scrollButton {
@@ -94,8 +109,8 @@
   .pinfold-tabs__scrollButton:hover { color: var(--pinfold-color-text); }
   :is([data-overflow-start], [data-overflow-top]) > .pinfold-tabs__scrollButton[data-scroll='back'],
   :is([data-overflow-end], [data-overflow-bottom]) > .pinfold-tabs__scrollButton[data-scroll='forward'] { display: inline-grid; }
-  [dir='rtl'] .pinfold-tabs__list { -webkit-mask-image: linear-gradient(to left, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); mask-image: linear-gradient(to left, transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); }
-  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__list { flex-direction: column; overflow: hidden auto; -webkit-mask-image: linear-gradient(transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); mask-image: linear-gradient(transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent); }
+  [dir='rtl'] .pinfold-tabs__list { --pinfold-tab-md: to left; }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__list { --pinfold-tab-md: to bottom; flex-direction: column; overflow: hidden auto; scroll-padding-block: calc(2.5rem + var(--pinfold-tab-bleed)); overscroll-behavior-block: contain; }
 
   .pinfold-tabs__tab {
     position: relative;
@@ -181,7 +196,7 @@
   }
   .pinfold-tabs__list[data-placed] > .pinfold-tabs__indicator { display: block; }
   .pinfold-tabs[data-animate] .pinfold-tabs__indicator {
-    transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-spring), inline-size var(--pinfold-duration-slow) var(--pinfold-ease-spring), block-size var(--pinfold-duration-slow) var(--pinfold-ease-spring);
+    transition: transform var(--pinfold-duration-slow) var(--pinfold-ease-glide), inline-size var(--pinfold-duration-slow) var(--pinfold-ease-glide), block-size var(--pinfold-duration-slow) var(--pinfold-ease-glide);
   }
 
   /* segmented: a tray with a raised pill. */
@@ -196,10 +211,10 @@
   .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__list { gap: 0.125rem; }
   .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__tab { block-size: calc(var(--pinfold-tab-h) - 0.5rem); }
   .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__indicator {
-    background: var(--pinfold-tab-surface);
-    box-shadow: var(--pinfold-control-shadow, 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-color-text) 7%, transparent), 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-900) 12%, transparent), 0 2px 8px -2px color-mix(in oklab, var(--pinfold-neutral-900) 14%, transparent));
+    background: var(--pinfold-control-surface, var(--pinfold-color-pill));
+    box-shadow: var(--pinfold-control-shadow, var(--pinfold-highlight), 0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-color-text) 7%, transparent), 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-900) 12%, transparent), 0 2px 8px -2px color-mix(in oklab, var(--pinfold-neutral-900) 14%, transparent));
   }
-  .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { background: var(--pinfold-tab-surface); }
+  .pinfold-tabs[data-variant='segmented'] .pinfold-tabs__list:not([data-placed]) .pinfold-tabs__tab[data-selected] { background: var(--pinfold-control-surface, var(--pinfold-color-pill)); }
 
   /* underline */
   .pinfold-tabs[data-variant='underline'] .pinfold-tabs__header { box-shadow: inset 0 calc(var(--pinfold-border-width) * -1) 0 var(--pinfold-tab-edge); }

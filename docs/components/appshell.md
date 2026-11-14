@@ -42,6 +42,13 @@ choosing (it renders only while the sidebar is a drawer); set `sidebarTrigger: f
 - The drawer holds the focus while open, closes on Escape, on its backdrop and on a followed link, and returns
   focus to the menu button. Closed, it is `inert`.
 - Each use is its own instance: observers and listeners are removed on unmount.
+- Inactive (`inactiveAppShellOptions(config, drawer?)`): with no `sidebar`, the drawer options
+  (`sidebarTrigger`, `backdrop`, `closeOnNavigate`) and `sidebarBehavior`, `breakpoint`; with
+  `sidebarBehavior: 'inline'`, the drawer options and `breakpoint`; with `'drawer'`, `breakpoint`; with
+  `'auto'` and a measured shell wider than `breakpoint` (pass `drawer: false`), the drawer options; with no
+  `navbar`, `navbarPosition` and `sidebarTrigger` (place `Shell.SidebarTrigger` yourself), and `layout`
+  when there is no sidebar either; with `scroll: 'content'`, `navbarPosition`. In development the hook warns
+  about the ones the config alone rules out.
 
 ## Composing
 ```tsx

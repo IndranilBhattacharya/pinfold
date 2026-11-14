@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { inactiveCarouselOptions, initialSizes, resizePanels, slideFromScroll, stepIndex } from './layout.logic';
+import { inactiveAppShellOptions, inactiveCarouselOptions, initialSizes, resizePanels, slideFromScroll, stepIndex } from './layout.logic';
 
 describe('layout logic', () => {
   it('carousel: the slide in view, steps that wrap or hold', () => {
@@ -22,5 +22,32 @@ describe('layout logic', () => {
     expect(resizePanels([50, 50], 0, -45, [0, 0], [100, 70])).toEqual([30, 70]);
     expect(initialSizes([25, undefined, undefined])).toEqual([25, 37.5, 37.5]);
     expect(initialSizes([60, 60])).toEqual([50, 50]);
+  });
+
+  it('app shell: options listed inactive only when the config or the measured width rules them out', () => {
+    const keys = (config: Parameters<typeof inactiveAppShellOptions>[0], drawer?: boolean) => Object.keys(inactiveAppShellOptions(config, drawer)).sort();
+    const full = { navbar: 'bar', sidebar: 'nav' };
+    // auto, width unknown: nothing can be ruled out.
+    expect(keys(full)).toEqual([]);
+    // auto, measured as a drawer: everything applies.
+    expect(keys(full, true)).toEqual([]);
+    // auto, measured wide: the drawer options wait for a narrow shell.
+    expect(keys(full, false)).toEqual(['backdrop', 'closeOnNavigate', 'sidebarTrigger']);
+    expect(inactiveAppShellOptions(full, false).backdrop).toMatch(/wider than `breakpoint`/);
+    // inline: never a drawer, and the breakpoint is not used.
+    expect(keys({ ...full, sidebarBehavior: 'inline' })).toEqual(['backdrop', 'breakpoint', 'closeOnNavigate', 'sidebarTrigger']);
+    // drawer: always a drawer; only the breakpoint is unused.
+    expect(keys({ ...full, sidebarBehavior: 'drawer' }, false)).toEqual(['breakpoint']);
+    // No sidebar at all.
+    expect(keys({ navbar: 'bar' })).toEqual(['backdrop', 'breakpoint', 'closeOnNavigate', 'sidebarBehavior', 'sidebarTrigger']);
+    expect(keys({ navbar: 'bar', sidebar: false })).toEqual(['backdrop', 'breakpoint', 'closeOnNavigate', 'sidebarBehavior', 'sidebarTrigger']);
+    // No bar: nowhere for the menu button, and nothing to position.
+    expect(keys({ sidebar: 'nav' })).toEqual(['navbarPosition', 'sidebarTrigger']);
+    expect(inactiveAppShellOptions({ sidebar: 'nav' }).sidebarTrigger).toMatch(/Shell\.SidebarTrigger/);
+    // Neither: no layout to choose.
+    expect(keys({})).toEqual(['backdrop', 'breakpoint', 'closeOnNavigate', 'layout', 'navbarPosition', 'sidebarBehavior', 'sidebarTrigger']);
+    // scroll: content keeps the bar at the top.
+    expect(keys({ ...full, scroll: 'content' })).toEqual(['navbarPosition']);
+    expect(keys({ ...full, scroll: 'page' })).toEqual([]);
   });
 });

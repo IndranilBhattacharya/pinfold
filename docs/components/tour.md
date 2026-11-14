@@ -61,6 +61,8 @@ Precedence: use-site props, the preset, `defaults.tour`, the provider (size, ton
   `interactive`, keeps clicks off the target. With `mask: 'blur'` the cover also blurs the page behind it.
 - The card is anchored to the target (the shared floating logic: flips, stays in the viewport, follows scrolling and
   resizing) with an arrow; a step without a target, or whose target is missing, is centred with no hole.
+  On every step change the card is placed again once the new target is found, so it never stays beside the
+  previous one.
 - Each step brings its target into view (smoothly unless reduced motion) and follows it through scrolling, resizing
   and the target's own resizing. While the target is out of view, the card hides with it.
 - Cover and card join the top layer where the browser supports popovers, so no transformed or clipped ancestor can

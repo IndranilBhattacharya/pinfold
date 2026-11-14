@@ -142,7 +142,30 @@
   .pinfold-navbar__list { position: relative; display: flex; flex: 1 1 0; align-items: center; gap: 0.125rem; min-inline-size: 0; margin: 0; padding: 0; list-style: none; }
   .pinfold-navbar[data-align='center'] .pinfold-navbar__list { justify-content: center; }
   .pinfold-navbar[data-align='end'] .pinfold-navbar__list { justify-content: flex-end; }
-  .pinfold-navbar[data-overflow='scroll'] .pinfold-navbar__list { overflow-x: auto; scrollbar-width: none; }
+  /* overflow: 'scroll': the row scrolls (dragged, wheeled or by the keyboard) and fades at an edge that
+     hides links. A scrolling box clips at its padding edge, so the row keeps the bar's own headroom as
+     padding (taken back by a negative margin): the underline under the links is not cut off. */
+  .pinfold-navbar[data-overflow='scroll'] .pinfold-navbar__list {
+    --pinfold-nav-fs: 0px;
+    --pinfold-nav-fe: 0px;
+    --pinfold-nav-bleed: max(0px, calc((var(--pinfold-nav-h) - 2.125rem) / 2));
+    --pinfold-nav-mask: linear-gradient(var(--pinfold-nav-md, to right), transparent, currentColor var(--pinfold-nav-fs), currentColor calc(100% - var(--pinfold-nav-fe)), transparent);
+    padding-block: var(--pinfold-nav-bleed);
+    margin-block: calc(var(--pinfold-nav-bleed) * -1);
+    overflow: auto hidden;
+    scrollbar-width: none;
+    overscroll-behavior-inline: contain;
+    -webkit-mask-image: var(--pinfold-nav-mask);
+    mask-image: var(--pinfold-nav-mask);
+  }
+  .pinfold-navbar[data-overflow='scroll'] .pinfold-navbar__list::-webkit-scrollbar { display: none; }
+  [dir='rtl'] .pinfold-navbar[data-overflow='scroll'] .pinfold-navbar__list { --pinfold-nav-md: to left; }
+  .pinfold-navbar__list[data-overflow-start] { --pinfold-nav-fs: 2rem; }
+  .pinfold-navbar__list[data-overflow-end] { --pinfold-nav-fe: 2rem; }
+  .pinfold-navbar[data-overflow='scroll'][data-indicator='underline'] .pinfold-navbar__indicator { inset-block-end: 0; }
+  /* While the row is dragged: no text selection, no hover on the links passing under the pointer. */
+  .pinfold-navbar__list[data-dragging] { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+  .pinfold-navbar__list[data-dragging] > * { pointer-events: none; }
   .pinfold-navbar__item { position: relative; z-index: 1; display: flex; flex: none; }
   /* Under "More": kept for its width, out of sight and out of the row. */
   .pinfold-navbar__item[data-overflowed] { position: absolute; visibility: hidden; pointer-events: none; }

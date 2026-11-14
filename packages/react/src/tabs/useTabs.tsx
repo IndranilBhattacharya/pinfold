@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cn, dataAttr, dimensionVars, inactiveTabsOptions, mergeProps, moveItem, nextIndexFromKey, warnOnce, watchScrollEdges, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
 import { useSlidingIndicator } from '../indicator';
+import { revealInStrip, useDragScroll } from '../drag-scroll';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
@@ -67,6 +68,8 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
     if (!el || !header.current) return;
     return watchScrollEdges(el, { target: header.current });
   }, [items.length, orientation]);
+  // A mouse has no sideways swipe: the row is dragged, or wheeled, to reach the tabs it hides.
+  useDragScroll(list, true, orientation === 'vertical' ? 'y' : 'x');
   const scrollList = (by: 1 | -1) => {
     const el = list.current;
     if (!el) return;
@@ -75,8 +78,11 @@ export function useTabs<Id extends string = string>(input: TabsConfig<Id>): Tabs
     const amount = (vertical ? el.clientHeight : el.clientWidth) * 0.75 * by * (rtl ? -1 : 1);
     el.scrollBy?.({ [vertical ? 'top' : 'left']: amount, behavior: ctx.disableAnimation ? 'auto' : 'smooth' });
   };
+  // The selected tab is brought into the row's view when the selection (or the row) changes; the page never moves.
   React.useEffect(() => {
-    tabs()[selected]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    revealInStrip(list.current, tabs()[selected], orientation === 'vertical' ? 'y' : 'x');
+  }, [selected, items.length, orientation]); // eslint-disable-line react-hooks/exhaustive-deps
+  React.useEffect(() => {
     if (refocus.current !== null) {
       const all = tabs();
       all[Math.min(refocus.current, all.length - 1)]?.focus();

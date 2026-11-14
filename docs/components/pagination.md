@@ -62,7 +62,8 @@ library default.
 | `labels` | `{ previous, next, first, last, previousText, nextText, page(n), info({ from, to, total, page, count }), pageSize, jump }` | English |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root info list cursor item gap previous next first last status size jump`) | | |
 
-A page-size change keeps the first item on screen (`pageAt` in core). Controller: `page`,
+The current page's cursor glides between pages (`--pinfold-ease-glide`: no overshoot past the
+neighbouring buttons). A page-size change keeps the first item on screen (`pageAt` in core). Controller: `page`,
 `pageSize`, `count`, `offset`, `setPage`, `setPageSize`, `next`, `previous`, `slice(array)`.
 
 Inactive (`inactivePaginationOptions`): `showEdges` with `showControls: false`; `siblings` and

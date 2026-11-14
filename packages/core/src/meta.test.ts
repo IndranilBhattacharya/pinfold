@@ -23,6 +23,17 @@ describe('meta', () => {
     expect(messages.some((m) => m.includes('`loop` must be true or false'))).toBe(true);
   });
 
+  it('hints only at likely typos: one edit, letters swapped, or two edits in a long key', () => {
+    const hint = (row: Record<string, unknown>) => validateConfig(accordionMeta, { items: [{ title: 'A', ...row }] }).map((p) => p.message);
+    // Two edits between short words is another word: extra row data, not a misspelling.
+    expect(hint({ role: 'Engineer' })).toEqual([]);
+    // One edit, and the same letters swapped round, are typos.
+    expect(hint({ contnt: 'x' })).toContain('Accordion: unknown option `items[0].contnt`. Did you mean `items[0].content`?');
+    expect(validateConfig(accordionMeta, { items: [{ titel: 'A' }] }).map((p) => p.message)).toContain('Accordion: unknown option `items[0].titel`. Did you mean `items[0].title`?');
+    // Two edits in a long key.
+    expect(validateConfig(accordionMeta, { items: [], defaultVlaue: ['a'] }).map((p) => p.message)).toContain('Accordion: unknown option `defaultVlaue`. Did you mean `defaultValue`?');
+  });
+
   it('generates a JSON schema', () => {
     const schema = toJsonSchema(accordionMeta) as any;
     expect(schema.required).toEqual(['items']);
