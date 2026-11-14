@@ -1,14 +1,14 @@
 # Security policy
 
 ## Reporting a vulnerability
-Report privately through GitHub's **Report a vulnerability** (Security Advisories) on this
-repository. Do not open a public issue.
+Report privately at https://github.com/IndranilBhattacharya/pinfold/security/advisories/new
+(GitHub's **Report a vulnerability**). Do not open a public issue.
 
 Include the affected package and version, the impact, and steps to reproduce.
 Expect an acknowledgement within 72 hours and a fix or mitigation plan within 14 days.
 
 ## Supported versions
-Pre-release: only the latest `next` tag is supported. After 1.0, the latest minor of the current major is supported.
+Before 1.0, only the latest published version (npm tag `latest`) is supported. After 1.0, the latest minor of the current major is supported.
 
 ## Supply-chain policy
 - **Zero runtime dependencies** in published packages. A release fails if one appears.
