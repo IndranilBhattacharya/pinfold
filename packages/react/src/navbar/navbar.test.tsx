@@ -110,6 +110,7 @@ describe('Navbar', () => {
     unmount();
     expect(remove.mock.calls.some(([type]) => type === 'scroll')).toBe(true);
     raf.mockRestore();
+    remove.mockRestore();
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
   });
 });
