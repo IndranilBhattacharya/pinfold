@@ -82,6 +82,13 @@ const app = await build({
       import { Sidebar } from '@pinfold/react/sidebar';
       import { NavMenu } from '@pinfold/react/navmenu';
       import { ColorPicker } from '@pinfold/react/colorpicker';
+      import { ScrollArea } from '@pinfold/react/scrollarea';
+      import { AppShell } from '@pinfold/react/appshell';
+      import { Navbar } from '@pinfold/react/navbar';
+      import { Cursor } from '@pinfold/react/cursor';
+      import { TreeView } from '@pinfold/react/treeview';
+      import { FileUpload } from '@pinfold/react/fileupload';
+      import { Tour } from '@pinfold/react/tour';
       // Overlays sit in the page flow here, not the top layer, so axe can measure their contrast.
       delete HTMLElement.prototype.showPopover;
       const toastStores = {};
@@ -200,6 +207,12 @@ const app = await build({
           e(Sidebar, { key: 'sb', label: 'Main ' + pack, value: '/p/a', collapsible: true, header: 'Acme', items: [{ label: 'Inbox', href: '#', badge: 4 }, { label: 'Projects', items: [{ label: 'Alpha', href: '/p/a' }, 'Beta'] }, { label: 'Settings', href: '#s', group: 'Account' }] }), e(Sidebar, { key: 'sbr', label: 'Rail ' + pack, variant: 'solid', defaultCollapsed: true, collapsible: true, value: 'Home', items: ['Home', { label: 'Inbox', badge: 2 }] }),
           e(ColorPicker, { key: 'cp', label: 'Brand ' + pack, alpha: true, defaultValue: '#3366cc', swatches: ['#4f46e5', '#16a34a', '#dc2626'], name: 'brand' }),
           e('div', { key: 'nmw', style: { minHeight: 280 } }, e(NavMenu, { label: 'Site ' + pack, value: '/a', open: 'Products', items: [{ label: 'Products', content: 'Featured', items: [{ label: 'Analytics', href: '/a', description: 'Know your traffic' }, 'Changelog'] }, { label: 'Pricing', href: '#p' }] })), e(NavMenu, { key: 'nmu', label: 'Docs ' + pack, variant: 'pills', value: '/d', items: [{ label: 'Docs', href: '/d' }, 'Blog'] }),
+          e(ScrollArea, { key: 'sa', label: 'Changelog ' + pack, indicator: 'fade', dimensions: { maxHeight: 120 }, content: e('div', null, ...Array.from({ length: 12 }, (_, n) => e('p', { key: n }, 'Entry ' + (n + 1)))) }),
+          e(Navbar, { key: 'nb', label: 'Top ' + pack, brand: { label: 'Acme', href: '#' }, value: '#a', items: [{ label: 'Home', href: '#a' }, { label: 'Pricing', href: '#b' }, { label: 'Blog', href: '#c' }], tools: [{ id: 'gh', label: 'GitHub', icon, href: '#' }], actions: [{ label: 'Sign in' }] }),
+          e(TreeView, { key: 'tv', label: 'Files ' + pack, defaultExpanded: ['src'], selectionMode: 'multiple', items: [{ id: 'src', label: 'src', items: [{ id: 'a', label: 'index.ts' }, { id: 'b', label: 'app.tsx' }] }, { id: 'pkg', label: 'package.json' }] }),
+          e(FileUpload, { key: 'fu', label: 'Attachments ' + pack, multiple: true, description: 'PNG or PDF up to 5 MB.' }),
+          first ? e(Tour, { key: 'tr', open: true, steps: [{ id: 'one', title: 'Welcome', content: 'A quick look around.' }, { id: 'two', title: 'Search', content: 'Find anything.' }] }) : null,
+          first ? e(Cursor, { key: 'cur', variant: 'dot-ring' }) : null,
         );
       }
       const items = [
@@ -222,7 +235,13 @@ const app = await build({
         ...['primary', 'neutral', 'success', 'warning', 'danger', 'info'].map((tone) => ({ label: 'filled ' + tone, variant: 'filled', tone })),
       ];
       function App() {
-        return React.createElement('main', null,
+        // The page frame is an AppShell: its <main> holds the fixture, as on a real page.
+        return React.createElement(AppShell, {
+          labels: { sidebar: 'Fixture sections' },
+          navbar: React.createElement(Navbar, { label: 'Fixture', brand: { label: 'Pinfold', href: '#' }, items: [{ label: 'Docs', href: '#docs' }] }),
+          sidebar: React.createElement('p', null, 'Sections'),
+          footer: React.createElement('p', null, 'Footer'),
+        },
           React.createElement('h1', null, 'Pinfold accordion: accessibility fixture'),
           ...cases.map((c) => React.createElement(Faq, { key: c.label, ...c })),
           React.createElement(PinfoldProvider, { dir: 'rtl', stylePack: 'glass' }, React.createElement(Faq, { label: 'rtl glass', dir: 'rtl' })),
@@ -284,6 +303,13 @@ const app = await build({
     '@pinfold/react/sidebar': './packages/react/dist/sidebar/index.js',
     '@pinfold/react/navmenu': './packages/react/dist/navmenu/index.js',
     '@pinfold/react/colorpicker': './packages/react/dist/colorpicker/index.js',
+    '@pinfold/react/scrollarea': './packages/react/dist/scrollarea/index.js',
+    '@pinfold/react/appshell': './packages/react/dist/appshell/index.js',
+    '@pinfold/react/navbar': './packages/react/dist/navbar/index.js',
+    '@pinfold/react/cursor': './packages/react/dist/cursor/index.js',
+    '@pinfold/react/treeview': './packages/react/dist/treeview/index.js',
+    '@pinfold/react/fileupload': './packages/react/dist/fileupload/index.js',
+    '@pinfold/react/tour': './packages/react/dist/tour/index.js',
   },
   logLevel: 'silent',
 });
@@ -342,7 +368,7 @@ for (const scheme of ['light', 'dark']) {
 // The fixture really holds every component (an axe run over a page missing one proves nothing).
 {
   const page = await open();
-  const names = ['accordion', 'button', 'spinner', 'separator', 'kbd', 'skeleton', 'badge', 'alert', 'avatar', 'card', 'progress', 'tooltip', 'popover', 'dialog', 'menu', 'toast', 'input', 'checkbox', 'radio', 'switch', 'toggle', 'toolbar', 'slider', 'number', 'otp', 'tabs', 'breadcrumb', 'pagination', 'stepper', 'select', 'tags', 'command', 'calendar', 'datepicker', 'table', 'rating', 'timeline', 'empty', 'carousel', 'resizable', 'sidebar', 'navmenu', 'colorpicker'];
+  const names = ['accordion', 'button', 'spinner', 'separator', 'kbd', 'skeleton', 'badge', 'alert', 'avatar', 'card', 'progress', 'tooltip', 'popover', 'dialog', 'menu', 'toast', 'input', 'checkbox', 'radio', 'switch', 'toggle', 'toolbar', 'slider', 'number', 'otp', 'tabs', 'breadcrumb', 'pagination', 'stepper', 'select', 'tags', 'command', 'calendar', 'datepicker', 'table', 'rating', 'timeline', 'empty', 'carousel', 'resizable', 'sidebar', 'navmenu', 'colorpicker', 'scrollarea', 'appshell', 'navbar', 'cursor', 'treeview', 'fileupload', 'tour'];
   const missing = await page.evaluate((list) => list.filter((n) => !document.querySelector(`.pinfold-${n}`)), names);
   check('Every component is on the page that axe checks', missing.length === 0, missing.join(', '));
   await page.close();
