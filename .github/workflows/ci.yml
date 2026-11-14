@@ -22,8 +22,8 @@ jobs:
     name: verify (typecheck · tests · build · size · published types)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci
       # Zero known vulnerabilities, dev tooling included. The installed packages are audited by
@@ -49,17 +49,17 @@ jobs:
           - { os: macos-latest, node: 24 }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       # The dev tooling (vitest 5, jsdom 30, tsup 9) needs Node 22+, the published packages
       # do not: on the Node 20 leg, test and build on 22, then run the consumer on 20.
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with: { node-version: "${{ matrix.node == 20 && 22 || matrix.node }}", cache: npm }
       - run: npm ci
       - run: npm i --no-save react@${{ matrix.react }} react-dom@${{ matrix.react }} @types/react@${{ matrix.react }} @types/react-dom@${{ matrix.react }}
       - run: npm test
       - run: npm run build
       - if: matrix.node == 20
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with: { node-version: 20 }
       - run: node scripts/consumer-smoke.mjs --pm npm --react ${{ matrix.react }}
 
@@ -70,8 +70,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npm i --no-save react@canary react-dom@canary
@@ -87,18 +87,18 @@ jobs:
         pm: [pnpm, yarn, bun]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npm run build
       - if: matrix.pm == 'pnpm'
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6
         with: { version: 10 }
       - if: matrix.pm == 'yarn'
         run: corepack enable && corepack prepare yarn@stable --activate
       - if: matrix.pm == 'bun'
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
       - run: node scripts/consumer-smoke.mjs --pm ${{ matrix.pm }} --react 19
 
   # Real apps on the packed tarballs: Next.js (RSC + ISR, Pages Router) and a
@@ -108,8 +108,8 @@ jobs:
     needs: verify
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npm run build
@@ -122,15 +122,15 @@ jobs:
     needs: verify
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: node scripts/a11y-report.mjs
       - if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with: { name: a11y-report, path: a11y-report }
 
   # Published .d.ts files under node10, node16 and (TS 5+) bundler resolution.
@@ -143,8 +143,8 @@ jobs:
         ts: ['4.7.4', '5.0.4', 'latest']
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npm run build
