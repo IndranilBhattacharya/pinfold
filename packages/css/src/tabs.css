@@ -46,16 +46,16 @@
     flex: 0 1 auto;
     gap: 0.25rem;
     min-inline-size: 0;
-    /* A scrolling box clips at its padding edge. The bleed is padding taken back by a negative
-       margin: the tabs sit where they did, and the indicator's shadow has room on every side. */
+    /* A scrolling box clips at its padding edge. Across the row (above and below it) the list keeps
+       room for the indicator's shadow and the focus ring: padding taken back by a negative margin, so
+       the tabs sit where they did. Never along the row: a box reaching past the tabs' ends would make a
+       scrolling container around the tabs scroll sideways. */
     --pinfold-tab-bleed: 0.75rem;
-    --pinfold-tab-cs: 0px;
-    --pinfold-tab-ce: 0px;
-    --pinfold-tab-mask: linear-gradient(var(--pinfold-tab-md, to right), transparent var(--pinfold-tab-cs), currentColor calc(var(--pinfold-tab-cs) + var(--pinfold-tab-fs)), currentColor calc(100% - var(--pinfold-tab-ce) - var(--pinfold-tab-fe)), transparent calc(100% - var(--pinfold-tab-ce)));
-    padding: var(--pinfold-tab-bleed);
-    margin: calc(var(--pinfold-tab-bleed) * -1);
+    --pinfold-tab-mask: linear-gradient(var(--pinfold-tab-md, to right), transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent);
+    padding-block: var(--pinfold-tab-bleed);
+    margin-block: calc(var(--pinfold-tab-bleed) * -1);
     overflow: auto hidden;
-    scroll-padding-inline: calc(2.5rem + var(--pinfold-tab-bleed));
+    scroll-padding-inline: 2.5rem;
     scrollbar-width: none;
     overscroll-behavior-inline: contain;
     -webkit-mask-image: var(--pinfold-tab-mask);
@@ -70,8 +70,8 @@
   .pinfold-tabs[data-full-width] .pinfold-tabs__list { flex-grow: 1; }
   .pinfold-tabs__list::-webkit-scrollbar { display: none; }
   /* Where there is more to scroll to, that edge fades, starting where the tabs' own box ends. */
-  :is([data-overflow-start], [data-overflow-top]) > .pinfold-tabs__list { --pinfold-tab-fs: 2rem; --pinfold-tab-cs: var(--pinfold-tab-bleed); }
-  :is([data-overflow-end], [data-overflow-bottom]) > .pinfold-tabs__list { --pinfold-tab-fe: 2rem; --pinfold-tab-ce: var(--pinfold-tab-bleed); }
+  :is([data-overflow-start], [data-overflow-top]) > .pinfold-tabs__list { --pinfold-tab-fs: 2rem; }
+  :is([data-overflow-end], [data-overflow-bottom]) > .pinfold-tabs__list { --pinfold-tab-fe: 2rem; }
 
   /* Scroll buttons: only on a side that hides tabs. */
   .pinfold-tabs__scrollButton {
@@ -110,7 +110,8 @@
   :is([data-overflow-start], [data-overflow-top]) > .pinfold-tabs__scrollButton[data-scroll='back'],
   :is([data-overflow-end], [data-overflow-bottom]) > .pinfold-tabs__scrollButton[data-scroll='forward'] { display: inline-grid; }
   [dir='rtl'] .pinfold-tabs__list { --pinfold-tab-md: to left; }
-  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__list { --pinfold-tab-md: to bottom; flex-direction: column; overflow: hidden auto; scroll-padding-block: calc(2.5rem + var(--pinfold-tab-bleed)); overscroll-behavior-block: contain; }
+  /* A column scrolls up and down: its room for shadows is at the sides. */
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__list { --pinfold-tab-md: to bottom; flex-direction: column; overflow: hidden auto; padding-block: 0; margin-block: 0; padding-inline: var(--pinfold-tab-bleed); margin-inline: calc(var(--pinfold-tab-bleed) * -1); scroll-padding-block: 2.5rem; overscroll-behavior-block: contain; }
 
   .pinfold-tabs__tab {
     position: relative;

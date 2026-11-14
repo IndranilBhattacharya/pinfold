@@ -79,7 +79,9 @@ tab is brought into the row's view when the selection changes (the row scrolls, 
 With a mouse the row can also be dragged (a press that moves more than a few pixels becomes a drag:
 no text is selected, and the release does not pick a tab) or turned with a vertical wheel; touch
 scrolls natively. A tab marked for reordering keeps its own drag. The list keeps a little room
-around the tabs so the indicator's shadow and the focus ring are never cut off.
+across the row (above and below it; at the sides of a column) so the indicator's shadow and the
+focus ring are never cut off; along the row its box ends with the tabs, so a scrolling container
+around the tabs never scrolls because of it.
 `fullWidth` makes the tabs share the row (fitted tabs). After a change (never on load),
 the new panel slides in from the side the selection moved to.
 
