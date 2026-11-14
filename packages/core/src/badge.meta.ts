@@ -19,8 +19,8 @@ export const badgeMeta: ComponentMeta = {
   slots: SLOTS,
   props: {
     label: { type: 'node', description: 'The text ("Beta", "Inbox"), or a function of the live state. Always shown.', group: 'data' },
-    count: { type: 'number', description: 'A number, shown after the label if there is one. Zero does not show unless `showZero`; a badge with nothing else to show hides.', group: 'data' },
-    max: { type: 'number', default: 99, description: 'Counts above it show as "max+".', group: 'behaviour' },
+    count: { type: 'number', min: 0, max: 100000, step: 1, description: 'A number, shown after the label if there is one. Zero does not show unless `showZero`; a badge with nothing else to show hides.', group: 'data' },
+    max: { type: 'number', min: 9, max: 9999, step: 1, default: 99, description: 'Counts above it show as "max+".', group: 'behaviour', control: true },
     showZero: { type: 'boolean', default: false, description: 'Show a `count` of 0.', group: 'behaviour', control: true },
     formatCount: { type: 'function', description: 'Your own count text: `(count) => node`, e.g. `1.2k`. Replaces the "max+" text; called only when the count shows.', group: 'behaviour' },
     dot: { type: 'boolean', default: false, description: 'A status dot: before the label ("● Online"), or on its own.', group: 'appearance', control: true },

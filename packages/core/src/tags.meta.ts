@@ -55,7 +55,7 @@ export const tagsMeta: ComponentMeta = {
     onEdit: { type: 'function', description: '`(value, text, event) => void`: tags can be renamed in place (the text is a button on tags to read; F2 or a double-click on tags to pick). Enter or leaving keeps, Escape cancels.', group: 'events' },
     editLabel: { type: 'string', default: 'Rename', description: 'Starts the rename button\'s and field\'s name: "Rename React".', group: 'data' },
     onReorder: { type: 'function', description: '`(values, event) => void`: tags can be dragged, or moved with Alt + Left / Right; you get the new order. The move is announced politely.', group: 'events' },
-    maxVisible: { type: 'number', description: 'Tags shown before a "+3" button that shows the rest.', group: 'behaviour' },
+    maxVisible: { type: 'number', min: 0, max: 50, step: 1, unit: 'tags', description: 'Tags shown before a "+3" button that shows the rest.', group: 'behaviour', control: true },
     moreLabel: { type: 'string', default: 'Show all', description: 'The "+3" button\'s name.', group: 'data' },
     removeLabel: { type: 'string', default: 'Remove', description: 'Starts each remove button\'s name: "Remove React".', group: 'data' },
     removeHint: { type: 'string', default: 'Press Delete to remove', description: 'Read with a tag that can be picked and removed; with `onEdit` or `onReorder` the default adds "F2 to rename" and "Alt and an arrow key to move".', group: 'data' },

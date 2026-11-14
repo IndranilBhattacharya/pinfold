@@ -46,7 +46,7 @@ export const commandMeta: ComponentMeta = {
       description: '`(query, { signal, cursor, page }) => rows | { items, hasMore, cursor } | Promise<…>`: fetch the commands for what is typed, as a combobox does: debounced, aborted when no longer needed, cached per query, not filtered again; a page with `hasMore` loads the next one near the end of the scroll.',
       group: 'data',
     },
-    debounce: { type: 'number', default: 250, description: 'Milliseconds `loadItems` waits after the last keystroke.', group: 'behaviour' },
+    debounce: { type: 'number', min: 0, max: 2000, step: 50, unit: 'ms', default: 250, description: 'Milliseconds `loadItems` waits after the last keystroke.', group: 'behaviour', control: true, silent: true },
     onSelect: { type: 'function', description: '`(value, event) => void` for any command.', group: 'events' },
     onHighlight: { type: 'function', description: '`(value) => void`: the keyboard or the pointer moved to a command (`null`: none), e.g. to preview it.', group: 'events' },
     placeholder: { type: 'string', default: 'Type a command or search…', description: 'In the empty search field.', group: 'data' },

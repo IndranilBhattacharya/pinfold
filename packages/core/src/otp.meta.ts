@@ -22,7 +22,7 @@ export const otpMeta: ComponentMeta = {
   props: {
     ...fieldProps,
     ...validationProps,
-    length: { type: 'number', default: 6, description: 'How many characters.', group: 'data' },
+    length: { type: 'number', min: 2, max: 12, step: 1, unit: 'characters', default: 6, description: 'How many characters.', group: 'data', control: true },
     type: { type: 'enum', values: ['numeric', 'alphanumeric'], default: 'numeric', description: 'Digits only (a number keypad on phones), or letters and digits (shown upper case). Anything else typed or pasted is dropped.', group: 'behaviour' },
     value: { type: 'string', description: 'Controlled value.', group: 'data' },
     defaultValue: { type: 'string', description: 'Initial value when uncontrolled.', group: 'data' },

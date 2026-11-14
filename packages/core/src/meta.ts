@@ -98,6 +98,15 @@ export interface PropMeta {
   control?: boolean;
   /** A control with no visual effect: it changes behaviour, so a playground groups it apart and says so. */
   silent?: boolean;
+  /** `null` is a valid value ("empty"), besides the type: a Number field's `value`. */
+  nullable?: boolean;
+  /** A `number`: the lowest and highest values that make sense (checked in development, in the schema). */
+  min?: number;
+  max?: number;
+  /** A `number`: the step a control moves by. */
+  step?: number;
+  /** A `number`: what it counts, for a control's label (`px`, `ms`, `%`, `rows`). */
+  unit?: string;
   /** `deprecated` props still work; `alias` names the replacement. */
   status?: 'stable' | 'deprecated';
   alias?: string;
@@ -201,7 +210,11 @@ function checkType(prop: PropMeta, v: unknown): string | null {
       if (prop.orString && v === null) return null;
       return typeof v === 'string' ? null : `must be a string${prop.orString ? ' or null' : ''}, got ${describe(v)}.`;
     case 'number':
-      return typeof v === 'number' ? null : `must be a number, got ${describe(v)}.`;
+      if (prop.nullable && v === null) return null;
+      if (typeof v !== 'number' || Number.isNaN(v)) return `must be a number${prop.nullable ? ' or null' : ''}, got ${describe(v)}.`;
+      if (prop.min !== undefined && v < prop.min) return `must be at least ${prop.min}${prop.unit ? ' ' + prop.unit : ''}, got ${v}.`;
+      if (prop.max !== undefined && v > prop.max) return `must be at most ${prop.max}${prop.unit ? ' ' + prop.unit : ''}, got ${v}.`;
+      return null;
     case 'boolean':
       return typeof v === 'boolean' ? null : `must be true or false, got ${describe(v)}.`;
     case 'function':
@@ -299,6 +312,7 @@ export function toJsonSchema(meta: ComponentMeta): Record<string, unknown> {
       case 'string':
         return { ...base, type: p.orString ? ['string', 'null'] : 'string' };
       case 'number':
+        return { ...base, type: p.nullable ? ['number', 'null'] : 'number', ...(p.min !== undefined ? { minimum: p.min } : {}), ...(p.max !== undefined ? { maximum: p.max } : {}) };
       case 'boolean':
         return { ...base, type: p.type };
       case 'length':

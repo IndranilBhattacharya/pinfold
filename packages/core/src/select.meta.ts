@@ -79,7 +79,7 @@ export const selectMeta: ComponentMeta = {
     clearable: { type: 'boolean', default: false, description: 'A button that empties the field.', group: 'behaviour', control: true },
     clearLabel: { type: 'string', default: 'Clear', description: 'The clear button\'s name.', group: 'data' },
     display: { type: 'enum', values: ['chips', 'text'], default: 'chips', description: 'With `multiple`: chips with a remove mark each, or the labels as text.', group: 'appearance', control: true },
-    maxChips: { type: 'number', default: 3, description: 'With `multiple`: chips shown before "+3".', group: 'appearance' },
+    maxChips: { type: 'number', min: 0, max: 20, step: 1, unit: 'chips', default: 3, description: 'With `multiple`: chips shown before "+3".', group: 'appearance', control: true },
     chipVariant: { type: 'enum', values: ['soft', 'solid', 'outline'], default: 'soft', description: 'With `multiple`: the chips\' look. A row\'s `tone` colours its chip.', group: 'appearance', control: true },
     renderValue: { type: 'function', description: '`(selected, state) => node`: draw the chosen value in the field yourself. `selected` holds each chosen row with its state and `remove`; the placeholder shows while it is empty.', group: 'data' },
     onRemove: { type: 'function', description: '`(value, item) => void`: with `multiple`, a chip\'s remove mark unchose a value.', group: 'events' },

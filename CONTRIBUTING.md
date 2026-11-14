@@ -102,6 +102,13 @@ metadata"):
    button configs) instead of asking the developer to build buttons.
 7. **No silent options.** An option that has no visible effect in the current config is listed by
    `inactive<Name>Options` (dev warning, disabled playground control).
+8. **Numbers have a range.** Every `number` option declares `min`, `max`, and where it helps `step`
+   and `unit` (`px`, `ms`, `rows`). The dev validator rejects a value outside the range, the JSON
+   schema carries it, and a playground control uses it. A number that may be empty says
+   `nullable: true`. Mark a number `control: true` when a page can show it (an offset, a breakpoint,
+   how many chips), and add `silent: true` when it only changes behaviour (a delay, a limit); a value
+   that is data or state (the current page, a value) is never a control. `meta.test.ts` fails on a
+   number with no range or a default outside it.
 
 ## Typed API
 

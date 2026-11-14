@@ -158,6 +158,29 @@ describe('Toast', () => {
     expect(shown(region)).toBe('');
   });
 
+  it('changing max or duration while toasts show never updates another region during render', () => {
+    const store = createToastStore<ToastMessage>();
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const Two = ({ max }: { max: number }) => (
+        <>
+          <Toast store={store} max={max} label="One" />
+          <Toast store={store} max={max} label="Two" />
+        </>
+      );
+      const { rerender } = render(<Two max={5} />);
+      act(() => {
+        for (const title of ['A', 'B', 'C']) store.show({ title, duration: 0 });
+      });
+      rerender(<Two max={1} />);
+      expect(error.mock.calls.filter(([m]) => /while rendering a different component/.test(String(m)))).toEqual([]);
+      // The new limit applies (the others are leaving or waiting).
+      expect(store.getVisible()).toHaveLength(1);
+    } finally {
+      error.mockRestore();
+    }
+  });
+
   it('renders an empty region on the server', () => {
     const store = createToastStore<ToastMessage>();
     store.show({ title: 'Client only', duration: 0 });

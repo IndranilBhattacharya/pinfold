@@ -36,7 +36,7 @@ export const comboboxMeta: ComponentMeta = {
         '`(query, { signal, cursor, page }) => rows | { items, hasMore, cursor } | Promise<…>`: fetch the rows for what is typed (`\'\'` when the list opens). Debounced, cancelled when no longer needed, cached per query, a loading row while it runs; results are not filtered again. A page with `hasMore` fetches the next one (with its `cursor`) as the list scrolls near its end.',
       group: 'data',
     },
-    debounce: { type: 'number', default: 250, description: 'Milliseconds `loadItems` and `onSearch` wait after the last keystroke.', group: 'behaviour' },
+    debounce: { type: 'number', min: 0, max: 2000, step: 50, unit: 'ms', default: 250, description: 'Milliseconds `loadItems` and `onSearch` wait after the last keystroke.', group: 'behaviour', control: true, silent: true },
     hasMore: { type: 'boolean', default: false, description: 'Your own `items` have a next page: `onLoadMore` runs as the list scrolls near its end (or the arrow keys reach it), with a loading row while `loading`.', group: 'behaviour' },
     onLoadMore: { type: 'function', description: '`() => void`: fetch the next page of your own `items`. Called once per row count.', group: 'events' },
     onSearch: { type: 'function', description: '`(query) => void` once typing pauses for `debounce` ms.', group: 'events' },
@@ -67,7 +67,7 @@ export const comboboxMeta: ComponentMeta = {
     highlight: { type: 'boolean', default: true, description: 'Mark the typed text in each row.', group: 'appearance', control: true },
     openOnFocus: { type: 'boolean', default: false, description: 'Open on focus, before anything is typed.', group: 'behaviour', control: true, silent: true },
     clearable: { type: 'boolean', default: false, description: 'A button that empties the field.', group: 'behaviour', control: true },
-    maxChips: { type: 'number', auto: '3 inside the field, all outside it', description: 'With `multiple`: chips shown before a "+3" chip, which shows the rest (then "Show less").', group: 'appearance' },
+    maxChips: { type: 'number', min: 0, max: 20, step: 1, unit: 'chips', auto: '3 inside the field, all outside it', description: 'With `multiple`: chips shown before a "+3" chip, which shows the rest (then "Show less").', group: 'appearance', control: true },
     placeholder: { type: 'string', description: 'A hint inside an empty field. Never instead of a label.', group: 'data' },
     labels: {
       type: 'object',

@@ -34,6 +34,37 @@ describe('meta', () => {
     expect(validateConfig(accordionMeta, { items: [], defaultVlaue: ['a'] }).map((p) => p.message)).toContain('Accordion: unknown option `defaultVlaue`. Did you mean `defaultValue`?');
   });
 
+  it('checks a number against its range, and puts the range in the schema', async () => {
+    const { tooltipMeta } = await import('./tooltip.meta');
+    const messages = (config: Record<string, unknown>) => validateConfig(tooltipMeta, { content: 'Hi', trigger: { label: 'x' }, ...config }).map((p) => p.message);
+    expect(messages({ offset: 12 })).toEqual([]);
+    expect(messages({ offset: -4 }).some((m) => m.includes('`offset` must be at least 0 px, got -4.'))).toBe(true);
+    expect(messages({ offset: 99 }).some((m) => m.includes('`offset` must be at most 48 px, got 99.'))).toBe(true);
+    expect(messages({ offset: Number.NaN }).some((m) => m.includes('`offset` must be a number'))).toBe(true);
+    const schema = toJsonSchema(tooltipMeta) as any;
+    expect(schema.properties.offset).toMatchObject({ type: 'number', minimum: 0, maximum: 48 });
+    // A Number field's value may be null (empty): no warning, and the schema says so.
+    const { numberMeta } = await import('./number.meta');
+    expect(validateConfig(numberMeta, { label: 'Qty', value: null }).map((p) => p.message)).toEqual([]);
+    expect((toJsonSchema(numberMeta) as any).properties.value.type).toEqual(['number', 'null']);
+  });
+
+  it('gives every number option a range, and a control only where a page can show it', async () => {
+    const metas = await import('./meta');
+    for (const meta of metas.componentMetas) {
+      for (const [key, p] of Object.entries(meta.props)) {
+        if (p.type !== 'number') continue;
+        expect(p.min, `${meta.name}.${key} min`).toBeTypeOf('number');
+        expect(p.max, `${meta.name}.${key} max`).toBeTypeOf('number');
+        expect(p.min!, `${meta.name}.${key} range`).toBeLessThan(p.max!);
+        if (p.default !== undefined) {
+          expect(p.default as number, `${meta.name}.${key} default in range`).toBeGreaterThanOrEqual(p.min!);
+          expect(p.default as number, `${meta.name}.${key} default in range`).toBeLessThanOrEqual(p.max!);
+        }
+      }
+    }
+  });
+
   it('generates a JSON schema', () => {
     const schema = toJsonSchema(accordionMeta) as any;
     expect(schema.required).toEqual(['items']);

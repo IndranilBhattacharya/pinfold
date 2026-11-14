@@ -25,7 +25,7 @@ export const skeletonMeta: ComponentMeta = {
       group: 'appearance',
       control: true,
     },
-    lines: { type: 'number', default: 1, description: 'Text lines; the last of several is shorter, like real text.', group: 'appearance' },
+    lines: { type: 'number', min: 1, max: 20, step: 1, unit: 'lines', default: 1, description: 'Text lines; the last of several is shorter, like real text.', group: 'appearance', control: true },
     lastLine: { type: 'length', default: '62%', description: 'Width of the last of several text lines.', group: 'appearance' },
     ratio: { type: 'length', description: 'Aspect ratio of a rect, square or circle (`\'16/9\'` or `1.78`); replaces the height.', group: 'appearance' },
     preset: {
@@ -35,9 +35,9 @@ export const skeletonMeta: ComponentMeta = {
       group: 'appearance',
       control: true,
     },
-    count: { type: 'number', description: 'Copies of the preset or layout, laid out in `columns`. Default 1.', group: 'appearance' },
-    rows: { type: 'number', description: 'Rows inside a preset: text lines, list items, table rows, form fields, sidebar entries, tabs. Default per preset.', group: 'appearance' },
-    columns: { type: 'number', description: 'Columns of a preset: table columns, dashboard tiles, or the grid of `count` copies. Default per preset.', group: 'appearance' },
+    count: { type: 'number', min: 1, max: 24, step: 1, unit: 'copies', description: 'Copies of the preset or layout, laid out in `columns`. Default 1.', group: 'appearance', control: true },
+    rows: { type: 'number', min: 1, max: 20, step: 1, unit: 'rows', description: 'Rows inside a preset: text lines, list items, table rows, form fields, sidebar entries, tabs. Default per preset.', group: 'appearance', control: true },
+    columns: { type: 'number', min: 1, max: 8, step: 1, unit: 'columns', description: 'Columns of a preset: table columns, dashboard tiles, or the grid of `count` copies. Default per preset.', group: 'appearance', control: true },
     layout: {
       type: 'array',
       description:

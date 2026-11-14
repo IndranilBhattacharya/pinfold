@@ -49,7 +49,11 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
     });
   }
 
-  store.configure({ duration: config.duration, max: config.max });
+  // Configured after render, before paint: a new `max` re-sorts the store and tells every region that
+  // shares it, which must never happen while one of them is rendering.
+  useIsomorphicLayoutEffect(() => {
+    store.configure({ duration: config.duration, max: config.max });
+  }, [store, config.duration, config.max]);
   const toasts = React.useSyncExternalStore(store.subscribe, store.getVisible, server);
   const stacked = config.stack !== false;
   const visible = Math.max(1, config.visible ?? 3);

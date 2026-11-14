@@ -44,7 +44,7 @@ export const avatarMeta: ComponentMeta = {
       auto: 'on in a group, off on its own',
       control: true,
     },
-    max: { type: 'number', default: 4, description: 'Group: how many avatars show before "+N".', group: 'behaviour' },
+    max: { type: 'number', min: 1, max: 12, step: 1, default: 4, description: 'Group: how many avatars show before "+N".', group: 'behaviour', control: true },
     surplus: {
       type: 'function',
       description: 'Group: your own "+N" content, `({ count, hidden }) => node`; `hidden` are the folded people. It stays inside the "N more" tile.',

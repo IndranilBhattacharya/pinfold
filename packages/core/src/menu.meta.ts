@@ -61,7 +61,7 @@ export const menuMeta: ComponentMeta = {
     placement: { type: 'enum', values: PLACEMENTS, default: 'bottom-start', description: 'Preferred side and alignment. `start` and `end` swap in RTL. It flips when there is no room.', group: 'appearance', control: true },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Row size. Precedence: this config, `defaults.menu`, the provider, then md.', group: 'appearance', control: true },
-    offset: { type: 'number', default: 4, description: 'Gap from the trigger, in px.', group: 'appearance' },
+    offset: { type: 'number', min: 0, max: 48, step: 1, unit: 'px', default: 4, description: 'Gap from the trigger, in px.', group: 'appearance', control: true },
     loop: { type: 'boolean', default: true, description: 'Arrow keys wrap from the last row to the first.', group: 'behaviour' },
     open: { type: 'boolean', description: 'Controlled state.', group: 'behaviour' },
     defaultOpen: { type: 'boolean', default: false, description: 'Initial state when uncontrolled.', group: 'behaviour' },

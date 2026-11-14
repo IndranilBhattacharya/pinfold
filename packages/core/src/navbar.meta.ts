@@ -85,7 +85,7 @@ export const navbarMeta: ComponentMeta = {
     shrinkOnScroll: { type: 'boolean', default: false, description: 'Once the page has scrolled the bar gets shorter (a floating bar also narrows toward the middle).', group: 'behaviour', control: true },
     hideOnScroll: { type: 'boolean', default: false, description: 'Scrolling down slides the bar away; scrolling up brings it back.', group: 'behaviour', control: true },
     overflow: { type: 'enum', values: ['more', 'scroll', 'none'], default: 'more', description: 'Links that do not fit: under a "More" menu, in a row that scrolls sideways, or left to you.', group: 'behaviour', control: true },
-    collapseAt: { type: 'number', default: 640, description: 'The bar width (px) under which the links fold into a menu button and a panel.', group: 'behaviour' },
+    collapseAt: { type: 'number', min: 0, max: 2000, step: 16, unit: 'px', default: 640, description: 'The bar width (px) under which the links fold into a menu button and a panel.', group: 'behaviour', control: true },
     labels: {
       type: 'object',
       description: 'Text read and shown, for translation.',

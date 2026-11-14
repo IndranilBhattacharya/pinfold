@@ -25,7 +25,7 @@ export const appshellMeta: ComponentMeta = {
     footer: { type: 'node', description: 'Under the page.', group: 'data' },
     layout: { type: 'enum', values: ['navbar-top', 'sidebar-full'], default: 'navbar-top', description: 'The bar spans the whole width above the sidebar, or the sidebar takes the full height and the bar sits beside it.', group: 'appearance', control: true },
     sidebarBehavior: { type: 'enum', values: ['auto', 'inline', 'drawer'], default: 'auto', description: 'The sidebar sits beside the page, slides over it as a drawer, or does the first on a wide shell and the second on a narrow one.', group: 'behaviour', control: true },
-    breakpoint: { type: 'number', default: 768, description: 'With `auto`: the shell width (px) under which the sidebar becomes a drawer.', group: 'behaviour' },
+    breakpoint: { type: 'number', min: 320, max: 1600, step: 16, unit: 'px', default: 768, description: 'With `auto`: the shell width (px) under which the sidebar becomes a drawer.', group: 'behaviour', control: true },
     backdrop: { type: 'enum', values: ['dim', 'blur', 'none'], default: 'dim', description: 'What lies over the page while the drawer is open: a dark veil, a blurred one, or nothing.', group: 'appearance', control: true },
     sidebarOpen: { type: 'boolean', description: 'The drawer is open, controlled.', group: 'data' },
     defaultSidebarOpen: { type: 'boolean', default: false, description: 'The drawer is open at first.', group: 'data' },
