@@ -266,6 +266,36 @@ export interface TableToolbar {
   start?: React.ReactNode;
   /** Your own controls after the built-in tools. */
   end?: React.ReactNode;
+  /**
+   * Your own toolbar: what you return replaces everything inside it (it stays the table's named toolbar).
+   * `tools` has the table's search, selection, filters, columns panel and CSV, and the built-in parts to reuse.
+   */
+  render?: (tools: TableTools) => React.ReactNode;
+}
+
+/** What a toolbar of your own (`toolbar.render`) works with. */
+export interface TableTools {
+  /** The quick search text, and a setter (filters every searchable column). */
+  search: string;
+  setSearch: (search: string) => void;
+  /** How many rows are chosen. */
+  selectedCount: number;
+  /** The active filters, and a way to clear them all. */
+  filters: readonly GridFilter[];
+  clearFilters: () => void;
+  /** Spread on your own button to open the columns panel (it anchors to it). Needs `columns` on. */
+  columnsButtonProps: {
+    ref: React.Ref<HTMLButtonElement>;
+    type: 'button';
+    'aria-haspopup': 'dialog';
+    'aria-expanded': boolean;
+    onClick: () => void;
+  };
+  /** The rows as CSV text, or downloaded as a file (default name from `export` or the label). */
+  exportCsv: () => string;
+  downloadCsv: (fileName?: string) => void;
+  /** The built-in parts, to keep some and replace others. Null when switched off. */
+  parts: { search: React.ReactNode; selected: React.ReactNode; columns: React.ReactNode; export: React.ReactNode };
 }
 
 /** Text read and shown, for translation. */

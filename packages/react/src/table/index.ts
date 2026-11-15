@@ -23,6 +23,7 @@ export type {
   TableCellEdit,
   TableItemContext,
   TableToolbar,
+  TableTools,
   TableSort,
   TableFilter,
   TableFilterOp,

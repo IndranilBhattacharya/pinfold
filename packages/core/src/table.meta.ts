@@ -91,7 +91,7 @@ export const tableMeta: ComponentMeta = {
     search: { type: 'string', description: 'The quick search, controlled: every word somewhere in the searchable columns.', group: 'data' },
     defaultSearch: { type: 'string', default: '', description: 'The quick search when uncontrolled.', group: 'data' },
     onSearchChange: { type: 'function', description: '`(search) => void`.', group: 'events' },
-    toolbar: { type: 'object', orBoolean: true, description: '`true` (search and columns) or `{ search, columns, export, chips, start, end }`: a quick search, a panel to show, hide and pin columns, a CSV download, the active filters as chips, and your own controls before and after.', group: 'appearance' },
+    toolbar: { type: 'object', orBoolean: true, description: '`true` (search and columns) or `{ search, columns, export, chips, start, end, render }`: a quick search, a panel to show, hide and pin columns, a CSV download, the active filters as chips, your own controls before and after, or `render(tools)` for a toolbar of your own components.', group: 'appearance' },
     pageSize: { type: 'number', min: 1, max: 10000, step: 1, unit: 'rows', description: 'Rows per page: the table pages its rows and shows Pagination under them.', group: 'behaviour', control: true },
     pageSizes: { type: 'array', description: 'Page sizes people can pick from, e.g. `[10, 25, 50]`.', group: 'behaviour' },
     onPageSizeChange: { type: 'function', description: '`(pageSize) => void`.', group: 'events' },

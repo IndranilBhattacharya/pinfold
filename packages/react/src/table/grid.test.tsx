@@ -73,6 +73,42 @@ describe('Table as a data grid', () => {
     expect((await screen.findAllByRole('option')).map((o) => o.textContent)).toEqual(['Any', 'pending', 'returned', 'shipped']);
   });
 
+  it('a toolbar of your own: your components drive search, the columns panel and CSV; built-in parts reuse', () => {
+    const downloads: string[] = [];
+    render(
+      <Table
+        label="Orders"
+        rows={orders}
+        columns={['id', 'customer.name', 'customer.city']}
+        toolbar={{
+          export: 'orders.csv',
+          render: (t) => (
+            <div data-testid="mine">
+              <input aria-label="Find an order" value={t.search} onChange={(e) => t.setSearch(e.target.value)} />
+              <button {...t.columnsButtonProps}>Show columns</button>
+              <button type="button" onClick={() => downloads.push(t.exportCsv())}>My CSV</button>
+              {t.parts.export}
+              <span>{t.filters.length} filters</span>
+            </div>
+          ),
+        }}
+      />,
+    );
+    // Still the table's named toolbar, holding only what you rendered.
+    const bar = screen.getByRole('toolbar', { name: 'Orders tools' });
+    expect(within(bar).getByTestId('mine')).toBeTruthy();
+    expect(within(bar).queryByRole('searchbox')).toBeNull();
+    fireEvent.change(screen.getByRole('textbox', { name: 'Find an order' }), { target: { value: 'paris' } });
+    expect(names()).toEqual(['Émile', 'Bo']);
+    const columns = screen.getByRole('button', { name: 'Show columns' });
+    expect(columns.getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(columns);
+    expect(columns.getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'My CSV' }));
+    expect(downloads[0].split('\n')).toHaveLength(3); // the header and the two rows the search left
+    expect(within(bar).getByRole('button', { name: 'Export CSV' })).toBeTruthy();
+  });
+
   it('a toolbar: quick search across columns, columns to hide and pin, CSV of what is shown', async () => {
     let api: ReturnType<typeof useTable> | null = null;
     function Grid() {

@@ -797,45 +797,59 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
             { role: 'group', 'aria-label': 'Filters' },
           )
         : null;
-    const toolbar = tb
-      ? slot(
-          'toolbar',
+    let toolbar: React.ReactNode = null;
+    if (tb) {
+      const columnsButtonProps = { ref: columnsButton, type: 'button' as const, 'aria-haspopup': 'dialog' as const, 'aria-expanded': columnsOpen, onClick: () => setColumnsOpen(!columnsOpen) };
+      const parts = {
+        search:
+          tb.search !== false ? (
+            <span className={cls('pinfold-table__searchBox')}>
+              {slot('search', null, PausedInput as unknown as string, {
+                type: 'search',
+                tone: state.tone,
+                startContent: ICON.search,
+                'aria-label': L.search ?? 'Search',
+                placeholder: L.search ?? 'Search',
+                value: search,
+                onCommit: setSearch,
+              })}
+            </span>
+          ) : null,
+        selected: selection !== 'none' && selected.length ? <span className={cls('pinfold-table__selectedCount')}>{L.selectedCount ? L.selectedCount(selected.length) : `${selected.length} selected`}</span> : null,
+        columns:
+          tb.columns !== false ? (
+            <button {...columnsButtonProps} className={cls('pinfold-table__tool')}>
+              {ICON.columns}
+              <span>{L.columns ?? 'Columns'}</span>
+            </button>
+          ) : null,
+        export: tb.export ? (
+          <button type="button" className={cls('pinfold-table__tool')} onClick={() => downloadCsv()}>
+            {ICON.download}
+            <span>{L.export ?? 'Export CSV'}</span>
+          </button>
+        ) : null,
+      };
+      toolbar = slot(
+        'toolbar',
+        tb.render ? (
+          tb.render({ search, setSearch, selectedCount: selected.length, filters: active, clearFilters: () => setFilters([]), columnsButtonProps, exportCsv, downloadCsv, parts })
+        ) : (
           <>
-            {tb.search !== false ? (
-              <span className={cls('pinfold-table__searchBox')}>
-                {slot('search', null, PausedInput as unknown as string, {
-                  type: 'search',
-                  tone: state.tone,
-                  startContent: ICON.search,
-                  'aria-label': L.search ?? 'Search',
-                  placeholder: L.search ?? 'Search',
-                  value: search,
-                  onCommit: setSearch,
-                })}
-              </span>
-            ) : null}
-            {selection !== 'none' && selected.length ? <span className={cls('pinfold-table__selectedCount')}>{L.selectedCount ? L.selectedCount(selected.length) : `${selected.length} selected`}</span> : null}
+            {parts.search}
+            {parts.selected}
             {tb.start}
             <span className={cls('pinfold-table__tools')}>
-              {tb.columns !== false ? (
-                <button ref={columnsButton} type="button" className={cls('pinfold-table__tool')} aria-haspopup="dialog" aria-expanded={columnsOpen} onClick={() => setColumnsOpen(!columnsOpen)}>
-                  {ICON.columns}
-                  <span>{L.columns ?? 'Columns'}</span>
-                </button>
-              ) : null}
-              {tb.export ? (
-                <button type="button" className={cls('pinfold-table__tool')} onClick={() => downloadCsv()}>
-                  {ICON.download}
-                  <span>{L.export ?? 'Export CSV'}</span>
-                </button>
-              ) : null}
+              {parts.columns}
+              {parts.export}
               {tb.end}
             </span>
-          </>,
-          'div',
-          { role: 'toolbar', 'aria-label': `${name} tools`, 'aria-controls': `${base}-table` },
-        )
-      : null;
+          </>
+        ),
+        'div',
+        { role: 'toolbar', 'aria-label': `${name} tools`, 'aria-controls': `${base}-table` },
+      );
+    }
 
     // ---- head ----
     const headerCells = columns.map((c, i) => {

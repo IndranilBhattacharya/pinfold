@@ -18,6 +18,10 @@ export function Checks(): React.ReactElement {
   useTable({ label: 'Invoices', rows, columns: ['total'] });
   // @ts-expect-error: a table needs a label
   useTable({ rows });
+  // A toolbar of your own gets typed tools.
+  useTable({ label: 'Invoices', rows, toolbar: { render: (t) => <button {...t.columnsButtonProps}>{t.search.length + t.selectedCount}</button> } });
+  // @ts-expect-error: the tools have no `query` (it is `search`)
+  useTable({ label: 'Invoices', rows, toolbar: { render: (t) => t.query } });
   return (
     <>
       <Own />

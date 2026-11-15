@@ -43,7 +43,7 @@ and `cell`, `value`, `compare` get the row's type. Precedence: use-site props, t
 | `filterable`, `filterMode`, `filters`, `defaultFilters`, `onFiltersChange`, `filterLogic`, `manualFilter` | every column filters by its type: from its header menu (`'menu'`: a condition and a searchable list of its values with counts, drawn as its cells draw them) or in a row of controls under the headers (`'row'`); `[{ key, op, value }]` | `false`, `'menu'`, `'and'` |
 | `columnMenu` | a menu on each header: sort, pin to the start or end, hide, group, filter | on when columns sort, filter or group, or there is a toolbar |
 | `search`, `defaultSearch`, `onSearchChange` | quick search: every word somewhere in the searchable columns (accents and case ignored) | `''` |
-| `toolbar` | `true` or `{ search, columns, export, chips, start, end }`: the quick search, a panel to show, hide and pin columns, a CSV download (a string names the file), the active filters as chips with a remove button each, and your own controls before and after the built-in ones | none |
+| `toolbar` | `true` or `{ search, columns, export, chips, start, end, render }`: the quick search, a panel to show, hide and pin columns, a CSV download (a string names the file), the active filters as chips with a remove button each, your own controls before and after the built-in ones, or `render(tools)` for a toolbar of your own (see below) | none |
 | `pageSize`, `pageSizes`, `onPageSizeChange`, `page`, `defaultPage`, `onPageChange`, `total` | pages with Pagination and the range ("1–25 of 240"); sizes to pick; `total` for server pages | no pages |
 | `virtual`, `rowHeight` | only the rows in view are drawn (needs a height) | `false`, by density 36 / 44 / 52 |
 | `resizableColumns`, `reorderableColumns`, `resizableRows` | drag column edges (double-click fits, Alt + arrows), drag headers (Ctrl or Cmd + Shift + arrows), drag a row's bottom edge anywhere along the row (double-click goes back to the table's row height) | `false` |
@@ -84,6 +84,36 @@ The fields inside the grid are Pinfold components: search and text filters are a
 Controller: `visibleRows`, `filteredRows`, `sort`, `filters`, `search`, `selected`, `columnState`,
 `setSort`, `setFilters`, `setFilter(key, value, op)`, `setSearch`, `setSelected`, `setColumnState`,
 `exportCsv()`, `downloadCsv(name)`, `scrollToRow(index)`.
+
+## A toolbar of your own
+
+`start` and `end` add your controls around the built-in ones. To lay the toolbar out yourself with your own
+components, pass `render`: what it returns replaces everything inside the toolbar, which stays the table's
+named `role="toolbar"`. It gets the table's state and actions, and the built-in parts to keep where you want them.
+
+```tsx
+<Grid
+  label="Orders"
+  rows={orders}
+  toolbar={{
+    export: 'orders.csv',
+    render: (t) => (
+      <MyBar>
+        <MySearch value={t.search} onChange={t.setSearch} />
+        {t.selectedCount > 0 && <MyBadge>{t.selectedCount} chosen</MyBadge>}
+        <MyButton {...t.columnsButtonProps}>Columns</MyButton>
+        <MyButton onClick={() => t.downloadCsv()}>Download</MyButton>
+        {t.parts.export /* or keep a built-in part */}
+      </MyBar>
+    ),
+  }}
+/>
+```
+
+`tools`: `search`, `setSearch`, `selectedCount`, `filters`, `clearFilters`, `columnsButtonProps` (spread on your
+button: the columns panel opens from it and anchors to it; needs `columns` on), `exportCsv`, `downloadCsv`, and
+`parts` (`search`, `selected`, `columns`, `export`; null when switched off). For only a different search field,
+`render.search` gets the field's props (`value`, `onCommit`, `aria-label`, `placeholder`).
 
 ## The column menu
 Pointing at (or focusing) a header shows its menu button; a column that filters keeps it, filled with the tone.
