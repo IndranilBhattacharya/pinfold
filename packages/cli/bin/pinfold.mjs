@@ -124,9 +124,8 @@ function list() {
 }
 
 /**
- * Scaffold a component inside the Pinfold monorepo (contributors only): the
- * React adapter, the stylesheet and the subpath export, already shaped for
- * the conformance suite.
+ * Scaffold a component inside the Pinfold monorepo (contributors only): the React adapter, the stylesheet and
+ * the subpath export, already shaped for the conformance suite.
  */
 function scaffold(name, flags) {
   if (!name) throw new Error('name required. Try `npx pinfold new tabs`.');

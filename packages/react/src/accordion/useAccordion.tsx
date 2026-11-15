@@ -79,9 +79,8 @@ export function useAccordion(input: AnyAccordionConfig): AccordionApi {
     id: idProp,
   } = config;
 
-  // Dev only. A literal NODE_ENV check plus a dynamic import, so bundlers drop
-  // the branch and never reference the validator or the meta in production,
-  // even through CommonJS where nothing can be tree-shaken.
+  // Dev only. A literal NODE_ENV check plus a dynamic import, so bundlers drop the branch and never reference
+  // the validator or the meta in production, even through CommonJS where nothing can be tree-shaken.
   if (process.env.NODE_ENV !== 'production') {
     void import('./validate').then((m) => m.validateAccordion(input, config));
   }
@@ -329,9 +328,9 @@ export function useAccordion(input: AnyAccordionConfig): AccordionApi {
     buildParts,
   );
 
-  // Find-in-page: a closed panel's inner box carries `hidden="until-found"`
-  // (set on the DOM node because React 18 only renders boolean `hidden`), and
-  // the browser fires `beforematch` on it before revealing a match.
+  // Find-in-page: a closed panel's inner box carries `hidden="until-found"` (set on the DOM node because
+  // React 18 only renders boolean `hidden`), and the browser fires `beforematch` on it before revealing a
+  // match.
   const onFound = useEvent((id: string) => change(id, true, 'find-in-page'));
   const findable = (item: AccordionItemState) => (node: HTMLElement | null) =>
     untilFound(node, appearance.hiddenUntilFound && !item.open, appearance.animate, () => onFound(item.id));
@@ -349,10 +348,7 @@ interface PanelDom {
   timer?: ReturnType<typeof setTimeout>;
 }
 
-/**
- * `data-transition="opening|closing"` on the panel while it animates. Set on
- * the DOM node so the transition never costs a React render.
- */
+/** `data-transition="opening|closing"` on the panel while it animates. */
 function trackPanel(map: Map<string, PanelDom>, item: AccordionItemState, node: HTMLElement | null, animate: boolean) {
   if (!node) return;
   const prev = map.get(item.id);

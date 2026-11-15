@@ -1,7 +1,4 @@
-/* Pinfold — switch. The row, the input and the shared box are in field.css (core.css): this is the
-   track and thumb. The thumb moves by its inline-start margin, so it flips in RTL with no script;
-   `100%` there is the track's inner width. State is never colour alone: the thumb moves too. The off
-   track is the field edge colour, 3:1 against the surface (WCAG 1.4.11). */
+/* Pinfold — switch. css): this is the track and thumb. */
 
 @layer pinfold.components {
   .pinfold-switch {

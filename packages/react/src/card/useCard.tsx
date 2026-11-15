@@ -61,9 +61,9 @@ export function useCard(input: CardConfig = {}): CardComponent {
     if (!controlled) setOwnSelected(next);
     if (event) config.onSelectedChange?.(next, event);
   };
-  // An uncontrolled radio card is unchecked natively when another card in its group is chosen, and that
-  // fires no event on it: re-read its own state on any change in the group, so `selected` and
-  // `data-selected` never go stale.
+  // An uncontrolled radio card is unchecked natively when another card in its group is chosen, and that fires
+  // no event on it: re-read its own state on any change in the group, so `selected` and `data-selected` never
+  // go stale.
   const box = React.useRef<HTMLInputElement | null>(null);
   const watchGroup = selectable === 'radio' && !controlled && !!config.name;
   React.useEffect(() => {

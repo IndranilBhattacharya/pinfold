@@ -1,6 +1,5 @@
-/* Pinfold — tree view. Drawn flat: each row is one line, indented by a guide per level, so the hairlines
-   of open levels join from row to row. A selected row is tinted (soft), filled (solid) or marked with a
-   bar (ghost); the focused row carries the ring. */
+/* Pinfold — tree view. Drawn flat: each row is one line, indented by a guide per level, so the hairlines of open
+levels join from row to row. */
 
 @layer pinfold.components {
   .pinfold-treeview {

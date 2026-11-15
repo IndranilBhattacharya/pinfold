@@ -1,6 +1,4 @@
-/* Pinfold — input. Heights come from the shared control tokens, so a field and a button in one row
-   line up. The frame is the `control` slot and shows focus for everything inside it. Label, help
-   text and error styles are shared: see field.css in core.css. */
+/* Pinfold — input. Heights come from the shared control tokens, so a field and a button in one row line up. */
 
 @layer pinfold.components {
   .pinfold-input {

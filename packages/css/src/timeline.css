@@ -1,10 +1,5 @@
-/* Pinfold — timeline. Each event is a small grid: a marker column, the text beside it (or the
-   other side of the line too). The marker and the line share that column and are both centred in
-   it, so the line is always exactly on the marker's centre, whatever its size, in every layout and
-   in right-to-left text. The line belongs to the event above it and reaches the next marker (joined)
-   or stops short of both (gap). A marker sits on the text's first line: --pinfold-tl-head is the
-   height of that first row, --pinfold-tl-off the space above the marker inside it.
-   dot: small dots. icon: icons in tinted circles. card: each event on a card on the control tokens. */
+/* Pinfold — timeline. Each event is a small grid: a marker column, the text beside it (or the other side of the
+line too). */
 
 @layer pinfold.components {
   .pinfold-timeline {

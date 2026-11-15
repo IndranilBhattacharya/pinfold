@@ -6,9 +6,9 @@ import { CHECK_ICON } from '../nav-icons';
 import { ITEM } from '../slots';
 
 /**
- * The listbox under a select or a combobox: rows from config (strings or objects, grouped by a
- * `group` key), the active row moved by keys with focus left on the trigger
- * (`aria-activedescendant`), and the popup's rows. Its own module: only these two import it.
+ * The listbox under a select or a combobox: rows from config (strings or objects, grouped by a `group` key),
+ * the active row moved by keys with focus left on the trigger (`aria-activedescendant`), and the popup's
+ * rows.
  */
 
 /** One row. A string is a row whose value and label are that string. */

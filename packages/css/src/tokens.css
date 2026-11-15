@@ -1,16 +1,6 @@
-/* Pinfold — design tokens.
-   Single source of truth. Components style themselves only through these vars,
-   so a palette swap, a dark-mode flip and a consumer override all work through
-   the same mechanism instead of three competing ones.
+/* Pinfold — design tokens. Single source of truth. */
 
-   Colour is authored in OKLCH for perceptual evenness. `npx pinfold theme`
-   regenerates the ramps and also writes sRGB hex fallbacks for browsers
-   without OKLCH support. */
-
-/* Everything ships inside the `pinfold` cascade layer. Unlayered CSS — including
-   every Tailwind utility — beats a layered rule regardless of source order or
-   specificity, so `className="px-6"` just works with no `!important` and no
-   plugin. */
+/* Everything ships inside the `pinfold` cascade layer. */
 @layer pinfold.tokens {
 
   :root {
@@ -29,9 +19,7 @@
     --pinfold-primary-900: oklch(0.380 0.146 274);
     --pinfold-primary-950: oklch(0.283 0.101 274);
 
-    /* `accent` is a second hue for your own UI (Tailwind `accent-*`). Components never read it:
-       every component colour comes from `primary`, so one palette change re-colours them all.
-       It defaults to the brand ramp; the CLI can give it its own hue. */
+    /* `accent` is a second hue for your own UI (Tailwind `accent-*`). */
     --pinfold-accent-300: var(--pinfold-primary-300);
     --pinfold-accent-400: var(--pinfold-primary-400);
     --pinfold-accent-500: var(--pinfold-primary-500);
@@ -121,9 +109,8 @@
     --pinfold-color-selection: color-mix(in oklab, var(--pinfold-color-accent) 22%, transparent);
 
     /* --------------------------------------------------------------- depth */
-    /* Shadows are tinted with the neutral ramp, never neutral black — untinted
-       black over a tinted surface reads as dirt. Two layers: a tight contact
-       shadow plus a wide ambient one. */
+    /* Shadows are tinted with the neutral ramp, never neutral black — untinted black over a tinted surface reads
+    as dirt. */
     --pinfold-shadow-color: var(--pinfold-neutral-900);
     --pinfold-shadow-xs: 0 1px 1px color-mix(in oklab, var(--pinfold-shadow-color) 5%, transparent);
     --pinfold-shadow-sm:
@@ -321,9 +308,7 @@
       0 0 0 calc(var(--pinfold-focus-offset) + var(--pinfold-focus-width)) var(--pinfold-color-ring);
   }
 
-  /* An explicit light section, e.g. inside a dark page. Mirrors every property the dark
-     palette flips, with the :root values; ramps are never redeclared, so a custom
-     palette still reaches it. */
+  /* An explicit light section, e.g. inside a dark page. */
   [data-pinfold-theme="light"] {
     color-scheme: light;
     --pinfold-color-bg: var(--pinfold-neutral-50);
@@ -376,9 +361,8 @@
       0 0 0 calc(var(--pinfold-focus-offset) + var(--pinfold-focus-width)) var(--pinfold-color-ring);
   }
 
-  /* The radius scale is a multiplier, so the radii are recomputed wherever it can change:
-     on :root, on a radius preset and on a style pack. (A custom property inherits its
-     computed value; redeclaring only the scale further down would change nothing.) */
+  /* The radius scale is a multiplier, so the radii are recomputed wherever it can change: on :root, on a radius
+  preset and on a style pack. */
   :root,
   [data-pinfold-radius],
   [data-pinfold-style] {
@@ -402,9 +386,8 @@
   [data-pinfold-density="comfortable"] { --pinfold-density: 1; }
   [data-pinfold-density="spacious"] { --pinfold-density: 1.25; }
 
-  /* Control sizes, shared by every control. Each component writes its resolved size as
-     `data-size` (config, then `defaults.<name>`, then the provider, then md), which
-     redeclares the whole set on it. */
+  /* Control sizes, shared by every control. <name>`, then the provider, then md), which redeclares the whole set
+  on it. */
   :root,
   [data-size="md"] {
     --pinfold-control-height: 2.5rem;
@@ -431,11 +414,7 @@
     --pinfold-control-radius-unit: 0.625rem;
   }
 
-  /* Tones: each component writes its resolved tone as `data-tone` (same precedence as size).
-     Components read them with the primary accent as fallback, so `primary`
-     clears them (`initial`) and each element resolves its own theme's accent.
-     Each tone reads semantic colours that every theme block redeclares, so a tone resolves
-     against the nearest light or dark section (works on the Baseline 2023 floor). */
+  /* Tones: each component writes its resolved tone as `data-tone` (same precedence as size). */
   [data-tone="primary"] {
     --pinfold-tone-solid: initial;
     --pinfold-tone-on: initial;

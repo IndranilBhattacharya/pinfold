@@ -1,7 +1,4 @@
-/* Pinfold — app shell. A grid of regions: the bar, the sidebar, the page (with its footer) and a far
-   panel. The bar and the sidebar stay in view while the page scrolls; in a narrow shell the sidebar
-   leaves the grid and slides over the page as a drawer, under a veil. Regions carry no look of their
-   own: what you put in them does. */
+/* Pinfold — app shell. A grid of regions: the bar, the sidebar, the page (with its footer) and a far panel. */
 
 @layer pinfold.components {
   .pinfold-appshell {

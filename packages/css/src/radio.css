@@ -1,6 +1,4 @@
-/* Pinfold — radio group. The row, the input and the shared box are in field.css (core.css): this
-   is the dot's size and shape, and how it arrives. Transitions, not keyframes, so a page loads still;
-   the ripple plays only on the focused radio, which is the one a person just picked. */
+/* Pinfold — radio group. css): this is the dot's size and shape, and how it arrives. */
 
 @layer pinfold.components {
   .pinfold-radio__box {

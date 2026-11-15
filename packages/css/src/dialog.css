@@ -1,9 +1,6 @@
-/* Pinfold — dialog. The `<dialog>` element itself is a transparent full-viewport box (a press on it
-   is a press on the backdrop); the panel sits inside it and carries the surface tokens, so style
-   packs restyle it. The panel is three bands: a header and a footer that stay, and the content that
-   scrolls between them; `data-overflow-top/-bottom` (set by the view) lays a shadow under the header
-   or over the footer while content hides there. Never set `display` on a closed dialog: that would
-   show it. */
+/* Pinfold — dialog. The `<dialog>` element itself is a transparent full-viewport box (a press on it is a press
+on the backdrop); the panel sits inside it and carries the surface tokens, so style packs restyle it. Never
+set `display` on a closed dialog: that would show it. */
 
 @layer pinfold.components {
   .pinfold-dialog {

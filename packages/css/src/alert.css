@@ -1,7 +1,5 @@
-/* Pinfold — alert. A quiet card: the body stays the theme's text colours, and the tone lives in the
-   icon's tile and a faint wash, so a page of alerts is calm and the words carry the message. Colour
-   comes from the shared tone tokens on the root's `data-tone`; style packs reach it through the
-   surface, shadow, texture and radius tokens. */
+/* Pinfold — alert. A quiet card: the body stays the theme's text colours, and the tone lives in the icon's tile
+and a faint wash, so a page of alerts is calm and the words carry the message. */
 
 @layer pinfold.components {
   .pinfold-alert {

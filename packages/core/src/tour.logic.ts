@@ -1,7 +1,4 @@
-/**
- * Tour rules: the hole a spotlight cuts around its target, and the clip path that draws it. Pure
- * geometry, so any adapter shares it.
- */
+/** Tour rules: the hole a spotlight cuts around its target, and the clip path that draws it. */
 
 export interface TourRect {
   x: number;

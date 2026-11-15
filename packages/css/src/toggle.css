@@ -1,12 +1,4 @@
-/* Pinfold — toggle and toggle group. Sizes from the shared control tokens, colour from the tone
-   tokens. A single selection draws one indicator that the script places on the selected button
-   (--pinfold-tgl-ix/iy/iw/ih) and that slides between buttons under [data-animate]; until it is
-   placed (first paint, no script), and in a multiple selection, each pressed button draws the
-   pressed look itself. Pressed is never colour alone: it is filled, framed or raised.
-
-   segmented: a tinted tray and a raised pill. solid: a framed bar whose pressed button fills with
-   the tone. soft: tinted buttons, the pressed one in the tone. outline: a framed bar, the pressed
-   button tinted and ringed in the tone. ghost: quiet buttons that fill with the tone. */
+/* Pinfold — toggle and toggle group. Sizes from the shared control tokens, colour from the tone tokens. */
 
 @layer pinfold.components {
   .pinfold-toggle {

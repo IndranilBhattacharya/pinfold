@@ -1,7 +1,4 @@
-/* Pinfold — pagination. Square controls on the control tokens (packs reach them). The current page
-   is a cursor in the tone's solid fill that slides between pages; until the script places it (first
-   paint, no script) the current page fills itself. soft: tinted chips. ghost: quiet. outline:
-   framed. panel: one raised bar. Controls at an end stay in place and fade (aria-disabled). */
+/* Pinfold — pagination. Square controls on the control tokens (packs reach them). */
 
 @layer pinfold.components {
   .pinfold-pagination {

@@ -1,6 +1,6 @@
 /**
- * Calendar rules, framework-free. Dates are ISO strings ("2026-11-08"): plain data that survives
- * JSON, server rendering and time zones, compared as strings. Math runs on UTC so a day is a day.
+ * Calendar rules, framework-free. Dates are ISO strings ("2026-11-08"): plain data that survives JSON, server
+ * rendering and time zones, compared as strings.
  */
 
 export type IsoDate = string;

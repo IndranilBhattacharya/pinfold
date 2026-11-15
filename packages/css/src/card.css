@@ -1,6 +1,5 @@
-/* Pinfold — card. A surface from the theme tokens, so style packs restyle it (glass panes,
-   material depth, brutalist offsets). The card never clips itself: the media clips its own
-   corners, so the focus ring of a linked, pressable or selectable card is drawn outside it. */
+/* Pinfold — card. A surface from the theme tokens, so style packs restyle it (glass panes, material depth,
+brutalist offsets). */
 
 @layer pinfold.components {
   .pinfold-card {

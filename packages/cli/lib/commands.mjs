@@ -1,8 +1,6 @@
 /**
- * init, add, theme and doctor (docs/CLI.md). Each builds a Plan from what
- * `detect()` found, prints it, and applies it only with consent (`--yes` or a
- * prompt). Nothing here talks to the network except the package install,
- * through the project's own package manager.
+ * md). Each builds a Plan from what `detect()` found, prints it, and applies it only with consent (`--yes` or
+ * a prompt).
  */
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';

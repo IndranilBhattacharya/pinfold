@@ -108,10 +108,7 @@ export function useDragScroll(box: React.RefObject<HTMLElement | null>, on: bool
   }, [box, on, axis]);
 }
 
-/**
- * Scroll a strip, and only the strip, until `item` is inside it with `pad` px to spare. Unlike
- * `scrollIntoView` this never moves the page: a row that is itself off screen stays where it is.
- */
+/** Scroll a strip, and only the strip, until `item` is inside it with `pad` px to spare. */
 /** The nearest ancestor that scrolls on `axis` (has more content than room and is not `overflow: visible`). */
 export function scrollParent(el: Element | null | undefined, axis: 'x' | 'y' = 'y'): HTMLElement | null {
   for (let n = el?.parentElement ?? null; n; n = n.parentElement) {

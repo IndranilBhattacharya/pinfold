@@ -1,8 +1,6 @@
 /**
- * Time zones without a library: wall times ("2026-11-09T14:30", what a clock in some place shows)
- * to and from instants (a moment, the same everywhere), through the browser's own zone data (`Intl`).
- * Daylight-saving gaps and overlaps are handled the way calendars do: a time that does not exist
- * moves forward by the gap, a time that happens twice is the first one.
+ * Time zones without a library: wall times ("2026-11-09T14:30", what a clock in some place shows) to and from
+ * instants (a moment, the same everywhere), through the browser's own zone data (`Intl`).
  */
 
 /** A wall time: "2026-11-09T14:30" or "2026-11-09T14:30:15". No zone: it means what the clock shows. */

@@ -1,6 +1,5 @@
-/* Pinfold — tooltip. `inverse` is the text colour as a fill, so it stands out in every theme;
-   `surface` follows the panel tokens, so style packs reach it. Position comes from JS (top and
-   left), the side it landed on from `data-side`. */
+/* Pinfold — tooltip. `inverse` is the text colour as a fill, so it stands out in every theme; `surface` follows
+the panel tokens, so style packs reach it. */
 
 @layer pinfold.components {
   .pinfold-tooltip {

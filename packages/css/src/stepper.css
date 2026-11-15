@@ -1,9 +1,5 @@
-/* Pinfold — stepper. Marks joined by a line that fills with the tone as steps are done (a
-   background-size transition, mirrored in right-to-left text). circle: numbered circles, a check
-   when done, a halo on the current one. dot: small dots. bar: a segment per step, names under it.
-   Names sit under the marks (bottom) or beside them (end). The current step's content shows in a
-   panel on the control tokens, with Back and Next. State is never colour alone: the check, the
-   number, the error mark and spoken text carry it too. */
+/* Pinfold — stepper. Marks joined by a line that fills with the tone as steps are done (a background-size
+transition, mirrored in right-to-left text). */
 
 @layer pinfold.components {
   .pinfold-stepper {

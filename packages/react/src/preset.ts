@@ -1,11 +1,8 @@
 import { cn } from '@pinfold/core';
 
 /**
- * Presets: `define<Name>(preset)` returns a component whose props are any part of the config
- * (plus element attributes). These helpers keep the merge identical for every component.
- *
- * Precedence, highest first: use-site props, the preset, `defaults.<name>` (applied by the
- * hook), the provider, the library default.
+ * Presets: `define<Name>(preset)` returns a component whose props are any part of the config (plus element
+ * attributes).
  */
 
 /** Per-slot and nested objects merge one level deep instead of replacing each other. */

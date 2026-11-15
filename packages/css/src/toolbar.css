@@ -1,8 +1,6 @@
-/* Pinfold — toolbar and button group. The buttons are Pinfold buttons (button.css); this joins
-   them: attached buttons share their edges and only the outer corners of each group (the buttons
-   between two separators) are rounded, and a focused or hovered button rises over its neighbours
-   so its whole edge and ring show. A pressed toggle button takes the selected tone (the hook
-   gives it `data-tone`), filled for solid and tinted with a ring for the rest. */
+/* Pinfold — toolbar and button group. css); this joins them: attached buttons share their edges and only the
+outer corners of each group (the buttons between two separators) are rounded, and a focused or hovered button
+rises over its neighbours so its whole edge and ring show. */
 
 @layer pinfold.components {
   .pinfold-toolbar {

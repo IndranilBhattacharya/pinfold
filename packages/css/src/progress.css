@@ -1,7 +1,6 @@
-/* Pinfold — progress and meter. Colour from the shared tone tokens (--pinfold-tone-*) selected
-   by the root's `data-tone` (already resolved through `tones`); style packs reach it through the
-   control tokens (surface, glow). Motion (the indeterminate sweep, the stripes, value changes) runs
-   only with `data-animate` and stops under reduced motion. */
+/* Pinfold — progress and meter. Colour from the shared tone tokens (--pinfold-tone-*) selected by the root's
+`data-tone` (already resolved through `tones`); style packs reach it through the control tokens (surface,
+glow). */
 
 @layer pinfold.components {
   .pinfold-progress {

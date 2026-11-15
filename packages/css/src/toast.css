@@ -1,8 +1,5 @@
-/* Pinfold — toast. The region is a click-through corner; the list inside it holds the toasts, newest
-   at the screen edge. Piled (the default), the cards behind the newest are moved onto it by a
-   transform the script measures (--pinfold-tst-pile); hover or focus drops the transform and they fan
-   out in the list's own flow, which scrolls past `visible` toasts with no scrollbar. Each toast is a
-   surface with a tone icon, so style packs restyle it. */
+/* Pinfold — toast. The region is a click-through corner; the list inside it holds the toasts, newest at the
+screen edge. */
 
 @layer pinfold.components {
   .pinfold-toast {

@@ -145,7 +145,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     warnOnce(!!(config.virtual || source) && !config.dimensions?.height && !config.dimensions?.maxHeight, 'Table: a virtual table needs a height (`dimensions.height` or `dimensions.maxHeight`).');
   }
 
-  // ---- remembered state (after mount: the server has no storage) ----
+  // Remembered state (after mount: the server has no storage)
   const storeKey = config.autoSaveId ? `pinfold-table:${config.autoSaveId}` : null;
   React.useEffect(() => {
     if (!storeKey) return;
@@ -168,7 +168,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     }
   }, [storeKey, colState, sorts, filters]);
 
-  // ---- data source blocks ----
+  // Data source blocks
   const blockSize = source?.blockSize ?? 100;
   const blocks = React.useRef(new Map<number, readonly Row[]>());
   const pending = React.useRef(new Map<number, AbortController>());
@@ -190,7 +190,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     [],
   );
 
-  // ---- columns ----
+  // Columns
   const sample = React.useMemo(() => {
     if (!source) return rows.slice(0, 25);
     for (const b of blocks.current.values()) return b.slice(0, 25);
@@ -249,7 +249,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     return [...seen].sort().map((v) => ({ value: v, label: v }));
   };
 
-  // ---- the pipeline (client rows): filter, sort, page, group ----
+  // The pipeline (client rows): filter, sort, page, group
   const filtered = React.useMemo(
     () => (source || config.manualFilter ? rows.map((_, i) => i) : filterRowIndices(rows, { filters, logic: config.filterLogic, search, columns: rules })),
     [rows, source, config.manualFilter, filters, search, config.filterLogic, rules],
@@ -318,7 +318,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
   };
   const keyOfEntry = (e: Entry) => (e.kind === 'group' ? `group:${e.group.key}` : e.kind === 'remote' ? keyOf(rowOf(e), e.pos) : keyOf(rows[e.index], e.index));
 
-  // ---- heights and the virtual window ----
+  // Heights and the virtual window
   const density = config.density ?? 'normal';
   const rowHeight = config.rowHeight ?? ROW_HEIGHT[density];
   const sizes = React.useMemo(() => {
@@ -373,7 +373,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     }
   });
 
-  // ---- state setters with events ----
+  // State setters with events
   const setSort = (next: readonly TableSort[]) => {
     setSortState(next);
     config.onSortChange?.([...next]);
@@ -445,7 +445,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     anchor.current = pos;
   };
 
-  // ---- editing ----
+  // Editing
   const startEdit = (row: Row, c: Col, rowKey: string) => {
     const can = typeof c.editable === 'function' ? c.editable(row) : c.editable;
     if (!can || !config.onCellEdit) return;
@@ -480,7 +480,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     }
   };
 
-  // ---- columns: resize, reorder ----
+  // Columns: resize, reorder
   const snapshotWidths = (): Record<string, number> => {
     const out: Record<string, number> = { ...(colState.widths ?? {}) };
     tableRef.current?.querySelectorAll<HTMLElement>('thead th[data-key]').forEach((th) => {
@@ -520,7 +520,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     setAnnounce(`${resolved.find((c) => c.key === from)?.title}: ${toAt + 1} of ${keys.length}`);
   };
 
-  // ---- formatting ----
+  // Formatting
   const formatters = React.useMemo(() => {
     const out = new Map<string, (v: unknown, row: Row) => React.ReactNode>();
     for (const c of resolved) {
@@ -558,7 +558,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     return c.aggregate === 'count' || c.aggregate === 'countDistinct' ? new Intl.NumberFormat().format(n) : formatters.get(c.key)!(n, {});
   };
 
-  // ---- the grid's keyboard (interactive tables) ----
+  // The grid's keyboard (interactive tables)
   const editableAny = resolved.some((c) => c.editable);
   // Rows drag only while the view is the data's own order: no sort, filter, search, group or tree.
   const canReorderRows = !!config.reorderableRows && !!config.onRowReorder && !source && !tree && !groupRead;
@@ -638,14 +638,14 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     if (used) event.preventDefault();
   };
 
-  // ---- edges that hide rows or columns: attributes on the scroller, no re-render ----
+  // Edges that hide rows or columns: attributes on the scroller, no re-render
   useIsomorphicLayoutEffect(() => {
     const el = scroller.current;
     if (!el || (config.scrollIndicator ?? 'shadow') === 'none') return;
     return watchScrollEdges(el);
   }, [config.scrollIndicator]);
 
-  // ---- column menus ----
+  // Column menus
   const anySortable = resolved.some((c) => c.sortable ?? !!config.sortable);
   const anyFilterable = resolved.some((c) => c.filterable ?? !!config.filterable);
   const filterRowMode = config.filterMode === 'row';
@@ -687,7 +687,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     return `${sign[op] ?? ''}${show(f.value)}${op === 'startsWith' ? '…' : ''}`;
   };
 
-  // ---- state for render overrides and the root ----
+  // State for render overrides and the root
   const state: TableState = { variant: config.variant ?? 'card', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, density, loading: !!config.loading, sort: sorts, filters, search };
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
@@ -766,7 +766,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
     const leadCell = (name: Lead, tag: 'td' | 'th', r: number, content: React.ReactNode, extra: PropsBag = {}) =>
       React.createElement(tag, { key: name, className: cn(cls('pinfold-table__lead'), name === 'select' ? cls('pinfold-table__select') : undefined), 'data-lead': name, ...(tag === 'th' ? { scope: 'col' } : {}), ...leadPin(name), ...(r >= -1 ? cellNav(r, leadAt(name)) : {}), ...extra }, content);
 
-    // ---- toolbar ----
+    // Toolbar
     const tb = config.toolbar === true ? { search: true, columns: true } : config.toolbar || null;
     const active = filters.filter((f) => !filterIsBlank(f));
     const chips =
@@ -851,7 +851,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
       );
     }
 
-    // ---- head ----
+    // Head
     const headerCells = columns.map((c, i) => {
       const at = sorts.findIndex((s) => s.key === c.key);
       const sort = at >= 0 ? sorts[at] : null;
@@ -1036,7 +1036,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
       { ref: thead },
     );
 
-    // ---- body ----
+    // Body
     const span = cellCount;
     const expandButton = (rowCtx: TableRowContext<Row>, rowKey: string, open: boolean, controls: string | undefined) =>
       slot('expand', typeof config.expandIcon === 'function' ? config.expandIcon(rowCtx) : config.expandIcon ?? CHEVRON, 'button', {
@@ -1420,7 +1420,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
       )
     ) : null;
 
-    // ---- footer: pages, page size, the range ----
+    // Footer: pages, page size, the range
     const rowTotal = source ? srcCount : config.total ?? ordered.length;
     const fmtN = new Intl.NumberFormat();
     const from = pageSize > 0 && !virtual ? (current - 1) * pageSize + 1 : 1;

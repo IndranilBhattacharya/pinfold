@@ -1,7 +1,6 @@
-/* Pinfold — table. A card on the control tokens (packs reach it) around a real table: a quiet
-   header whose tools appear when pointed at, hairline rows, a hover tint, chosen rows tinted with
-   the tone, numbers in tabular figures. The scroll area takes wide and tall tables and marks the
-   edges that hide something; pinned columns throw a shadow only while something is under them. */
+/* Pinfold — table. A card on the control tokens (packs reach it) around a real table: a quiet header whose tools
+appear when pointed at, hairline rows, a hover tint, chosen rows tinted with the tone, numbers in tabular
+figures. */
 
 @layer pinfold.components {
   .pinfold-table {

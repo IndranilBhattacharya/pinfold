@@ -79,15 +79,11 @@ export interface FieldMessages {
 
 /** Validation options shared by input, number field, one-time code, checkbox, radio, switch and slider. */
 export interface FieldValidationConfig<V> {
-  /**
-   * The error message: shows it, marks the control invalid and links it. A function receives the
-   * message validation produced, so you can wrap or replace it.
-   */
+  /** The error message: shows it, marks the control invalid and links it. */
   error?: React.ReactNode | ((state: FieldErrorState) => React.ReactNode);
   /**
-   * Your check: return a message for an error, nothing when valid, or `{ status, message }` for a
-   * warning or a success. May return a promise; a newer run makes an older result stale, and it is
-   * dropped. An error is also set as the native custom validity, so a plain `<form>` will not submit.
+   * Your check: return a message for an error, nothing when valid, or `{ status, message }` for a warning or
+   * a success.
    */
   validate?: (value: V) => FieldValidateOutcome | Promise<FieldValidateOutcome>;
   /**

@@ -1,6 +1,5 @@
-/* Pinfold — one-time code. One transparent native input lies over the boxes and takes every
-   keystroke, paste and autofill; the boxes are drawn from its value. The active box shows a
-   blinking caret, a filled box pops in. Label, help text and error are shared: see field.css. */
+/* Pinfold — one-time code. One transparent native input lies over the boxes and takes every keystroke, paste and
+autofill; the boxes are drawn from its value. */
 
 @layer pinfold.components {
   .pinfold-otp {

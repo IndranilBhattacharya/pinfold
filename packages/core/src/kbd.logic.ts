@@ -1,8 +1,4 @@
-/**
- * Keyboard-shortcut rules, framework-free. `mod` means Command on Apple platforms and Ctrl
- * elsewhere; on Apple platforms keys show as symbols, elsewhere as words. Every key keeps a
- * spoken name, so a symbol is never the only thing a screen reader gets.
- */
+/** Keyboard-shortcut rules, framework-free. */
 
 export type KbdOs = 'apple' | 'other';
 export type KbdDisplay = 'auto' | 'symbols' | 'text';

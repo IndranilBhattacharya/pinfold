@@ -63,10 +63,8 @@ function overflowProps(policy: AccordionOverflow | undefined, fallback: Accordio
 /* ------------------------------------------------------------------ slots */
 
 /**
- * Fold three layers of overrides into one props bag, in ascending priority:
- * the component's own class, the root config's slot overrides, then the row's
- * own overrides. Under `unstyled` the callers pass no base class (see `cls`),
- * so only the consumer's classes survive.
+ * Fold three layers of overrides into one props bag, in ascending priority: the component's own class, the
+ * root config's slot overrides, then the row's own overrides.
  */
 function slot<S extends AccordionSlot>(
   ctx: ViewContext,

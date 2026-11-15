@@ -1,6 +1,5 @@
-/* Pinfold — tour. A cover over the page with a rounded hole cut around the target (a clip path the hook
-   writes, so the hole glides between steps), a soft ring around the hole, and a raised card beside it.
-   The root has no box of its own; the cover, ring and card are fixed and join the top layer. */
+/* Pinfold — tour. A cover over the page with a rounded hole cut around the target (a clip path the hook writes,
+so the hole glides between steps), a soft ring around the hole, and a raised card beside it. */
 
 @layer pinfold.components {
   .pinfold-tour {

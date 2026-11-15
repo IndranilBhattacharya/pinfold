@@ -4,8 +4,8 @@ import { CheckMark } from '../checkmark';
 import { SubInput, SubSelect } from '../subcontrols';
 
 /**
- * The table's built-in controls: a filter per column type, an editor per column type, and an input
- * that commits after typing pauses (filters and search on large data).
+ * The table's built-in controls: a filter per column type, an editor per column type, and an input that
+ * commits after typing pauses (filters and search on large data).
  */
 
 type PausedInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'type' | 'size'> & {

@@ -1,7 +1,6 @@
-/* Pinfold — colour picker. The colours it draws (the area, the hue track, the swatches) are data the
-   script writes inline (--pinfold-cp-i-*); this sheet only lays them out, on the control tokens so
-   packs reach the card. Transparency shows over a checkerboard of the text colour. Thumbs are a
-   light ring with a dark hairline, readable on any colour. */
+/* Pinfold — colour picker. The colours it draws (the area, the hue track, the swatches) are data the script
+writes inline (--pinfold-cp-i-*); this sheet only lays them out, on the control tokens so packs reach the
+card. */
 
 @layer pinfold.components {
   .pinfold-colorpicker {

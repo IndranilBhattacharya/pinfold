@@ -1,12 +1,4 @@
-/**
- * `@pinfold/core/meta`. A separate entry so apps never ship it: the React
- * adapter loads it only in development, and tooling (docs, CLI, schema,
- * llms.txt, playground) imports it directly.
- *
- * Component metadata: the single source of truth that docs, the playground,
- * the JSON schema, the registries, `llms.txt` and dev validation are all
- * generated from. Framework-free and JSON-safe.
- */
+/** `@pinfold/core/meta`. txt, playground) imports it directly. */
 
 import { accordionMeta } from './accordion.meta';
 import { buttonMeta } from './button.meta';
@@ -255,11 +247,7 @@ function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
-/**
- * Nearest key by edit distance, for "did you mean" hints. One edit is always a likely typo. Two edits
- * are one only for long keys (6+ characters both) or the same letters swapped round (`titel`):
- * between short words two edits make a different word (`role` is not a misspelt `tone`).
- */
+/** Nearest key by edit distance, for "did you mean" hints. */
 function closest(key: string, keys: string[]): string | undefined {
   const a = key.toLowerCase();
   let best: string | undefined;

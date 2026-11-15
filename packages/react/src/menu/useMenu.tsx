@@ -340,7 +340,7 @@ export function useMenu(input: MenuConfig): MenuComponent {
   const slot = (name: MenuSlot, content: React.ReactNode, tag: string, base: PropsBag = {}) =>
     renderSlot(config, name, slotProps(config, name, { className: cls(`pinfold-menu__${name.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())}`), ...base }), state, content, (p, c) => React.createElement(tag, p, c));
 
-  // ---- selection the menu owns ----
+  // Selection the menu owns
   const checkedIn = (scope: Scope): string[] => (scope.value !== undefined ? toArray(scope.value) : owned[scope.key] ?? toArray(scope.defaultValue));
   const toggleIn = (scope: Scope, rowId: string, item: MenuItem) => {
     const now = checkedIn(scope);
@@ -349,7 +349,7 @@ export function useMenu(input: MenuConfig): MenuComponent {
     scope.onChange?.((scope.mode === 'single' ? rowId : next) as string & string[], item);
   };
 
-  // ---- search ----
+  // Search
   const needle = searchable ? term.trim().toLocaleLowerCase() : '';
   const matches = (item: MenuItem): boolean => {
     if (!needle || item.type === 'separator' || item.type === 'group') return true;

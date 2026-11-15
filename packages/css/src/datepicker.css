@@ -1,6 +1,5 @@
-/* Pinfold — date picker. Input's frame (the control tokens, the field edge, the accent on focus)
-   around the typed date, a clear button and the calendar button. The popup holds a Pinfold calendar
-   (calendar.css), placed by JS. */
+/* Pinfold — date picker. Input's frame (the control tokens, the field edge, the accent on focus) around the
+typed date, a clear button and the calendar button. */
 
 @layer pinfold.components {
   .pinfold-datepicker {

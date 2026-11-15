@@ -1,6 +1,5 @@
-/* Pinfold — separator. The line colour and thickness are the theme's border tokens, so style
-   packs restyle it (brutalist: a 2px rule in the text colour). `data-contrast` picks how much it
-   stands out, `data-thickness` its weight; `dimensions.thickness` wins over both presets. */
+/* Pinfold — separator. The line colour and thickness are the theme's border tokens, so style packs restyle it
+(brutalist: a 2px rule in the text colour). */
 
 @layer pinfold.components {
   .pinfold-separator {

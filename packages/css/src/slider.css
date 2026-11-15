@@ -1,10 +1,6 @@
-/* Pinfold — slider. Each thumb is a native range input stretched over the control with its own
-   track and thumb made transparent; the visible track, range, steps, marks and thumbs are drawn
-   behind it from --pinfold-sld-a/b (0 to 1) and --pinfold-sld-at. A native thumb's centre sits at
-   p × (width − thumb) + thumb / 2, so everything drawn uses the same formula and lines up. A range
-   has two inputs; only their thumbs take the pointer. The fill runs from `a` plus a lead to `b`
-   plus a tail: the line variant fills thumb centre to thumb centre, the bar variant past each
-   thumb so the handle sits inside the fill. */
+/* Pinfold — slider. Each thumb is a native range input stretched over the control with its own track and thumb
+made transparent; the visible track, range, steps, marks and thumbs are drawn behind it from --pinfold-sld-a/b
+(0 to 1) and --pinfold-sld-at. */
 
 @layer pinfold.components {
   .pinfold-slider {
@@ -275,9 +271,8 @@
   .pinfold-slider__input:is(:hover, :focus-visible, :active) + .pinfold-slider__thumb > .pinfold-slider__value { opacity: 1; translate: -50% 0; }
   [dir='rtl'] .pinfold-slider__input:is(:hover, :focus-visible, :active) + .pinfold-slider__thumb > .pinfold-slider__value { translate: 50% 0; }
 
-  /* Vertical: the control is laid out as a row, then turned a quarter (minimum at the bottom), so
-     the drawn parts and the native inputs keep one geometry. Margins make its box the turned size;
-     text inside reads upright through vertical-rl. Always left to right inside, so RTL pages too. */
+  /* Vertical: the control is laid out as a row, then turned a quarter (minimum at the bottom), so the drawn
+  parts and the native inputs keep one geometry. */
   .pinfold-slider[data-orientation='vertical'] {
     --pinfold-sld-len: var(--pinfold-slider-length, 12rem);
     --pinfold-sld-h: max(var(--pinfold-sld-t), 1.5rem);

@@ -1,7 +1,5 @@
-/* Pinfold — menu. A raised panel from the surface tokens, so style packs restyle it: an optional
-   header and search field, the `role="menu"` list that scrolls, loading or empty, an optional footer.
-   One highlight for pointer and keyboard: the focused row. Position comes from JS (top and left);
-   `data-overflow-top/-bottom` (set by the view) fades the edge of the list that hides more. */
+/* Pinfold — menu. A raised panel from the surface tokens, so style packs restyle it: an optional header and
+search field, the `role="menu"` list that scrolls, loading or empty, an optional footer. */
 
 @layer pinfold.components {
   .pinfold-menu {

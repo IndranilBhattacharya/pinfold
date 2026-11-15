@@ -1,10 +1,6 @@
 /**
- * `npx pinfold mcp`: a local Model Context Protocol server over stdio
- * (newline-delimited JSON-RPC 2.0). It answers from the installed
- * @pinfold/core meta, so the docs always match the installed version and
+ * 0). It answers from the installed @pinfold/core meta, so the docs always match the installed version and
  * nothing is hosted.
- *
- *   { "mcpServers": { "pinfold": { "command": "npx", "args": ["pinfold", "mcp"] } } }
  */
 import { createInterface } from 'node:readline';
 import { componentMetas, metaToMarkdown, toJsonSchema, validateConfig } from '@pinfold/core/meta';

@@ -1,17 +1,13 @@
 /**
- * Data grid engine, framework-free: values by path, typed filters, multi-key sorting, grouping and
- * totals, all over row indices (the rows are never copied); a virtual window that keeps a billion
- * rows scrollable; column widths and pinned offsets; CSV.
- *
- * Built for size: filtering is one pass, sorting turns each key into numbers once (text becomes its
- * rank among the distinct values, so the comparison is numeric) and sorts an index array.
+ * Data grid engine, framework-free: values by path, typed filters, multi-key sorting, grouping and totals,
+ * all over row indices (the rows are never copied); a virtual window that keeps a billion rows scrollable;
+ * column widths and pinned offsets; CSV.
  */
 import { foldText } from './listbox.logic';
 import type { TableSort } from './table.logic';
 
 export type GridColumnType = 'text' | 'number' | 'date' | 'boolean' | 'enum';
 
-// ---------------------------------------------------------------------------------------------
 // Values
 
 const paths = new Map<string, string[]>();
@@ -81,7 +77,6 @@ export function inferColumnType(values: Iterable<unknown>): GridColumnType {
   return 'text';
 }
 
-// ---------------------------------------------------------------------------------------------
 // Filters
 
 export type GridFilterOp =
@@ -265,7 +260,6 @@ export function filterRowIndices<T>(
   return out;
 }
 
-// ---------------------------------------------------------------------------------------------
 // Sorting
 
 const collator = typeof Intl !== 'undefined' ? new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' }) : null;
@@ -348,7 +342,6 @@ export function nextSorts(current: readonly TableSort[], key: string, add = fals
   return [...rest, cycled].slice(-max);
 }
 
-// ---------------------------------------------------------------------------------------------
 // Grouping and totals
 
 export type GridAggregate = 'sum' | 'avg' | 'min' | 'max' | 'count' | 'countDistinct';
@@ -397,7 +390,6 @@ export function groupRowIndices<T>(rows: readonly T[], indices: readonly number[
   return [...groups.values()];
 }
 
-// ---------------------------------------------------------------------------------------------
 // Distinct values (a column's value list, as a spreadsheet's filter shows it)
 
 export interface GridDistinct {
@@ -449,7 +441,6 @@ function dayKey(v: unknown): string {
   return Number.isNaN(t) ? toText(v) : new Date(t).toISOString().slice(0, 10);
 }
 
-// ---------------------------------------------------------------------------------------------
 // Tree rows (rows under rows, to any depth)
 
 export interface GridTree<T> {
@@ -514,7 +505,6 @@ export function treeOrder(tree: Pick<GridTree<unknown>, 'parent'>, kept: readonl
   return out;
 }
 
-// ---------------------------------------------------------------------------------------------
 // Virtual window
 
 /**
@@ -625,7 +615,6 @@ export function blocksFor(start: number, end: number, blockSize: number): number
   return out;
 }
 
-// ---------------------------------------------------------------------------------------------
 // Columns
 
 /** A width kept between a column's min and max. */
@@ -659,7 +648,6 @@ export function orderColumns<C extends { key: string }>(columns: readonly C[], o
   return sorted.sort((a, b) => zone(a) - zone(b));
 }
 
-// ---------------------------------------------------------------------------------------------
 // Export
 
 /** CSV (RFC 4180): a header row, then one line per row; quotes where needed. */

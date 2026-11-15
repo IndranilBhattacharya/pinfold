@@ -1,6 +1,4 @@
-/* Pinfold — scroll area. The root frames a viewport that scrolls. Each edge that hides content
-   says so: `fade` masks the content itself (works over any background), `shadow`, `glow` and `line`
-   lay a strip over the edge. The view sets data-overflow-top/-bottom/-start/-end on the root. */
+/* Pinfold — scroll area. The root frames a viewport that scrolls. */
 
 @layer pinfold.components {
   .pinfold-scrollarea {

@@ -1,6 +1,4 @@
-/* Pinfold — badge. A fine inset ring in the tone over a faint tint, the look of a modern product UI.
-   Colour comes from the shared tone tokens on the root's `data-tone`; style packs reach it through
-   the surface, edge, shadow, round and texture tokens. `dimensions` writes --pinfold-badge-*. */
+/* Pinfold — badge. A fine inset ring in the tone over a faint tint, the look of a modern product UI. */
 
 @layer pinfold.components {
   .pinfold-badge {
@@ -253,10 +251,8 @@
     display: inline-flex;
     vertical-align: middle;
   }
-  /* A zero-size box on the anchor's edge; the badge is centred on it, so a wide label-and-count badge
-     and a dot both sit on the point itself. The point is where the corner's curve crosses its
-     diagonal: the bounding corner for `rect`, 14.6% in for `circle`, and for `auto` the offsets the
-     hook measures from the anchor's own radius. `dimensions.offset` nudges it toward the centre. */
+  /* A zero-size box on the anchor's edge; the badge is centred on it, so a wide label-and-count badge and a dot
+  both sit on the point itself. */
   .pinfold-badge__corner {
     --pinfold-bdg-off-x: 0px;
     --pinfold-bdg-off-y: 0px;

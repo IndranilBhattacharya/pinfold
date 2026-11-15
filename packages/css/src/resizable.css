@@ -1,6 +1,5 @@
-/* Pinfold — resizable panels. Panels share the group by percent (flex-basis from JS); a handle is
-   a hairline that widens into a tone bar under the pointer or focus, with an optional grip. The
-   group is a card on the control tokens. */
+/* Pinfold — resizable panels. Panels share the group by percent (flex-basis from JS); a handle is a hairline
+that widens into a tone bar under the pointer or focus, with an optional grip. */
 
 @layer pinfold.components {
   .pinfold-resizable {

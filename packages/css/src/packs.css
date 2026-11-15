@@ -1,45 +1,13 @@
-/* Pinfold — style packs.
-
-     import '@pinfold/css/core.css';
-     import '@pinfold/css/packs.css';
-     <PinfoldProvider stylePack="glass">   (or data-pinfold-style="glass" on any element)
-
-   A pack is only a token recipe: it re-points shape, depth, border, surface and
-   texture tokens, so every component follows it with no per-component CSS.
-
-   Controls (buttons, spinners, and later inputs) also read the control tokens:
-     --pinfold-control-edge     border of filled controls (unset: none) and of outline ones
-     --pinfold-control-shadow   depth of a raised control (unset: --pinfold-shadow-xs)
-     --pinfold-control-surface  pane under tinted and outlined controls (unset: transparent)
-     --pinfold-control-press    the pressed transform (unset: 1px down)
-     --pinfold-control-glow     a filter for indicators such as the spinner (unset: none)
-     --pinfold-control-round    corner of round indicators (unset: a circle)
-     --pinfold-field-edge       frame of form fields, at least 3:1 (unset: muted text on the surface)
-
-   Packs follow your palette, they never replace it. Every colour a pack sets is
-   mixed from the palette's own tokens (primary, surface, text), so changing the
-   palette re-tints the pack, in light and dark mode. Text colours are never
-   touched, so text contrast stays the palette's (see packs.test.ts).
-
-   Every pack yields to the user:
-   - prefers-reduced-transparency: no translucency, no blur.
-   - prefers-contrast: more: opaque surfaces, full-strength borders, no texture.
-   - forced-colors: system colours take over; decorative layers are dropped.
-
-   Packs sit in their own layer after the tokens, so they override the tokens
-   but never beat your own unlayered CSS. */
+/* Pinfold — style packs. css'; <PinfoldProvider stylePack="glass"> (or data-pinfold-style="glass" on any
+element) A pack is only a token recipe: it re-points shape, depth, border, surface and texture tokens, so
+every component follows it with no per-component CSS. */
 
 @layer pinfold.tokens, pinfold.reset, pinfold.components, pinfold.packs;
 
 @layer pinfold.packs {
 
   /* ------------------------------------------------------------------ glass */
-  /* Liquid glass: a thin pane that bends light rather than a frosted one. The content behind stays
-     vivid (high saturation, little blur), a bright rim catches the light along the top and glows
-     faintly along the bottom, and a sheen lies across the face. The rim is part of every shadow
-     token and the sheen is the texture token, so every surface in the library gets them.
-     True edge refraction needs an SVG displacement filter, which only Chromium applies to a
-     backdrop: this is the part that renders the same in every browser. */
+  /* Liquid glass: a thin pane that bends light rather than a frosted one. */
   [data-pinfold-style='glass'] {
     --pinfold-glass-rim:
       inset 0 1px 0 color-mix(in oklab, oklch(1 0 0) 62%, transparent),
@@ -86,11 +54,8 @@
   }
 
   /* ------------------------------------------------------------------ noise */
-  /* Frosted grain: a translucent pane that blurs what is behind it, with a fine raster grain on
-     its face, as on matte frosted glass or a print. The grain is sparse and light: light and dark
-     specks whose opacity follows the noise, so it reads as a material, not as a picture behind the
-     content, on white, dark and saturated fills alike. A small inline SVG, no request. Surfaces are
-     72% opaque: body text keeps AA over any backdrop (packs.test.ts). */
+  /* Frosted grain: a translucent pane that blurs what is behind it, with a fine raster grain on its face, as on
+  matte frosted glass or a print. */
   /* The grain, by theme, resolved the way the theme tokens are: light surfaces show it more, so light
      mode gets a fainter one. Set again under a nested theme so a switch inside a pack follows. */
   :root,

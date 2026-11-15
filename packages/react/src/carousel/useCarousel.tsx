@@ -141,7 +141,7 @@ export function useCarousel(input: CarouselConfig): CarouselComponent {
     return () => clearInterval(timer);
   }, [playing, index, config.autoplay]);
 
-  // ---- drag with a mouse (touch and trackpads scroll natively) ----
+  // Drag with a mouse (touch and trackpads scroll natively)
   const draggable = config.draggable !== false && count > 1;
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!draggable || event.pointerType !== 'mouse' || event.button !== 0) return;

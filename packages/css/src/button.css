@@ -1,12 +1,6 @@
-/* Pinfold — button.
-
-   Sizes come from the shared control tokens (--pinfold-control-*) and colour
-   from the shared tone tokens (--pinfold-tone-*), selected by the root's
-   `data-size` / `data-tone` (the hook writes the resolved values). `dimensions`
-   writes --pinfold-button-* and wins through the var() fallbacks.
-
-   Disabled and loading are `aria-disabled`: the button keeps focus, so its
-   label is still read. */
+/* Pinfold — button. Sizes come from the shared control tokens (--pinfold-control-*) and colour from the shared
+tone tokens (--pinfold-tone-*), selected by the root's `data-size` / `data-tone` (the hook writes the resolved
+values). */
 
 @layer pinfold.components {
   .pinfold-button {
@@ -78,9 +72,7 @@
   }
 
   /* ---------------------------------------------------------------- variants */
-  /* Style packs reach buttons through the control tokens (packs.css): edge, depth, the pane
-     under tinted variants, the pressed transform, the backdrop and the texture. Unset, each
-     falls back to the default look. */
+  /* css): edge, depth, the pane under tinted variants, the pressed transform, the backdrop and the texture. */
   /* Solid: the tone fill with a faint sheen toward the top, a hairline highlight on the top edge
      and a two-layer shadow tinted with the tone, so it sits on the page instead of on top of it. */
   .pinfold-button[data-variant='solid'] {

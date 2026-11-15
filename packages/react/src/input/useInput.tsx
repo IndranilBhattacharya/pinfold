@@ -124,9 +124,7 @@ export function useInput(input: InputConfig): InputComponent {
     config.onEnter?.(event.currentTarget.value, event);
   };
 
-  // The corner handle: drag to set the height, never below the height `rows` gives. The pointer is
-  // captured, so the drag keeps going outside the field. A keyboard resizes nothing natively either;
-  // `autosize` is the way to fit long text without a pointer.
+  // The corner handle: drag to set the height, never below the height `rows` gives.
   const startResize = (event: React.PointerEvent<HTMLElement>) => {
     const el = node.current;
     if (!el || event.button !== 0) return;

@@ -1,10 +1,4 @@
-/**
- * Every command describes its changes as a plan first. The plan is what the
- * safety rules hang on: nothing is written until it is printed (and, when
- * interactive, confirmed); `--dry-run` stops after printing; existing files are
- * only ever merged into, never replaced; and a plan whose files already say the
- * right thing is empty, which is what makes every command idempotent.
- */
+/** Every command describes its changes as a plan first. */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 

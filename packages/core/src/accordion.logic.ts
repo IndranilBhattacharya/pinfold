@@ -2,9 +2,8 @@ import { nextIndexFromKey } from './navigation';
 import type { PinfoldDir, PinfoldOrientation } from './types';
 
 /**
- * Accordion rules as pure functions. No DOM, no framework: every adapter
- * (React today) calls these and only wires the results to its own state and
- * events, so behaviour can never drift between adapters.
+ * Accordion rules as pure functions. No DOM, no framework: every adapter (React today) calls these and only
+ * wires the results to its own state and events, so behaviour can never drift between adapters.
  */
 
 export type AccordionMode = 'single' | 'multiple';

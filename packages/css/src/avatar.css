@@ -1,7 +1,5 @@
-/* Pinfold — avatar. The picture sits over its fallback (initials, or an icon), so the fallback shows
-   while it loads or if it fails. A face is a soft two-stop wash in its tone with a fine inner ring;
-   a group overlaps and lifts the face under the pointer. Style packs reach it through the round,
-   shadow and texture tokens. */
+/* Pinfold — avatar. The picture sits over its fallback (initials, or an icon), so the fallback shows while it
+loads or if it fails. */
 
 @layer pinfold.components {
   .pinfold-avatar {

@@ -1,13 +1,5 @@
-/* Pinfold — accordion.
-
-   Two-layer variables: the `size` preset writes the `*-base` vars, and the
-   `dimensions` config writes `--pinfold-accordion-*` which wins through the
-   var() fallback. Overriding one measurement keeps the preset for the rest.
-
-   Nothing clips. Rounded rows give their trigger the matching radius instead
-   of relying on `overflow: hidden`, because a clipping ancestor would also cut
-   off the focus ring. Collapse is pure CSS (`grid-template-rows`) — no height
-   measurement, no ResizeObserver, no layout thrash. */
+/* Pinfold — accordion. Two-layer variables: the `size` preset writes the `*-base` vars, and the `dimensions`
+config writes `--pinfold-accordion-*` which wins through the var() fallback. */
 
 @layer pinfold.components {
 
@@ -94,10 +86,8 @@
     border-radius: inherit;
   }
 
-  /* Dividers. In a container (solid, outline) they stop at the row padding, so the rows read
-     as one surface with a rhythm rather than a table; ghost rows run them full width. Drawn
-     as a zero-height pseudo-element centred in the gap: the row box, and with it the focus
-     ring, stays whole. Colour: --pinfold-accordion-divider-color. */
+  /* Dividers. In a container (solid, outline) they stop at the row padding, so the rows read as one surface with
+  a rhythm rather than a table; ghost rows run them full width. */
   .pinfold-accordion[data-dividers]:is([data-variant='solid'], [data-variant='outline'], [data-variant='ghost'], [data-joined])
     .pinfold-accordion__item + .pinfold-accordion__item::before {
     content: '';
@@ -159,9 +149,7 @@
     backdrop-filter: var(--pinfold-backdrop);
   }
 
-  /* Joined rows (separated or filled with no gap): one group. The container radius rounds the
-     group's outer corners, the inner corners are square, and dividers draw the lines between rows.
-     Separated rows share one border instead of stacking two, and the group casts one shadow. */
+  /* Joined rows (separated or filled with no gap): one group. */
   .pinfold-accordion[data-joined] {
     --pinfold-acc-divider-inset: var(--pinfold-acc-pad-x);
   }
@@ -396,9 +384,8 @@
     visibility: hidden;
   }
 
-  /* Find-in-page: once the inner box carries hidden="until-found", the browser
-     owns its visibility (content-visibility), so the panel itself must stay
-     visible for matches to be found. Before hydration the rule above applies. */
+  /* Find-in-page: once the inner box carries hidden="until-found", the browser owns its visibility
+  (content-visibility), so the panel itself must stay visible for matches to be found. */
   .pinfold-accordion__panel[data-state='closed'][data-findable] {
     visibility: visible;
   }

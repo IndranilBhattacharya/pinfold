@@ -1,8 +1,6 @@
-/* Pinfold — number field. The same frame as an input (heights from the control tokens), with the
-   native spinners hidden and our − and + buttons in their place: round tinted buttons inset in the
-   frame, split around the number or side by side after it. Each is the field's height less the
-   inset: 24px at the smallest size, the target WCAG 2.5.8 asks. Label, help text and error are
-   shared: see field.css in core.css. */
+/* Pinfold — number field. The same frame as an input (heights from the control tokens), with the native spinners
+hidden and our − and + buttons in their place: round tinted buttons inset in the frame, split around the
+number or side by side after it. */
 
 @layer pinfold.components {
   .pinfold-number {

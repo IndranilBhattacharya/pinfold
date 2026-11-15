@@ -1,8 +1,4 @@
-/* Pinfold — what every form control shares: label, help text, error, and the checkbox/radio/switch
-   row. Part of core.css, so each control's own stylesheet stays small. The control edge mixes the
-   muted text colour into the surface, which clears the 3:1 that WCAG 1.4.11 asks of a control's
-   boundary; the decorative border token does not, nor does a pack's translucent control edge, so
-   fields read --pinfold-field-edge instead. */
+/* Pinfold — what every form control shares: label, help text, error, and the checkbox/radio/switch row. */
 
 @layer pinfold.components {
   .pinfold-field {

@@ -1,6 +1,6 @@
 /**
- * File upload rules: which files an `accept` list takes, sizes in words, and which files of a pick are
- * kept or rejected and why. Only names, types and sizes are read; never contents.
+ * File upload rules: which files an `accept` list takes, sizes in words, and which files of a pick are kept
+ * or rejected and why.
  */
 
 /** The least of a file these rules read. */

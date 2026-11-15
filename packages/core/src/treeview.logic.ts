@@ -1,7 +1,4 @@
-/**
- * Tree view rules: tri-state checking, moving a node, and where a keyboard move lands. Pure functions
- * over a minimal node shape, so any adapter shares them.
- */
+/** Tree view rules: tri-state checking, moving a node, and where a keyboard move lands. */
 
 /** The least a tree node needs for these rules. `children` undefined means a leaf, or one not loaded yet. */
 export interface TreeNodeLike {

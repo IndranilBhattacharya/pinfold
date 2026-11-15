@@ -1,8 +1,4 @@
-/* Pinfold — spinner. Eight CSS-only animations; no icons, no JS timers. `track` strokes one SVG
-   circle (round caps on an arc that grows and shrinks); the rest are borders and spans.
-   `data-size` / `data-tone` / `data-variant` / `data-speed` / `data-thickness` carry the resolved
-   config; `tone: 'current'` follows the surrounding text colour. Style packs reach it through the
-   control tokens: --pinfold-control-glow (glass), --pinfold-control-round (brutalist) and the border width. */
+/* Pinfold — spinner. Eight CSS-only animations; no icons, no JS timers. */
 
 @layer pinfold.components {
   .pinfold-spinner {

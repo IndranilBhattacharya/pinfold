@@ -1,18 +1,6 @@
-/* Pinfold — shadcn/ui bridge.
-
-     @import "@pinfold/css/core.css";
-     @import "@pinfold/css/shadcn.css";   after your shadcn globals.css variables
-
-   Points shadcn's CSS variables at Pinfold's tokens, so shadcn components
-   and Pinfold components share one theme: `npx pinfold theme`, the palette
-   studio, style packs and dark mode all reach both.
-
-   Dark mode: shadcn toggles a `.dark` class, Pinfold reads
-   `data-pinfold-theme`. Set both, e.g. next-themes:
-     <ThemeProvider attribute={['class', 'data-pinfold-theme']}>
-
-   Unlayered on purpose: shadcn's own variables are unlayered, and this file
-   must replace them. */
+/* Pinfold — shadcn/ui bridge. css variables Points shadcn's CSS variables at Pinfold's tokens, so shadcn
+components and Pinfold components share one theme: `npx pinfold theme`, the palette studio, style packs and
+dark mode all reach both. */
 
 :root,
 .dark {

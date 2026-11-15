@@ -1,8 +1,6 @@
-/* Pinfold — navigation menu. A row of entries; a panel button opens a raised card under it (on the
-   control tokens, so packs reach it) holding an optional featured node and a grid of links with
-   icon tiles and descriptions. A pseudo-element bridges the gap so hover survives the crossing.
-   The script shifts an open panel back into the viewport (--pinfold-nm-ix).
-   ghost: a tint under the pointer. underline: a bar under the current entry. pills: it is filled. */
+/* Pinfold — navigation menu. A row of entries; a panel button opens a raised card under it (on the control
+tokens, so packs reach it) holding an optional featured node and a grid of links with icon tiles and
+descriptions. */
 
 @layer pinfold.components {
   .pinfold-navmenu {

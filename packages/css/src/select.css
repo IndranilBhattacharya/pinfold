@@ -1,7 +1,4 @@
-/* Pinfold — select, and the combobox, which wears it (data-combobox). The field is Input's frame: the control
-   tokens, the field edge, the accent on focus. Chips are soft pills. The list is a raised panel on
-   the surface tokens, so style packs reach it; one highlight for pointer and keyboard (the active
-   row), a check in the tone on chosen rows, matches marked in the tone. Position comes from JS. */
+/* Pinfold — select, and the combobox, which wears it (data-combobox). */
 
 @layer pinfold.components {
   .pinfold-select {

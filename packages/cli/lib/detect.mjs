@@ -1,7 +1,6 @@
 /**
- * Read a React project without touching it: framework, router, language,
- * Tailwind major, package manager, entry file, global CSS and where
- * components live. Every command starts here.
+ * Read a React project without touching it: framework, router, language, Tailwind major, package manager,
+ * entry file, global CSS and where components live.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';

@@ -98,7 +98,7 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
     setMenuOpen(false);
   });
 
-  // ---- the page's scroll: shrink, hide ----
+  // The page's scroll: shrink, hide
   // What scrolls: `scrollTarget`, else the page region of an AppShell around the bar, else the window.
   const watchScroll = !!config.shrinkOnScroll || !!config.hideOnScroll;
   const region = React.useContext(ScrollRegion);
@@ -129,7 +129,7 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
     };
   }, [watchScroll, config.hideOnScroll, scrollTarget, region]);
 
-  // ---- what fits: the bar's own width folds it; the row's width decides how many links stay ----
+  // What fits: the bar's own width folds it; the row's width decides how many links stay
   const count = items.length;
   useIsomorphicLayoutEffect(() => {
     const el = root.current;
@@ -168,7 +168,7 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
     return () => observer.disconnect();
   }, [collapseAt, overflow, count]);
 
-  // ---- the folded panel ----
+  // The folded panel
   React.useEffect(() => {
     if (!collapsed && menuOpen) setMenuOpen(false);
   }, [collapsed]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -350,7 +350,7 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
         );
       });
 
-    // ---- tools: icon buttons (or anything) placed in any zone ----
+    // Tools: icon buttons (or anything) placed in any zone
     const tools = config.tools ?? [];
     const toolNode = (tool: NavbarTool, i: number): React.ReactNode => {
       if (tool.content != null) return <React.Fragment key={tool.id ?? i}>{slot('tool', tool.content, 'span', { [ITEM]: tool, 'data-tool': tool.id ?? tool.label })}</React.Fragment>;
@@ -413,7 +413,7 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
         })
       : null;
 
-    // ---- the arrangement: three zones, each a list of parts in order ----
+    // The arrangement: three zones, each a list of parts in order
     const align = config.align ?? 'start';
     const fallback: Required<NavbarLayout> = {
       start: ['brand', 'tools', 'start', ...(align === 'start' ? (['links'] as const) : [])],

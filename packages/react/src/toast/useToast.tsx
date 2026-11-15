@@ -125,9 +125,8 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
     previous.current = toasts.length;
   }, [toasts.length]);
 
-  // The pile is drawn from measured heights: each card behind the newest moves onto it, a little
-  // smaller and peeking out at the far edge, squeezed to the newest card's height (its content
-  // fades, as in a deck). Fanned out they sit in the list's own flow, so it can scroll.
+  // The pile is drawn from measured heights: each card behind the newest moves onto it, a little smaller and
+  // peeking out at the far edge, squeezed to the newest card's height (its content fades, as in a deck).
   useIsomorphicLayoutEffect(() => {
     const box = list.current;
     if (!box) return;

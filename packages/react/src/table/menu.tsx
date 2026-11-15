@@ -7,9 +7,8 @@ import { SubInput, SubSelect, type SubSelectProps } from '../subcontrols';
 import type { TableLabels } from './types';
 
 /**
- * The table's floating panels: a column's menu (sort, pin, hide, filter by its values or by a
- * condition) and the columns panel. Each panel is its own instance: its state lives in the
- * component that renders it and is dropped when it closes.
+ * The table's floating panels: a column's menu (sort, pin, hide, filter by its values or by a condition) and
+ * the columns panel.
  */
 
 const svg = (d: string, extra?: React.ReactNode) => (

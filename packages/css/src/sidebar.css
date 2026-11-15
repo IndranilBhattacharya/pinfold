@@ -1,8 +1,5 @@
-/* Pinfold — sidebar. A column on the control tokens (so packs reach it): header, a scrolling body of
-   grouped lists, footer, collapse button. Entries are rows with an icon, text, a badge and a chevron
-   for sections; sections open by animating their row track (0fr to 1fr). The current entry:
-   soft = a tint of the tone, plain = a bar at its edge, solid = the tone's fill.
-   As a rail (data-collapsed) the text is visually hidden, badges become dots, sections stay shut. */
+/* Pinfold — sidebar. A column on the control tokens (so packs reach it): header, a scrolling body of grouped
+lists, footer, collapse button. */
 
 @layer pinfold.components {
   .pinfold-sidebar {

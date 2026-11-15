@@ -1,12 +1,5 @@
-/* Pinfold — skeleton. A tint of the text colour, so it follows the theme and every pack; corners
-   follow the radius scale. Motion runs only with `data-animate` (off with the provider's
-   disableAnimation), and the reset stops it under reduced motion.
-
-   `shimmer` paints one band of light across the whole page: every shape shares it through
-   `background-attachment: fixed`, so a layout reads as one surface loading, not many blinking boxes.
-
-   A layout node writes its own measurements as private variables (--pinfold-skel-w, -h, -r, -g,
-   -ratio, -cols) that every shape resets, so a group's width never leaks into its children. */
+/* Pinfold — skeleton. A tint of the text colour, so it follows the theme and every pack; corners follow the
+radius scale. */
 
 @layer pinfold.components {
   .pinfold-skeleton,

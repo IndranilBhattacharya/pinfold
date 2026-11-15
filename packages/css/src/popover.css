@@ -1,7 +1,4 @@
-/* Pinfold — popover. A raised panel from the surface tokens, so style packs restyle it. Position
-   comes from JS (top and left), the side it landed on from `data-side`; it grows out of that side.
-   Header and footer stay put while the content scrolls; `data-overflow-*` (set by the view) fades
-   the edge that hides more. */
+/* Pinfold — popover. A raised panel from the surface tokens, so style packs restyle it. */
 
 @layer pinfold.components {
   .pinfold-popover {

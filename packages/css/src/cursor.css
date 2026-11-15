@@ -1,6 +1,4 @@
-/* Pinfold — cursor. A decoration that follows the pointer: fixed, above everything, never in the way of
-   a click. The hook writes each part's position as a transform; this sheet draws the parts and their
-   states. The system cursor is hidden only where the hook says so, and never over text fields. */
+/* Pinfold — cursor. A decoration that follows the pointer: fixed, above everything, never in the way of a click. */
 
 @layer pinfold.components {
   /* The one place the library uses !important: a page's own `cursor: pointer` rules must lose to this

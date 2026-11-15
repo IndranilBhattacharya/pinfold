@@ -1,14 +1,9 @@
 import * as React from 'react';
 import { cn, type PinfoldSize, type PinfoldTone, type PropsBag, type RadiusOption } from '@pinfold/core';
 
-/*
- * Pinfold controls that other components render inside themselves: the rows-per-page select of a
- * pagination, a table's filter condition and values. Each is the real component (Select, Input), so it
- * looks and behaves like every other field and follows the size, tone, radius and style pack.
- *
- * Select and Input load on first use: an app whose pagination never offers page sizes, or whose table
- * never shows a filter, never downloads them. Until the chunk arrives a box of the same height holds the
- * place (on the server too), so nothing moves when it does.
+/**
+ * Pinfold controls that other components render inside themselves: the rows-per-page select of a pagination,
+ * a table's filter condition and values.
  */
 
 type LazySelectProps = { config: Record<string, unknown>; autoFocus?: boolean };

@@ -1,7 +1,4 @@
-/* Pinfold — navbar. One row: the brand, the links, your own content, the end. The current link wears a
-   marker (a pill or an underline) that is one element sliding between links, and that follows the
-   pointer. solid: a surface and a hairline. glass: a translucent blur. floating: a rounded pill clear
-   of the edges. A scrolled bar can shrink; a narrow one folds its links into a panel. */
+/* Pinfold — navbar. One row: the brand, the links, your own content, the end. */
 
 @layer pinfold.components {
   .pinfold-navbar {
@@ -142,9 +139,8 @@
   .pinfold-navbar__list { position: relative; display: flex; flex: 1 1 0; align-items: center; gap: 0.125rem; min-inline-size: 0; margin: 0; padding: 0; list-style: none; }
   .pinfold-navbar[data-align='center'] .pinfold-navbar__list { justify-content: center; }
   .pinfold-navbar[data-align='end'] .pinfold-navbar__list { justify-content: flex-end; }
-  /* overflow: 'scroll': the row scrolls (dragged, wheeled or by the keyboard) and fades at an edge that
-     hides links. A scrolling box clips at its padding edge, so the row keeps the bar's own headroom as
-     padding (taken back by a negative margin): the underline under the links is not cut off. */
+  /* overflow: 'scroll': the row scrolls (dragged, wheeled or by the keyboard) and fades at an edge that hides
+  links. */
   .pinfold-navbar[data-overflow='scroll'] .pinfold-navbar__list {
     --pinfold-nav-fs: 0px;
     --pinfold-nav-fe: 0px;

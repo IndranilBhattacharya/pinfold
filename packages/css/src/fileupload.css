@@ -1,6 +1,4 @@
-/* Pinfold — file upload. The zone is a button: a dashed drop zone, a plain button, or a one-line zone.
-   It lights up in the tone while files are dragged over it (the danger tone when they break `accept`).
-   Files sit in a list of raised rows, with a thumbnail, their size and status, and a progress line. */
+/* Pinfold — file upload. The zone is a button: a dashed drop zone, a plain button, or a one-line zone. */
 
 @layer pinfold.components {
   .pinfold-fileupload {

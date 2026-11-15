@@ -1,6 +1,6 @@
-/* Pinfold — carousel. A native scroll row with snapping (swipe and trackpad for free), the slides
-   sized by --pinfold-crs-per, round buttons over the edges on the control tokens (packs reach them),
-   and dots where the current one stretches into a pill in the tone. */
+/* Pinfold — carousel. A native scroll row with snapping (swipe and trackpad for free), the slides sized by
+--pinfold-crs-per, round buttons over the edges on the control tokens (packs reach them), and dots where the
+current one stretches into a pill in the tone. */
 
 @layer pinfold.components {
   .pinfold-carousel {

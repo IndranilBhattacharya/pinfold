@@ -1,7 +1,5 @@
-/* Pinfold — breadcrumb. Muted crumbs that light up as chips on hover, the current page in full
-   text colour, quiet separators that mirror in right-to-left text, long names cut with an ellipsis.
-   plain: crumbs on the page. soft: a tinted bar. outline: a raised bar on the control tokens (style
-   packs reach it). pills: every crumb a chip, the current one in the tone. */
+/* Pinfold — breadcrumb. Muted crumbs that light up as chips on hover, the current page in full text colour,
+quiet separators that mirror in right-to-left text, long names cut with an ellipsis. */
 
 @layer pinfold.components {
   .pinfold-breadcrumb {

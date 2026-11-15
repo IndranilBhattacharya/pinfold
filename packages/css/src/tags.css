@@ -1,7 +1,5 @@
-/* Pinfold — tag group. Chips in the tone (each tag can carry its own: data-tone on the tag maps
-   the tone tokens there). soft: a tint over the control surface (packs reach it). solid: the tone's
-   fill. outline: a framed chip on the control tokens. Picked tags fill with the tone and carry a
-   bolder label, so the state is never colour alone. */
+/* Pinfold — tag group. Chips in the tone (each tag can carry its own: data-tone on the tag maps the tone tokens
+there). */
 
 @layer pinfold.components {
   .pinfold-tags {

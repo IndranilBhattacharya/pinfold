@@ -43,9 +43,8 @@ export interface PinfoldProviderProps extends PinfoldConfig {
   /** A whole config from `defineConfig()`. Individual props override it. */
   config?: PinfoldConfig;
   /**
-   * Write `data-pinfold-theme` / `data-pinfold-radius` / `data-pinfold-style`
-   * onto `<html>` instead of a wrapper element. Use this when portals
-   * (dialogs, tooltips) must inherit the theme. Default: false.
+   * Write `data-pinfold-theme` / `data-pinfold-radius` / `data-pinfold-style` onto `<html>` instead of a
+   * wrapper element.
    */
   applyToDocument?: boolean;
   className?: string;

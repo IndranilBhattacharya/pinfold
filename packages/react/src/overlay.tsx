@@ -5,10 +5,8 @@ import { Button } from './button/Button';
 import type { ButtonConfig } from './button/types';
 
 /**
- * Shared overlay plumbing. A floating element stays where it is in the DOM, so it inherits the
- * theme and direction and keeps its place in the tab order (no portal, no react-dom). It is
- * `position: fixed`, and joins the top layer through the Popover API where the browser has it,
- * which also frees it from any clipping or transformed ancestor.
+ * Shared overlay plumbing. A floating element stays where it is in the DOM, so it inherits the theme and
+ * direction and keeps its place in the tab order (no portal, no react-dom).
  */
 
 export type OverlayTrigger = ButtonConfig | React.ReactElement;

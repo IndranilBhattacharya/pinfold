@@ -1,7 +1,4 @@
-/* Pinfold — calendar. A raised card on the control tokens (packs reach it). Days are round-cornered
-   buttons; the chosen day fills with the tone; a range is a tinted band with solid ends; today has a
-   dot under its number; days that cannot be chosen are faint and struck through. Months sit side by
-   side and wrap on narrow screens. */
+/* Pinfold — calendar. A raised card on the control tokens (packs reach it). */
 
 @layer pinfold.components {
   .pinfold-calendar {

@@ -1,15 +1,6 @@
 /**
- * Pinfold palette engine.
- *
- * Deliberately React-free and dependency-free so the CLI, the build and the
- * runtime all share one implementation instead of three that drift. Imported
- * as `@pinfold/core/palette`.
- *
- * Colours are authored in OKLCH — perceptually uniform, so a single hue
- * rotation produces a ramp with even steps instead of the muddy middles you get
- * rotating HSL. Every value is also emitted as an sRGB hex fallback, gamut
- * mapped by reducing chroma, so browsers without OKLCH still get the right
- * colour rather than a broken one.
+ * Pinfold palette engine. Deliberately React-free and dependency-free so the CLI, the build and the runtime
+ * all share one implementation instead of three that drift.
  */
 
 import { linearRgbToOklch, oklchToRgb } from './oklab';
@@ -303,10 +294,7 @@ export function createTheme(config: PaletteConfig): Theme {
     anchors[name] = { step: found.step, color: vars[key] };
   }
 
-  // Text on solid fills: white or the darkest neutral, whichever reads better. A fill where even the better one is
-  // under 5:1 (a mid yellow: both sit near 4.5) moves darker or lighter until it reaches 5:1; the margin covers the
-  // tinted fills built from it (a selected tab is 90% of it). Light mode fills with step 600, dark mode with 400;
-  // status roles you set fill with 600 / 300 and replace the tuned defaults in tokens.css.
+  // Text on solid fills: white or the darkest neutral, whichever reads better.
   const ink = vars['--pinfold-neutral-950'];
   const better = (fill: string) => (contrastRatio(fill, '#ffffff') >= contrastRatio(fill, ink) ? '#ffffff' : ink);
   const solid = (name: PaletteRole, step: RampStep) => {
