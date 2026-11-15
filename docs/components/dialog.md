@@ -75,7 +75,7 @@ function), `form` (a `<form method="dialog">` inside), `api` (the controller).
 Controller: `isOpen`, `open()`, `close()`, `getTriggerProps()`, `getRootProps()`.
 Inactive (`inactiveDialogOptions`): `size` on a top or bottom sheet unless `full`; `closeLabel` without the
 close button; `closeOnOutsidePress` and `backdrop` when not modal; `closeButton`, `closeOnEscape`,
-`closeOnOutsidePress` with `dismissible: false`; `scrollBehavior: 'outside'` on a sheet.
+`closeOnOutsidePress` with `dismissible: false`; `scrollBehavior` on a drawer or sheet (any placement but `center`).
 
 ## Shape and overflow
 - The panel has three bands: a header (title, description, `header`), the content, and a footer

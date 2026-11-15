@@ -178,7 +178,7 @@ export function inactiveDialogOptions(config: {
     out.closeOnOutsidePress = '`dismissible: false` ignores outside presses.';
     out.closeOnOutside = '`dismissible: false` ignores outside presses.';
   }
-  if (config.placement && config.placement !== 'center' && config.scrollBehavior === 'outside') out.scrollBehavior = 'a sheet always scrolls inside.';
+  if (config.placement && config.placement !== 'center') out.scrollBehavior = 'a drawer or sheet fits the screen and always scrolls inside.';
   return out;
 }
 

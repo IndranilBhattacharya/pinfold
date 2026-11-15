@@ -21,6 +21,8 @@ Precedence: use-site props, the preset, `defaults.cursor`, the provider (size, t
 | `variant` | `'dot-ring'` (a dot and a ring that trails it), `'dot'`, `'ring'`, `'blob'`, `'spotlight'` (a glow that lights what it passes), `'crosshair'`, `'arrow'` | `'dot-ring'` |
 | `shape` | your own pointer in place of the dot: an icon, an emoji, an image | |
 | `label` | text beside the pointer; an element's `data-cursor-label` replaces it while pointed at | |
+| `attribute` | the attribute name on elements that triggers cursor states | `'data-cursor'` |
+| `states` | styles per state (label, shape, variant, scale, tone, blend, hideNative, className) | |
 | `smoothing`, `trail` | how far the follower lags, 0 to 0.95; dots that follow in a fading line, 0 to 12 | `0.8`, `0` |
 | `blend` | `'difference'` inverts what is under the pointer, so it shows on any background | `'normal'` |
 | `hideNative` | hide the system cursor inside the area (never over text fields) | on; off for the spotlight |
@@ -38,7 +40,27 @@ I-beam), `hidden`, or any name you put on an element:
 <img data-cursor="zoom" data-cursor-label="View" ... />
 <div data-cursor="hidden">…</div>
 ```
-Style a state of your own with a class or a selector: `.my-cursor[data-state='zoom'] { --pinfold-cursor-follower-size: 5rem; }`.
+
+## Custom states
+Configure custom states directly on `defineCursor` or `useCursor`:
+```tsx
+const Pointer = defineCursor({
+  attribute: 'data-cursor', // default; any attribute name
+  states: {
+    zoom: { label: 'View', variant: 'ring', scale: 2.4 },
+    drag: { label: 'Drag', shape: <GripIcon />, tone: 'neutral' },
+    play: { label: ({ element }) => element.getAttribute('data-title') ?? 'Play', blend: 'difference' },
+    busy: { shape: <Spinner />, hideNative: true },
+  },
+});
+
+<div {...Pointer.attrs('zoom')}>Inspect manifest</div>
+```
+Each state may set `label` (text or a function `({ element }) => node`), `shape`, `variant`, `scale`, `tone`,
+`blend`, `hideNative`, and `className`. An element's `data-cursor-label` (`<attribute>-label` with your own
+attribute) still wins over the state's label.
+Built-in states (`default`, `pointer`, `text`, `hidden`) can be restyled through the same map.
+`Pointer.attrs(state)` returns a typed attribute record for that state.
 `--pinfold-cursor-size`, `--pinfold-cursor-follower-size` and `--pinfold-cursor-color` set the sizes and the colour.
 
 ## Behaviour

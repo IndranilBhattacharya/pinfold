@@ -20,6 +20,8 @@ export const cursorMeta: ComponentMeta = {
     variant: { type: 'enum', values: ['dot-ring', 'dot', 'ring', 'blob', 'spotlight', 'crosshair', 'arrow'], default: 'dot-ring', description: 'A dot with a ring that trails it; a dot; a ring; a soft blob; a glow that lights what it passes; a crosshair; an arrow that can carry a name.', group: 'appearance', control: true },
     shape: { type: 'node', description: 'Your own pointer in place of the dot: an icon, an emoji, an image.', group: 'data' },
     label: { type: 'node', description: 'Text beside the pointer: a name, a hint. An element\'s `data-cursor-label` replaces it while pointed at.', group: 'data' },
+    attribute: { type: 'string', default: 'data-cursor', description: 'The attribute name on elements that triggers cursor states.', group: 'behaviour' },
+    states: { type: 'object', description: 'Styles per state (label, shape, variant, scale, tone, blend, hideNative, className).', group: 'appearance' },
     smoothing: { type: 'number', min: 0, max: 0.95, step: 0.05, default: 0.8, description: 'How far the follower lags, 0 (glued) to 0.95 (very loose).', group: 'behaviour', control: true, silent: true },
     trail: { type: 'number', min: 0, max: 12, step: 1, unit: 'dots', default: 0, description: 'Dots that follow in a fading line, 0 to 12.', group: 'appearance', control: true },
     blend: { type: 'enum', values: ['normal', 'difference'], default: 'normal', description: '`difference` inverts what is under the pointer, so it shows on any background.', group: 'appearance', control: true },

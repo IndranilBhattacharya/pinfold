@@ -5,6 +5,8 @@ export const CURSOR_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'variant',
   'shape',
   'label',
+  'attribute',
+  'states',
   'smoothing',
   'trail',
   'blend',

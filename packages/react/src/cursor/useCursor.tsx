@@ -5,7 +5,8 @@ import { usePinfoldComponent } from '../component';
 import { useEvent, useIsomorphicLayoutEffect } from '../hooks';
 import { mergeConfig } from '../preset';
 import { renderSlot, slotProps } from '../slots';
-import type { CursorApi, CursorComponent, CursorConfig, CursorPointerState, CursorRootProps, CursorSlot, CursorState } from './types';
+import type { NoInfer } from '../types';
+import type { CursorApi, CursorBuiltInState, CursorComponent, CursorConfig, CursorPointerState, CursorRootProps, CursorSlot, CursorState } from './types';
 
 const PRESSABLE = 'a[href], button, summary, label, select, [role="button"], [role="link"], [role="tab"], [role="menuitem"], [role="option"], [tabindex]:not([tabindex="-1"])';
 const TEXT = 'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]), textarea, [contenteditable=""], [contenteditable="true"]';
@@ -38,9 +39,9 @@ const calm = () => typeof matchMedia === 'function' && matchMedia('(prefers-redu
  *
  * Precedence: this config, then `defaults.cursor`, then the provider (size, tone), then the library default.
  */
-export function useCursor(input: CursorConfig = {}): CursorComponent {
+export function useCursor<S extends string = string>(input: CursorConfig<S> = {}): CursorComponent<S> {
   const ctx = usePinfold();
-  const config = ctx.defaults.cursor ? mergeConfig<CursorConfig>(ctx.defaults.cursor, input) : input;
+  const config = ctx.defaults.cursor ? mergeConfig<CursorConfig<S>>(ctx.defaults.cursor as CursorConfig<S>, input) : input;
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ cursorMeta, validateConfig }) => {
@@ -48,6 +49,8 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
     });
   }
 
+  const attribute = config.attribute ?? 'data-cursor';
+  const attributeLabel = `${attribute}-label`;
   const variant = config.variant ?? 'dot-ring';
   const trail = Math.max(0, Math.min(12, Math.floor(config.trail ?? 0)));
   const smoothing = Math.max(0, Math.min(0.95, config.smoothing ?? 0.8));
@@ -55,7 +58,7 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
   const [visible, setVisible] = React.useState(false);
   const [pointer, setPointer] = React.useState<CursorPointerState>('default');
   const [pressed, setPressed] = React.useState(false);
-  const [hint, setHint] = React.useState<string | null>(null);
+  const [hint, setHint] = React.useState<React.ReactNode | null>(null);
   const root = React.useRef<HTMLDivElement | null>(null);
   const area = React.useRef<HTMLDivElement | null>(null);
   const position = React.useRef<{ x: number; y: number } | null>(null);
@@ -65,14 +68,25 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
     if (area.current !== scopeEl) setScopeEl(area.current);
   });
   const scoped = scopeEl !== null;
-  const state: CursorState = { variant, size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, visible, state: pointer, pressed };
 
-  const report = useEvent((next: CursorPointerState, element: Element | null) => config.onStateChange?.(next, element));
+  const activeStyle = config.states?.[pointer as keyof typeof config.states];
+  const activeVariant = activeStyle?.variant ?? variant;
+  const activeTone = activeStyle?.tone ?? config.tone ?? ctx.tone;
+  const activeBlend = activeStyle?.blend ?? config.blend ?? 'normal';
+  const activeShape = activeStyle?.shape !== undefined ? activeStyle.shape : config.shape;
+  const activeScale = activeStyle?.scale;
+  const activeClassName = activeStyle?.className;
+
+  const state: CursorState = { variant: activeVariant, size: config.size ?? ctx.size, tone: activeTone, visible, state: pointer, pressed };
+
+  const report = useEvent((next: NoInfer<S> | CursorBuiltInState, element: Element | null) => config.onStateChange?.(next, element));
   const show = useEvent((next: boolean) => config.onVisibleChange?.(next));
   const pressable = config.interactive ?? PRESSABLE;
   const lazy = smoothing;
   const still = !!ctx.disableAnimation;
   const disabled = !!config.disabled;
+  const states = React.useRef(config.states);
+  states.current = config.states;
 
   React.useEffect(() => {
     const el = root.current;
@@ -80,10 +94,12 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
     const scope: Element = scopeEl ?? document.documentElement;
     if (!el || disabled || !fine()) return;
     const target: EventTarget = scoped ? scope : document;
-    const dot = el.querySelector<HTMLElement>('[data-part="dot"]');
-    const follower = el.querySelector<HTMLElement>('[data-part="follower"]');
-    // The label comes and goes with what is pointed at: looked up when needed.
-    let label = el.querySelector<HTMLElement>('[data-part="label"]');
+    // A state's variant or shape can add or drop a part, and the label comes and goes with what is
+    // pointed at: each part is looked up again once it is gone.
+    const part = (name: string) => el.querySelector<HTMLElement>(`[data-part="${name}"]`);
+    let dot = part('dot');
+    let follower = part('follower');
+    let label = part('label');
     const dots = Array.from(el.querySelectorAll<HTMLElement>('[data-part="trail"]'));
     const k = still || calm() ? 1 : 1 - lazy;
     let x = 0;
@@ -95,8 +111,8 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
     let seen = false;
     let inside = false;
     let restore: (() => void) | null = null;
-    let current: CursorPointerState = 'default';
-    let currentHint: string | null = null;
+    let current: string = 'default';
+    let currentHint: React.ReactNode | null = null;
 
     const place = (node: HTMLElement | null, px: number, py: number) => {
       if (node) node.style.transform = `translate3d(${px}px, ${py}px, 0)`;
@@ -105,6 +121,7 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
       frame = 0;
       fx += (x - fx) * k;
       fy += (y - fy) * k;
+      if (!follower?.isConnected) follower = part('follower');
       place(follower, fx, fy);
       let px = fx;
       let py = fy;
@@ -119,13 +136,21 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
       });
       if (moving) frame = requestAnimationFrame(tick);
     };
+    // The system cursor steps aside only with a pointer that really moved, per state when one says so.
+    const native = (name: string) => {
+      const own = states.current?.[name as keyof typeof states.current]?.hideNative;
+      if (own ?? hides) {
+        if (!restore) restore = hideNative(scope);
+      } else if (restore) {
+        restore();
+        restore = null;
+      }
+    };
     const enter = () => {
-      if (inside) return;
       inside = true;
       setVisible(true);
       show(true);
-      // Only now, with a pointer that really moved, does the system cursor step aside.
-      if (hides && !restore) restore = hideNative(scope);
+      native(current);
     };
     const leave = () => {
       if (!inside) return;
@@ -136,24 +161,30 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
       restore = null;
     };
     const read = (node: Element | null) => {
-      let next: CursorPointerState = 'default';
-      let text: string | null = null;
+      let next: string = 'default';
+      let elementLabel: string | null = null;
+      let targetEl: Element | null = null;
       if (node) {
-        const marked = node.closest('[data-cursor]');
-        text = node.closest('[data-cursor-label]')?.getAttribute('data-cursor-label') ?? null;
-        if (marked && scope.contains(marked)) next = marked.getAttribute('data-cursor') || 'default';
+        const marked = node.closest(`[${attribute}]`);
+        targetEl = marked ?? node;
+        elementLabel = node.closest(`[${attributeLabel}]`)?.getAttribute(attributeLabel) ?? null;
+        if (marked && scope.contains(marked)) next = marked.getAttribute(attribute) || 'default';
         else if (node.closest(TEXT)) next = 'text';
         else if (node.closest(pressable)) next = 'pointer';
       }
       if (next !== current) {
         current = next;
-        setPointer(next);
-        report(next, node);
+        setPointer(next as CursorPointerState);
+        report(next as NoInfer<S> | CursorBuiltInState, node);
       }
-      if (text !== currentHint) {
-        currentHint = text;
-        setHint(text);
+      // The element's own label, then the state's (text, or worked out from the element).
+      const own = states.current?.[next as keyof typeof states.current]?.label;
+      const hintVal: React.ReactNode | null = elementLabel ?? (typeof own === 'function' ? (targetEl ? own({ element: targetEl }) : null) : own ?? null);
+      if (hintVal !== currentHint) {
+        currentHint = hintVal;
+        setHint(hintVal);
       }
+      if (inside) native(next);
     };
     const onMove = (event: Event) => {
       const e = event as PointerEvent;
@@ -171,10 +202,11 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
           t.y = y;
         });
       }
+      if (!dot?.isConnected) dot = part('dot');
       place(dot, x, y);
-      if (!label || !label.isConnected) label = el.querySelector<HTMLElement>('[data-part="label"]');
+      if (!label?.isConnected) label = part('label');
       place(label, x, y);
-      enter();
+      if (!inside) enter();
       if (!frame) frame = requestAnimationFrame(tick);
     };
     const onOver = (event: Event) => read(event.target as Element | null);
@@ -202,7 +234,7 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
       setVisible(false);
       setPressed(false);
     };
-  }, [scopeEl, scoped, disabled, hides, pressable, lazy, still, trail, variant, report, show]);
+  }, [scopeEl, scoped, disabled, hides, pressable, lazy, still, trail, variant, attribute, attributeLabel, report, show]);
 
   // A label that has just appeared starts at the pointer, not at the corner, before the next move.
   useIsomorphicLayoutEffect(() => {
@@ -215,16 +247,16 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
       {
         ref: root,
         'aria-hidden': true,
-        'data-variant': variant,
-        'data-blend': config.blend ?? 'normal',
+        'data-variant': activeVariant,
+        'data-blend': activeBlend,
         'data-size': state.size,
-        'data-tone': state.tone,
+        'data-tone': activeTone,
 
         'data-visible': dataAttr(visible && !disabled),
         'data-state': pointer,
         'data-pressed': dataAttr(pressed),
         'data-labelled': dataAttr(hint != null || config.label != null),
-        'data-custom': dataAttr(config.shape != null),
+        'data-custom': dataAttr(activeShape != null),
         'data-animate': dataAttr(!ctx.disableAnimation),
         'data-unstyled': dataAttr(config.unstyled),
       },
@@ -236,16 +268,25 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
     const cls = (name: string) => (config.unstyled ? undefined : name);
     const slot = (name: CursorSlot, content: React.ReactNode, own: PropsBag = {}) =>
       renderSlot(config, name, slotProps(config, name, { className: cls(`pinfold-cursor__${name}`), ...own }), state, content, (p, c) => React.createElement('div', p, c));
-    const bag = slotProps(config, 'root', getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-cursor', config.className), style: config.style }, rest as PropsBag)));
+    const bagStyle = activeScale !== undefined ? { '--pinfold-cursor-i-scale': String(activeScale), ...config.style } : config.style;
+    const bag = slotProps(
+      config,
+      'root',
+      getRootProps(mergeProps({ className: config.unstyled ? cn(activeClassName, config.className) : cn('pinfold pinfold-cursor', activeClassName, config.className), style: bagStyle }, rest as PropsBag)),
+    );
     const text = hint ?? config.label;
-    const hasFollower = variant !== 'dot' && variant !== 'arrow' && variant !== 'crosshair';
+    const hasFollower = activeVariant !== 'dot' && activeVariant !== 'arrow' && activeVariant !== 'crosshair';
     const parts = (
       <>
         {Array.from({ length: trail }, (_, i) => (
           <React.Fragment key={i}>{slot('trail', null, { 'data-part': 'trail', style: { '--pinfold-cursor-i-n': String(i + 1), '--pinfold-cursor-i-of': String(trail) } })}</React.Fragment>
         ))}
         {hasFollower ? slot('follower', null, { 'data-part': 'follower' }) : null}
-        {variant === 'ring' || variant === 'blob' || variant === 'spotlight' ? (config.shape != null ? slot('dot', <span className={cls('pinfold-cursor__shape')}>{config.shape}</span>, { 'data-part': 'dot' }) : null) : slot('dot', config.shape != null ? <span className={cls('pinfold-cursor__shape')}>{config.shape}</span> : variant === 'arrow' ? ARROW : null, { 'data-part': 'dot' })}
+        {activeVariant === 'ring' || activeVariant === 'blob' || activeVariant === 'spotlight' ? (
+          activeShape != null ? slot('dot', <span className={cls('pinfold-cursor__shape')}>{activeShape}</span>, { 'data-part': 'dot' }) : null
+        ) : (
+          slot('dot', activeShape != null ? <span className={cls('pinfold-cursor__shape')}>{activeShape}</span> : activeVariant === 'arrow' ? ARROW : null, { 'data-part': 'dot' })
+        )}
         {text != null && text !== '' ? slot('label', <span>{text}</span>, { 'data-part': 'label' }) : null}
       </>
     );
@@ -262,6 +303,6 @@ export function useCursor(input: CursorConfig = {}): CursorComponent {
     ) as React.ReactElement;
   };
 
-  const api: CursorApi = { visible, state: pointer, pressed, getPosition: () => position.current, getRootProps, render };
-  return usePinfoldComponent<CursorApi, CursorRootProps & { children?: React.ReactNode }>('Cursor', api, (props) => render(props));
+  const api: CursorApi<S> = { visible, state: pointer as S | CursorBuiltInState, pressed, getPosition: () => position.current, getRootProps, render };
+  return usePinfoldComponent<CursorApi<S>, CursorRootProps & { children?: React.ReactNode }>('Cursor', api, (props) => render(props));
 }

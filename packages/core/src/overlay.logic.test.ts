@@ -55,9 +55,12 @@ describe('inactive options', () => {
     expect(Object.keys(inactivePopoverOptions({}))).toEqual(['delay', 'closeDelay', 'closeLabel']);
     expect(inactivePopoverOptions({ openOn: 'hover', closeButton: true })).toEqual({ modal: expect.any(String) });
     expect(Object.keys(inactivePopoverOptions({ closeButton: true, matchTriggerWidth: true }))).toEqual(['delay', 'closeDelay', 'size']);
-    expect(Object.keys(inactiveDialogOptions({ placement: 'end', closeButton: false, modal: false }))).toEqual(['closeLabel', 'closeOnOutside', 'closeOnOutsidePress', 'backdrop']);
+    expect(Object.keys(inactiveDialogOptions({ placement: 'end', closeButton: false, modal: false }))).toEqual(['closeLabel', 'closeOnOutside', 'closeOnOutsidePress', 'backdrop', 'scrollBehavior']);
     expect(Object.keys(inactiveDialogOptions({ placement: 'bottom', size: 'lg', scrollBehavior: 'outside' }))).toEqual(['size', 'scrollBehavior']);
-    expect(Object.keys(inactiveDialogOptions({ placement: 'bottom', size: 'full', dismissible: false }))).toEqual(['closeLabel', 'closeButton', 'closeOnEscape', 'closeOnOutsidePress', 'closeOnOutside']);
+    // Inactive whatever its value: switching it on a drawer changes nothing.
+    expect(Object.keys(inactiveDialogOptions({ placement: 'end' }))).toContain('scrollBehavior');
+    expect(Object.keys(inactiveDialogOptions({ placement: 'center' }))).not.toContain('scrollBehavior');
+    expect(Object.keys(inactiveDialogOptions({ placement: 'bottom', size: 'full', dismissible: false }))).toEqual(['closeLabel', 'closeButton', 'closeOnEscape', 'closeOnOutsidePress', 'closeOnOutside', 'scrollBehavior']);
     expect(Object.keys(inactiveMenuOptions({ mode: 'context', searchable: true, selectionMode: 'single' }))).toEqual(['placement', 'offset']);
     expect(Object.keys(inactiveMenuOptions({}))).toEqual(['filter', 'onSearchChange', 'value', 'defaultValue', 'onValueChange']);
   });
