@@ -107,6 +107,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    /* Line height 1 inside a box that hides overflow cuts descenders (g, p, y). */
+    line-height: 1.25;
   }
   .pinfold-separator__label > svg { inline-size: 1.15em; block-size: 1.15em; flex-shrink: 0; }
 

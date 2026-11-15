@@ -5,7 +5,8 @@
 
 @layer pinfold.components {
   .pinfold-calendar {
-    --pinfold-cal-cell: 2.375rem;
+    /* A day never makes the month wider than a phone: eight columns (with week numbers) fit in 320px. */
+    --pinfold-cal-cell: min(2.375rem, calc((100vw - 6rem) / 8));
     --pinfold-cal-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
     --pinfold-cal-on: var(--pinfold-tone-on, var(--pinfold-color-accent-contrast));
     --pinfold-cal-radius: calc(var(--pinfold-control-radius-unit) * var(--pinfold-radius-scale, 1));
@@ -26,8 +27,8 @@
     box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-sm));
     backdrop-filter: var(--pinfold-backdrop);
   }
-  .pinfold-calendar[data-size='sm'] { --pinfold-cal-cell: 2rem; font-size: var(--pinfold-text-xs); }
-  .pinfold-calendar[data-size='lg'] { --pinfold-cal-cell: 2.75rem; font-size: var(--pinfold-text-md); }
+  .pinfold-calendar[data-size='sm'] { --pinfold-cal-cell: min(2rem, calc((100vw - 6rem) / 8)); font-size: var(--pinfold-text-xs); }
+  .pinfold-calendar[data-size='lg'] { --pinfold-cal-cell: min(2.75rem, calc((100vw - 6rem) / 8)); font-size: var(--pinfold-text-md); }
 
   .pinfold-calendar__header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
   .pinfold-calendar__title { margin: 0; font-size: 1em; font-weight: var(--pinfold-weight-semibold); text-align: center; }

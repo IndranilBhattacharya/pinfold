@@ -61,7 +61,9 @@
     min-inline-size: 0;
     max-block-size: var(--pinfold-treeview-height, none);
     block-size: var(--pinfold-treeview-height, auto);
-    margin: -0.1875rem;
+    /* Room for focus rings inside the scroll box. Bled out only up and down: a box reaching past its
+       parent sideways makes a scrolling parent scroll sideways. */
+    margin-block: -0.1875rem;
     padding: 0.1875rem;
     overflow-y: auto;
     scrollbar-width: thin;
