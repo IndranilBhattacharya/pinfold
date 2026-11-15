@@ -64,6 +64,8 @@ interface SelectShared<V extends string> extends Omit<FieldConfig, 'error'>, Omi
   items: ReadonlyArray<ListItem<V> | V>;
   /** @default 'Select…' */
   placeholder?: string;
+  /** Chevron bars at an edge of the list that hides rows: rest the pointer to scroll, press for a page. @default true */
+  scrollArrows?: boolean;
   /** A button that empties the field. @default false */
   clearable?: boolean;
   /** @default 'Clear' */

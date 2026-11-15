@@ -97,6 +97,8 @@ export interface CommandConfig extends SlotOverrides<CommandSlot, CommandState, 
   placeholder?: string;
   /** Shown when nothing matches: a node, or `(query) => node`. @default 'No results' */
   emptyText?: React.ReactNode | ((query: string) => React.ReactNode);
+  /** Chevron bars at an edge of the list that hides rows: rest the pointer to scroll, press for a page. @default true */
+  scrollArrows?: boolean;
   labels?: CommandLabels;
   /** @default 'contains' */
   filter?: ListFilter;

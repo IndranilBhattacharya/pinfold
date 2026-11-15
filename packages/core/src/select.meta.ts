@@ -36,6 +36,7 @@ export const listChoiceProps = (name: string): Record<string, PropMeta> => ({
   open: { type: 'boolean', description: 'The list, controlled.', group: 'behaviour' },
   defaultOpen: { type: 'boolean', default: false, description: 'Open on first render.', group: 'behaviour' },
   onOpenChange: { type: 'function', description: '`(open) => void`.', group: 'events' },
+  scrollArrows: { type: 'boolean', default: true, description: 'Chevron bars at an edge of the list that hides rows: rest the pointer on one to scroll (eight rows a second), press it for a page. Pointer only: the keys already scroll.', group: 'behaviour', control: true, silent: true },
   placement: {
     type: 'enum',
     values: ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end'],

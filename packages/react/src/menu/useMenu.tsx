@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useScrollArrows } from '../scroll-arrows';
 import { buttonRel, cn, dataAttr, dimensionVars, inactiveMenuOptions, mergeProps, nextIndexFromKey, resolveNode, typeaheadIndex, warnOnce, watchScrollEdges, type OverlayRect, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
@@ -121,6 +122,7 @@ export function useMenu(input: MenuConfig): MenuComponent {
   }
 
   const showing = isOpen && mounted;
+  const arrows = useScrollArrows(menu, config.scrollArrows !== false, showing, false);
   const present = usePresence(showing, panel);
   const state: MenuState = { open: showing, mode, size: config.size ?? ctx.size };
   const close = (why: MenuChangeReason = 'api') => setOpen(false, why);
@@ -541,7 +543,7 @@ export function useMenu(input: MenuConfig): MenuComponent {
               'div',
             )
           : null}
-        {slot('list', rows(items, '', 0, menuScope), 'div', getListProps())}
+        {slot('list', <>{arrows.up}{rows(items, '', 0, menuScope)}{arrows.down}</>, 'div', getListProps())}
         {config.loading
           ? slot(
               'loading',

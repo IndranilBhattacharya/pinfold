@@ -58,6 +58,7 @@ export const menuMeta: ComponentMeta = {
       control: true,
     },
     label: { type: 'string', description: 'Accessible name of the menu. A dropdown is named by its trigger without one; a context menu needs it.', group: 'data' },
+    scrollArrows: { type: 'boolean', default: true, description: 'Chevron bars at an edge of the list that hides rows: rest the pointer on one to scroll (eight rows a second), press it for a page. Pointer only: the keys already scroll.', group: 'behaviour', control: true, silent: true },
     placement: { type: 'enum', values: PLACEMENTS, default: 'bottom-start', description: 'Preferred side and alignment. `start` and `end` swap in RTL. It flips when there is no room.', group: 'appearance', control: true },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Row size. Precedence: this config, `defaults.menu`, the provider, then md.', group: 'appearance', control: true },

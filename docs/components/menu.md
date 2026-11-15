@@ -57,6 +57,7 @@ preset, `defaults.menu`, the provider (size), the library default.
 | `labels` | `{ search, empty, loading }` | `'Search'`, `'No results'`, `'Loading'` |
 | `header`, `footer` | node or `({ close }) => node`: above and below the rows | none |
 | `placement` | as tooltip | `'bottom-start'` |
+| `scrollArrows` | chevron bars at an edge of a long menu that hides rows: rest the pointer to scroll (eight rows a second), press for a page; hidden from assistive tech, never focusable, focus stays put (the keys already scroll) | `true` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` (provider) |
 | `offset` | `number`, px | `4` |

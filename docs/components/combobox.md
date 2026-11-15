@@ -108,7 +108,7 @@ default.
 | `openOnFocus` | open before anything is typed | `false` |
 | `clearable`, `placeholder` | | `false`, none |
 | `labels` | `{ empty, loading, loadingMore, error, clear, create(text), more(count), less, remove }` | English |
-| `open`, `defaultOpen`, `onOpenChange`, `placement`, `variant`, `size`, `tone`, `dimensions` | as Select | |
+| `open`, `defaultOpen`, `onOpenChange`, `placement`, `scrollArrows`, `variant`, `size`, `tone`, `dimensions` | as Select (`scrollArrows` applies to its own rows; a `renderList` draws its own) | |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root label control values chips chip chipRemove input clear chevron popup group groupLabel option check avatar icon detail endContent empty loadMore description error statusIcon validating`; `render.option` and `render.chip` get `item` (`{ value, label, text, description, icon, avatar, endContent, tone, group, data, selected, active, disabled, index, remove? }`) | |
 

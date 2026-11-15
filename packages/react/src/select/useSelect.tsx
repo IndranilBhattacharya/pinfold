@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useScrollArrows } from '../scroll-arrows';
 import { cn, dataAttr, dimensionVars, inactiveSelectOptions, mergeProps, toggleValue, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
@@ -48,6 +49,7 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
   const listId = `${field.base}-list`;
   const disabled = !!config.disabled;
   const open = isOpen && !disabled;
+  const arrows = useScrollArrows(popup, config.scrollArrows !== false, open);
   const nav = useListNav({ rows, open, selected: value, listId });
   const listWindow = useListWindow(rows, open, nav.active, popup);
 
@@ -263,7 +265,9 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
       open && mounted
         ? slot(
             'popup',
-            renderRows({
+            <>
+            {arrows.up}
+            {renderRows({
               rows,
               slot: slot as never,
               listId,
@@ -277,7 +281,9 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
               unstyled: config.unstyled,
               window: listWindow,
               status: rows.length ? undefined : config.emptyText ?? 'No options',
-            }),
+            })}
+            {arrows.down}
+            </>,
             'div',
             { ref: popup, id: listId, role: 'listbox', 'aria-labelledby': field.labelId, 'aria-multiselectable': multiple || undefined, 'data-size': state.size, 'data-tone': state.tone, tabIndex: -1 },
           )

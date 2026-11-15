@@ -200,6 +200,8 @@ interface ComboboxShared<V extends string> extends Omit<FieldConfig, 'error'>, O
   onOpenChange?: (open: boolean) => void;
   /** @default 'bottom-start' */
   placement?: OverlayPlacement;
+  /** Chevron bars at an edge of the list that hides rows: rest the pointer to scroll, press for a page. @default true */
+  scrollArrows?: boolean;
   /** @default 'flat' */
   variant?: SelectVariant;
   /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */

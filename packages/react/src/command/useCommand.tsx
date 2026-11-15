@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useScrollArrows } from '../scroll-arrows';
 import { cn, dataAttr, dimensionVars, inactiveCommandOptions, matchesQuery, matchHotkey, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useId, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
@@ -36,6 +37,7 @@ export function useCommand(input: CommandConfig): CommandComponent {
   const field = React.useRef<HTMLInputElement | null>(null);
   const listId = `${base}-list`;
   const list = React.useRef<HTMLDivElement | null>(null);
+  const arrows = useScrollArrows(list, config.scrollArrows !== false);
   const async = !!config.loadItems;
   const remote = useAsyncRows<CommandItem | string>({ load: config.loadItems, query, active: open, debounce: config.debounce ?? 250 });
   const items: CommandItem[] = ((async ? remote.items : config.items) ?? []).map((item) => (typeof item === 'string' ? { label: item } : item));
@@ -224,6 +226,7 @@ export function useCommand(input: CommandConfig): CommandComponent {
         {slot(
           'list',
           <>
+          {arrows.up}
           {renderRows({
             rows,
             slot: slot as never,
@@ -244,6 +247,7 @@ export function useCommand(input: CommandConfig): CommandComponent {
           {(loading || remote.loadingMore) && rows.length
             ? slot('loadMore', remote.loadingMore ? labels.loadingMore ?? 'Loading more…' : labels.loading ?? 'Loading…', 'div', { role: 'presentation', 'data-pending': '', className: cls('pinfold-command__loadMore pinfold-command__empty') })
             : null}
+          {arrows.down}
           </>,
           'div',
           { ref: list, id: listId, role: 'listbox', 'aria-label': config.label, 'aria-busy': loading || undefined },

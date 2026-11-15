@@ -51,6 +51,7 @@ array with `multiple`. Precedence: use-site props, the preset, `defaults.select`
 | `emptyText` | the list with no rows | `'No options'` |
 | `open`, `defaultOpen`, `onOpenChange` | the list | uncontrolled, `false` |
 | `placement` | where the list opens; it flips | `'bottom-start'` |
+| `scrollArrows` | chevron bars at an edge of a long list that hides rows: rest the pointer to scroll (eight rows a second), press for a page; hidden from assistive tech, never focusable, focus stays put (the keys already scroll) | `true` |
 | `variant` | `'flat'` (a tint with a 1px line under it at 3:1, no frame) \| `'outline' \| 'filled' \| 'underline'` | `'flat'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | the tone colours the check and chosen rows | `'md'`, `'primary'` (provider) |

@@ -6,6 +6,7 @@ export const MENU_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'mode',
   'label',
   'placement',
+  'scrollArrows',
   'radius',
   'size',
   'offset',

@@ -50,6 +50,7 @@ export const commandMeta: ComponentMeta = {
     onSelect: { type: 'function', description: '`(value, event) => void` for any command.', group: 'events' },
     onHighlight: { type: 'function', description: '`(value) => void`: the keyboard or the pointer moved to a command (`null`: none), e.g. to preview it.', group: 'events' },
     placeholder: { type: 'string', default: 'Type a command or search…', description: 'In the empty search field.', group: 'data' },
+    scrollArrows: { type: 'boolean', default: true, description: 'Chevron bars at an edge of the list that hides rows: rest the pointer on one to scroll (eight rows a second), press it for a page. Pointer only: the keys already scroll.', group: 'behaviour', control: true, silent: true },
     emptyText: { type: 'node', default: 'No results', description: 'Shown when nothing matches: a node, or `(query) => node`.', group: 'data' },
     labels: {
       type: 'object',

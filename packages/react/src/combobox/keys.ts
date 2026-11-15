@@ -51,6 +51,7 @@ export const COMBOBOX_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'defaultOpen',
   'onOpenChange',
   'placement',
+  'scrollArrows',
   'variant',
   'radius',
   'size',

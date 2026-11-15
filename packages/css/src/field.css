@@ -26,6 +26,32 @@
   .pinfold-field[data-disabled] { opacity: 0.6; }
   .pinfold-checkmark { display: inline-flex; flex: none; vertical-align: middle; }
   .pinfold-checkmark > .pinfold-choice__control { min-block-size: 0; }
+  /* Scroll arrows in a list that scrolls: sticky and of no height, so rows never move; a bar shows
+     only while its edge hides rows (data-overflow-top / -bottom on the list or its panel). */
+  .pinfold-scroll-arrow { position: sticky; z-index: 3; display: block; block-size: 0; pointer-events: none; }
+  .pinfold-scroll-arrow[data-dir='up'] { inset-block-start: 0; }
+  .pinfold-scroll-arrow[data-dir='down'] { inset-block-end: 0; }
+  .pinfold-scroll-arrow > span {
+    position: absolute;
+    inset-inline: 0;
+    display: grid;
+    place-items: center;
+    block-size: 1.25rem;
+    color: var(--pinfold-color-text-muted);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--pinfold-duration-fast) var(--pinfold-ease-out), visibility 0s linear var(--pinfold-duration-fast);
+  }
+  .pinfold-scroll-arrow[data-dir='up'] > span { inset-block-start: 0; background: linear-gradient(to bottom, var(--pinfold-scroll-arrow-bg, var(--pinfold-control-surface, var(--pinfold-color-raised, var(--pinfold-color-surface)))) 55%, transparent); }
+  .pinfold-scroll-arrow[data-dir='down'] > span { inset-block-end: 0; background: linear-gradient(to top, var(--pinfold-scroll-arrow-bg, var(--pinfold-control-surface, var(--pinfold-color-raised, var(--pinfold-color-surface)))) 55%, transparent); }
+  .pinfold-scroll-arrow > span > svg { inline-size: 1rem; block-size: 1rem; }
+  :is([data-overflow-top] > .pinfold-scroll-arrow, [data-overflow-top] > * > .pinfold-scroll-arrow)[data-dir='up'] > span,
+  :is([data-overflow-bottom] > .pinfold-scroll-arrow, [data-overflow-bottom] > * > .pinfold-scroll-arrow)[data-dir='down'] > span {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
   /* Holds the place of a field another component loads on first use (rows per page, a filter). */
   .pinfold-subcontrol {
     display: inline-flex;

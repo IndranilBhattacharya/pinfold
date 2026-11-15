@@ -9,6 +9,7 @@ export const COMMAND_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'onHighlight',
   'placeholder',
   'emptyText',
+  'scrollArrows',
   'labels',
   'filter',
   'inputValue',

@@ -38,6 +38,7 @@ props, the preset, `defaults.command`, the provider (size, tone), the library de
 | `onHighlight` | `(value)`: the keyboard or the pointer moved to a command (`null`: none), e.g. to preview it | none |
 | `placeholder`, `emptyText` | `emptyText` is a node or `(query) => node` | `'Type a command or search…'`, `'No results'` |
 | `labels` | `{ loading, loadingMore, error }` | English |
+| `scrollArrows` | chevron bars at an edge of a long list that hides rows: rest the pointer to scroll (eight rows a second), press for a page; hidden from assistive tech, never focusable, focus stays put (the keys already scroll) | `true` |
 | `filter` | `'contains' \| 'startsWith' \| 'none'` | `'contains'` |
 | `inputValue`, `defaultInputValue`, `onInputChange` | what is typed | uncontrolled, `''` |
 | `loading` | a loading row while there are none, `aria-busy` | `false` |

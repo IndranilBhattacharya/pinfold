@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useScrollArrows } from '../scroll-arrows';
 import { cn, dataAttr, dimensionVars, foldText, inactiveComboboxOptions, matchesQuery, mergeProps, toggleValue, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState, useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
@@ -67,6 +68,7 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
   const rowOf = (v: string) => all.find((r) => r.value === v) ?? known.current.get(v);
   const labelOf = (v: string) => rowOf(v)?.text ?? v;
   const popup = React.useRef<HTMLDivElement | null>(null);
+  const arrows = useScrollArrows(popup, config.scrollArrows !== false && !config.renderList, open);
   const control = React.useRef<HTMLDivElement | null>(null);
   const mounted = useMounted();
   const listId = `${field.base}-list`;
@@ -429,6 +431,7 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
       </>
     ) : (
       <>
+        {arrows.up}
         {renderRows({
           rows,
           slot: slot as never,
@@ -447,6 +450,7 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
         })}
         {/* Results being refreshed stay, with a loading row under them; so does a page on its way. */}
         {pending}
+        {arrows.down}
       </>
     );
     const content = (
