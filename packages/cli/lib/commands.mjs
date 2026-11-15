@@ -8,6 +8,7 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, posix, relative } from 'node:path';
 import { createTheme, toDTCG } from '@pinfold/core/palette';
+import { componentMetas } from '@pinfold/core/meta';
 import { describe as describeProject, detect } from './detect.mjs';
 import { Plan, addCssImport, addImports, addNamedImport, addTailwindPreset } from './plan.mjs';
 
@@ -97,6 +98,8 @@ async function commit(plan, flags, out) {
 
 /* ------------------------------------------------------------ registry */
 
+const pascalOf = (name) => name.replace(/(^|-)([a-z])/g, (_, __, ch) => ch.toUpperCase());
+
 /** Components whose data is a list of rows, so they export a row config type too. */
 const ITEM_TYPES = new Set(['accordion']);
 
@@ -117,26 +120,73 @@ export function componentFile(name, language) {
   return [...head, `/** @typedef {import('@pinfold/react/${name}').${pascal}Config} ${pascal}Config */`, values, ''].join('\n');
 }
 
-/** Plan one component: its owned file and its stylesheet import. */
+/**
+ * The stylesheets a component needs: its own, then those of every component it draws inside, all the way down
+ * (a table draws pagination, select, date picker; a date picker draws a calendar). From the component metadata.
+ */
+export function stylesFor(name) {
+  const byName = new Map(componentMetas.map((m) => [m.name, m]));
+  const seen = [];
+  const visit = (n) => {
+    if (seen.includes(n) || !byName.has(n)) return;
+    seen.push(n);
+    for (const r of byName.get(n).requires ?? []) visit(r);
+  };
+  visit(name);
+  return seen;
+}
+
+/** The closest known name, for "did you mean": edit distance up to a third of the word. */
+export function suggest(name, names) {
+  const dist = (a, b) => {
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++)
+      for (let j = 1; j <= b.length; j++) {
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        // Two letters swapped (`tabel`) is one slip, not two.
+        if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+      }
+    return d[a.length][b.length];
+  };
+  const best = names.map((n) => [n, dist(name, n)]).sort((x, y) => x[1] - y[1])[0];
+  if (best && best[1] <= Math.max(2, Math.floor(name.length / 3))) return best[0];
+  return names.find((n) => n.startsWith(name) || name.startsWith(n)) ?? null;
+}
+
+/** Component names from the command line: `all`, or known names; an unknown one stops everything (nothing written). */
+function resolveNames(names, registry) {
+  const known = registry.components.map((c) => c.name);
+  if (names.includes('all')) return known;
+  const unknown = names.filter((n) => !known.includes(n));
+  if (unknown.length) {
+    const hints = unknown.map((n) => {
+      const s = suggest(n, known);
+      return s ? `\`${n}\` (did you mean \`${s}\`?)` : `\`${n}\``;
+    });
+    throw new Error(`unknown component ${hints.join(', ')}. Nothing was written. \`npx pinfold list\` shows them all.`);
+  }
+  return [...new Set(names)];
+}
+
+/** Plan one component: its owned file and the stylesheets it needs, in order (core first). */
 function planComponent(plan, project, name) {
   plan.create(posix.join(project.componentsDir, `${name}.${ext(project)}`), componentFile(name, project.language));
-  if (project.entryFile) plan.update(toPosix(project.entryFile), (src) => addImports(src, ['@pinfold/css/core.css', `@pinfold/css/${name}.css`]));
+  const styles = stylesFor(name);
+  if (styles.length > 1) plan.note(`${name} draws ${styles.slice(1).join(', ')}: their styles are imported too`);
+  // Above the theme import, so the entry reads core, components, theme (the theme is unlayered and wins either way).
+  if (project.entryFile) plan.update(toPosix(project.entryFile), (src) => addImports(src, ['@pinfold/css/core.css', ...styles.map((s) => `@pinfold/css/${s}.css`)], { before: THEME_FILE }));
 }
 
 /* ------------------------------------------------------------- commands */
 
 export async function add(names, flags, out, registry) {
+  if (!names.length) throw new Error('name the components to add, e.g. `npx pinfold add button table`. `npx pinfold list` shows them all.');
+  const wanted = resolveNames(names, registry);
   const project = detect(flags.cwd);
-  const wanted = names.includes('all') ? registry.components.map((c) => c.name) : names;
-  if (!wanted.length) throw new Error('nothing to add. Try `npx pinfold add accordion`.');
+  if (typeof flags.dir === 'string') project.componentsDir = toPosix(flags.dir);
   const plan = new Plan(project.cwd);
-  for (const name of wanted) {
-    if (!registry.components.some((c) => c.name === name)) {
-      plan.note(`skip ${name}: not in the registry yet`);
-      continue;
-    }
-    planComponent(plan, project, name);
-  }
+  for (const name of wanted) planComponent(plan, project, name);
   if (!project.entryFile) plan.note(`no entry file found: import '@pinfold/css/core.css' and each component's CSS yourself`);
   ensurePackages(project, flags, out);
   await commit(plan, flags, out);
@@ -152,7 +202,11 @@ export async function init(flags, out, registry, answers = {}) {
   const { palette, style, mode } = paletteFrom({ ...flags, ...answers.theme }, existingTheme ?? {});
   const stylePack = PACKS.includes(style) ? style : 'default';
   const theme = MODES.includes(mode) ? mode : 'system';
-  const components = answers.components ?? registry.components.map((c) => c.name);
+  // None by default: add what you use, now (`--components button,table` or `all`) or later with `add`.
+  const listed = typeof flags.components === 'string' ? flags.components.split(',').map((s) => s.trim()).filter(Boolean) : [];
+  const components = answers.components ?? resolveNames(listed, registry);
+  const dir = answers.dir ?? (typeof flags.dir === 'string' ? flags.dir : null);
+  if (dir) project.componentsDir = toPosix(dir);
 
   const plan = new Plan(project.cwd);
 
@@ -172,6 +226,14 @@ export async function init(flags, out, registry, answers = {}) {
       '',
     ].join('\n'),
   );
+
+  // The components folder, when chosen, is remembered for every later `add`.
+  if (dir && project.pkg?.pinfold?.components !== project.componentsDir)
+    plan.update('package.json', (src) => {
+      const pkg = JSON.parse(src);
+      pkg.pinfold = { ...pkg.pinfold, components: project.componentsDir };
+      return JSON.stringify(pkg, null, 2) + '\n';
+    });
 
   // 2. Theme CSS (Pinfold owns and regenerates it), imported after core and component CSS.
   const themeFile = themePath(project);
@@ -195,7 +257,8 @@ export async function init(flags, out, registry, answers = {}) {
   if (project.tailwind === 3 && project.tailwindConfig) plan.update(project.tailwindConfig, addTailwindPreset);
 
   ensurePackages(project, flags, out);
-  if (await commit(plan, flags, out)) out.log(`\n  Next: use it, e.g. ${out.color.accent(`import { useAccordion } from '@/components/ui/accordion'`)}\n`);
+  if (await commit(plan, flags, out))
+    out.log(components.length ? `\n  Next: import { ${pascalOf(components[0])} } from your ${project.componentsDir}/${components[0]}\n` : `\n  Next: ${out.color.accent('npx pinfold add button')} (any component; \`npx pinfold list\` shows them)\n`);
 }
 
 function wrapProvider(plan, project, entry, configPath) {

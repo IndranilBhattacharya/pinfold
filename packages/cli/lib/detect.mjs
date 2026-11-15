@@ -81,7 +81,8 @@ export function detect(cwd = process.cwd()) {
     packageManager,
     entryFile,
     globalCss,
-    componentsDir: srcDir === 'src' ? 'src/components/ui' : 'components/ui',
+    // `init --dir` saves the folder in package.json ("pinfold": { "components": "…" }) so every later `add` uses it.
+    componentsDir: pkg?.pinfold?.components ?? (srcDir === 'src' ? 'src/components/ui' : 'components/ui'),
     configFile: first(cwd, ['pinfold.config.ts', 'pinfold.config.js', 'pinfold.config.mjs']),
   };
 }

@@ -6,8 +6,16 @@ add, theme, doctor). The prompts use `@clack/prompts`, the only dependency besid
 `@pinfold/core`; CLI dependencies never reach the app bundle.
 
 Tested in `cli.test.ts` (throwaway Vite + TS + Tailwind v4, Next.js + JS + Tailwind v3 projects)
-and in `scripts/fixture-apps.mjs --cli`, which runs `init` and `add` twice in the Next.js and
-webpack apps, requires the second run to change nothing, and then builds them.
+and in `scripts/fixture-apps.mjs --cli`, which runs `init` and `add` twice in the Next.js, webpack and
+Vite + TypeScript apps, requires the second run to change nothing, and then builds them (the Vite app is set
+up by the CLI alone, type-checked and bundled).
+
+## In short
+```
+npm install @pinfold/react @pinfold/css      # or let init install them
+npx pinfold init                             # language, folder, theme; no components unless you pick some
+npx pinfold add button table                 # one file each, plus the CSS they need
+```
 
 ## Safety rules (every command)
 - Never overwrite a file. Merge into it, or write a new one.
@@ -20,14 +28,17 @@ webpack apps, requires the second run to change nothing, and then builds them.
 ```
 ◆  Detected: <framework> · <TS|JS> · Tailwind <v3|v4|none> · <npm|pnpm|yarn|bun>
 ◇  Language?            TypeScript | JavaScript         (detected: tsconfig.json or file extensions)
-◇  Components?          multi-select, `a` = all
-◇  Theme?               primary · neutral · style · radius · mode   (contrast report preview)
+◇  Components folder?   detected (`src/components/ui` or `components/ui`), or your own
+◇  Components?          none by default; pick some, `a` = all (add more later with `add`)
+◇  Theme?               brand colour (#hex, rgb(), oklch() or a hue name) · style · radius · mode
 ◇  Entry file?          detected per framework — confirm or type a path
 ◇  Tailwind             merge, never replace
 ◆  N files will change — show diff? (Y/n)
 ```
 - **Framework detection.** Next.js (App Router: `app/layout.*`; Pages Router: `pages/_app.*`), Vite (`src/main.*`), React Router or Remix (`app/root.*`), Gatsby (`gatsby-browser.*`), Astro (no entry file: the CSS imports are printed), plain React (`src/index.*`).
-- **`--yes` defaults:** the detected language and entry, every component, `violet`, radius `md`, no style pack, system colour mode.
+- **`--yes` defaults:** the detected language, folder and entry, no components, `violet`, radius `md`, no style pack,
+  system colour mode. `--components button,table` (or `all`) adds some; `--dir src/ui` picks the folder and saves it
+  in `package.json` (`"pinfold": { "components": "src/ui" }`) so every later `add` uses it.
 - **Files written:**
   - `pinfold.config.(ts|js)`
   - CSS imports in the entry file (core, then each component, then the theme)
@@ -39,7 +50,12 @@ webpack apps, requires the second run to change nothing, and then builds them.
 
 ## `add <name…> | all`
 - Installs `@pinfold/react` and `@pinfold/css` if they're missing from `package.json`.
-- Adds the component's CSS import.
+- Adds the component's CSS import, and the CSS of every component it draws inside, all the way down (`add table`
+  also imports pagination, select, date picker, calendar, checkbox, radio, input, number and button styles). They
+  go after `core.css` and before the theme import.
+- An unknown name stops the whole command before anything is written, with the closest name: `unknown component
+  \`tabel\` (did you mean \`table\`?)`, exit code 1. `add` with no name is a usage error.
+- `--dir <folder>` writes this run's files into another folder.
 - Writes `components/ui/<name>.(tsx|jsx)`, a thin file the developer owns. It re-exports `use<Name>`, `define<Name>`, the tag and the types, so the app always imports from `@/components/ui/<name>`. It has no `'use client'`, so Server Components can import `define<Name>` from it.
 - JS output adds a JSDoc `@type` annotation, so editors still get types.
 

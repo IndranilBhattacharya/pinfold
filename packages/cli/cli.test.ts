@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 // @ts-ignore plain ESM modules
-import { add, doctor, init, readPalette, theme } from './lib/commands.mjs';
+import { add, doctor, init, readPalette, stylesFor, suggest, theme } from './lib/commands.mjs';
 // @ts-ignore
 import { detect } from './lib/detect.mjs';
 
@@ -49,7 +49,7 @@ describe('pinfold CLI', () => {
 
   it('init wires config, theme, components, CSS and Tailwind v4; a second run changes nothing', async () => {
     const cwd = viteTs();
-    await init(yes(cwd), quiet(), registry);
+    await init(yes(cwd, { components: 'accordion' }), quiet(), registry);
     expect(read(cwd, 'pinfold.config.ts')).toContain("import { defineConfig } from '@pinfold/react';");
     expect(read(cwd, 'src/components/ui/accordion.tsx')).toContain("export { useAccordion, defineAccordion, Accordion } from '@pinfold/react/accordion';");
     expect(readPalette(read(cwd, 'src/pinfold-theme.css'))).toEqual({ primary: 'violet', radius: 'md' });
@@ -62,7 +62,7 @@ describe('pinfold CLI', () => {
 
     const before = JSON.stringify(['src/main.tsx', 'src/index.css', 'pinfold.config.ts', 'src/pinfold-theme.css'].map((f) => read(cwd, f)));
     const second = quiet();
-    await init(yes(cwd), second, registry);
+    await init(yes(cwd, { components: 'accordion' }), second, registry);
     await add(['accordion'], yes(cwd), second, registry);
     expect(second.lines.join('\n')).toContain('Nothing to change.');
     expect(JSON.stringify(['src/main.tsx', 'src/index.css', 'pinfold.config.ts', 'src/pinfold-theme.css'].map((f) => read(cwd, f)))).toBe(before);
@@ -87,7 +87,7 @@ describe('pinfold CLI', () => {
       'app/globals.css': '@tailwind base;\n',
       'tailwind.config.js': "module.exports = {\n  content: ['./app/**/*.jsx'],\n};\n",
     });
-    await init(yes(cwd), quiet(), registry);
+    await init(yes(cwd, { components: 'accordion' }), quiet(), registry);
     expect(read(cwd, 'components/ui/accordion.jsx')).toContain("@typedef {import('@pinfold/react/accordion').AccordionConfig} AccordionConfig");
     expect(existsSync(join(cwd, 'pinfold.config.js'))).toBe(true);
     expect(read(cwd, 'app/layout.jsx')).toContain("import './pinfold-theme.css';");
@@ -100,7 +100,7 @@ describe('pinfold CLI', () => {
     mkdirSync(join(cwd, 'src/components/ui'), { recursive: true });
     writeFileSync(join(cwd, 'src/components/ui/accordion.tsx'), '// mine too\n');
     const out = quiet();
-    await init(yes(cwd), out, registry);
+    await init(yes(cwd, { components: 'accordion' }), out, registry);
     expect(read(cwd, 'pinfold.config.ts')).toBe('// mine\n');
     expect(read(cwd, 'src/components/ui/accordion.tsx')).toBe('// mine too\n');
     expect(out.lines.join('\n')).toContain('kept src/components/ui/accordion.tsx');
@@ -109,7 +109,7 @@ describe('pinfold CLI', () => {
   it('prints a dry run without writing', async () => {
     const cwd = viteTs();
     const out = quiet();
-    await init({ cwd, 'dry-run': true }, out, registry);
+    await init({ cwd, 'dry-run': true, components: 'accordion' }, out, registry);
     expect(out.lines.join('\n')).toMatch(/create\s+src\/components\/ui\/accordion.tsx/);
     expect(existsSync(join(cwd, 'pinfold.config.ts'))).toBe(false);
   });
@@ -147,5 +147,71 @@ describe('pinfold CLI', () => {
     expect(report).toContain("import '@pinfold/css/core.css' before '@pinfold/css/accordion.css'");
     expect(report).toContain('no <PinfoldProvider');
     expect(report).toContain("app/page.jsx: calls a Pinfold hook without 'use client'");
+  });
+
+  it('init --yes adds no components: you add what you use', async () => {
+    const cwd = viteTs();
+    const out = quiet();
+    await init(yes(cwd), out, registry);
+    expect(existsSync(join(cwd, 'src/components/ui'))).toBe(false);
+    expect(read(cwd, 'src/main.tsx')).toContain("import '@pinfold/css/core.css';");
+    expect(out.lines.join('\n')).toContain('npx pinfold add button');
+  });
+
+  it('add brings the styles of every part a component draws, all the way down, after core', async () => {
+    expect(stylesFor('table')).toEqual(expect.arrayContaining(['table', 'pagination', 'select', 'datepicker', 'calendar', 'checkbox', 'input', 'number', 'radio', 'button']));
+    expect(stylesFor('button')).toEqual(['button']);
+    const cwd = viteTs();
+    await init(yes(cwd), quiet(), registry);
+    const out = quiet();
+    await add(['table'], yes(cwd), out, registry);
+    const main = read(cwd, 'src/main.tsx');
+    for (const name of stylesFor('table')) {
+      expect(main).toContain(`import '@pinfold/css/${name}.css';`);
+      expect(main.indexOf('@pinfold/css/core.css')).toBeLessThan(main.indexOf(`@pinfold/css/${name}.css`));
+    }
+    // The theme stays last so it wins.
+    expect(main.lastIndexOf('pinfold-theme.css')).toBeGreaterThan(main.lastIndexOf('@pinfold/css/'));
+    expect(read(cwd, 'src/components/ui/table.tsx')).toContain("from '@pinfold/react/table'");
+    expect(existsSync(join(cwd, 'src/components/ui/pagination.tsx'))).toBe(false);
+    expect(out.lines.join('\n')).toMatch(/table draws [a-z, ]*pagination[a-z, ]*: their styles are imported too/);
+    // Again: nothing changes.
+    const again = quiet();
+    await add(['table'], yes(cwd), again, registry);
+    expect(again.lines.join('\n')).toContain('Nothing to change.');
+  });
+
+  it('an unknown name stops with a suggestion and writes nothing; no name is a usage error', async () => {
+    const cwd = viteTs();
+    const before = read(cwd, 'src/main.tsx');
+    await expect(add(['button', 'tabel'], yes(cwd), quiet(), registry)).rejects.toThrow(/unknown component `tabel` \(did you mean `table`\?\)\. Nothing was written/);
+    expect(read(cwd, 'src/main.tsx')).toBe(before);
+    expect(existsSync(join(cwd, 'src/components/ui/button.tsx'))).toBe(false);
+    await expect(add([], yes(cwd), quiet(), registry)).rejects.toThrow(/name the components to add/);
+    await expect(init(yes(cwd, { components: 'buton' }), quiet(), registry)).rejects.toThrow(/did you mean `button`/);
+    expect(suggest('datpicker', ['datepicker', 'calendar'])).toBe('datepicker');
+    expect(suggest('zzzz', ['datepicker', 'calendar'])).toBeNull();
+  });
+
+  it('--dir: init remembers the folder for every later add; add --dir picks one for this run', async () => {
+    const cwd = viteTs();
+    await init(yes(cwd, { dir: 'src/ui', components: 'button' }), quiet(), registry);
+    expect(read(cwd, 'src/ui/button.tsx')).toContain("from '@pinfold/react/button'");
+    expect(JSON.parse(read(cwd, 'package.json')).pinfold).toEqual({ components: 'src/ui' });
+    await add(['badge'], yes(cwd), quiet(), registry);
+    expect(existsSync(join(cwd, 'src/ui/badge.tsx'))).toBe(true);
+    await add(['kbd'], yes(cwd, { dir: 'src/elsewhere' }), quiet(), registry);
+    expect(existsSync(join(cwd, 'src/elsewhere/kbd.tsx'))).toBe(true);
+    const second = quiet();
+    await init(yes(cwd, { dir: 'src/ui', components: 'button' }), second, registry);
+    expect(second.lines.join('\n')).toContain('Nothing to change.');
+  });
+
+  it('works in a folder whose path has spaces', async () => {
+    const cwd = project({ 'my app/package.json': JSON.stringify({ dependencies: { ...deps }, devDependencies: { vite: '^7' } }), 'my app/tsconfig.json': '{}', 'my app/src/main.tsx': "import App from './App';\ncreateRoot(document.getElementById('root')!).render(<App />);\n" });
+    const app = join(cwd, 'my app');
+    await init(yes(app, { components: 'button' }), quiet(), registry);
+    expect(read(app, 'src/components/ui/button.tsx')).toContain('useButton');
+    expect(read(app, 'src/main.tsx')).toContain("import '@pinfold/css/button.css';");
   });
 });

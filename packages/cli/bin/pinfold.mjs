@@ -2,8 +2,9 @@
 /**
  * Pinfold CLI (docs/CLI.md).
  *
- *   npx pinfold init                      interactive setup: language, components, theme, entry, Tailwind
- *   npx pinfold add accordion | all       components/ui/<name> plus its CSS import
+ *   npx pinfold init                      interactive setup: language, folder, components, theme, entry, Tailwind
+ *                                         (--yes: no components unless --components a,b|all; --dir <folder>)
+ *   npx pinfold add button table | all    <folder>/<name> plus the CSS it needs (--dir <folder> for this run)
  *   npx pinfold theme --primary emerald   regenerate the palette (--format css|tailwind|dtcg, --check, --from <url>)
  *   npx pinfold doctor                    check React, CSS order, provider, 'use client', browsers, duplicates
  *   npx pinfold palette | list            preview hues | show the registry
@@ -78,14 +79,16 @@ async function askInit(flags) {
   const language = cancelled(
     await p.select({ message: 'Language', initialValue: project.language, options: [{ value: 'ts', label: 'TypeScript' }, { value: 'js', label: 'JavaScript' }] }),
   );
+  const dir = cancelled(await p.text({ message: 'Components folder', initialValue: project.componentsDir }));
   const components = cancelled(
     await p.multiselect({
-      message: 'Components (a = all)',
-      initialValues: REGISTRY.components.map((c) => c.name),
+      message: 'Components to add now (space to pick, a = all, enter for none; add more later with `pinfold add`)',
+      initialValues: [],
+      required: false,
       options: REGISTRY.components.map((c) => ({ value: c.name, label: c.name, hint: c.description })),
     }),
   );
-  const primary = cancelled(await p.text({ message: `Brand hue (${Object.keys(HUES).join(', ')}, or 0-360)`, initialValue: String(flags.primary ?? 'violet') }));
+  const primary = cancelled(await p.text({ message: `Brand colour (#4f46e5, rgb(), oklch(), a hue name: ${Object.keys(HUES).join(', ')}, or 0-360)`, initialValue: String(flags.primary ?? 'violet') }));
   const style = cancelled(await p.select({ message: 'Style pack', initialValue: 'default', options: PACKS.map((v) => ({ value: v, label: v })) }));
   const radius = cancelled(await p.select({ message: 'Radius', initialValue: 'md', options: RADII.map((v) => ({ value: v, label: v })) }));
   const mode = cancelled(await p.select({ message: 'Colour mode', initialValue: 'system', options: MODES.map((v) => ({ value: v, label: v })) }));
@@ -95,7 +98,7 @@ async function askInit(flags) {
   const accent = preview.contrast.find((r) => r.role === 'primary' && r.step === 600 && r.against === 'light-surface');
   p.log.info(`Brand ${[100, 300, 500, 700, 900].map((s) => swatch(preview.vars[`--pinfold-primary-${s}`])).join('')}  text contrast ${accent.ratio}:1`);
   p.outro('Review the changes below.');
-  return { language, components, entryFile: entryFile || null, theme: { primary, style, radius, mode } };
+  return { language, dir: dir && dir !== project.componentsDir ? dir : null, components, entryFile: entryFile || null, theme: { primary, style, radius, mode } };
 }
 
 /* --------------------------------------------------- palette, list, new */

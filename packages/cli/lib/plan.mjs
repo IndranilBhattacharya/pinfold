@@ -91,10 +91,20 @@ const quoteOf = (src) => (/^import\s.*"/m.test(src) && !/^import\s.*'/m.test(src
  * Add side-effect imports (`import 'x';`) that are missing, in the given
  * order, after the file's last top-level import (after any directive).
  */
-export function addImports(src, specs) {
+export function addImports(src, specs, { before } = {}) {
   const q = quoteOf(src);
   const missing = specs.filter((s) => !new RegExp(`['"]${escape(s)}['"]`).test(src));
   if (!missing.length) return src;
+  // Before an existing import of `before` (a file name), when there is one.
+  if (before) {
+    const lines = src.split('\n');
+    const at = lines.findIndex((line) => /^\s*(import|require\()/.test(line) && line.includes(before));
+    if (at >= 0) {
+      const cjs = /^\s*require\(/.test(lines[at]);
+      lines.splice(at, 0, ...missing.map((s) => (cjs ? `require(${q}${s}${q});` : `import ${q}${s}${q};`)));
+      return lines.join('\n');
+    }
+  }
   // A CommonJS entry gets require() calls, after its last top-level require.
   if (/\brequire\(/.test(src) && !/^import\s/m.test(src)) {
     const lines = src.split('\n');

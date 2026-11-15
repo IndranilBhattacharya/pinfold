@@ -2,7 +2,7 @@
 /**
  * Real apps on the packed packages. Run `npm run build` first.
  *
- *   node scripts/fixture-apps.mjs [--app next|webpack|all] [--cli]
+ *   node scripts/fixture-apps.mjs [--app next|webpack|vite|all] [--cli]
  *
  * next     Next.js App Router (Server Component + defineAccordion + ISR, a
  *          Client Component page) and Pages Router (getStaticProps + ISR),
@@ -10,8 +10,11 @@
  *          served HTML must contain every panel's text, with stable ids.
  * webpack  A plain-JS (CommonJS, no JSX) app, webpack production build: the
  *          bundle must work and must not contain the dev-only validator.
- * --cli    Before building, run `pinfold init --yes` and `pinfold add accordion`
- *          in each app, twice, and require the second run to change nothing.
+ * vite     (with --cli) Vite + TypeScript, set up only by the CLI: `init --yes`, `add table button`;
+ *          the app imports the written files, `tsc` checks them, `vite build` bundles them, and the
+ *          entry imports the CSS of every part a table draws.
+ * --cli    Before building, run `pinfold init --yes` and `pinfold add …` in each app, twice, and
+ *          require the second run to change nothing.
  */
 import { execSync, spawn } from 'node:child_process';
 import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -31,7 +34,7 @@ const work = mkdtempSync(join(tmpdir(), 'pinfold-fixtures-'));
 const tgz = packTarballs(work, withCli ? ['core', 'css', 'react', 'cli'] : ['core', 'css', 'react']);
 const { pinfold: cliTgz, ...libs } = tgz;
 
-function scaffold(name, deps) {
+function scaffold(name, deps, add = ['accordion'], devDeps = {}) {
   const app = join(work, name);
   cpSync(join(root, 'fixtures', name), app, { recursive: true });
   const manifest = {
@@ -39,20 +42,20 @@ function scaffold(name, deps) {
     private: true,
     version: '0.0.0',
     dependencies: { ...libs, ...deps },
-    devDependencies: cliTgz ? { pinfold: cliTgz } : {},
+    devDependencies: { ...devDeps, ...(cliTgz ? { pinfold: cliTgz } : {}) },
     ...pinCore(libs),
   };
   writeFileSync(join(app, 'package.json'), JSON.stringify(manifest, null, 2));
   run('npm install --no-audit --no-fund --loglevel=error', app);
-  if (withCli) cliTwice(app);
+  if (withCli) cliTwice(app, add);
   return app;
 }
 
 /** `init` then `add`, twice. The second pass must leave every file byte-identical. */
-function cliTwice(app) {
+function cliTwice(app, names) {
   const pass = () => {
     run('npx pinfold init --yes', app);
-    run('npx pinfold add accordion --yes', app);
+    run(`npx pinfold add ${names.join(' ')} --yes`, app);
     return snapshot(app);
   };
   const first = pass();
@@ -128,9 +131,29 @@ function webpack() {
   console.log(`  ok webpack js-only production bundle (${Math.round(bundle.length / 1024)} kB minified, validator stripped)`);
 }
 
+function vite() {
+  const app = scaffold('vite-ts', { react: '^19', 'react-dom': '^19' }, ['table', 'button'], {
+    vite: '^8.3.8',
+    typescript: '^6.0.3',
+    '@types/react': '^19.3.0',
+    '@types/react-dom': '^19.3.0',
+  });
+  const main = readFileSync(join(app, 'src/main.tsx'), 'utf8');
+  for (const css of ['core', 'table', 'pagination', 'select', 'datepicker', 'calendar', 'button'])
+    if (!main.includes(`'@pinfold/css/${css}.css'`)) throw new Error(`vite: src/main.tsx does not import @pinfold/css/${css}.css`);
+  run('npx tsc -p .', app);
+  run('npx vite build --logLevel warn', app);
+  const assets = readdirSync(join(app, 'dist/assets'));
+  const css = assets.filter((f) => f.endsWith('.css')).map((f) => readFileSync(join(app, 'dist/assets', f), 'utf8')).join('');
+  for (const cls of ['.pinfold-table', '.pinfold-pagination', '.pinfold-button', '--pinfold-primary-500'])
+    if (!css.includes(cls)) throw new Error(`vite: built CSS is missing ${cls}`);
+  console.log('  ok vite + TypeScript set up by the CLI alone: tsc, vite build, table styles all the way down');
+}
+
 try {
   if (which === 'next' || which === 'all') await next();
   if (which === 'webpack' || which === 'all') webpack();
+  if ((which === 'vite' || which === 'all') && withCli) vite();
   console.log('\nfixture apps passed');
 } finally {
   if (existsSync(work)) rmSync(work, { recursive: true, force: true });
