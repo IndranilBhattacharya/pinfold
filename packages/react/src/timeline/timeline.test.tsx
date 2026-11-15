@@ -104,3 +104,21 @@ describe('Timeline layout options', () => {
     expect(root.style.getPropertyValue('--pinfold-timeline-gap')).toBe('2rem');
   });
 });
+
+it('a horizontal timeline scrolls by mouse drag', () => {
+  const { container } = render(<Timeline label="Shipment" orientation="horizontal" items={steps} />);
+  const el = container.firstElementChild as HTMLElement;
+  Object.defineProperty(el, 'scrollWidth', { configurable: true, value: 600 });
+  Object.defineProperty(el, 'clientWidth', { configurable: true, value: 200 });
+  const press = (type: string, x: number) => {
+    const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX: x, button: 0 });
+    Object.defineProperty(event, 'pointerType', { value: 'mouse' });
+    return event;
+  };
+  el.dispatchEvent(press('pointerdown', 150));
+  window.dispatchEvent(press('pointermove', 90));
+  expect(el.hasAttribute('data-dragging')).toBe(true);
+  expect(el.scrollLeft).toBe(60);
+  window.dispatchEvent(press('pointerup', 90));
+  expect(el.hasAttribute('data-dragging')).toBe(false);
+});

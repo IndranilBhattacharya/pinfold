@@ -184,3 +184,35 @@ describePinfoldConformance({
   hook: { use: useNavbar as any, config: { label: 'Main', items: ['One', 'Two'] } },
   render: (config) => <Navbar label="Main" items={['One', 'Two']} {...config} />,
 });
+
+describe('Navbar scrollTarget', () => {
+  it('shrinks when its scrollTarget element scrolls, not the window', () => {
+    const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
+    function Page() {
+      const box = React.useRef<HTMLDivElement | null>(null);
+      return (
+        <div ref={box} data-testid="box">
+          <Navbar label="Main" items={links} shrinkOnScroll scrollTarget={box} />
+        </div>
+      );
+    }
+    render(<Page />);
+    const nav = screen.getByRole('navigation');
+    const box = screen.getByTestId('box');
+    act(() => {
+      Object.defineProperty(window, 'scrollY', { configurable: true, value: 400 });
+      window.dispatchEvent(new Event('scroll'));
+    });
+    expect(nav.hasAttribute('data-scrolled')).toBe(false);
+    act(() => {
+      box.scrollTop = 200;
+      box.dispatchEvent(new Event('scroll'));
+    });
+    expect(nav.hasAttribute('data-scrolled')).toBe(true);
+    raf.mockRestore();
+    Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
+  });
+});

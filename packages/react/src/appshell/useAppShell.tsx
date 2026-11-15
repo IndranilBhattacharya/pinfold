@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { ScrollRegion } from '../scroll-target';
 import { cn, dataAttr, dimensionVars, inactiveAppShellOptions, mergeProps, warnOnce, type PropsBag } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -41,6 +42,7 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
   const behavior = config.sidebarBehavior ?? 'auto';
   const breakpoint = config.breakpoint ?? 768;
   const hasSidebar = config.sidebar != null && config.sidebar !== false;
+  const main = React.useRef<HTMLElement | null>(null);
   const root = React.useRef<HTMLDivElement | null>(null);
   const navbar = React.useRef<HTMLElement | null>(null);
   const sidebar = React.useRef<HTMLDivElement | null>(null);
@@ -183,11 +185,14 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
             {config.footer != null ? slot('footer', config.footer, 'footer') : null}
           </>,
           'main',
+          { ref: main },
         )}
         {config.aside != null ? slot('aside', config.aside, 'aside') : null}
       </>
     );
-    return renderSlot(config, 'root', rootBag, state, body, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;
+    // With `scroll: 'content'` the page region scrolls, not the window: bars inside listen there.
+    const scoped = (config.scroll ?? 'page') === 'content' ? <ScrollRegion.Provider value={main}>{body}</ScrollRegion.Provider> : body;
+    return renderSlot(config, 'root', rootBag, state, scoped, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;
   };
 
   const api: AppShellApi = { ...state, openSidebar: () => setOpen(true), closeSidebar: () => setOpen(false), toggleSidebar: () => setOpen(!open), getTriggerProps, getRootProps, render };

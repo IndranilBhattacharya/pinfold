@@ -8,6 +8,7 @@ import { ITEM, renderSlot, slotProps } from '../slots';
 import { followLink } from '../link';
 import { useSlidingIndicator } from '../indicator';
 import { revealInStrip, useDragScroll } from '../drag-scroll';
+import { ScrollRegion, resolveScrollTarget } from '../scroll-target';
 import { useOverlayLayer } from '../overlay';
 import { CHEVRON_DOWN_ICON } from '../nav-icons';
 import { Button } from '../button/Button';
@@ -98,14 +99,20 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
   });
 
   // ---- the page's scroll: shrink, hide ----
+  // What scrolls: `scrollTarget`, else the page region of an AppShell around the bar, else the window.
   const watchScroll = !!config.shrinkOnScroll || !!config.hideOnScroll;
+  const region = React.useContext(ScrollRegion);
+  const scrollTarget = config.scrollTarget;
   React.useEffect(() => {
     if (!watchScroll) return;
-    let last = window.scrollY;
+    const el = resolveScrollTarget(scrollTarget, region);
+    const source: HTMLElement | Window = el ?? window;
+    const top = () => (el ? el.scrollTop : window.scrollY);
+    let last = top();
     let frame = 0;
     const read = () => {
       frame = 0;
-      const y = window.scrollY;
+      const y = top();
       setScrolled(y > 8);
       // Hide only once well past the bar, and only on a real move down; any move up brings it back.
       if (config.hideOnScroll) setHidden(y > 120 && y > last + 2 ? true : y < last - 2 ? false : (h) => h);
@@ -115,12 +122,12 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
       if (!frame) frame = requestAnimationFrame(read);
     };
     read();
-    window.addEventListener('scroll', onScroll, { passive: true });
+    source.addEventListener('scroll', onScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      source.removeEventListener('scroll', onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, [watchScroll, config.hideOnScroll]);
+  }, [watchScroll, config.hideOnScroll, scrollTarget, region]);
 
   // ---- what fits: the bar's own width folds it; the row's width decides how many links stay ----
   const count = items.length;

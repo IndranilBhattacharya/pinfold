@@ -1,4 +1,5 @@
 import type * as React from 'react';
+import type { ScrollTarget } from '../scroll-target';
 import type { Length, PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { ButtonConfig } from '../button/types';
@@ -156,6 +157,12 @@ export interface NavbarConfig extends SlotOverrides<NavbarSlot, NavbarState, Nav
   shrinkOnScroll?: boolean;
   /** Scrolling down slides the bar away; scrolling up brings it back. @default false */
   hideOnScroll?: boolean;
+  /**
+   * What `shrinkOnScroll` and `hideOnScroll` watch: `'window'`, a ref to a scrolling element, or
+   * `() => element`. Default: the page region of an AppShell (`scroll: 'content'`) the bar sits in,
+   * else the window.
+   */
+  scrollTarget?: ScrollTarget;
   /** Links that do not fit: under "More", in a row that scrolls, or left to you. @default 'more' */
   overflow?: 'more' | 'scroll' | 'none';
   /** The bar width (px) under which the links fold into a menu button. @default 640 */

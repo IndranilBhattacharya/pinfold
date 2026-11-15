@@ -46,7 +46,7 @@ Precedence: use-site props, the preset, `defaults.timeline`, the provider, the l
 | `label` | names the list | required |
 | `items` | strings, or `{ title, description?, time?, icon?, tone?, content?, status?, marker?, opposite?, open?, defaultOpen? }`; ISO times show in the locale | required |
 | `variant` | `'dot' \| 'icon' \| 'card'` | `'dot'` |
-| `orientation` | `'vertical' \| 'horizontal'` (a row that scrolls when long) | `'vertical'` |
+| `orientation` | `'vertical' \| 'horizontal'` (a row that scrolls when long: wheel, keyboard or a mouse drag, with fading edges where events are hidden) | `'vertical'` |
 | `align` | `'start'` (text on one side) \| `'alternate'` (left and right, or above and below in a row); a vertical timeline narrower than 34rem puts everything on one side | `'start'` |
 | `connector` | `'gap'` (the line stops a little short of each marker) \| `'joined'` (it touches them) \| `'dashed'` \| `'none'` | `'gap'` |
 | `density` | `'comfortable' \| 'compact'` (less space, smaller icon markers and card padding) | `'comfortable'` |

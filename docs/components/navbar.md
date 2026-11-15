@@ -31,6 +31,7 @@ Precedence: use-site props, the preset, `defaults.navbar`, the provider (size, t
 | `indicator` | the current link's marker, one element that slides between links and follows the pointer: `'pill' \| 'underline' \| 'none'` | `'pill'` |
 | `position` | `'static' \| 'sticky' \| 'fixed'`; leave it static inside an app shell | `'static'` |
 | `shrinkOnScroll`, `hideOnScroll` | shorter once the page has scrolled (a floating bar also narrows toward the middle); slides away going down and back going up | `false`, `false` |
+| `scrollTarget` | what those two watch: `'window'`, a ref to a scrolling element, or `() => element`. Inside an AppShell with `scroll: 'content'` the bar follows the shell's page region with no setting | the AppShell page region, else `'window'` |
 | `overflow`, `collapseAt` | links that do not fit: under `'more'`, in a row that `'scroll'`s, or `'none'`; the bar width (px) under which every link folds into a menu button and a panel | `'more'`, `640` |
 | `labels` | `more`, `openMenu`, `closeMenu` | |
 | `radius`, `size`, `tone`, `dimensions` | `height`, `maxWidth`, `paddingX` | the theme radius, `'md'`, `'primary'` (provider) |

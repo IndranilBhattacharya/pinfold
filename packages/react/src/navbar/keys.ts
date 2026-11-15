@@ -21,6 +21,7 @@ export const NAVBAR_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'position',
   'shrinkOnScroll',
   'hideOnScroll',
+  'scrollTarget',
   'overflow',
   'collapseAt',
   'labels',

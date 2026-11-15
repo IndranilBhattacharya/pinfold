@@ -84,6 +84,7 @@ export const navbarMeta: ComponentMeta = {
     position: { type: 'enum', values: ['static', 'sticky', 'fixed'], default: 'static', description: 'In the flow, stuck to the top while the page scrolls, or fixed over it. Inside an app shell leave it static: the shell keeps it in view.', group: 'behaviour', control: true },
     shrinkOnScroll: { type: 'boolean', default: false, description: 'Once the page has scrolled the bar gets shorter (a floating bar also narrows toward the middle).', group: 'behaviour', control: true },
     hideOnScroll: { type: 'boolean', default: false, description: 'Scrolling down slides the bar away; scrolling up brings it back.', group: 'behaviour', control: true },
+    scrollTarget: { type: 'node', auto: 'the page region of an AppShell with `scroll: content` around the bar, else the window', description: 'What `shrinkOnScroll` and `hideOnScroll` watch: `\'window\'`, a ref to a scrolling element, or `() => element`.', group: 'behaviour' },
     overflow: { type: 'enum', values: ['more', 'scroll', 'none'], default: 'more', description: 'Links that do not fit: under a "More" menu, in a row that scrolls sideways, or left to you.', group: 'behaviour', control: true },
     collapseAt: { type: 'number', min: 0, max: 2000, step: 16, unit: 'px', default: 640, description: 'The bar width (px) under which the links fold into a menu button and a panel.', group: 'behaviour', control: true },
     labels: {

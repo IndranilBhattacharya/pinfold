@@ -133,6 +133,9 @@
   }
   .pinfold-toolbar[data-overflow='scroll']:not([data-attached][data-variant='ghost']) { padding: 0.1875rem; }
   .pinfold-toolbar[data-overflow='scroll']::-webkit-scrollbar { display: none; }
+  /* Dragged with the mouse (the script sets data-dragging once the pointer has moved). */
+  .pinfold-toolbar[data-dragging] { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+  .pinfold-toolbar[data-dragging] > * { pointer-events: none; }
   .pinfold-toolbar[data-overflow='scroll'] > * { flex-shrink: 0; }
   .pinfold-toolbar[data-overflow='scroll'][data-overflow-start] { --pinfold-tb-fs: var(--pinfold-tb-fade); }
   .pinfold-toolbar[data-overflow='scroll'][data-overflow-end] { --pinfold-tb-fe: var(--pinfold-tb-fade); }

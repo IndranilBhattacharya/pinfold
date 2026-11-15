@@ -102,3 +102,22 @@ describePinfoldConformance({
   hook: { use: useAppShell as any, config: { content: 'x' } },
   render: (config) => <AppShell content="x" navbar="bar" sidebar="side" {...config} />,
 });
+
+describe('AppShell scroll region', () => {
+  it("with scroll: 'content' a Navbar in the bar follows the page region, with no setting", async () => {
+    const { Navbar } = await import('../navbar/Navbar');
+    const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
+    const { container } = render(<AppShell scroll="content" navbar={<Navbar label="Main" items={['Orders', 'Customers']} shrinkOnScroll />}>Page</AppShell>);
+    const main = container.querySelector('main') as HTMLElement;
+    const nav = screen.getByRole('navigation', { name: 'Main' });
+    act(() => {
+      main.scrollTop = 300;
+      main.dispatchEvent(new Event('scroll'));
+    });
+    expect(nav.hasAttribute('data-scrolled')).toBe(true);
+    raf.mockRestore();
+  });
+});

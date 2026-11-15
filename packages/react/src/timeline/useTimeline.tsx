@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { cn, dataAttr, dimensionVars, inactiveTimelineOptions, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
+import { cn, dataAttr, dimensionVars, inactiveTimelineOptions, mergeProps, warnOnce, watchScrollEdges, type PropsBag, radiusProps } from '@pinfold/core';
+import { useDragScroll } from '../drag-scroll';
 import { useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -78,9 +79,20 @@ export function useTimeline(input: TimelineConfig): TimelineComponent {
       return next;
     });
 
+  // A horizontal timeline scrolls sideways: edges that hide events fade, and the mouse drags it.
+  const scroller = React.useRef<HTMLElement | null>(null);
+  const sideways = orientation === 'horizontal';
+  React.useEffect(() => {
+    const el = scroller.current;
+    if (!sideways || !el) return;
+    return watchScrollEdges(el);
+  }, [sideways]);
+  useDragScroll(scroller, sideways);
+
   const getRootProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
+        ref: scroller,
         ...radiusProps(config.radius),
         'aria-label': config.label,
         'data-variant': state.variant,

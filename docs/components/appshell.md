@@ -25,7 +25,7 @@ config, or `children` on the tag. Every region takes anything: Pinfold's Navbar,
 | `sidebarOpen`, `defaultSidebarOpen`, `onSidebarOpenChange` | the drawer | `false` |
 | `sidebarTrigger`, `closeOnNavigate` | a menu button at the start of the bar while the sidebar is a drawer; following a link in the drawer closes it | `true`, `true` |
 | `navbarPosition` | `'sticky' \| 'static'` | `'sticky'` |
-| `scroll` | `'page'`: the page scrolls, the bar and sidebar stay in view. `'content'`: the shell has a height and only the page region scrolls | `'page'` |
+| `scroll` | `'page'`: the page scrolls, the bar and sidebar stay in view. `'content'`: the shell has a height and only the page region scrolls (a Navbar in the bar with `shrinkOnScroll` / `hideOnScroll` follows that region by itself) | `'page'` |
 | `dividers` | hairlines between the regions | `true` |
 | `dimensions` | `sidebarWidth`, `asideWidth`, `maxWidth` and `padding` of the page content, `height` | |
 | `labels` | `openSidebar`, `closeSidebar`, `sidebar` | |

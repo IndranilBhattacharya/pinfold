@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render } from '@testing-library/react';
-import { revealInStrip, useDragScroll } from './drag-scroll';
+import { revealInStrip, scrollParent, useDragScroll } from './drag-scroll';
 
 afterEach(cleanup);
 
@@ -170,5 +170,28 @@ describe('revealInStrip', () => {
     expect(fits.box.scrollLeft).toBe(0);
     revealInStrip(fits.box, null);
     revealInStrip(null, fits.item);
+  });
+});
+
+describe('scrollParent', () => {
+  it('finds the nearest ancestor that scrolls on the axis, skipping ones that do not overflow or are visible', () => {
+    const outer = document.createElement('div');
+    const middle = document.createElement('div');
+    const inner = document.createElement('div');
+    const row = document.createElement('div');
+    outer.append(middle);
+    middle.append(inner);
+    inner.append(row);
+    document.body.append(outer);
+    outer.style.overflowY = 'auto';
+    overflowing(outer, 'y');
+    middle.style.overflowY = 'visible';
+    overflowing(middle, 'y');
+    inner.style.overflowY = 'auto';
+    expect(scrollParent(row)).toBe(outer);
+    overflowing(inner, 'y');
+    expect(scrollParent(row)).toBe(inner);
+    expect(scrollParent(row, 'x')).toBeNull();
+    outer.remove();
   });
 });

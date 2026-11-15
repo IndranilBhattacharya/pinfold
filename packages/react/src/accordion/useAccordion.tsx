@@ -168,7 +168,11 @@ export function useAccordion(input: AnyAccordionConfig): AccordionApi {
       const row = id != null ? items.find((i) => i.id === id) : undefined;
       if (!row) return;
       change(row.id, true, 'hash');
-      triggerRefs.current[row.index]?.scrollIntoView?.({ block: 'start' });
+      // Following a link to the row is the reader's own move: scroll to it, but only when it is not
+      // already on screen.
+      const trigger = triggerRefs.current[row.index];
+      const box = trigger?.getBoundingClientRect();
+      if (box && (box.top < 0 || box.bottom > window.innerHeight)) trigger?.scrollIntoView?.({ block: 'start' });
     };
     fromHash();
     window.addEventListener('hashchange', fromHash);

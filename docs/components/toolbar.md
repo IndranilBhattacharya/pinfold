@@ -29,7 +29,7 @@ Precedence: each item's own settings, the use site, the preset, `defaults.toolba
 | `value`, `defaultValue`, `onChange` | with `selection`: pressed values (item `value`, or position); `(values, event)` | none, `[]` |
 | `attached` | joined buttons with shared edges | `true` |
 | `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` |
-| `overflow` | `'wrap'`: more lines (an attached group stays on one line and its labels shrink) \| `'scroll'`: one line that scrolls, with fading edges where buttons are hidden | `'wrap'` |
+| `overflow` | `'wrap'`: more lines (an attached group stays on one line and its labels shrink) \| `'scroll'`: one line that scrolls (wheel, keyboard, or a mouse drag: a press that moves past a few pixels scrolls instead of pressing), with fading edges where buttons are hidden | `'wrap'` |
 | `selectedTone` | with `selection`: the tone of a pressed button that does not set its own | `'primary'` |
 | `variant` | `'outline' \| 'soft' \| 'solid' \| 'ghost'` | `'ghost'` (attached: one raised panel) |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { revealInStrip, scrollParent } from '../drag-scroll';
 import { edgeEnabled, gridWindow, matchRanges, nextEnabled, RowSizes, typeaheadIndex, type PinfoldTone, type PropsBag } from '@pinfold/core';
 import { useIsomorphicLayoutEffect } from '../hooks';
 import { CHECK_ICON } from '../nav-icons';
@@ -142,7 +143,9 @@ export function useListNav({ rows, open, selected, listId }: ListNavOptions) {
   });
   useIsomorphicLayoutEffect(() => {
     if (!open || active < 0) return;
-    document.getElementById(id(active))?.scrollIntoView?.({ block: 'nearest' });
+    // Within the list only: the page never moves.
+    const row = document.getElementById(id(active));
+    revealInStrip(scrollParent(row), row, 'y', 0);
   }, [open, active]);
 
   /** Arrow, Home, End, PageUp/PageDown; true when the key was used. */

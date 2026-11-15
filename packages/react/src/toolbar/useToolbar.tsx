@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useDragScroll } from '../drag-scroll';
 import { cn, dataAttr, dimensionVars, inactiveToolbarOptions, mergeProps, nextIndexFromKey, toolbarPress, warnOnce, watchScrollEdges, type PropsBag, radiusProps } from '@pinfold/core';
 import { useControllableState } from '../hooks';
 import { usePinfold } from '../provider';
@@ -62,6 +63,8 @@ export function useToolbar(input: ToolbarConfig): ToolbarComponent {
     if (overflow !== 'scroll' || !el) return;
     return watchScrollEdges(el);
   }, [overflow]);
+  // Mouse drag and the wheel scroll it too (a press that moves past a few pixels is not a click).
+  useDragScroll(root, overflow === 'scroll');
 
   const onKeyDown = (event: React.KeyboardEvent) => {
     if (ownsKeys(event.target as Element)) return;
