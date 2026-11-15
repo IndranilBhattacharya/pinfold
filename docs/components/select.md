@@ -46,6 +46,8 @@ array with `multiple`. Precedence: use-site props, the preset, `defaults.select`
 | `display`, `maxChips` | with `multiple`: `'chips' \| 'text'`; chips before "+n" | `'chips'`, `3` |
 | `chipVariant` | with `multiple`: `'soft' \| 'solid' \| 'outline'` | `'soft'` |
 | `renderValue` | `(selected, state) => node`: draw the chosen value in the field; `selected` holds each chosen row with its state and `remove` | none |
+| `renderList` | `(ctx) => node`: your own dropdown body in place of the listbox; `ctx` provides `{ items, value, select, deselect, toggle, isSelected, activeValue, setActiveValue, getRowProps, close }` | none |
+| `popupRole` | with `renderList`: the popup's role and trigger's `aria-haspopup`: `'dialog' | 'listbox' | 'grid' | 'tree'` | `'dialog'` |
 | `onRemove` | `(value, item)`: a chip's remove mark unchose a value | none |
 | `onClear` | `()`: the clear button emptied the field | none |
 | `emptyText` | the list with no rows | `'No options'` |
@@ -67,7 +69,7 @@ the message without blocking the form. An error is also the hidden select's cust
 
 Inactive (`inactiveSelectOptions`): `display`, `maxChips`, `chipVariant`, `onRemove` without
 `multiple`; `maxChips`, `chipVariant` with `display: 'text'` or `renderValue`; `onClear` without
-`clearable`.
+`clearable`; `popupRole` without `renderList`.
 
 ## Accessibility
 - The field is `role="combobox"` with `aria-haspopup="listbox"`; focus stays on it and

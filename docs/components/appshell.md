@@ -18,23 +18,26 @@ config, or `children` on the tag. Every region takes anything: Pinfold's Navbar,
 ## Config
 | Key | Type | Default |
 |---|---|---|
-| `content`, `navbar`, `sidebar`, `aside`, `footer` | the regions; `sidebar` may be `({ drawer, sidebarOpen }) => node` | |
+| `content`, `navbar`, `sidebar`, `aside`, `footer` | the regions; `sidebar` may be `({ drawer, sidebarOpen, collapsed }) => node` | |
+| `sidebarCollapsible` | collapsing the inline sidebar folds it to what is inside (a rail) instead of hiding it | `false` |
+| `sidebarCollapsed`, `defaultSidebarCollapsed`, `onSidebarCollapsedChange` | the inline sidebar is collapsed | `false` |
+| `autoSaveId` | key to remember whether the sidebar is collapsed in localStorage | |
 | `layout` | `'navbar-top'`: the bar spans the width above the sidebar. `'sidebar-full'`: the sidebar takes the full height, the bar sits beside it | `'navbar-top'` |
 | `sidebarBehavior`, `breakpoint` | `'inline'` beside the page, `'drawer'` over it, `'auto'`: a drawer when the shell is narrower than `breakpoint` px | `'auto'`, `768` |
 | `backdrop` | over the page while the drawer is open: `'dim' \| 'blur' \| 'none'` | `'dim'` |
 | `sidebarOpen`, `defaultSidebarOpen`, `onSidebarOpenChange` | the drawer | `false` |
-| `sidebarTrigger`, `closeOnNavigate` | a menu button at the start of the bar while the sidebar is a drawer; following a link in the drawer closes it | `true`, `true` |
+| `sidebarTrigger`, `closeOnNavigate` | a menu button at the start of the bar while the sidebar is a drawer, or to collapse an inline sidebar; following a link in the drawer closes it | `true`, `true` |
 | `navbarPosition` | `'sticky' \| 'static'` | `'sticky'` |
 | `scroll` | `'page'`: the page scrolls, the bar and sidebar stay in view. `'content'`: the shell has a height and only the page region scrolls (a Navbar in the bar with `shrinkOnScroll` / `hideOnScroll` follows that region by itself) | `'page'` |
 | `dividers` | hairlines between the regions | `true` |
 | `dimensions` | `gap`, `sidebarWidth`, `asideWidth`, `maxWidth` and `padding` of the page content, `height` | `0` (gap), none |
-| `labels` | `openSidebar`, `closeSidebar`, `sidebar` | |
+| `labels` | `openSidebar`, `closeSidebar`, `collapseSidebar`, `expandSidebar`, `sidebar` | |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots: `root navbar trigger sidebar backdrop main content aside footer` | |
 
 ## Controller and parts
-`useAppShell(config)` returns the component with `drawer`, `sidebarOpen`, `openSidebar()`, `closeSidebar()`,
+`useAppShell(config)` returns the component with `drawer`, `sidebarOpen`, `collapsed`, `openSidebar()`, `closeSidebar()`,
 `toggleSidebar()` and `getTriggerProps()`. `<Shell.SidebarTrigger />` is the menu button for a place of your own
-choosing (it renders only while the sidebar is a drawer); set `sidebarTrigger: false` to drop the built-in one.
+choosing (it renders while the sidebar is a drawer or `sidebarCollapsible`); set `sidebarTrigger: false` to drop the built-in one.
 
 ## Behaviour
 - The shell measures its own width, not the window's: a shell inside a split view becomes narrow on its own.

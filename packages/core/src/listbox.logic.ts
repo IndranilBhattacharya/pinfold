@@ -60,7 +60,7 @@ export function toggleValue(values: readonly string[], value: string, multiple: 
 }
 
 /** Options with no visible effect in the current config. */
-export function inactiveSelectOptions(config: { multiple?: boolean; clearable?: boolean; display?: string; renderValue?: unknown }): Record<string, string> {
+export function inactiveSelectOptions(config: { multiple?: boolean; clearable?: boolean; display?: string; renderValue?: unknown; renderList?: unknown }): Record<string, string> {
   const out: Record<string, string> = {};
   if (!config.multiple) {
     const why = 'only used with `multiple`.';
@@ -70,6 +70,7 @@ export function inactiveSelectOptions(config: { multiple?: boolean; clearable?: 
     Object.assign(out, { maxChips: why, chipVariant: why });
   }
   if (!config.clearable) out.onClear = 'only used with `clearable`.';
+  if (!config.renderList) out.popupRole = 'only used with `renderList`.';
   return out;
 }
 
@@ -88,6 +89,7 @@ export function inactiveComboboxOptions(config: { multiple?: boolean; loadItems?
     Object.assign(out, { hasMore: why, onLoadMore: why });
   }
   if (!config.renderList) out.popupRole = 'only used with `renderList`.';
+  if (config.renderList) out.highlight = 'you draw the rows with `renderList`.';
   if (!config.allowCustom) out.onCreate = 'only used with `allowCustom`.';
   return out;
 }

@@ -59,6 +59,31 @@ export interface SelectDimensions {
 /** An option (with its live state) or a chosen chip (with `remove`). `render` overrides of the repeating parts get it as `item`. */
 export type SelectItemContext = import('./listbox').ListItemContext;
 
+/** What a custom list body (`renderList`) gets: the rows, the state, and the actions. */
+export interface SelectListContext<V extends string = string> {
+  /** The rows to show, each with its live state and `data` (your row). */
+  items: SelectItemContext[];
+  /** The chosen values. */
+  value: readonly string[];
+  /** Choose a value (one value: replace it and close). */
+  select: (value: string, event?: React.SyntheticEvent) => void;
+  /** Unchoose a value. */
+  deselect: (value: string, event?: React.SyntheticEvent) => void;
+  /** Choose or unchoose, as a click on a row does. */
+  toggle: (value: string, event?: React.SyntheticEvent) => void;
+  isSelected: (value: string) => boolean;
+  /** The row the arrow keys are on (Enter chooses it), or null. */
+  activeValue: string | null;
+  setActiveValue: (value: string | null) => void;
+  /**
+   * Props for the element that shows a row: its id (for `aria-activedescendant`), the role that
+   * matches `popupRole`, `aria-selected`, `data-active` / `data-selected`, and pointer handlers that
+   * choose on click.
+   */
+  getRowProps: (value: string, props?: PropsBag) => PropsBag;
+  close: () => void;
+}
+
 interface SelectShared<V extends string> extends Omit<FieldConfig, 'error'>, Omit<FieldValidationConfig<V | null | V[]>, 'validate' | 'onValidate'>, SlotOverrides<SelectSlot, SelectState, SelectItemContext> {
   /** The rows: strings, or `{ value, label, description, icon, avatar, endContent, tone, group, disabled }` (extra fields reach `render` as `item.data`). */
   items: ReadonlyArray<ListItem<V> | V>;
@@ -81,6 +106,18 @@ interface SelectShared<V extends string> extends Omit<FieldConfig, 'error'>, Omi
    * chosen row with its state and `remove`. Empty when nothing is chosen (the placeholder shows).
    */
   renderValue?: (selected: SelectItemContext[], state: SelectState) => React.ReactNode;
+  /**
+   * Your own dropdown body in place of the listbox: a table, cards, anything. It gets the rows, the
+   * state and the actions (`select`, `deselect`, `getRowProps`...). The body owns its roles: say
+   * which with `popupRole`.
+   */
+  renderList?: (context: SelectListContext<V>) => React.ReactNode;
+  /**
+   * With `renderList`: the popup's role, also the trigger's `aria-haspopup`. `dialog` for free-form
+   * content; `listbox`, `grid` or `tree` when your rows use `getRowProps` (the active row is then
+   * `aria-activedescendant`). @default 'dialog'
+   */
+  popupRole?: 'dialog' | 'listbox' | 'grid' | 'tree';
   /** Multiple: a chip's remove mark unchose a value: `(value, item)`. */
   onRemove?: (value: V, item: SelectItemContext) => void;
   /** The clear button emptied the field. */

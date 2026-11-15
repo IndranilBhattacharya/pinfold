@@ -62,12 +62,23 @@ export function inactiveResizableOptions(_config: object): Record<string, string
  * out when that is not known, and only what the config alone rules out is listed.
  */
 export function inactiveAppShellOptions(
-  config: { sidebar?: unknown; navbar?: unknown; sidebarBehavior?: string; scroll?: string },
+  config: {
+    sidebar?: unknown;
+    navbar?: unknown;
+    sidebarBehavior?: string;
+    scroll?: string;
+    sidebarCollapsible?: boolean;
+    sidebarCollapsed?: boolean;
+    defaultSidebarCollapsed?: boolean;
+    onSidebarCollapsedChange?: unknown;
+    autoSaveId?: string;
+  },
   drawer?: boolean,
 ): Record<string, string> {
   const out: Record<string, string> = {};
   const hasSidebar = config.sidebar != null && config.sidebar !== false;
   const behavior = config.sidebarBehavior ?? 'auto';
+  const collapsible = Boolean(config.sidebarCollapsible);
   const why = !hasSidebar
     ? 'there is no `sidebar`.'
     : behavior === 'inline'
@@ -76,14 +87,32 @@ export function inactiveAppShellOptions(
         ? 'the shell is wider than `breakpoint`, so the sidebar sits beside the page; this applies once it is a drawer.'
         : '';
   if (why) {
-    out.sidebarTrigger = why;
+    if (!collapsible || !hasSidebar) {
+      out.sidebarTrigger = why;
+    }
     out.backdrop = why;
     out.closeOnNavigate = why;
   }
   if (!hasSidebar) {
     out.sidebarBehavior = why;
     out.breakpoint = why;
-  } else if (behavior !== 'auto') out.breakpoint = 'only `sidebarBehavior: "auto"` measures the shell against it.';
+    out.sidebarCollapsible = why;
+    out.sidebarCollapsed = why;
+    out.defaultSidebarCollapsed = why;
+    out.onSidebarCollapsedChange = why;
+    out.autoSaveId = why;
+  } else {
+    if (behavior !== 'auto') out.breakpoint = 'only `sidebarBehavior: "auto"` measures the shell against it.';
+    if (behavior === 'drawer') {
+      const always = 'with `sidebarBehavior: "drawer"` the sidebar is always a drawer: collapsing applies to an inline sidebar.';
+      Object.assign(out, { sidebarCollapsible: always, sidebarCollapsed: always, defaultSidebarCollapsed: always, onSidebarCollapsedChange: always, autoSaveId: always });
+    } else if (!collapsible) {
+      out.sidebarCollapsed = 'only used with `sidebarCollapsible`.';
+      out.defaultSidebarCollapsed = 'only used with `sidebarCollapsible`.';
+      out.onSidebarCollapsedChange = 'only used with `sidebarCollapsible`.';
+      out.autoSaveId = 'only used with `sidebarCollapsible`.';
+    }
+  }
   if (config.navbar == null) {
     out.navbarPosition = 'there is no `navbar`.';
     if (!out.sidebarTrigger) out.sidebarTrigger = 'there is no `navbar` to hold the button: place `Shell.SidebarTrigger` yourself.';

@@ -50,9 +50,49 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
   // Narrow is only known once measured: the server and the first paint lay the sidebar out by CSS alone.
   const [narrow, setNarrow] = React.useState<boolean | null>(null);
   const [open, setOpenState] = useControllableState<boolean>({ value: config.sidebarOpen, defaultValue: config.defaultSidebarOpen ?? false });
+  const [collapsedVal, setCollapsedState] = useControllableState<boolean>({
+    value: config.sidebarCollapsed,
+    defaultValue: config.defaultSidebarCollapsed ?? false,
+  });
+  const collapsed = collapsedVal ?? false;
+  const setCollapsed = useEvent((next: boolean) => {
+    if (next === collapsed) return;
+    setCollapsedState(next);
+    config.onSidebarCollapsedChange?.(next);
+  });
+  const autoSaveId = config.autoSaveId;
+  const loaded = React.useRef(false);
+  const controlledRef = React.useRef(config.sidebarCollapsed);
+  controlledRef.current = config.sidebarCollapsed;
+  React.useEffect(() => {
+    if (!autoSaveId) return;
+    if (!loaded.current) {
+      loaded.current = true;
+      if (controlledRef.current === undefined) {
+        try {
+          const stored = localStorage.getItem(`pinfold-appshell:${autoSaveId}`);
+          if (stored === 'true') {
+            setCollapsed(true);
+            return;
+          }
+          if (stored === 'false') {
+            setCollapsed(false);
+            return;
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
+    try {
+      localStorage.setItem(`pinfold-appshell:${autoSaveId}`, String(collapsed));
+    } catch {
+      // ignore
+    }
+  }, [autoSaveId, collapsed]); // eslint-disable-line react-hooks/exhaustive-deps
   const drawer = hasSidebar && (behavior === 'drawer' || (behavior === 'auto' && narrow === true));
   const sidebarOpen = drawer && open;
-  const state: AppShellState = { drawer, sidebarOpen, layout: config.layout ?? 'navbar-top' };
+  const state: AppShellState = { drawer, sidebarOpen, collapsed, layout: config.layout ?? 'navbar-top' };
 
   const setOpen = useEvent((next: boolean) => {
     if (next === open) return;
@@ -62,6 +102,18 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
   const close = useEvent(() => {
     setOpen(false);
     trigger.current?.focus();
+  });
+  const toggleSidebar = useEvent(() => {
+    if (drawer) setOpen(!open);
+    else if (config.sidebarCollapsible) setCollapsed(!collapsed);
+  });
+  const openSidebar = useEvent(() => {
+    if (drawer) setOpen(true);
+    else if (config.sidebarCollapsible) setCollapsed(false);
+  });
+  const closeSidebar = useEvent(() => {
+    if (drawer) setOpen(false);
+    else if (config.sidebarCollapsible) setCollapsed(true);
   });
 
   // The shell's own width decides, not the window's: a shell in a split view behaves like a narrow one.
@@ -106,15 +158,26 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
   }, [drawer, sidebarOpen]);
   useOverlayLayer(sidebarOpen, (node) => !!sidebar.current?.contains(node) || !!trigger.current?.contains(node), close, () => setOpen(false));
 
+  const triggerLabel = drawer
+    ? sidebarOpen
+      ? config.labels?.closeSidebar ?? 'Close navigation'
+      : config.labels?.openSidebar ?? 'Open navigation'
+    : collapsed
+      ? config.labels?.expandSidebar ?? 'Expand sidebar'
+      : config.labels?.collapseSidebar ?? 'Collapse sidebar';
+  const triggerExpanded = drawer ? sidebarOpen : !collapsed;
+  const canTrigger = drawer || Boolean(config.sidebarCollapsible);
+  const showBuiltinTrigger = canTrigger && config.sidebarTrigger !== false;
+
   const getTriggerProps = (props?: PropsBag): PropsBag =>
     mergeProps(
       {
         ref: trigger,
         type: 'button',
-        'aria-label': sidebarOpen ? config.labels?.closeSidebar ?? 'Close navigation' : config.labels?.openSidebar ?? 'Open navigation',
-        'aria-expanded': sidebarOpen,
+        'aria-label': triggerLabel,
+        'aria-expanded': triggerExpanded,
         'aria-controls': `${base}-sidebar`,
-        onClick: () => setOpen(!open),
+        onClick: toggleSidebar,
       },
       props,
     );
@@ -130,6 +193,8 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
         'data-measured': dataAttr(behavior !== 'auto' || narrow !== null),
         'data-drawer': dataAttr(drawer),
         'data-sidebar-open': dataAttr(sidebarOpen),
+        'data-sidebar-collapsible': dataAttr(config.sidebarCollapsible),
+        'data-sidebar-collapsed': dataAttr(!drawer && config.sidebarCollapsible && collapsed),
         'data-has-sidebar': dataAttr(hasSidebar),
         'data-has-navbar': dataAttr(config.navbar != null),
         'data-has-aside': dataAttr(config.aside != null),
@@ -145,11 +210,14 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
     const { children, ...rest } = rootProps ?? {};
     const slot = (name: AppShellSlot, content: React.ReactNode, tag: string, own: PropsBag = {}) =>
       renderSlot(config, name, slotProps(config, name, { className: cls(`pinfold-appshell__${name}`), ...own }), state, content, (p, c) => React.createElement(tag, p, c));
+    const isInlineCollapsed = !drawer && Boolean(config.sidebarCollapsible) && collapsed;
+    const collapseStyle = isInlineCollapsed ? { '--pinfold-appshell-sidebar-width': 'auto' } : undefined;
     const vars = dimensionVars('appshell', config.dimensions);
+    const combinedStyle = vars || config.style || collapseStyle ? { ...vars, ...collapseStyle, ...config.style } : undefined;
     const rootBag = slotProps(
       config,
       'root',
-      getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-appshell', config.className), style: vars || config.style ? { ...vars, ...config.style } : undefined }, rest as PropsBag)),
+      getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-appshell', config.className), style: combinedStyle }, rest as PropsBag)),
     );
     const side = typeof config.sidebar === 'function' ? config.sidebar(state) : config.sidebar;
     const body = (
@@ -158,7 +226,7 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
           ? slot(
               'navbar',
               <>
-                {drawer && config.sidebarTrigger !== false ? slot('trigger', MENU_ICON, 'button', getTriggerProps()) : null}
+                {showBuiltinTrigger ? slot('trigger', MENU_ICON, 'button', getTriggerProps()) : null}
                 {config.navbar}
               </>,
               'header',
@@ -195,17 +263,17 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
     return renderSlot(config, 'root', rootBag, state, scoped, (p, c) => <div {...p}>{c}</div>) as React.ReactElement;
   };
 
-  const api: AppShellApi = { ...state, openSidebar: () => setOpen(true), closeSidebar: () => setOpen(false), toggleSidebar: () => setOpen(!open), getTriggerProps, getRootProps, render };
+  const api: AppShellApi = { ...state, openSidebar, closeSidebar, toggleSidebar, getTriggerProps, getRootProps, render };
   // The latest state for the part below, which is built once.
-  const live = React.useRef({ drawer, getTriggerProps });
-  live.current = { drawer, getTriggerProps };
+  const live = React.useRef({ drawer, canTrigger, getTriggerProps });
+  live.current = { drawer, canTrigger, getTriggerProps };
   return usePinfoldComponent<AppShellApi, AppShellRootProps & { children?: React.ReactNode }, { SidebarTrigger: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => React.ReactElement | null }>(
     'AppShell',
     api,
     (props) => render(props),
     () => ({
-      /** A menu button of your own placing: there only while the sidebar is a drawer. */
-      SidebarTrigger: (props) => (live.current.drawer ? <button {...(live.current.getTriggerProps({ className: 'pinfold-appshell__trigger', ...props } as PropsBag) as React.ButtonHTMLAttributes<HTMLButtonElement>)}>{props.children ?? MENU_ICON}</button> : null),
+      /** A menu button of your own placing: there while the sidebar is a drawer, or to collapse an inline sidebar. */
+      SidebarTrigger: (props) => (live.current.canTrigger ? <button {...(live.current.getTriggerProps({ className: 'pinfold-appshell__trigger', ...props } as PropsBag) as React.ButtonHTMLAttributes<HTMLButtonElement>)}>{props.children ?? MENU_ICON}</button> : null),
     }),
   );
 }

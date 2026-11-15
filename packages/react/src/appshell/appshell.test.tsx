@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import { describePinfoldConformance } from '@pinfold/testing';
 import { appshellMeta } from '@pinfold/core/meta';
 import { AppShell } from './AppShell';
@@ -86,6 +87,123 @@ describe('AppShell', () => {
     rerender(<App behavior="inline" />);
     expect(screen.queryByRole('button', { name: 'Menu' })).toBeNull();
     expect(screen.getByRole('navigation').textContent).toBe('inline');
+  });
+
+  it('desktop collapse: when sidebarCollapsible is true, the trigger collapses/expands the inline sidebar', () => {
+    const onSidebarCollapsedChange = vi.fn();
+    const { container, rerender } = render(
+      <AppShell
+        navbar={<span>Bar</span>}
+        sidebar={({ collapsed }) => <nav aria-label="Main">{collapsed ? 'rail' : 'full'}</nav>}
+        sidebarBehavior="inline"
+        sidebarCollapsible
+        onSidebarCollapsedChange={onSidebarCollapsedChange}
+        content="Page"
+      />,
+    );
+    const root = container.querySelector('.pinfold-appshell') as HTMLElement;
+    expect(root.hasAttribute('data-sidebar-collapsible')).toBe(true);
+    expect(root.hasAttribute('data-sidebar-collapsed')).toBe(false);
+
+    const button = screen.getByRole('button', { name: 'Collapse sidebar' });
+    expect(button.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByRole('navigation').textContent).toBe('full');
+
+    fireEvent.click(button);
+    expect(onSidebarCollapsedChange).toHaveBeenLastCalledWith(true);
+    expect(root.hasAttribute('data-sidebar-collapsed')).toBe(true);
+    expect(screen.getByRole('button', { name: 'Expand sidebar' }).getAttribute('aria-expanded')).toBe('false');
+    expect(screen.getByRole('navigation').textContent).toBe('rail');
+
+    // Rerender parent to prove state is preserved across parent renders
+    rerender(
+      <AppShell
+        navbar={<span>Bar Updated</span>}
+        sidebar={({ collapsed }) => <nav aria-label="Main">{collapsed ? 'rail' : 'full'}</nav>}
+        sidebarBehavior="inline"
+        sidebarCollapsible
+        onSidebarCollapsedChange={onSidebarCollapsedChange}
+        content="Page"
+      />,
+    );
+    expect(root.hasAttribute('data-sidebar-collapsed')).toBe(true);
+    expect(screen.getByRole('navigation').textContent).toBe('rail');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Expand sidebar' }));
+    expect(onSidebarCollapsedChange).toHaveBeenLastCalledWith(false);
+    expect(root.hasAttribute('data-sidebar-collapsed')).toBe(false);
+    expect(screen.getByRole('button', { name: 'Collapse sidebar' }).getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByRole('navigation').textContent).toBe('full');
+  });
+
+  it('desktop collapse: controller methods openSidebar, closeSidebar, toggleSidebar control collapsed inline', () => {
+    let api: ReturnType<typeof useAppShell> | undefined;
+    function App() {
+      api = useAppShell({
+        sidebarBehavior: 'inline',
+        sidebarCollapsible: true,
+        sidebar: ({ collapsed }) => <nav aria-label="Main">{collapsed ? 'rail' : 'full'}</nav>,
+      });
+      const Shell = api;
+      return <Shell content="Page" />;
+    }
+    render(<App />);
+    expect(api!.collapsed).toBe(false);
+    act(() => api!.closeSidebar());
+    expect(api!.collapsed).toBe(true);
+    act(() => api!.openSidebar());
+    expect(api!.collapsed).toBe(false);
+    act(() => api!.toggleSidebar());
+    expect(api!.collapsed).toBe(true);
+  });
+
+  it('desktop collapse: controlled sidebarCollapsed follows the prop and reports a press', () => {
+    const onSidebarCollapsedChange = vi.fn();
+    const shell = (collapsed: boolean) => (
+      <AppShell
+        navbar={<span>Bar</span>}
+        sidebar={({ collapsed: c }) => <nav aria-label="Main">{c ? 'rail' : 'full'}</nav>}
+        sidebarBehavior="inline"
+        sidebarCollapsible
+        sidebarCollapsed={collapsed}
+        onSidebarCollapsedChange={onSidebarCollapsedChange}
+        content="Page"
+      />
+    );
+    const { rerender } = render(shell(true));
+    expect(screen.getByRole('navigation').textContent).toBe('rail');
+    fireEvent.click(screen.getByRole('button', { name: 'Expand sidebar' }));
+    expect(onSidebarCollapsedChange).toHaveBeenLastCalledWith(false);
+    // Controlled: nothing changes until the parent passes the new value.
+    expect(screen.getByRole('navigation').textContent).toBe('rail');
+    rerender(shell(false));
+    expect(screen.getByRole('navigation').textContent).toBe('full');
+    expect(screen.getByRole('button', { name: 'Collapse sidebar' })).toBeTruthy();
+  });
+
+  it('desktop collapse: autoSaveId saves to and restores from localStorage', () => {
+    localStorage.setItem('pinfold-appshell:test-shell', 'true');
+    const { container } = render(
+      <AppShell
+        navbar={<span>Bar</span>}
+        sidebar={({ collapsed }) => <nav aria-label="Main">{collapsed ? 'rail' : 'full'}</nav>}
+        sidebarBehavior="inline"
+        sidebarCollapsible
+        autoSaveId="test-shell"
+        content="Page"
+      />,
+    );
+    const root = container.querySelector('.pinfold-appshell') as HTMLElement;
+    expect(root.hasAttribute('data-sidebar-collapsed')).toBe(true);
+    expect(screen.getByRole('navigation').textContent).toBe('rail');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Expand sidebar' }));
+    expect(localStorage.getItem('pinfold-appshell:test-shell')).toBe('false');
+    // The server render ignores storage, so it matches the first client render.
+    localStorage.setItem('pinfold-appshell:test-shell', 'true');
+    const html = renderToString(<AppShell sidebar={() => <nav>Nav</nav>} sidebarBehavior="inline" sidebarCollapsible autoSaveId="test-shell" content="Page" />);
+    expect(html).not.toContain('data-sidebar-collapsed');
+    localStorage.removeItem('pinfold-appshell:test-shell');
   });
 });
 

@@ -39,13 +39,14 @@ describe('listbox logic', () => {
   });
 
   it('inactive options', () => {
-    expect(Object.keys(inactiveSelectOptions({}))).toEqual(['display', 'maxChips', 'chipVariant', 'onRemove', 'onClear']);
-    expect(inactiveSelectOptions({ multiple: true, clearable: true })).toEqual({});
-    expect(Object.keys(inactiveSelectOptions({ multiple: true, clearable: true, display: 'text' }))).toEqual(['maxChips', 'chipVariant']);
+    expect(Object.keys(inactiveSelectOptions({}))).toEqual(['display', 'maxChips', 'chipVariant', 'onRemove', 'onClear', 'popupRole']);
+    expect(inactiveSelectOptions({ multiple: true, clearable: true, renderList: () => null })).toEqual({});
+    expect(Object.keys(inactiveSelectOptions({ multiple: true, clearable: true, display: 'text' }))).toEqual(['maxChips', 'chipVariant', 'popupRole']);
+    expect(Object.keys(inactiveSelectOptions({ multiple: true, clearable: true, display: 'text', renderList: () => null }))).toEqual(['maxChips', 'chipVariant']);
     expect(Object.keys(inactiveComboboxOptions({}))).toEqual(['maxChips', 'selectedInList', 'chipsPlacement', 'chipVariant', 'onRemove', 'debounce', 'popupRole', 'onCreate']);
-    expect(inactiveComboboxOptions({ multiple: true, loadItems: () => [], renderList: () => null, allowCustom: true })).toEqual({ hasMore: expect.any(String), onLoadMore: expect.any(String) });
-    expect(inactiveComboboxOptions({ multiple: true, onSearch: () => {}, renderList: () => null, allowCustom: true })).toEqual({});
-    expect(Object.keys(inactiveComboboxOptions({ multiple: true, chipsPlacement: 'none', onSearch: () => {}, renderList: () => null, allowCustom: true }))).toEqual(['maxChips', 'chipVariant']);
+    expect(inactiveComboboxOptions({ multiple: true, loadItems: () => [], renderList: () => null, allowCustom: true })).toEqual({ hasMore: expect.any(String), onLoadMore: expect.any(String), highlight: expect.any(String) });
+    expect(inactiveComboboxOptions({ multiple: true, onSearch: () => {}, renderList: () => null, allowCustom: true })).toEqual({ highlight: expect.any(String) });
+    expect(Object.keys(inactiveComboboxOptions({ multiple: true, chipsPlacement: 'none', onSearch: () => {}, renderList: () => null, allowCustom: true }))).toEqual(['maxChips', 'chipVariant', 'highlight']);
   });
 });
 

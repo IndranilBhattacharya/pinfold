@@ -87,6 +87,21 @@ export const selectMeta: ComponentMeta = {
     onRemove: { type: 'function', description: '`(value, item) => void`: with `multiple`, a chip\'s remove mark unchose a value.', group: 'events' },
     onClear: { type: 'function', description: '`() => void`: the clear button emptied the field.', group: 'events' },
     emptyText: { type: 'node', default: 'No options', description: 'Shown in the list when there are no rows.', group: 'data' },
+    renderList: {
+      type: 'function',
+      description:
+        '`(context) => node`: your own dropdown body (a table, cards) in place of the listbox. `context`: `{ items, value, select, deselect, toggle, isSelected, activeValue, setActiveValue, getRowProps, close }`. The arrow keys and Enter still move and choose; the body owns its roles (`popupRole`).',
+      group: 'data',
+      silent: true,
+    },
+    popupRole: {
+      type: 'enum',
+      values: ['dialog', 'listbox', 'grid', 'tree'],
+      default: 'dialog',
+      description:
+        'With `renderList`: the popup\'s role and the trigger\'s `aria-haspopup`. `listbox`, `grid` or `tree` when your rows spread `getRowProps` (the active row is then `aria-activedescendant`).',
+      group: 'behaviour',
+    },
     ...listChoiceProps('select'),
     classNames: perSlot('Classes per slot.', 'string'),
     styles: perSlot('Inline styles per slot.', 'object'),
@@ -118,6 +133,7 @@ export const selectMeta: ComponentMeta = {
     { name: 'data-chip-variant', on: 'root', values: 'multiple: "soft" | "solid" | "outline"' },
     { name: 'data-validity', on: 'root', values: '"error" | "warning" | "success": the resolved status' },
     { name: 'data-validating', on: 'root', values: 'present while an async `validate` runs' },
+    { name: 'data-custom', on: 'popup', values: 'present with `renderList`' },
     { name: 'data-active / data-selected', on: 'option', values: 'the active row; chosen rows' },
   ],
   cssVariables: ['--pinfold-select-width', '--pinfold-select-max-height'],

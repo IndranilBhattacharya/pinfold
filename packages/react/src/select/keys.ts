@@ -29,6 +29,8 @@ export const SELECT_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'maxChips',
   'chipVariant',
   'renderValue',
+  'renderList',
+  'popupRole',
   'onRemove',
   'onClear',
   'emptyText',

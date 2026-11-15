@@ -11,6 +11,8 @@ export interface AppShellState {
   drawer: boolean;
   /** The drawer is open. */
   sidebarOpen: boolean;
+  /** The inline sidebar is collapsed. */
+  collapsed: boolean;
   layout: 'navbar-top' | 'sidebar-full';
 }
 
@@ -61,13 +63,22 @@ export interface AppShellConfig extends SlotOverrides<AppShellSlot, AppShellStat
   sidebarTrigger?: boolean;
   /** Following a link in the drawer closes it. @default true */
   closeOnNavigate?: boolean;
+  /** Collapsing the inline sidebar folds it to what is inside (a rail) instead of hiding it. @default false */
+  sidebarCollapsible?: boolean;
+  /** The inline sidebar is collapsed, controlled. */
+  sidebarCollapsed?: boolean;
+  /** @default false */
+  defaultSidebarCollapsed?: boolean;
+  onSidebarCollapsedChange?: (collapsed: boolean) => void;
+  /** Persists whether the sidebar is collapsed to localStorage. */
+  autoSaveId?: string;
   /** @default 'sticky' */
   navbarPosition?: 'sticky' | 'static';
   /** The whole page scrolls, or only the page region inside a shell with a height. @default 'page' */
   scroll?: 'page' | 'content';
   /** Hairlines between the regions. @default true */
   dividers?: boolean;
-  labels?: { openSidebar?: string; closeSidebar?: string; sidebar?: string };
+  labels?: { openSidebar?: string; closeSidebar?: string; collapseSidebar?: string; expandSidebar?: string; sidebar?: string };
   dimensions?: AppShellDimensions;
   /** @default false */
   unstyled?: boolean;

@@ -26,6 +26,19 @@ export function Checks(): React.ReactElement {
       <Select label="Size" multiple items={sizes} onChange={(v) => v satisfies Array<'s' | 'm'>} />
       {/* @ts-expect-error: no such variant */}
       <Select label="Size" items={sizes} variant="ghost" />
+      <Select
+        label="Size"
+        items={sizes}
+        popupRole="grid"
+        renderList={(ctx) => {
+          ctx.select('s');
+          ctx.deselect('m');
+          ctx.toggle('s');
+          return <div>{ctx.value.join(',')}</div>;
+        }}
+      />
+      {/* @ts-expect-error: no such popupRole */}
+      <Select label="Size" items={sizes} popupRole="tablist" />
       <Combobox label="City" items={['Oslo', 'Osaka']} filter="startsWith" onInputChange={(t) => t satisfies string} />
       <Combobox label="Tags" multiple allowCustom items={['a']} onChange={(v) => v satisfies string[]} />
       {/* @ts-expect-error: no such filter */}

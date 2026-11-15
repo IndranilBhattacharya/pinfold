@@ -7,6 +7,7 @@ import { comboboxMeta, selectMeta } from '@pinfold/core/meta';
 import { Select } from './Select';
 import { useSelect } from './useSelect';
 import { defineSelect } from './define';
+import type { SelectListContext } from './types';
 import { Combobox } from '../combobox/Combobox';
 import { useCombobox } from '../combobox/useCombobox';
 import { defineCombobox } from '../combobox/define';
@@ -89,6 +90,231 @@ describe('Select', () => {
     const html = renderToString(<Field label="Size" items={['S', 'M']} defaultOpen />);
     expect(html).toContain('data-variant="filled"');
     expect(html).not.toContain('role="listbox"');
+  });
+
+  it('renderList: clicking a custom row selects it and closes; toggles with multiple', () => {
+    const onChange = vi.fn();
+    const { rerender } = render(
+      <Select
+        label="Size"
+        items={['S', 'M', 'L']}
+        defaultOpen
+        onChange={onChange}
+        renderList={(ctx) => (
+          <div>
+            {ctx.items.map((item) => (
+              <button key={item.value} {...ctx.getRowProps(item.value)}>
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
+      />,
+    );
+    const field = screen.getByRole('combobox');
+    const btnM = screen.getByRole('button', { name: 'M' });
+    fireEvent.click(btnM);
+    expect(onChange).toHaveBeenCalledWith('M', expect.anything());
+    expect(field.getAttribute('aria-expanded')).toBe('false');
+    rerender(<></>);
+
+    // Multiple
+    const onMultiChange = vi.fn();
+    rerender(
+      <Select
+        label="MultiSize"
+        multiple
+        items={['S', 'M', 'L']}
+        defaultOpen
+        defaultValue={['S']}
+        onChange={onMultiChange}
+        renderList={(ctx) => (
+          <div>
+            {ctx.items.map((item) => (
+              <button key={item.value} {...ctx.getRowProps(item.value)}>
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
+      />,
+    );
+    const multiField = screen.getByRole('combobox');
+    fireEvent.click(screen.getByRole('button', { name: 'M' }));
+    expect(onMultiChange).toHaveBeenCalledWith(['S', 'M'], expect.anything());
+    expect(multiField.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('select(): selects any item programmatically from renderList ctx', () => {
+    let capturedCtx: SelectListContext | null = null;
+    const onChange = vi.fn();
+    render(
+      <Select
+        label="Size"
+        items={['S', 'M', 'L']}
+        defaultOpen
+        onChange={onChange}
+        renderList={(ctx) => {
+          capturedCtx = ctx;
+          return <div>Custom</div>;
+        }}
+      />,
+    );
+    expect(capturedCtx).not.toBeNull();
+    act(() => capturedCtx!.select('L'));
+    expect(onChange).toHaveBeenCalledWith('L', undefined);
+  });
+
+  it('popupRole: changes role on popup and rows', () => {
+    const { rerender } = render(
+      <Select
+        label="Size"
+        items={['S', 'M']}
+        defaultOpen
+        popupRole="grid"
+        renderList={(ctx) => (
+          <div>
+            {ctx.items.map((item) => (
+              <div key={item.value} {...ctx.getRowProps(item.value)}>
+                {item.label}
+              </div>
+            ))}
+          </div>
+        )}
+      />,
+    );
+    const popup = document.querySelector('[data-custom]');
+    expect(popup?.getAttribute('role')).toBe('grid');
+    expect(screen.getByRole('combobox').getAttribute('aria-haspopup')).toBe('grid');
+    const rows = document.querySelectorAll('[role="row"]');
+    expect(rows).toHaveLength(2);
+
+    // Tree role
+    rerender(
+      <Select
+        label="Size"
+        items={['S', 'M']}
+        defaultOpen
+        popupRole="tree"
+        renderList={(ctx) => (
+          <div>
+            {ctx.items.map((item) => (
+              <div key={item.value} {...ctx.getRowProps(item.value)}>
+                {item.label}
+              </div>
+            ))}
+          </div>
+        )}
+      />,
+    );
+    const popupTree = document.querySelector('[data-custom]');
+    expect(popupTree?.getAttribute('role')).toBe('tree');
+    expect(screen.getByRole('combobox').getAttribute('aria-haspopup')).toBe('tree');
+    expect(document.querySelectorAll('[role="treeitem"]')).toHaveLength(2);
+  });
+
+  it('arrow keys move through custom items using getRowProps', () => {
+    render(
+      <Select
+        label="Size"
+        items={['S', 'M', 'L']}
+        defaultOpen
+        popupRole="listbox"
+        renderList={(ctx) => (
+          <div>
+            {ctx.items.map((item) => (
+              <div key={item.value} {...ctx.getRowProps(item.value)}>
+                {item.label}
+              </div>
+            ))}
+          </div>
+        )}
+      />,
+    );
+    const field = screen.getByRole('combobox');
+    field.focus();
+    key('ArrowDown');
+    expect(field.getAttribute('aria-activedescendant')).toContain('option-0');
+    expect(document.querySelector('[data-active]')?.textContent).toBe('S');
+    key('ArrowDown');
+    expect(field.getAttribute('aria-activedescendant')).toContain('option-1');
+    expect(document.querySelector('[data-active]')?.textContent).toBe('M');
+  });
+
+  it('parent rerender with a new renderList function does not close popup or lose focus', () => {
+    function Parent({ count }: { count: number }) {
+      return (
+        <Select
+          label="Size"
+          items={['S', 'M']}
+          defaultOpen
+          renderList={(ctx) => (
+            <div>
+              Count: {count}
+              {ctx.items.map((item) => (
+                <div key={item.value} {...ctx.getRowProps(item.value)}>
+                  {item.label}
+                </div>
+              ))}
+            </div>
+          )}
+        />
+      );
+    }
+    const { rerender } = render(<Parent count={1} />);
+    const field = screen.getByRole('combobox');
+    field.focus();
+    expect(document.activeElement).toBe(field);
+    expect(field.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByText('Count: 1')).toBeTruthy();
+
+    const activeRow = () => document.querySelector('[data-custom] [data-active]')?.textContent;
+    key('ArrowDown');
+    key('ArrowDown');
+    expect(activeRow()).toBe('M');
+    rerender(<Parent count={2} />);
+    expect(field.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByText('Count: 2')).toBeTruthy();
+    expect(document.activeElement).toBe(field);
+    expect(activeRow()).toBe('M');
+  });
+
+  it('renderList: Enter chooses the active custom row; Escape closes and keeps focus on the field', () => {
+    const onChange = vi.fn();
+    const { container } = render(
+      <form>
+        <Select
+          label="Size"
+          name="size"
+          items={['S', 'M', 'L']}
+          onChange={onChange}
+          popupRole="grid"
+          renderList={(ctx) => (
+            <div>
+              {ctx.items.map((item) => (
+                <div key={item.value} {...ctx.getRowProps(item.value)}>
+                  {item.label}
+                </div>
+              ))}
+            </div>
+          )}
+        />
+      </form>,
+    );
+    const field = screen.getByRole('combobox');
+    field.focus();
+    key('ArrowDown');
+    expect(field.getAttribute('aria-expanded')).toBe('true');
+    key('ArrowDown');
+    key('Enter');
+    expect(onChange).toHaveBeenLastCalledWith('M', expect.anything());
+    expect(field.getAttribute('aria-expanded')).toBe('false');
+    expect(new FormData(container.querySelector('form')!).get('size')).toBe('M');
+    key('ArrowDown');
+    expect(field.getAttribute('aria-expanded')).toBe('true');
+    key('Escape');
+    expect(field.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(field);
   });
 });
 

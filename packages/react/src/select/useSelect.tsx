@@ -12,10 +12,11 @@ import { VISUALLY_HIDDEN } from '../a11y';
 import { CHEVRON_DOWN_ICON, CLOSE_ICON } from '../nav-icons';
 import { avatarNode, renderRows, rowContext, toRow, toRows, useListNav, useListWindow, type Row } from './listbox';
 import type { ListItemContext } from './listbox';
-import type { SelectApi, SelectComponent, SelectConfig, SelectRootProps, SelectSlot, SelectState } from './types';
+import type { SelectApi, SelectComponent, SelectConfig, SelectListContext, SelectRootProps, SelectSlot, SelectState } from './types';
 
 const asList = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : v == null || v === '' ? [] : [String(v)]);
 const SHARED: Record<string, string> = { label: 'pinfold-field__label', description: 'pinfold-field__description', error: 'pinfold-field__error', statusIcon: 'pinfold-field__icon', validating: 'pinfold-field__validating' };
+const ROW_ROLE = { listbox: 'option', grid: 'row', tree: 'treeitem', dialog: undefined } as const;
 
 /**
  * A field that opens a list to choose one value, or several with `multiple`, as a hook that hands
@@ -49,9 +50,11 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
   const listId = `${field.base}-list`;
   const disabled = !!config.disabled;
   const open = isOpen && !disabled;
-  const arrows = useScrollArrows(popup, config.scrollArrows !== false, open);
+  const custom = typeof config.renderList === 'function';
+  const popupRole = custom ? config.popupRole ?? 'dialog' : 'listbox';
+  const arrows = useScrollArrows(popup, config.scrollArrows !== false && !custom, open);
   const nav = useListNav({ rows, open, selected: value, listId });
-  const listWindow = useListWindow(rows, open, nav.active, popup);
+  const listWindow = useListWindow(rows, open && !custom, nav.active, popup);
 
   if (process.env.NODE_ENV !== 'production') {
     void import('@pinfold/core/meta').then(({ selectMeta, validateConfig }) => {
@@ -92,6 +95,10 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
   const clear = (event?: React.SyntheticEvent) => {
     commit([], event);
     config.onClear?.();
+  };
+  const add = (row: Row, event?: React.SyntheticEvent) => {
+    commit(multiple ? [...current.current.filter((x) => x !== row.value), row.value] : [row.value], event);
+    if (!multiple) setOpen(false);
   };
   const pick = (row: Row, event?: React.SyntheticEvent) => {
     if (row.disabled) return;
@@ -143,6 +150,33 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
       setOpen(false);
     } else if (nav.move(key)) event.preventDefault();
     else if (!event.metaKey && !event.ctrlKey && nav.typeahead(key)) event.preventDefault();
+  };
+
+  /** Props for a row a custom body draws. */
+  const getRowProps = (v: string, props?: PropsBag): PropsBag => {
+    const i = rows.findIndex((r) => r.value === v);
+    const row = rows[i];
+    const selected = value.includes(v);
+    return mergeProps(
+      {
+        id: i >= 0 ? nav.optionId(i) : undefined,
+        role: ROW_ROLE[popupRole],
+        'aria-selected': popupRole === 'dialog' ? undefined : selected,
+        'aria-disabled': row?.disabled || undefined,
+        'data-active': dataAttr(i >= 0 && i === nav.active),
+        'data-selected': dataAttr(selected),
+        'data-disabled': dataAttr(row?.disabled),
+        onPointerMove: () => {
+          if (i >= 0 && !row?.disabled && i !== nav.active) nav.setActive(i);
+        },
+        // Focus stays on the field, so the list does not close under the press.
+        onPointerDown: (event: React.PointerEvent) => event.preventDefault(),
+        onClick: (event: React.MouseEvent) => {
+          if (row) pick(row, event);
+        },
+      },
+      props,
+    );
   };
 
   const getRootProps = (props?: PropsBag): PropsBag =>
@@ -243,11 +277,11 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
         id: field.controlId,
         role: 'combobox',
         tabIndex: disabled ? -1 : 0,
-        'aria-haspopup': 'listbox',
+        'aria-haspopup': custom ? popupRole : 'listbox',
         'aria-expanded': open,
         'aria-controls': open ? listId : undefined,
         'aria-labelledby': `${field.labelId} ${valueId}`,
-        'aria-activedescendant': nav.activeId,
+        'aria-activedescendant': custom && popupRole === 'dialog' ? undefined : nav.activeId,
         'aria-describedby': field.describedBy,
         'aria-invalid': field.invalid || undefined,
         'aria-required': config.required || undefined,
@@ -261,31 +295,59 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
         },
       },
     );
+    const listCtx = (): SelectListContext => ({
+      items: rows.map((r, i) => rowContext(r, i, value.includes(r.value), i === nav.active)),
+      value,
+      select: (v, e) => {
+        if (!value.includes(v) || !multiple) add(rowOf(v), e);
+      },
+      deselect: (v, e) => (multiple ? remove(v, e) : value.includes(v) && commit([], e)),
+      toggle: (v, e) => pick(rowOf(v), e),
+      isSelected: (v) => value.includes(v),
+      activeValue: rows[nav.active]?.value ?? null,
+      setActiveValue: (v) => nav.setActive(v == null ? -1 : rows.findIndex((r) => r.value === v)),
+      getRowProps,
+      close: () => setOpen(false),
+    });
     const list =
       open && mounted
         ? slot(
             'popup',
-            <>
-            {arrows.up}
-            {renderRows({
-              rows,
-              slot: slot as never,
-              listId,
-              labelId: field.labelId,
-              multiple,
-              selected: value,
-              active: nav.active,
-              setActive: nav.setActive,
-              optionId: nav.optionId,
-              onPick: (row, event) => pick(row, event),
-              unstyled: config.unstyled,
-              window: listWindow,
-              status: rows.length ? undefined : config.emptyText ?? 'No options',
-            })}
-            {arrows.down}
-            </>,
+            custom ? (
+              config.renderList!(listCtx())
+            ) : (
+              <>
+                {arrows.up}
+                {renderRows({
+                  rows,
+                  slot: slot as never,
+                  listId,
+                  labelId: field.labelId,
+                  multiple,
+                  selected: value,
+                  active: nav.active,
+                  setActive: nav.setActive,
+                  optionId: nav.optionId,
+                  onPick: (row, event) => pick(row, event),
+                  unstyled: config.unstyled,
+                  window: listWindow,
+                  status: rows.length ? undefined : config.emptyText ?? 'No options',
+                })}
+                {arrows.down}
+              </>
+            ),
             'div',
-            { ref: popup, id: listId, role: 'listbox', 'aria-labelledby': field.labelId, 'aria-multiselectable': multiple || undefined, 'data-size': state.size, 'data-tone': state.tone, tabIndex: -1 },
+            {
+              ref: popup,
+              id: listId,
+              role: popupRole,
+              'aria-labelledby': field.labelId,
+              'aria-multiselectable': (multiple && popupRole !== 'dialog') || undefined,
+              'data-size': state.size,
+              'data-tone': state.tone,
+              'data-custom': dataAttr(custom),
+              tabIndex: -1,
+            },
           )
         : null;
     // The form's copy of the value: submit, reset, autofill and `required` are the browser's.
