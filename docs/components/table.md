@@ -46,7 +46,7 @@ and `cell`, `value`, `compare` get the row's type. Precedence: use-site props, t
 | `toolbar` | `true` or `{ search, columns, export, chips, start, end }`: the quick search, a panel to show, hide and pin columns, a CSV download (a string names the file), the active filters as chips with a remove button each, and your own controls before and after the built-in ones | none |
 | `pageSize`, `pageSizes`, `onPageSizeChange`, `page`, `defaultPage`, `onPageChange`, `total` | pages with Pagination and the range ("1–25 of 240"); sizes to pick; `total` for server pages | no pages |
 | `virtual`, `rowHeight` | only the rows in view are drawn (needs a height) | `false`, by density 36 / 44 / 52 |
-| `resizableColumns`, `reorderableColumns`, `resizableRows` | drag column edges (double-click fits, Alt + arrows), drag headers (Ctrl or Cmd + Shift + arrows), drag row bottoms | `false` |
+| `resizableColumns`, `reorderableColumns`, `resizableRows` | drag column edges (double-click fits, Alt + arrows), drag headers (Ctrl or Cmd + Shift + arrows), drag a row's bottom edge anywhere along the row (double-click goes back to the table's row height) | `false` |
 | `columnState`, `defaultColumnState`, `onColumnStateChange`, `autoSaveId` | `{ order, widths, hidden, pinned }`; remembered with the sort and filters under an id | none |
 | `selection`, `selected`, `defaultSelected`, `onSelectionChange` | `'none' \| 'single' \| 'multiple'`; Shift + click picks a span | `'none'` |
 | `renderDetail`, `subTable`, `getSubRows`, `expandIcon`, `expanded`, `defaultExpanded`, `onExpandedChange` | a row opens: your panel (`(row) => node`), a table of its own (`(row) => table config`, which can open tables to any depth and wears this table's look), or its rows underneath (`(row) => rows`, to any depth; they sort and filter with their parents and a parent stays while a child matches). The icon is a node or `({ row, expanded, depth, expandable }) => node` | none; a chevron that turns |
@@ -120,6 +120,11 @@ function SortableRow({ id, children, ...props }) {
   return <tr {...props} ref={setNodeRef} style={{ ...props.style, transform: CSS.Transform.toString(transform), transition }} {...attributes} {...listeners}>{children}</tr>;
 }
 <Grid label="Queue" rows={queue} rowKey="id" render={{ row: ({ props, children, item }) => <SortableRow id={item.rowKey} {...props}>{children}</SortableRow> }} />
+
+// The browser's own drag and drop: drag a row onto anything outside the grid
+<Grid label="Orders" rows={orders} rowKey="id"
+  rowProps={({ row }) => ({ draggable: true, onDragStart: (event) => event.dataTransfer.setData('application/json', JSON.stringify(row)) })} />
+<section onDragOver={(event) => event.preventDefault()} onDrop={(event) => assign(JSON.parse(event.dataTransfer.getData('application/json')))} />
 ```
 
 ## How it scales

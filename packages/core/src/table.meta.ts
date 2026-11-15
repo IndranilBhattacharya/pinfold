@@ -103,7 +103,7 @@ export const tableMeta: ComponentMeta = {
     rowHeight: { type: 'number', min: 20, max: 200, step: 2, unit: 'px', description: 'Row height in px for a virtual table. Default by density: 36, 44, 52.', group: 'appearance', control: true },
     resizableColumns: { type: 'boolean', default: false, description: 'Column edges drag to resize (double-click fits the content; Alt + arrows on a header).', group: 'behaviour', control: true },
     reorderableColumns: { type: 'boolean', default: false, description: 'Headers drag to reorder (also Ctrl or Cmd + Shift + arrows on a header).', group: 'behaviour', control: true, silent: true },
-    resizableRows: { type: 'boolean', default: false, description: 'Row bottoms drag to resize.', group: 'behaviour', control: true, silent: true },
+    resizableRows: { type: 'boolean', default: false, description: 'A row\'s bottom edge drags to resize it, anywhere along the row; double click resets it.', group: 'behaviour', control: true, silent: true },
     columnState: { type: 'object', description: '`{ order, widths, hidden, pinned }`, controlled.', group: 'data' },
     defaultColumnState: { type: 'object', description: 'The column state when uncontrolled.', group: 'data' },
     onColumnStateChange: { type: 'function', description: '`(state) => void`: widths, order, hidden and pinned columns changed.', group: 'events' },

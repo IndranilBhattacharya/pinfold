@@ -184,7 +184,8 @@
     border-block-end: var(--pinfold-border-width) solid var(--pinfold-tbl-line);
   }
   .pinfold-table__body tr:last-child > td { border-block-end: 0; }
-  .pinfold-table__cell { position: relative; }
+  .pinfold-table__cell,
+  .pinfold-table__body .pinfold-table__lead { position: relative; }
   :is(.pinfold-table__header, .pinfold-table__cell)[data-align='end'] { text-align: end; }
   :is(.pinfold-table__header, .pinfold-table__cell)[data-align='center'] { text-align: center; }
   .pinfold-table[data-lines='none'] :is(.pinfold-table__cell, .pinfold-table__body .pinfold-table__lead) { border-block-end-color: transparent; }
@@ -454,8 +455,8 @@
   .pinfold-table[data-grid] :is(.pinfold-table__cell, .pinfold-table__header, .pinfold-table__lead):focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--pinfold-color-ring, var(--pinfold-color-accent)); }
 
   /* Row resizing: a grab strip on the row's bottom edge. */
-  .pinfold-table__rowResizer { position: absolute; inset-inline: 0; inset-block-end: -0.25rem; z-index: 2; block-size: 0.5rem; cursor: row-resize; touch-action: none; }
-  .pinfold-table__rowResizer:hover { background: linear-gradient(transparent 3px, var(--pinfold-tbl-solid) 3px, var(--pinfold-tbl-solid) 5px, transparent 5px); }
+  .pinfold-table__rowResizer { position: absolute; inset-inline: 0; inset-block-end: 0; z-index: 2; block-size: 6px; cursor: row-resize; touch-action: none; }
+  .pinfold-table__row:is([data-resize-hover], [data-resizing]) .pinfold-table__rowResizer { background: linear-gradient(transparent 4px, var(--pinfold-tbl-solid) 4px); }
 
   /* A virtual body: rows of a set height, one line each. */
   .pinfold-table[data-virtual] .pinfold-table__cell { padding-block: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

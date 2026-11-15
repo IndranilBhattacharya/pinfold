@@ -1138,6 +1138,46 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
       const pos = e.pos;
       const action = config.onRowAction;
       const ownHeight = rowHeights[source ? `#${index}` : rowKey];
+      // Row resizing: a strip on the bottom edge of every cell, so the whole row edge is the handle,
+      // whatever is pinned, reordered or hidden. Double click goes back to the table's row height.
+      const heightKey = source ? `#${index}` : rowKey;
+      const resizer = config.resizableRows ? (
+        <span
+          aria-hidden="true"
+          className={cls('pinfold-table__rowResizer')}
+          onPointerEnter={(event) => event.currentTarget.closest('tr')?.setAttribute('data-resize-hover', '')}
+          onPointerLeave={(event) => event.currentTarget.closest('tr')?.removeAttribute('data-resize-hover')}
+          onDoubleClick={(event) => {
+            event.stopPropagation();
+            setRowHeights((m) => {
+              const { [heightKey]: _, ...rest } = m;
+              return rest;
+            });
+          }}
+          onPointerDown={(event) => {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const handle = event.currentTarget as HTMLElement;
+            const tr = handle.closest('tr') as HTMLElement;
+            const startY = event.clientY;
+            const startH = tr.offsetHeight;
+            handle.setPointerCapture?.(event.pointerId);
+            tr.setAttribute('data-resizing', '');
+            const move = (ev: PointerEvent) => setRowHeights((m) => ({ ...m, [heightKey]: Math.max(rowHeight * 0.75, Math.round(startH + ev.clientY - startY)) }));
+            const up = () => {
+              tr.removeAttribute('data-resizing');
+              handle.removeEventListener('pointermove', move);
+              handle.removeEventListener('pointerup', up);
+              handle.removeEventListener('pointercancel', up);
+            };
+            handle.addEventListener('pointermove', move);
+            handle.addEventListener('pointerup', up);
+            handle.addEventListener('pointercancel', up);
+          }}
+        />
+      ) : null;
+      const withResizer = (node: React.ReactNode) => (resizer ? <>{node}{resizer}</> : node);
       return (
         <React.Fragment key={rowKey}>
           {slot(
@@ -1148,7 +1188,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                   leadName,
                   'td',
                   r,
-                  leadName === 'select' ? (
+                  withResizer(leadName === 'select' ? (
                     <CheckMark
                       type={selection === 'single' ? 'radio' : 'checkbox'}
                       tone={state.tone}
@@ -1211,7 +1251,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                         setRowDrag({ from: index, over: index, after: false });
                       },
                     })
-                  ),
+                  )),
                 ),
               )}
               {columns.map((c, i) => {
@@ -1263,29 +1303,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                       'cell',
                       <>
                         {content}
-                        {config.resizableRows && i === 0 ? (
-                          <span
-                            aria-hidden="true"
-                            className={cls('pinfold-table__rowResizer')}
-                            onPointerDown={(event) => {
-                              event.preventDefault();
-                              event.stopPropagation();
-                              const tr = (event.currentTarget as HTMLElement).closest('tr') as HTMLElement;
-                              const startY = event.clientY;
-                              const startH = tr.offsetHeight;
-                              const handle = event.currentTarget as HTMLElement;
-                              handle.setPointerCapture?.(event.pointerId);
-                              const k = source ? `#${index}` : rowKey;
-                              const move = (ev: PointerEvent) => setRowHeights((m) => ({ ...m, [k]: Math.max(rowHeight * 0.75, Math.round(startH + ev.clientY - startY)) }));
-                              const up = () => {
-                                handle.removeEventListener('pointermove', move);
-                                handle.removeEventListener('pointerup', up);
-                              };
-                              handle.addEventListener('pointermove', move);
-                              handle.addEventListener('pointerup', up);
-                            }}
-                          />
-                        ) : null}
+                        {resizer}
                       </>,
                       'td',
                       mergeProps(

@@ -232,6 +232,61 @@ describe('Table rows that move and take your props', () => {
     expect(onRowReorder).toHaveBeenCalledTimes(1);
   });
 
+  it('resizableRows: every cell (handle and selection too) carries the edge strip; any of them resizes the row; double click resets', () => {
+    const { container } = render(<Table label="Queue" rows={tasks} resizableRows selection="multiple" reorderableRows onRowReorder={() => {}} columns={['title', 'points']} />);
+    const row = container.querySelector<HTMLElement>('tr[data-row-key="t2"]')!;
+    const strips = row.querySelectorAll<HTMLElement>('.pinfold-table__rowResizer');
+    expect(strips.length).toBe(row.children.length);
+    const last = strips[strips.length - 1];
+    fireEvent.pointerEnter(last);
+    expect(row.hasAttribute('data-resize-hover')).toBe(true);
+    fireEvent.pointerDown(last, { button: 0, clientY: 100, pointerId: 1 });
+    expect(row.hasAttribute('data-resizing')).toBe(true);
+    act(() => {
+      last.dispatchEvent(new MouseEvent('pointermove', { clientY: 180 }));
+    });
+    expect(row.style.blockSize).toBe('80px');
+    act(() => {
+      last.dispatchEvent(new MouseEvent('pointercancel'));
+    });
+    expect(row.hasAttribute('data-resizing')).toBe(false);
+    act(() => {
+      last.dispatchEvent(new MouseEvent('pointermove', { clientY: 300 }));
+    });
+    expect(row.style.blockSize).toBe('80px');
+    fireEvent.pointerLeave(last);
+    expect(row.hasAttribute('data-resize-hover')).toBe(false);
+    fireEvent.doubleClick(strips[0]);
+    expect(row.style.blockSize).toBe('');
+    expect(container.querySelector('tr[data-row-key="t1"]')!.querySelectorAll('.pinfold-table__rowResizer').length).toBe(row.children.length);
+  });
+
+  it('rows drag anywhere with native drag and drop through rowProps: the event gets the row, the table\'s own handlers still run', () => {
+    const started: string[] = [];
+    const onRowAction = vi.fn();
+    render(
+      <Table
+        label="Queue"
+        rows={tasks}
+        columns={['title']}
+        onRowAction={onRowAction}
+        rowProps={({ row }) => ({
+          draggable: true,
+          onDragStart: (event: React.DragEvent) => {
+            event.dataTransfer?.setData('text/plain', row.id);
+            started.push(row.id);
+          },
+        })}
+      />,
+    );
+    const row = screen.getByText('Build').closest('tr')!;
+    expect(row.getAttribute('draggable')).toBe('true');
+    fireEvent.dragStart(row, { dataTransfer: { setData: () => {} } });
+    expect(started).toEqual(['t2']);
+    fireEvent.click(screen.getByText('Build'));
+    expect(onRowAction).toHaveBeenCalledTimes(1);
+  });
+
   it('rowProps and cellProps reach the elements; handlers chain with the table\'s own; onCellClick reports the cell', () => {
     const onDoubleClick = vi.fn();
     const onRowAction = vi.fn();
