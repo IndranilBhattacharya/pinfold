@@ -35,7 +35,7 @@ the library default.
 |---|---|---|
 | `placement` | `'top-start' \| 'top' \| 'top-end' \| 'bottom-start' \| 'bottom' \| 'bottom-end'` | `'bottom-end'` |
 | `duration` | `number`, ms | `5000` |
-| `max` | `number` on screen at once; the rest wait | `5` |
+| `max` | `number` on screen at once; the newest always show, older ones wait | `5` |
 | `stack` | `boolean`: piled behind the newest; hover or focus fans them out | `true` |
 | `visible` | `number` shown at full size when fanned out; more scroll, with no scrollbar | `3` |
 | `label` | `string`, the region's name | `'Notifications'` |
@@ -74,7 +74,8 @@ leaves fades toward the edge while its space closes, so the others glide into pl
 - The region is a named landmark and a polite live region, there from the first render so
   announcements are reliable; an error is `role="alert"`.
 - Timers stop while the pointer or focus is inside, and while the tab is hidden. A toast waiting in
-  the queue has not started counting.
+  the queue has not started counting. Past `max` the newest show: a toast someone just caused never
+  waits behind older ones that stay.
 - Errors and toasts with an action stay until dismissed: an action must not vanish first.
 - Escape with focus inside a toast dismisses it.
 - While a modal dialog is open everything outside it is inert, toasts included: they are shown and

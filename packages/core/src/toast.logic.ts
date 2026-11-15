@@ -64,8 +64,10 @@ export function createToastStore<T extends ToastInput>(initial: ToastStoreOption
     timer.handle = setTimeout(() => dismiss(id), timer.remaining);
   };
   const sync = () => {
-    visible = items.slice(0, Math.max(1, options.max));
-    // Only toasts on screen count down: one waiting in the queue has not been seen yet.
+    // The newest are on screen: a toast someone just caused never waits behind older ones that stay (errors,
+    // toasts with an action). An older one pushed off keeps its timer and comes back when there is room.
+    visible = items.slice(-Math.max(1, options.max));
+    // Only toasts on screen start counting: one that has never shown has not been seen yet.
     for (const toast of visible) {
       if (timers.has(toast.id)) continue;
       const remaining = toastDuration(toast, options.duration);

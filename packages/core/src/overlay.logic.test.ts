@@ -97,17 +97,33 @@ describe('toast store', () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
-  it('queues past max: a waiting toast starts counting when it shows', () => {
+  it('past max the newest shows; an older one waits and comes back when there is room', () => {
+    const store = createToastStore({ duration: 1000, max: 2 });
+    store.show({ id: 'error', tone: 'danger' }); // stays until dismissed
+    store.show({ id: 'b' });
+    store.show({ id: 'c' });
+    expect(store.getVisible().map((t) => t.id)).toEqual(['b', 'c']);
+    vi.advanceTimersByTime(1000);
+    expect(store.getVisible().map((t) => t.id)).toEqual(['error']);
+  });
+
+  it('a toast pushed off keeps counting (it was seen); one that never showed starts when it does', () => {
     const store = createToastStore({ duration: 1000, max: 1 });
     store.show({ id: 'a' });
+    vi.advanceTimersByTime(400);
     store.show({ id: 'b' });
-    expect(store.getVisible().map((t) => t.id)).toEqual(['a']);
+    expect(store.getVisible().map((t) => t.id)).toEqual(['b']);
+    vi.advanceTimersByTime(600); // a's time is up while it waits: it never comes back
+    expect(store.getVisible().map((t) => t.id)).toEqual(['b']);
+    // Shrinking max hides one that has never been on screen: it waits without counting.
+    const two = createToastStore({ duration: 1000, max: 2 });
+    two.show({ id: 'x', duration: 0 });
+    two.configure({ max: 1 });
+    two.show({ id: 'y' });
+    two.show({ id: 'z' });
+    expect(two.getVisible().map((t) => t.id)).toEqual(['z']);
     vi.advanceTimersByTime(1000);
-    expect(store.getVisible().map((t) => t.id)).toEqual(['b']);
-    vi.advanceTimersByTime(999);
-    expect(store.getVisible().map((t) => t.id)).toEqual(['b']);
-    vi.advanceTimersByTime(1);
-    expect(store.getVisible()).toEqual([]);
+    expect(two.getVisible().map((t) => t.id)).toEqual(['x']);
   });
 
   it('updates a toast in place by id and restarts its timer; the array identity is stable between changes', () => {
