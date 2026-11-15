@@ -4,4 +4,4 @@
 export { Select, useSelect } from './client';
 export { Select as default } from './client';
 export { defineSelect, type DefinedSelect, type SelectPresetProps } from './define';
-export type { SelectApi, SelectComponent, SelectConfig, SelectSingleConfig, SelectMultipleConfig, SelectRootProps, SelectTagProps, SelectSlot, SelectState, SelectItem, SelectVariant, SelectDimensions } from './types';
+export type { SelectApi, SelectComponent, SelectConfig, SelectSingleConfig, SelectMultipleConfig, SelectRootProps, SelectTagProps, SelectSlot, SelectState, SelectItem, SelectVariant, SelectDimensions, SelectListContext, SelectItemContext } from './types';

@@ -59,7 +59,7 @@ const names = Object.fromEntries(people.map((p) => [p.value, p.label]));
 ```
 
 ### A dropdown of your own: a table
-`renderList` replaces the listbox with your body. Typing still filters (or `loadItems` still
+`renderList` replaces the listbox with your body (its argument is a `ComboboxListContext`). Typing still filters (or `loadItems` still
 fetches), the arrow keys still move the active row and Enter still chooses it; spread
 `getRowProps(value)` on each row element so it gets its id, its role, `aria-selected`,
 `data-active` / `data-selected` and the pointer handlers. Say what the body is with `popupRole`.

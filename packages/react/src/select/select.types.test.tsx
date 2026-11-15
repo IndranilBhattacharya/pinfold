@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { Select } from './Select';
 import { useSelect } from './useSelect';
 import { Combobox } from '../combobox/Combobox';
+import type { SelectListContext } from './index';
+import type { ComboboxItemContext, ComboboxListContext } from '../combobox/index';
 
 const sizes = [{ value: 's', label: 'Small' }, { value: 'm', label: 'Medium' }] as const;
 
@@ -37,6 +39,9 @@ export function Checks(): React.ReactElement {
           return <div>{ctx.value.join(',')}</div>;
         }}
       />
+      {/* @ts-expect-error: getRowProps takes a value, not a row */}
+      <Select label="Size" items={sizes} renderList={(ctx: SelectListContext) => <div {...ctx.getRowProps({ value: 's' })} />} />
+      <Combobox label="City" items={['Oslo']} renderList={(ctx: ComboboxListContext) => ctx.items.map((item: ComboboxItemContext) => <div key={item.value} {...ctx.getRowProps(item.value)} />)} />
       {/* @ts-expect-error: no such popupRole */}
       <Select label="Size" items={sizes} popupRole="tablist" />
       <Combobox label="City" items={['Oslo', 'Osaka']} filter="startsWith" onInputChange={(t) => t satisfies string} />

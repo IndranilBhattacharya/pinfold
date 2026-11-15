@@ -4,4 +4,4 @@
 export { Combobox, useCombobox } from './client';
 export { Combobox as default } from './client';
 export { defineCombobox, type DefinedCombobox, type ComboboxPresetProps } from './define';
-export type { ComboboxApi, ComboboxComponent, ComboboxConfig, ComboboxSingleConfig, ComboboxMultipleConfig, ComboboxRootProps, ComboboxTagProps, ComboboxSlot, ComboboxState, ComboboxLabels, ComboboxDimensions } from './types';
+export type { ComboboxApi, ComboboxComponent, ComboboxConfig, ComboboxSingleConfig, ComboboxMultipleConfig, ComboboxRootProps, ComboboxTagProps, ComboboxSlot, ComboboxState, ComboboxLabels, ComboboxDimensions, ComboboxListContext, ComboboxItemContext } from './types';
