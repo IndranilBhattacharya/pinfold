@@ -4,7 +4,7 @@ import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 import type { ButtonConfig } from '../button/types';
 
-export type ToastSlot = 'root' | 'list' | 'item' | 'icon' | 'content' | 'title' | 'description' | 'action' | 'dismiss';
+export type ToastSlot = 'root' | 'list' | 'item' | 'icon' | 'content' | 'title' | 'description' | 'action' | 'dismiss' | 'progress';
 export type ToastPlacement = 'top-start' | 'top' | 'top-end' | 'bottom-start' | 'bottom' | 'bottom-end';
 
 /** One message: what `show()` takes. */
@@ -67,6 +67,12 @@ export interface ToastConfig extends SlotOverrides<ToastSlot, ToastState> {
   dismissLabel?: string;
   /** A toast can be swiped toward its edge to dismiss it (touch and pointer); the button stays. @default true */
   swipe?: boolean;
+  /** Pointer over the region pauses every timer. Focus inside the region always pauses (keyboard users need the time). @default true */
+  pauseOnHover?: boolean;
+  /** The window losing focus, or the tab being hidden, pauses every timer. @default true */
+  pauseOnFocusLoss?: boolean;
+  /** A thin bar along each timed toast that empties over its time and stops while paused. @default false */
+  showProgress?: boolean;
   /** A store from `createToastStore()`, to show toasts from outside React. */
   store?: ToastStore<ToastMessage>;
   dimensions?: ToastDimensions;

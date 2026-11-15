@@ -181,6 +181,116 @@ describe('Toast', () => {
     }
   });
 
+  it('with pauseOnHover: false, pointer enter does not pause; with default it stays', () => {
+    const disabled = setup({ pauseOnHover: false, duration: 1000 });
+    act(() => void disabled.show({ title: 'Going' }));
+    const regionDisabled = screen.getByRole('region');
+    fireEvent.pointerEnter(regionDisabled);
+    act(() => void vi.advanceTimersByTime(1000));
+    expect(shown(regionDisabled)).not.toContain('Going');
+  });
+
+  it('focus inside the region pauses even with pauseOnHover: false', () => {
+    const toasts = setup({ pauseOnHover: false, duration: 1000 });
+    act(() => void toasts.show({ title: 'FocusMe' }));
+    const region = screen.getByRole('region');
+    const dismissBtn = screen.getByRole('button', { name: 'Dismiss' });
+    act(() => void dismissBtn.focus());
+    act(() => void vi.advanceTimersByTime(3000));
+    expect(region.textContent).toContain('FocusMe');
+  });
+
+  it('hover then focus then pointer leave stays paused until focus leaves', () => {
+    const toasts = setup({ duration: 1000 });
+    act(() => void toasts.show({ title: 'MultiPause' }));
+    const region = screen.getByRole('region');
+    fireEvent.pointerEnter(region);
+    const dismissBtn = screen.getByRole('button', { name: 'Dismiss' });
+    act(() => void dismissBtn.focus());
+    fireEvent.pointerLeave(region);
+    act(() => void vi.advanceTimersByTime(3000));
+    expect(region.textContent).toContain('MultiPause');
+    expect(region.hasAttribute('data-paused')).toBe(true);
+
+    act(() => void dismissBtn.blur());
+    fireEvent.blur(region, { relatedTarget: document.body });
+    act(() => void vi.advanceTimersByTime(1000));
+    expect(shown(region)).not.toContain('MultiPause');
+    expect(region.hasAttribute('data-paused')).toBe(false);
+  });
+
+  it('window blur pauses and focus resumes by default; with pauseOnFocusLoss: false it does not', () => {
+    const toasts = setup({ duration: 1000 });
+    act(() => void toasts.show({ title: 'WindowPause' }));
+    const region = screen.getByRole('region');
+    act(() => void fireEvent(window, new Event('blur')));
+    expect(region.hasAttribute('data-paused')).toBe(true);
+    act(() => void vi.advanceTimersByTime(3000));
+    expect(region.textContent).toContain('WindowPause');
+
+    act(() => void fireEvent(window, new Event('focus')));
+    expect(region.hasAttribute('data-paused')).toBe(false);
+    act(() => void vi.advanceTimersByTime(1000));
+    expect(shown(region)).not.toContain('WindowPause');
+
+    const noLoss = setup({ pauseOnFocusLoss: false, duration: 1000 });
+    act(() => void noLoss.show({ title: 'NoLossPause' }));
+    const region2 = screen.getAllByRole('region')[1] ?? screen.getByRole('region');
+    act(() => void fireEvent(window, new Event('blur')));
+    expect(region2.hasAttribute('data-paused')).toBe(false);
+    act(() => void vi.advanceTimersByTime(1000));
+    expect(shown(region2)).not.toContain('NoLossPause');
+  });
+
+  it('removes window listeners on unmount', () => {
+    const removeSpy = vi.spyOn(window, 'removeEventListener');
+    try {
+      let ctrl!: ToastComponent;
+      function Host() {
+        const T = useToast();
+        ctrl = T;
+        return <T />;
+      }
+      const { unmount } = render(<Host />);
+      unmount();
+      const calls = removeSpy.mock.calls.map(([event]) => event);
+      expect(calls).toContain('blur');
+      expect(calls).toContain('focus');
+    } finally {
+      removeSpy.mockRestore();
+    }
+  });
+
+  it('showProgress: true renders progress for timed toasts and none for duration 0; toggles data-paused', () => {
+    const toasts = setup({ showProgress: true, duration: 1000 });
+    act(() => {
+      toasts.show({ id: 'timed', title: 'Timed' });
+      toasts.show({ id: 'stay', title: 'Stay', duration: 0 });
+    });
+    const region = screen.getByRole('region');
+    const bars = region.querySelectorAll('.pinfold-toast__progress');
+    expect(bars).toHaveLength(1);
+    expect(bars[0].getAttribute('data-motion')).toBe('essential');
+    expect(region.hasAttribute('data-paused')).toBe(false);
+
+    fireEvent.pointerEnter(region);
+    expect(region.hasAttribute('data-paused')).toBe(true);
+
+    fireEvent.pointerLeave(region);
+    expect(region.hasAttribute('data-paused')).toBe(false);
+  });
+
+  it('updates in place restart the progress bar key', () => {
+    const toasts = setup({ showProgress: true, duration: 2000 });
+    act(() => void toasts.show({ id: 'save', title: 'Saving…', duration: 0 }));
+    const region = screen.getByRole('region');
+    expect(region.querySelector('.pinfold-toast__progress')).toBeNull();
+
+    act(() => void toasts.show({ id: 'save', title: 'Saved', duration: 2000 }));
+    const bar = region.querySelector('.pinfold-toast__progress')!;
+    expect(bar).not.toBeNull();
+  });
+
   it('renders an empty region on the server', () => {
     const store = createToastStore<ToastMessage>();
     store.show({ title: 'Client only', duration: 0 });
@@ -197,7 +307,8 @@ describePinfoldConformance({
   name: 'toast',
   inherits: [],
   variants: false,
-  slots: ['root', 'list', 'item', 'icon', 'content', 'title', 'description', 'action', 'dismiss'],
+  slots: ['root', 'list', 'item', 'icon', 'content', 'title', 'description', 'action', 'dismiss', 'progress'],
+  optionalSlots: ['progress'],
   dimension: { key: 'width', value: 300 },
   cssFile: 'packages/css/src/toast.css',
   meta: toastMeta,

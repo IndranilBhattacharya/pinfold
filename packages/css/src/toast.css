@@ -138,6 +138,31 @@
   }
   .pinfold-toast__dismiss { margin: calc(var(--pinfold-space-1) * -1) calc(var(--pinfold-space-1) * -1) 0 0; }
 
+  /* Progress bar: empties over the duration of a timed toast. */
+  .pinfold-toast .pinfold-toast__progress {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: 2px;
+    background-color: var(--pinfold-tst-text);
+    border-end-start-radius: inherit;
+    border-end-end-radius: inherit;
+    transform-origin: 0% 50%;
+    animation: pinfold-toast-drain var(--pinfold-tst-i-duration) linear forwards;
+    pointer-events: none;
+  }
+  [dir='rtl'] .pinfold-toast .pinfold-toast__progress {
+    transform-origin: 100% 50%;
+  }
+  .pinfold-toast[data-paused] .pinfold-toast__progress {
+    animation-play-state: paused;
+  }
+
+  @keyframes pinfold-toast-drain {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+  }
+
   @keyframes pinfold-toast-in {
     from { opacity: 0; translate: 0 110%; scale: 0.96; }
   }
@@ -147,5 +172,6 @@
 
   @media (forced-colors: active) {
     .pinfold-toast__item { border-color: CanvasText; }
+    .pinfold-toast .pinfold-toast__progress { background-color: CanvasText; }
   }
 }

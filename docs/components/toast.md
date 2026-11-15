@@ -17,6 +17,14 @@ Toasts.show({ title: 'Upload failed', tone: 'danger', action: { label: 'Retry', 
 // Update in place
 Toasts.show({ id: 'save', title: 'Saving…', duration: 0 });
 Toasts.show({ id: 'save', title: 'Saved', tone: 'success' });
+
+// Options
+const Toasts = defineToast({ duration: 6000, pauseOnHover: true, pauseOnFocusLoss: true, showProgress: true });
+<Toasts />
+Toasts.show({ title: 'Report exported', tone: 'success' });           // 6 s, bar empties
+Toasts.show({ title: 'Quick note', duration: 2000 });                  // its own time wins
+Toasts.show({ id: 'save', title: 'Saving…', duration: 0 });            // stays, no bar
+Toasts.show({ id: 'save', title: 'Saved', tone: 'success' });          // same toast, now timed
 ```
 `useToast(config)` gives a region and controller local to one component; `<Toast store={store} />`
 takes a store from `createToastStore()`. Precedence: use-site props, the preset, `defaults.toast`,
@@ -33,10 +41,13 @@ the library default.
 | `label` | `string`, the region's name | `'Notifications'` |
 | `dismissLabel` | `string` | `'Dismiss'` |
 | `swipe` | swipe toward the edge to dismiss (a third of the width or a flick); shorter springs back | `true` |
+| `pauseOnHover` | pointer over the region pauses every timer; focus inside always pauses | `true` |
+| `pauseOnFocusLoss` | window blur or a hidden tab pauses every timer | `true` |
+| `showProgress` | thin bar along each timed toast that empties over its time and stops while paused | `false` |
 | `store` | from `createToastStore()` | its own |
 | `dimensions` | `width, gap, inset` | `22rem`, theme |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root list item icon content title description action dismiss`) | | |
+| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root list item icon content title description action dismiss progress`) | | |
 
 ## A message (`show()`)
 | Key | Type | Default |
@@ -59,6 +70,7 @@ leaves fades toward the edge while its space closes, so the others glide into pl
 ## Accessibility
 - A leaving toast is `aria-hidden` and has no role for its exit animation.
 - Focus inside fans the pile out, so the keyboard reaches every toast's buttons.
+- Focus inside the region always pauses, because WCAG 2.2.1 gives keyboard and screen-reader users the time to read and act.
 - The region is a named landmark and a polite live region, there from the first render so
   announcements are reliable; an error is `role="alert"`.
 - Timers stop while the pointer or focus is inside, and while the tab is hidden. A toast waiting in

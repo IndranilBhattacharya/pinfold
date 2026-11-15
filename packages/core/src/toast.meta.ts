@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
-const SLOTS = ['root', 'list', 'item', 'icon', 'content', 'title', 'description', 'action', 'dismiss'] as const;
+const SLOTS = ['root', 'list', 'item', 'icon', 'content', 'title', 'description', 'action', 'dismiss', 'progress'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -34,6 +34,9 @@ export const toastMeta: ComponentMeta = {
     label: { type: 'string', default: 'Notifications', description: 'Accessible name of the region.', group: 'behaviour' },
     dismissLabel: { type: 'string', default: 'Dismiss', description: 'Accessible name and tooltip of each dismiss button.', group: 'behaviour' },
     swipe: { type: 'boolean', default: true, description: 'Swipe a toast toward its edge (a third of its width, or a flick) to dismiss it; a shorter swipe springs back. The dismiss button stays for everyone else.', group: 'behaviour', control: true, silent: true },
+    pauseOnHover: { type: 'boolean', default: true, description: 'Pointer over the region pauses every timer. Focus inside the region always pauses.', group: 'behaviour', control: true, silent: true },
+    pauseOnFocusLoss: { type: 'boolean', default: true, description: 'The window losing focus, or the tab being hidden, pauses every timer.', group: 'behaviour', control: true, silent: true },
+    showProgress: { type: 'boolean', default: false, description: 'A thin bar along each timed toast that empties over its time and stops while paused.', group: 'appearance', control: true },
     store: { type: 'object', description: 'A store from `createToastStore()` to show toasts from outside React. `defineToast` makes one for you.', group: 'behaviour' },
     dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { width: len('Toast width.'), gap: len('Space between toasts.'), inset: len('Distance from the viewport edge.') } },
     radius: RADIUS_PROP,

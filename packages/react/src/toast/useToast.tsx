@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, createToastStore, dimensionVars, mergeProps, warnOnce, type PropsBag, type ToastStore, radiusProps } from '@pinfold/core';
+import { cn, createToastStore, dimensionVars, mergeProps, toastDuration, warnOnce, type PropsBag, type ToastStore, radiusProps } from '@pinfold/core';
 import { useIsomorphicLayoutEffect } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -11,6 +11,7 @@ import { closingAction, raiseToTopLayer } from '../overlay';
 import type { ToastApi, ToastComponent, ToastConfig, ToastMessage, ToastRootProps, ToastSlot, ToastState } from './types';
 
 type Shown = ToastMessage & { id: string };
+type PauseReason = 'hover' | 'focus' | 'hidden' | 'blur';
 const filled = (node: React.ReactNode) => node != null && node !== false && node !== '';
 const NONE: ReadonlyArray<Shown> = [];
 const server = () => NONE;
@@ -37,7 +38,8 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
   const store = (config.store ?? own.current) as ToastStore<ToastMessage>;
   const region = React.useRef<HTMLDivElement | null>(null);
   const list = React.useRef<HTMLDivElement | null>(null);
-  const hovering = React.useRef(false);
+  const reasons = React.useRef(new Set<PauseReason>());
+  const versions = React.useRef(new Map<string, { last: Shown; count: number }>());
   const [open, setOpen] = React.useState(false);
   const [, bump] = React.useReducer((n: number) => n + 1, 0);
   const leaving = React.useRef(new Map<string, { toast: Shown; done: boolean }>());
@@ -83,16 +85,38 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
     });
   }
   last.current = shown;
+  for (const id of versions.current.keys()) if (!shown.some((t) => t.id === id)) versions.current.delete(id);
 
-  // A hidden tab reads nothing: its timers wait.
+  // The window losing focus or the tab being hidden pauses every timer.
   React.useEffect(() => {
+    if (config.pauseOnFocusLoss === false) {
+      release('hidden');
+      release('blur');
+      return;
+    }
     const onVisibility = () => {
-      if (document.hidden) store.pause();
-      else if (!hovering.current) store.resume();
+      if (document.hidden) hold('hidden');
+      else release('hidden');
     };
+    const onBlur = () => hold('blur');
+    const onFocus = () => release('blur');
+
     document.addEventListener('visibilitychange', onVisibility);
-    return () => document.removeEventListener('visibilitychange', onVisibility);
-  }, [store]);
+    window.addEventListener('blur', onBlur);
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('blur', onBlur);
+      window.removeEventListener('focus', onFocus);
+      release('hidden');
+      release('blur');
+    };
+  }, [store, config.pauseOnFocusLoss]);
+
+  React.useEffect(() => {
+    if (config.pauseOnHover === false) release('hover');
+  }, [config.pauseOnHover]);
 
   // A new toast goes above anything already in the top layer.
   const previous = React.useRef(0);
@@ -145,15 +169,15 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
     if (!state.expanded && list.current) list.current.scrollTop = 0;
   }, [state.expanded]);
 
-  const hold = () => {
-    hovering.current = true;
+  const hold = (reason: PauseReason) => {
+    reasons.current.add(reason);
     store.pause();
-    setOpen(true);
+    region.current?.toggleAttribute('data-paused', reasons.current.size > 0);
   };
-  const release = () => {
-    hovering.current = false;
-    if (!document.hidden) store.resume();
-    setOpen(false);
+  const release = (reason: PauseReason) => {
+    reasons.current.delete(reason);
+    if (reasons.current.size === 0) store.resume();
+    region.current?.toggleAttribute('data-paused', reasons.current.size > 0);
   };
 
   const getRootProps = (props?: PropsBag): PropsBag =>
@@ -171,11 +195,23 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
         'data-expanded': state.expanded ? '' : undefined,
         'data-unstyled': config.unstyled ? '' : undefined,
         'data-animate': animate ? '' : undefined,
-        onPointerEnter: hold,
-        onPointerLeave: release,
-        onFocus: hold,
+        onPointerEnter: () => {
+          if (config.pauseOnHover !== false) hold('hover');
+          setOpen(true);
+        },
+        onPointerLeave: () => {
+          if (config.pauseOnHover !== false) release('hover');
+          setOpen(false);
+        },
+        onFocus: () => {
+          hold('focus');
+          setOpen(true);
+        },
         onBlur: (event: React.FocusEvent<HTMLElement>) => {
-          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) release();
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+            release('focus');
+            setOpen(false);
+          }
         },
       },
       props,
@@ -245,10 +281,31 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
       const at = toast.leaving ? -1 : index++;
       const close = () => {
         store.dismiss(toast.id);
+        versions.current.delete(toast.id);
         // The focused button is gone with its toast, and no blur event says so.
-        if (!region.current?.matches(':hover') && !document.hidden) store.resume();
+        if (!region.current?.contains(document.activeElement)) release('focus');
+        if (!region.current?.matches(':hover')) release('hover');
       };
       const icon = toast.icon === undefined ? <ToneIcon tone={tone} /> : toast.icon;
+      let ver = versions.current.get(toast.id);
+      if (!ver || ver.last !== toast) {
+        ver = { last: toast, count: (ver?.count ?? 0) + 1 };
+        versions.current.set(toast.id, ver);
+      }
+      const ms = toastDuration(toast, config.duration ?? 5000);
+      const progress = config.showProgress && ms > 0 && !toast.leaving ? (
+        slot(
+          'progress',
+          null,
+          'span',
+          {
+            key: `${toast.id}-${ver.count}`,
+            'aria-hidden': true,
+            'data-motion': 'essential',
+            style: { '--pinfold-tst-i-duration': `${ms}ms` } as React.CSSProperties,
+          },
+        )
+      ) : null;
       return slot(
         'item',
         <>
@@ -263,6 +320,7 @@ export function useToast(input: ToastConfig = {}): ToastComponent {
           )}
           {toast.action ? slot('action', <Button size="sm" variant="soft" tone={tone} {...closingAction(toast.action, close)} />, 'span') : null}
           {toast.dismissible !== false ? slot('dismiss', <Button label={config.dismissLabel ?? 'Dismiss'} icon={CLOSE_ICON} iconOnly variant="ghost" tone="neutral" size="sm" onClick={close} />, 'span') : null}
+          {progress}
         </>,
         'div',
         {
