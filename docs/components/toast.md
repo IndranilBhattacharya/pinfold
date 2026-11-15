@@ -34,7 +34,7 @@ the library default.
 | Key | Type | Default |
 |---|---|---|
 | `placement` | `'top-start' \| 'top' \| 'top-end' \| 'bottom-start' \| 'bottom' \| 'bottom-end'` | `'bottom-end'` |
-| `duration` | `number`, ms | `5000` |
+| `duration` | `number`, ms; `0` = no timer: stays until dismissed. A toast's own `duration` wins | `5000` |
 | `max` | `number` on screen at once; the newest always show, older ones wait | `5` |
 | `stack` | `boolean`: piled behind the newest; hover or focus fans them out | `true` |
 | `visible` | `number` shown at full size when fanned out; more scroll, with no scrollbar | `3` |

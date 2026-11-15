@@ -27,7 +27,7 @@ export const toastMeta: ComponentMeta = {
       group: 'appearance',
       control: true,
     },
-    duration: { type: 'number', min: 0, max: 60000, step: 500, unit: 'ms', default: 5000, description: 'Milliseconds before a toast leaves. Errors and toasts with an action stay unless they set their own `duration`; 0 stays.', group: 'behaviour', control: true, silent: true },
+    duration: { type: 'number', min: 0, max: 60000, step: 500, unit: 'ms', default: 5000, description: 'Milliseconds before a toast leaves; 0 = no timer, it stays until dismissed. Errors and toasts with an action stay unless they set their own `duration`. A toast\'s own `duration` wins.', group: 'behaviour', control: true, silent: true },
     max: { type: 'number', min: 1, max: 20, step: 1, unit: 'toasts', default: 5, description: 'How many are on screen at once. The newest always show; older ones wait off screen until there is room.', group: 'behaviour', control: true },
     stack: { type: 'boolean', default: true, description: 'Pile the toasts behind the newest one; hover or focus fans them out.', group: 'appearance', control: true },
     visible: { type: 'number', min: 1, max: 10, step: 1, unit: 'toasts', default: 3, description: 'How many show at full size when fanned out; the rest scroll, with no scrollbar.', group: 'appearance', control: true },

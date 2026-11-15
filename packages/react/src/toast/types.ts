@@ -47,7 +47,7 @@ export interface ToastDimensions {
 export interface ToastConfig extends SlotOverrides<ToastSlot, ToastState> {
   /** @default 'bottom-end' */
   placement?: ToastPlacement;
-  /** @default 5000 */
+  /** Milliseconds before a toast leaves; 0 = no timer (stays until dismissed). A toast's own `duration` wins. @default 5000 */
   duration?: number;
   /** @default 5 */
   max?: number;
