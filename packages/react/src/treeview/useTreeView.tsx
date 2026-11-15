@@ -220,7 +220,8 @@ export function useTreeView(input: TreeViewConfig = {}): TreeViewComponent {
       parentId: n.parentId,
       index: n.index,
       expanded: open,
-      selected: checkable ? checked === true : valueSet.has(n.id),
+      // With no selection a value given earlier marks nothing: rows cannot be chosen.
+      selected: checkable ? checked === true : mode !== 'none' && valueSet.has(n.id),
       checked,
       focused: focused === n.id,
       disabled: disabled || n.disabled,

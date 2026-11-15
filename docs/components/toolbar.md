@@ -33,7 +33,7 @@ Precedence: each item's own settings, the use site, the preset, `defaults.toolba
 | `selectedTone` | with `selection`: the tone of a pressed button that does not set its own | `'primary'` |
 | `variant` | `'outline' \| 'soft' \| 'solid' \| 'ghost'` | `'ghost'` (attached: one raised panel) |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
-| `size`, `tone`, `disabled` | for every button | `'md'` (provider), `'neutral'`, `false` |
+| `size`, `tone`, `disabled` | for every button; ghost buttons on the joined panel (the default) are drawn in the text colour, so `tone` is inactive there | `'md'` (provider), `'neutral'`, `false` |
 | `dimensions` | `gap` (not attached) | `space-1` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root item separator custom`) | | |
 

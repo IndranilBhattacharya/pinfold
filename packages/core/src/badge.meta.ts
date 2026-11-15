@@ -41,6 +41,7 @@ export const badgeMeta: ComponentMeta = {
       description:
         'How the badge finds the anchor\'s edge. `auto` reads the anchor\'s corner radius once mounted, so the badge sits on the curve of a circular avatar, a pill or a rounded card. `rect` pins to the bounding corner, `circle` to a circular edge; both are exact in server HTML too.',
       group: 'appearance',
+      auto: 'from the anchor\'s corner radius',
       control: true,
     },
     variant: {

@@ -83,7 +83,7 @@ the provider tone).
 | `headingLevel` | `2 \| 3 \| 4 \| 5 \| 6` | `3` |
 | `as` | `'div' \| 'article' \| 'section' \| 'li'` | `'div'` |
 | `variant` | `'outline' \| 'elevated' \| 'filled' \| 'soft' \| 'ghost' \| 'glass'` | `'outline'` |
-| `tone` | a tone: the `soft` tint, the ribbon, the glow and the selection | `'primary'` |
+| `tone` | a tone: the `soft` tint, the ribbon, the glow and border hovers and the selection (inactive when none of them is in use) | `'primary'` |
 | `padding` | `'none' \| 'sm' \| 'md' \| 'lg'` | `'md'` |
 | `orientation` | `'vertical' \| 'horizontal'`; same as `mediaPosition` top / start; horizontal wraps under ~30rem | `'vertical'` |
 | `dimensions` | `padding, gap, radius, mediaSize, headerGap` | theme |

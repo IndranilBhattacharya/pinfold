@@ -34,6 +34,7 @@ export const progressMeta: ComponentMeta = {
       default: 'auto',
       description: 'Where the value text goes: above the bar, below it, at its end, or inside the fill (inside a ring or gauge, it is the centre). `auto`: above a bar, inside a ring or gauge.',
       group: 'appearance',
+      auto: 'top for a bar, inside for a ring or gauge',
       control: true,
     },
     valueLabel: { type: 'node', description: 'The visible value, a node or `(state) => node` ("1.2 of 4 GB" with an icon). Screen readers still hear `formatValue`.', group: 'appearance' },

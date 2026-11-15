@@ -45,7 +45,7 @@ export const treeviewMeta: ComponentMeta = {
     defaultExpanded: { type: 'string[]', description: 'The open ids at first.', group: 'data' },
     selectionMode: { type: 'enum', values: ['none', 'single', 'multiple'], default: 'single', description: 'No selection (rows are actions), one row, or several (Space, Ctrl/Cmd + click, Shift + click or Shift + arrows).', group: 'behaviour', control: true },
     checkable: { type: 'boolean', default: false, description: 'A checkbox on every row. Checking a parent checks everything in it; a parent shows checked, mixed or unchecked from its children.', group: 'behaviour', control: true },
-    expandOnClick: { type: 'boolean', default: true, description: 'Pressing a parent row also opens or closes it (the chevron always does).', group: 'behaviour', control: true },
+    expandOnClick: { type: 'boolean', default: true, description: 'Pressing a parent row also opens or closes it (the chevron always does).', group: 'behaviour', control: true, silent: true },
     loadChildren: { type: 'function', description: '`(item, { signal }) => Promise<children>`: loads the children of a node with `hasChildren` the first time it opens. A loading row shows meanwhile, and an error row to retry from if it fails.', group: 'data' },
     searchable: { type: 'boolean', default: false, description: 'A search field above the tree. Rows that match stay, with the path to them opened; matches are marked.', group: 'behaviour', control: true },
     filter: { type: 'string', description: 'The search text, controlled (works without `searchable` too, for a field of your own).', group: 'data' },

@@ -45,7 +45,7 @@ export const sliderMeta: ComponentMeta = {
     thumbContent: { type: 'node', description: 'Inside each thumb: an icon, a grip, the value. A node or a function of the thumb\'s state (`{ value, index, values, ... }`).', group: 'appearance' },
     min: { type: 'number', min: -1000000000, max: 1000000000, step: 1, default: 0, description: 'Lowest value.', group: 'data', control: true, silent: true },
     max: { type: 'number', min: -1000000000, max: 1000000000, step: 1, default: 100, description: 'Highest value.', group: 'data', control: true, silent: true },
-    step: { type: 'number', min: 0.0001, max: 1000000000, step: 1, default: 1, description: 'Values snap to it.', group: 'data', control: true },
+    step: { type: 'number', min: 0.0001, max: 1000000000, step: 1, default: 1, description: 'Values snap to it.', group: 'data', control: true, silent: true },
     minGap: { type: 'number', min: 0, max: 1000000000, step: 1, default: 0, description: 'A range: the least distance between the thumbs, in values.', group: 'behaviour', control: true, silent: true },
     marks: { type: 'array', description: 'Ticks on the track: `{ value, label? }` each.', group: 'data', items: { value: { type: 'number', min: -1e9, max: 1e9, required: true, description: 'Where.', group: 'data' }, label: { type: 'node', description: 'Text under the tick.', group: 'data' } } },
     snapToMarks: { type: 'boolean', default: false, description: 'The thumbs stop only on `marks`: a drag lands on the nearest one, arrow keys move from mark to mark. `step` is then unused.', group: 'behaviour', control: true },

@@ -44,6 +44,10 @@ tints and takes a frame in the tone when checked, and shows focus around the car
 description and messages line up with its label. Blur validation runs when focus leaves the group, not
 between its boxes.
 
+An invalid box, or one with a `status`, shows it whether or not it is checked: an empty box takes a
+frame in the status colour, a checked one fills with it (danger for an error, warning, success).
+A style pack reaches the box through `--pinfold-control-shadow` (no depth without a pack).
+
 Inactive (`inactiveCheckboxOptions`): `checked`, `defaultChecked`,
 `indeterminate`, `formValue` in a group; `orientation`, `variant`, `value`, `defaultValue` outside one.
 

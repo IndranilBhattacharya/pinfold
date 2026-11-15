@@ -110,10 +110,13 @@ export function inactiveSliderOptions(config: {
   return out;
 }
 
-export function inactiveToolbarOptions(config: { selection?: string }): Record<string, string> {
-  if (config.selection && config.selection !== 'none') return {};
+export function inactiveToolbarOptions(config: { selection?: string; variant?: string; attached?: boolean }): Record<string, string> {
+  const out: Record<string, string> = {};
+  // Ghost buttons on the joined panel (the default) are drawn in the text colour.
+  if ((config.variant ?? 'ghost') === 'ghost' && config.attached !== false) out.tone = 'ghost buttons on the panel use the text colour; a pressed one takes `selectedTone`.';
+  if (config.selection && config.selection !== 'none') return out;
   const why = 'only used with `selection`: every button is an action.';
-  return { value: why, defaultValue: why, onChange: why, selectedTone: why };
+  return { ...out, value: why, defaultValue: why, onChange: why, selectedTone: why };
 }
 
 /** The pressed values after a press: `single` keeps one (a second press releases it), `multiple` toggles. */

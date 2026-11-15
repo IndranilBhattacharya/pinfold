@@ -181,7 +181,7 @@ export const tableMeta: ComponentMeta = {
     density: { type: 'enum', values: ['compact', 'normal', 'relaxed'], default: 'normal', description: 'Row height.', group: 'appearance', control: true },
     striped: { type: 'boolean', default: false, description: 'Every other row tinted.', group: 'appearance', control: true },
     lines: { type: 'enum', values: ['rows', 'grid', 'none'], default: 'rows', description: 'Lines between rows, around every cell, or none.', group: 'appearance', control: true },
-    hoverable: { type: 'boolean', default: true, description: 'Rows tint under the pointer.', group: 'appearance', control: true },
+    hoverable: { type: 'boolean', default: true, description: 'Rows tint under the pointer.', group: 'appearance', control: true, silent: true },
     scrollIndicator: { type: 'enum', values: ['shadow', 'fade', 'none'], default: 'shadow', description: 'How an edge shows that it hides rows or columns.', group: 'appearance', control: true },
     stickyHeader: { type: 'boolean', default: false, description: 'The header stays while the body scrolls (set `dimensions.maxHeight`). Always on in a virtual table.', group: 'appearance', control: true },
     radius: RADIUS_PROP,

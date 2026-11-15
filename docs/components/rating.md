@@ -38,6 +38,8 @@ Half steps: with `allowHalf` there are ten radios (0.5 to 5), and the pointer pi
 it (mirrored in right-to-left). While the pointer previews, the root has `data-previewing` and the
 fill is a touch lighter.
 
+A filled symbol glows with a style pack's `--pinfold-control-glow` (glass) instead of its small lift.
+
 Inactive (`inactiveRatingOptions`): `clearable`, `onChange`, `onHover` with `readOnly`.
 
 ## Accessibility

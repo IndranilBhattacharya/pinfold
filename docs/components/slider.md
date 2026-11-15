@@ -46,6 +46,9 @@ preset, `defaults.slider`, the provider (size, tone), the library default.
 Controller: `values`, `setValues(values)`, `focus()`, `validate()`, `setError(message)`, `clearError()`.
 Marks take any node as `label`; `showValue: 'tooltip'` shows `formatValue` in a bubble over the thumb.
 
+A style pack reaches the knob: `--pinfold-control-edge` draws its ring and `--pinfold-control-shadow`
+replaces its lift.
+
 Inactive (`inactiveSliderOptions`): `minGap` with one thumb; `formatValue` with `showValue: 'never'`;
 `snapToMarks` without marks; `step` and `showSteps` while snapping; `showSteps` over 40 steps.
 

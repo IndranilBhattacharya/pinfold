@@ -63,6 +63,8 @@ interface TableRules {
   reorderableRows?: boolean;
   onRowReorder?: unknown;
   toolbar?: unknown;
+  stickyHeader?: boolean;
+  dimensions?: { height?: unknown; maxHeight?: unknown };
 }
 
 /** Options with no visible effect in the current config. */
@@ -87,6 +89,8 @@ export function inactiveTableOptions(config: TableRules): Record<string, string>
     out.filterMode = 'no column filters (`filterable`).';
   }
   if (!virtual) out.rowHeight = 'only for a virtual table (rows size to their content otherwise).';
+  // The header sticks inside the table's own scroll box, which scrolls only with a height.
+  if (!virtual && !config.dimensions?.height && !config.dimensions?.maxHeight) out.stickyHeader = 'needs `dimensions.maxHeight` (or `height`): the header sticks inside the table\'s scroll box.';
   if (!config.renderDetail && !config.subTable && !config.getSubRows) {
     const why = 'no row opens (`renderDetail`, `subTable` or `getSubRows`).';
     Object.assign(out, { expanded: why, defaultExpanded: why, onExpandedChange: why, expandIcon: why });

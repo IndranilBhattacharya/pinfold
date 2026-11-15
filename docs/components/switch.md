@@ -37,6 +37,11 @@ applies when a form is submitted.
 Controller: `focus()`, `validate()`, `setError(message)`, `clearError()`. The root carries `data-checked`.
 The description and messages line up with the label after the track.
 
+An invalid switch, or one with a `status`, shows it whether or not it is checked: an off switch takes a
+ring in the status colour, an on one fills its track with it (danger for an error, warning, success).
+A style pack reaches the switch through `--pinfold-control-shadow` (no depth without a pack).
+
+
 ## Accessibility
 - Read as a switch, on or off. Space toggles; Enter submits the form, as with any checkbox.
 - The thumb moves and the track fills, so state never rests on colour alone. It flips in RTL.

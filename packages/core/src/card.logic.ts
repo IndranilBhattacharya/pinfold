@@ -13,6 +13,8 @@ export interface CardAppearanceInput {
   selectable?: boolean | string;
   actions?: readonly unknown[];
   hoverEffect?: string;
+  variant?: string;
+  ribbon?: unknown;
 }
 
 export type CardMediaPosition = 'top' | 'bottom' | 'start' | 'end' | 'cover';
@@ -71,5 +73,8 @@ export function inactiveCardOptions(config: CardAppearanceInput): Record<string,
     out.onAction = 'only used with `actions`.';
   }
   if (config.hoverEffect === 'zoom' && !hasMedia) out.hoverEffect = '`zoom` scales the media, and there is none.';
+  if (config.variant !== 'soft' && !present(config.ribbon) && !config.selectable && config.hoverEffect !== 'glow' && config.hoverEffect !== 'border') {
+    out.tone = 'colours the `soft` variant, the `ribbon`, a selection and the `glow`/`border` hover: none is set.';
+  }
   return out;
 }

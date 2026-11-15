@@ -33,7 +33,7 @@ export const inputMeta: ComponentMeta = {
     placeholder: { type: 'string', description: 'A hint inside an empty field. Never instead of a label.', group: 'data' },
     autoComplete: { type: 'string', description: 'Native `autocomplete`, e.g. `email`: lets browsers and password managers fill it in.', group: 'behaviour' },
     inputMode: { type: 'string', description: 'Native `inputmode`, e.g. `numeric`, for the mobile keyboard.', group: 'behaviour' },
-    maxLength: { type: 'number', min: 1, max: 100000, step: 1, unit: 'characters', description: 'Native `maxlength`.', group: 'behaviour', control: true },
+    maxLength: { type: 'number', min: 1, max: 100000, step: 1, unit: 'characters', description: 'Native `maxlength`.', group: 'behaviour', control: true, silent: true },
     minLength: { type: 'number', min: 0, max: 100000, step: 1, unit: 'characters', description: 'Native `minlength`.', group: 'behaviour', control: true, silent: true },
     pattern: { type: 'string', description: 'Native `pattern`.', group: 'behaviour' },
     readOnly: { type: 'boolean', default: false, description: 'Native `readonly`: can be focused, selected and submitted, not edited.', group: 'behaviour', control: true },

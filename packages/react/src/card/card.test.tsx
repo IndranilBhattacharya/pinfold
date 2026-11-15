@@ -192,8 +192,9 @@ describe('Card', () => {
     expect(cardInteraction({ pressable: true })).toBe('none');
     expect(cardHoverEffect({ title: 'x', pressable: true })).toBe('lift');
     expect(cardHoverEffect({ title: 'x' })).toBe('none');
-    expect(Object.keys(inactiveCardOptions({ title: 'x' }))).toEqual(['target', 'rel', 'selected', 'defaultSelected', 'onSelectedChange', 'name', 'value', 'orientation', 'mediaPosition', 'mediaRatio', 'scrim', 'actionsAlign', 'onAction']);
+    expect(Object.keys(inactiveCardOptions({ title: 'x' }))).toEqual(['target', 'rel', 'selected', 'defaultSelected', 'onSelectedChange', 'name', 'value', 'orientation', 'mediaPosition', 'mediaRatio', 'scrim', 'actionsAlign', 'onAction', 'tone']);
     expect(inactiveCardOptions({ pressable: true }).pressable).toBeTruthy();
+    for (const c of [{ variant: 'soft' }, { ribbon: 'Popular' }, { selectable: true }, { hoverEffect: 'glow' }, { hoverEffect: 'border' }]) expect(inactiveCardOptions(c).tone).toBeUndefined();
   });
 
   it('a preset renders on the server', () => {

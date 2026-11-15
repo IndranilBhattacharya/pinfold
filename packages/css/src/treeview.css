@@ -199,9 +199,9 @@
   /* Selected: soft (a tint), solid (filled) or ghost (text and a bar). */
   .pinfold-treeview__item[data-selected] { color: var(--pinfold-tv-tone-text); font-weight: var(--pinfold-weight-medium); }
   .pinfold-treeview__item[data-selected] > .pinfold-treeview__icon { color: var(--pinfold-tv-tone-text); }
-  .pinfold-treeview[data-variant='soft'] .pinfold-treeview__item[data-selected] { background-color: color-mix(in oklab, var(--pinfold-tv-tone) 13%, transparent); }
+  .pinfold-treeview[data-variant='soft'] .pinfold-treeview__item[data-selected] { background-color: color-mix(in oklab, var(--pinfold-tv-tone) 13%, transparent); background-image: var(--pinfold-texture); }
   .pinfold-treeview[data-variant='soft'] .pinfold-treeview__item[data-selected]:hover { background-color: color-mix(in oklab, var(--pinfold-tv-tone) 18%, transparent); }
-  .pinfold-treeview[data-variant='solid'] .pinfold-treeview__item[data-selected] { color: var(--pinfold-tv-on); background-color: var(--pinfold-tv-tone); --pinfold-tv-line: color-mix(in oklab, var(--pinfold-tv-on) 35%, transparent); }
+  .pinfold-treeview[data-variant='solid'] .pinfold-treeview__item[data-selected] { color: var(--pinfold-tv-on); background-color: var(--pinfold-tv-tone); background-image: var(--pinfold-texture); --pinfold-tv-line: color-mix(in oklab, var(--pinfold-tv-on) 35%, transparent); }
   .pinfold-treeview[data-variant='solid'] .pinfold-treeview__item[data-selected] :is(.pinfold-treeview__icon, .pinfold-treeview__toggle, .pinfold-treeview__handle) { color: var(--pinfold-tv-on); }
   .pinfold-treeview[data-variant='solid'] .pinfold-treeview__item[data-selected] .pinfold-treeview__badge { color: var(--pinfold-tv-on); background-color: color-mix(in oklab, var(--pinfold-tv-on) 20%, transparent); }
   .pinfold-treeview[data-variant='ghost'] .pinfold-treeview__item[data-selected] { font-weight: var(--pinfold-weight-semibold); }

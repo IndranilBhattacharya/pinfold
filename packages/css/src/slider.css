@@ -16,7 +16,8 @@
     --pinfold-sld-track: color-mix(in oklab, var(--pinfold-color-text) 12%, transparent);
     --pinfold-sld-lead: 0px;
     --pinfold-sld-tail: 0px;
-    --pinfold-sld-lift: 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-900) 18%, transparent), 0 2px 8px color-mix(in oklab, var(--pinfold-neutral-900) 14%, transparent);
+    /* A pack's control depth replaces the default lift. */
+    --pinfold-sld-lift: var(--pinfold-control-shadow, 0 1px 2px color-mix(in oklab, var(--pinfold-neutral-900) 18%, transparent), 0 2px 8px color-mix(in oklab, var(--pinfold-neutral-900) 14%, transparent));
     inline-size: 100%;
   }
   .pinfold-slider[data-size='sm'] {
@@ -186,7 +187,7 @@
     background: var(--pinfold-neutral-50);
     border-radius: var(--pinfold-control-round, var(--pinfold-radius-full));
     box-shadow:
-      0 0 0 var(--pinfold-border-width) color-mix(in oklab, var(--pinfold-neutral-900) 10%, transparent),
+      0 0 0 var(--pinfold-border-width) var(--pinfold-control-edge, color-mix(in oklab, var(--pinfold-neutral-900) 10%, transparent)),
       var(--pinfold-sld-lift);
     pointer-events: none;
   }

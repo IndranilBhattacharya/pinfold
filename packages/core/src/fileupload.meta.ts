@@ -34,7 +34,7 @@ export const fileuploadMeta: ComponentMeta = {
     validate: { type: 'function', description: '`(file) => string | null`: a reason to reject the file, or null to keep it.', group: 'behaviour' },
     upload: { type: 'function', description: '`(file, { signal, onProgress }) => Promise`: uploads one file. The component runs it for every file added, shows progress (`onProgress(0..1)`), aborts it through `signal` on remove or unmount, and offers Retry when it rejects.', group: 'behaviour' },
     concurrency: { type: 'number', min: 1, max: 10, step: 1, unit: 'uploads', default: 3, description: 'Uploads at once; the rest wait as queued.', group: 'behaviour', control: true, silent: true },
-    paste: { type: 'boolean', default: false, description: 'Pasting files (Ctrl/Cmd + V) while the upload has focus adds them.', group: 'behaviour', control: true },
+    paste: { type: 'boolean', default: false, description: 'Pasting files (Ctrl/Cmd + V) while the upload has focus adds them.', group: 'behaviour', control: true, silent: true },
     disabled: { type: 'boolean', default: false, description: 'Nothing can be added; the zone stays focusable.', group: 'behaviour', control: true },
     list: { type: 'boolean', default: true, description: 'The list of files under the zone.', group: 'appearance', control: true },
     previews: { type: 'boolean', default: true, description: 'Image thumbnails in the list (object URLs, released on remove and unmount).', group: 'appearance', control: true },

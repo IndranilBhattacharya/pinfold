@@ -224,6 +224,7 @@ export const accordionMeta: ComponentMeta = {
       description: 'Rotate (or morph) the indicator when a row opens.',
       group: 'appearance',
       control: true,
+      silent: true,
     },
     headingLevel: {
       type: 'enum',

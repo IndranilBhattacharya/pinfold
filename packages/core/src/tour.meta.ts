@@ -54,7 +54,7 @@ export const tourMeta: ComponentMeta = {
     showSkip: { type: 'boolean', default: true, description: 'A Skip button (not on the last step).', group: 'appearance', control: true },
     closeOnEscape: { type: 'boolean', default: true, description: 'Escape skips the tour.', group: 'behaviour', control: true },
     scroll: { type: 'boolean', default: true, description: 'Scroll each target into view.', group: 'behaviour' },
-    missingTarget: { type: 'enum', values: ['center', 'skip'], default: 'center', description: 'A step whose target is not on the page: the card in the middle, or the step is passed over. Either way a warning shows in development.', group: 'behaviour', control: true },
+    missingTarget: { type: 'enum', values: ['center', 'skip'], default: 'center', description: 'A step whose target is not on the page: the card in the middle, or the step is passed over. Either way a warning shows in development.', group: 'behaviour', control: true, silent: true },
     onOpenChange: { type: 'function', description: '`(open) => void`.', group: 'events' },
     onStepChange: { type: 'function', description: '`(index, step) => void` when the step changes.', group: 'events' },
     onComplete: { type: 'function', description: '`() => void`: Done on the last step.', group: 'events' },

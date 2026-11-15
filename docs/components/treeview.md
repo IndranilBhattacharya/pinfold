@@ -22,7 +22,7 @@ Precedence: use-site props, the preset, `defaults.treeview`, the provider (size,
 | `items` | nodes: `{ id, label, textValue, icon, badge, children, hasChildren, disabled, ...your fields }` or a string (a leaf). Without an `id`, a node is known by its path of labels: `src/index.ts` | |
 | `value` / `defaultValue` | selected ids (with `checkable`: every fully checked id, parents included) | `[]` |
 | `expanded` / `defaultExpanded` | open ids | `[]` |
-| `selectionMode` | `'none'` (rows are actions), `'single'`, `'multiple'` | `'single'` |
+| `selectionMode` | `'none'` (rows are actions; a `value` marks nothing), `'single'`, `'multiple'` | `'single'` |
 | `checkable` | tri-state checkboxes; checking a parent checks everything in it, a parent shows checked, mixed or unchecked from its children; disabled leaves keep their state and do not hold their parent back | `false` |
 | `expandOnClick` | pressing a parent row also opens or closes it (the chevron always does) | `true` |
 | `loadChildren` | `(item, { signal }) => Promise<children>` for nodes with `hasChildren`, the first time they open | |

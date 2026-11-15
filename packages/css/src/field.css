@@ -83,6 +83,8 @@
     background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
     background-image: var(--pinfold-texture);
     border: var(--pinfold-border-width) solid var(--pinfold-fld-edge);
+    /* A pack's depth (glass rim, material lift, brutalist offset); flat with no pack. */
+    box-shadow: var(--pinfold-control-shadow, none);
     pointer-events: none;
   }
   .pinfold-choice__box > svg { inline-size: 100%; block-size: 100%; }
@@ -92,7 +94,23 @@
     background-color: var(--pinfold-tone-solid, var(--pinfold-color-accent));
     border-color: var(--pinfold-control-edge, var(--pinfold-tone-solid, var(--pinfold-color-accent)));
   }
-  /* Invalid frames the empty boxes; a checked one keeps its fill. */
+  /* A status shows on a checked box as well: the fill takes the status colour. */
+  .pinfold-field:is(.pinfold-checkbox, .pinfold-radio, .pinfold-switch):is([data-invalid], [data-validity='error']) {
+    --pinfold-tone-solid: var(--pinfold-color-danger);
+    --pinfold-tone-on: var(--pinfold-color-status-contrast);
+    --pinfold-tone-text: var(--pinfold-color-danger);
+  }
+  .pinfold-field:is(.pinfold-checkbox, .pinfold-radio, .pinfold-switch)[data-validity='warning'] {
+    --pinfold-tone-solid: var(--pinfold-color-warning);
+    --pinfold-tone-on: var(--pinfold-color-status-contrast);
+    --pinfold-tone-text: var(--pinfold-color-warning);
+  }
+  .pinfold-field:is(.pinfold-checkbox, .pinfold-radio, .pinfold-switch)[data-validity='success'] {
+    --pinfold-tone-solid: var(--pinfold-color-success);
+    --pinfold-tone-on: var(--pinfold-color-status-contrast);
+    --pinfold-tone-text: var(--pinfold-color-success);
+  }
+  /* Invalid frames the empty boxes; a checked one takes the danger fill above. */
   .pinfold-field[data-invalid] .pinfold-choice__input:not(:checked):not(:indeterminate) + .pinfold-choice__box { border-color: var(--pinfold-fld-danger); }
   .pinfold-choice__input:focus-visible + .pinfold-choice__box { box-shadow: var(--pinfold-focus-ring); }
   .pinfold-choice__input:focus-visible { outline: none; box-shadow: none; }

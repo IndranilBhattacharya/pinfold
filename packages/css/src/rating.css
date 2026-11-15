@@ -25,7 +25,8 @@
   .pinfold-rating__empty,
   .pinfold-rating__full { grid-area: 1 / 1; display: inline-grid; }
   .pinfold-rating__empty { color: color-mix(in oklab, var(--pinfold-color-text) 18%, transparent); }
-  .pinfold-rating__full { color: var(--pinfold-rtg-solid); filter: drop-shadow(0 1px 2px color-mix(in oklab, var(--pinfold-rtg-solid) 40%, transparent)); }
+  /* A pack's indicator glow (glass) replaces the small lift. */
+  .pinfold-rating__full { color: var(--pinfold-rtg-solid); filter: var(--pinfold-control-glow, drop-shadow(0 1px 2px color-mix(in oklab, var(--pinfold-rtg-solid) 40%, transparent))); }
   [dir='rtl'] .pinfold-rating__symbol { transform: scaleX(-1); }
   .pinfold-rating__symbol svg { inline-size: 100%; block-size: 100%; }
   .pinfold-rating[data-animate]:not([data-readonly]) .pinfold-rating__symbol { transition: transform var(--pinfold-duration-md) var(--pinfold-ease-spring); }
