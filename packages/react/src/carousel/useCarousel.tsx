@@ -131,11 +131,15 @@ export function useCarousel(input: CarouselConfig): CarouselComponent {
     fromButton.current = false;
   }, [centred, vertical]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // The timer restarts only when what it depends on changes: a page that renders more often than the interval
+  // (a clock, live data) used to restart it every time, and the slides never moved.
+  const advance = React.useRef(() => {});
+  advance.current = () => goTo(stepIndex(index, 1, last + 1, true));
   React.useEffect(() => {
     if (!playing || reducedMotion()) return;
-    const timer = setInterval(() => goTo(stepIndex(index, 1, last + 1, true)), Math.max(1500, config.autoplay!));
+    const timer = setInterval(() => advance.current(), Math.max(1500, config.autoplay!));
     return () => clearInterval(timer);
-  });
+  }, [playing, index, config.autoplay]);
 
   // ---- drag with a mouse (touch and trackpads scroll natively) ----
   const draggable = config.draggable !== false && count > 1;

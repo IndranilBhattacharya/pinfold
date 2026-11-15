@@ -45,6 +45,32 @@ describe('Carousel', () => {
     expect(screen.getByRole('button', { name: 'Play' })).toBeTruthy();
     vi.useRealTimers();
   });
+
+  it('autoplay keeps its pace while the page around it renders more often than the interval (a clock, live data)', () => {
+    vi.useFakeTimers();
+    try {
+      const onIndexChange = vi.fn();
+      function Page() {
+        const [, tick] = React.useState(0);
+        React.useEffect(() => {
+          const t = setInterval(() => tick((n) => n + 1), 500);
+          return () => clearInterval(t);
+        }, []);
+        return <Carousel label="Offers" slides={slides} loop autoplay={2000} onIndexChange={onIndexChange} />;
+      }
+      render(<Page />);
+      // Half a second at a time, so each page render really happens in between.
+      const wait = (ms: number) => {
+        for (let t = 0; t < ms; t += 500) act(() => vi.advanceTimersByTime(500));
+      };
+      wait(2500);
+      expect(onIndexChange).toHaveBeenLastCalledWith(1);
+      wait(2000);
+      expect(onIndexChange).toHaveBeenLastCalledWith(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 const panels = [
