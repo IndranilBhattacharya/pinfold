@@ -267,17 +267,17 @@
     padding-block: 0.375rem;
     padding-inline: 0.375rem;
     overscroll-behavior-x: contain;
-    --pinfold-tl-fs: 0px;
-    --pinfold-tl-fe: 0px;
-    -webkit-mask-image: linear-gradient(to right, transparent, black var(--pinfold-tl-fs), black calc(100% - var(--pinfold-tl-fe)), transparent);
-    mask-image: linear-gradient(to right, transparent, black var(--pinfold-tl-fs), black calc(100% - var(--pinfold-tl-fe)), transparent);
+    --pinfold-tl-fade-s: 0px;
+    --pinfold-tl-fade-e: 0px;
+    -webkit-mask-image: linear-gradient(to right, transparent, black var(--pinfold-tl-fade-s), black calc(100% - var(--pinfold-tl-fade-e)), transparent);
+    mask-image: linear-gradient(to right, transparent, black var(--pinfold-tl-fade-s), black calc(100% - var(--pinfold-tl-fade-e)), transparent);
   }
   /* Edges that hide events fade (the script marks them); the mouse drags the row. */
-  .pinfold-timeline[data-orientation='horizontal'][data-overflow-start] { --pinfold-tl-fs: 2rem; }
-  .pinfold-timeline[data-orientation='horizontal'][data-overflow-end] { --pinfold-tl-fe: 2rem; }
+  .pinfold-timeline[data-orientation='horizontal'][data-overflow-start] { --pinfold-tl-fade-s: 2rem; }
+  .pinfold-timeline[data-orientation='horizontal'][data-overflow-end] { --pinfold-tl-fade-e: 2rem; }
   [dir='rtl'] .pinfold-timeline[data-orientation='horizontal'] {
-    -webkit-mask-image: linear-gradient(to left, transparent, black var(--pinfold-tl-fs), black calc(100% - var(--pinfold-tl-fe)), transparent);
-    mask-image: linear-gradient(to left, transparent, black var(--pinfold-tl-fs), black calc(100% - var(--pinfold-tl-fe)), transparent);
+    -webkit-mask-image: linear-gradient(to left, transparent, black var(--pinfold-tl-fade-s), black calc(100% - var(--pinfold-tl-fade-e)), transparent);
+    mask-image: linear-gradient(to left, transparent, black var(--pinfold-tl-fade-s), black calc(100% - var(--pinfold-tl-fade-e)), transparent);
   }
   .pinfold-timeline[data-dragging] { cursor: grabbing; user-select: none; -webkit-user-select: none; }
   .pinfold-timeline[data-dragging] > * { pointer-events: none; }
