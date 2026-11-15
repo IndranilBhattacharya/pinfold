@@ -45,7 +45,7 @@ function withChunks(file, seen = new Set()) {
  */
 const BUDGETS = [
   ['packages/core/dist/index.js', 37.5], // every component's rules live here; apps tree-shake to what they use (see the app row)
-  ['packages/core/dist/palette.js', 4],
+  ['packages/core/dist/palette.js', 5.5], // any CSS colour per role: the colour parser (5.25 measured)
   ['packages/react/dist/index.js', 3],
   ['packages/react/dist/accordion/index.js', 9], // 2026-11-03: presets, tag prop split, no :has(); the app row is what ships
   ['packages/react/dist/button/index.js', 5], // entry + the shared provider/component chunks, like accordion
@@ -58,24 +58,24 @@ const BUDGETS = [
   ['packages/react/dist/tour/index.js', 12],
   ['packages/react/dist/fileupload/index.js', 9],
   ['packages/react/dist/treeview/index.js', 13.5],
-  ['packages/react/dist/cursor/index.js', 6],
-  ['packages/react/dist/navbar/index.js', 20],
-  ['packages/react/dist/appshell/index.js', 9],
+  ['packages/react/dist/cursor/index.js', 6.5], // custom states by configuration (6.34)
+  ['packages/react/dist/navbar/index.js', 20.5], // scrollTarget, shrink and hide on a scrolling region (20.25)
+  ['packages/react/dist/appshell/index.js', 10], // the inline sidebar collapses to its rail, remembered (9.56)
   ['packages/react/dist/scrollarea/index.js', 6],
   ['packages/react/dist/navmenu/index.js', 8],
   ['packages/react/dist/sidebar/index.js', 7],
   ['packages/react/dist/resizable/index.js', 6],
   ['packages/react/dist/carousel/index.js', 8],
   ['packages/react/dist/empty/index.js', 6],
-  ['packages/react/dist/timeline/index.js', 6],
+  ['packages/react/dist/timeline/index.js', 7.5], // drag to scroll a horizontal timeline (7.24)
   ['packages/react/dist/rating/index.js', 6],
   ['packages/react/dist/table/index.js', 38.7], // a data grid: filters, groups, virtual rows, editing, column state; 2026-11-15 Pinfold fields inside (loader for Select/Input, CheckMark): 33.97 -> 35.22
   ['packages/react/dist/datepicker/index.js', 23.5],
   ['packages/react/dist/calendar/index.js', 10],
-  ['packages/react/dist/command/index.js', 10],
+  ['packages/react/dist/command/index.js', 12], // scroll arrows, async pages, rich rows (11.74)
   ['packages/react/dist/tags/index.js', 9],
   ['packages/react/dist/combobox/index.js', 22.5], // the select's listbox engine plus the overlay layer
-  ['packages/react/dist/select/index.js', 19.5], // the overlay layer (top layer, flip, dismiss stack), shared with menu, which also carries the trigger button
+  ['packages/react/dist/select/index.js', 20.5], // renderList and popupRole (20.04); before that: the overlay layer (top layer, flip, dismiss stack), shared with menu, which also carries the trigger button
   ['packages/react/dist/stepper/index.js', 8], // renders Pinfold buttons (Back, Next, Finish) and the step panels
   ['packages/react/dist/pagination/index.js', 8.3], // page size select, go to page, summary, sliding cursor, cursor-paged mode; 2026-11-15 the fields load a Pinfold Select/Input on first use: 6.90 -> 7.54
   ['packages/react/dist/breadcrumb/index.js', 17], // renders Pinfold menus (crumb menus, collapsed crumbs), with the overlay layer
@@ -83,7 +83,7 @@ const BUDGETS = [
   ['packages/react/dist/otp/index.js', 9.5],
   ['packages/react/dist/number/index.js', 10],
   ['packages/react/dist/slider/index.js', 10.5],
-  ['packages/react/dist/toolbar/index.js', 8],
+  ['packages/react/dist/toolbar/index.js', 8.5], // drag to scroll (8.1)
   ['packages/react/dist/toggle/index.js', 6],
   ['packages/react/dist/switch/index.js', 9],
   ['packages/react/dist/radio/index.js', 9],
@@ -98,7 +98,7 @@ const BUDGETS = [
   ['packages/react/dist/card/index.js', 8.5],
   ['packages/react/dist/avatar/index.js', 11.5],
   ['packages/react/dist/alert/index.js', 7.5],
-  ['packages/css/dist/core.css', 5],
+  ['packages/css/dist/core.css', 5.5], // theme values for status roles and text on fills, the flat field look (5.39)
   ['packages/css/dist/accordion.css', 4],
   ['packages/css/dist/button.css', 2],
   ['packages/css/dist/spinner.css', 2], // six animations (ring, arc, dots, bars, pulse, orbit)
@@ -140,7 +140,7 @@ const BUDGETS = [
   ['packages/css/dist/switch.css', 2],
   ['packages/css/dist/radio.css', 2],
   ['packages/css/dist/checkbox.css', 2],
-  ['packages/css/dist/input.css', 2],
+  ['packages/css/dist/input.css', 2.5], // flat field look, password reveal, character counter (2.08)
   ['packages/css/dist/toast.css', 2],
   ['packages/css/dist/menu.css', 2.5],
   ['packages/css/dist/dialog.css', 2.5],
