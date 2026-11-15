@@ -1,186 +1,154 @@
 <div align="center">
 
+<img src=".github/assets/logo.svg" width="72" height="72" alt="Pinfold" />
+
 # Pinfold
 
-**Config in, accessible UI out. Your JSX stays one tag.**
+**Config in. Interfaces out.**
 
-Hooks-first React components with a design system in a box, built-in responsiveness,
-server rendering everywhere, and accessibility you can prove.
+Accessible React components from one typed object: data grids, date pickers, command palettes and more.
+Every part stays yours to restyle.
 
-`React ≥ 18` · `TypeScript & JavaScript` · `MIT` · zero runtime dependencies
+[![npm](https://img.shields.io/npm/v/@pinfold/react?color=7c3aed&label=%40pinfold%2Freact)](https://www.npmjs.com/package/@pinfold/react)
+[![license](https://img.shields.io/npm/l/@pinfold/react?color=4f46e5)](LICENSE)
+[![provenance](https://img.shields.io/badge/npm-provenance-0ea5e9)](https://www.npmjs.com/package/@pinfold/react)
+[![WCAG 2.2 AA](https://img.shields.io/badge/WCAG-2.2%20AA-16a34a)](docs/a11y/screen-readers.md)
+[![dependencies](https://img.shields.io/badge/runtime%20dependencies-0-16a34a)](packages/react/package.json)
 
-Created by **Indranil Bhattacharya**
+[**Documentation**](https://pinfold.indranildev.in/docs) · [**Components**](https://pinfold.indranildev.in/docs/table) · [**Theming**](https://pinfold.indranildev.in/docs/theming) · [**AI and MCP**](https://pinfold.indranildev.in/docs/ai)
+
+<img src=".github/assets/banner.png" alt="Pinfold: config in, interfaces out" width="100%" />
 
 </div>
 
-> **Status: pre-release.** The accordion is complete (server and client APIs,
-> global config, style packs, CLI, shadcn registry, local MCP server and an accessibility report);
-> button, spinner, separator, kbd, skeleton, badge, alert, avatar, card, progress, tooltip, popover, dialog, menu, toast, input, checkbox, radio, switch, toggle, toolbar, slider, number field, one-time code, tabs, breadcrumb, pagination, stepper, select, combobox, tag group, command, calendar, date picker, table, rating, timeline, empty, carousel, resizable, sidebar, navigation menu and color picker are experimental. Published to npm as it grows: one component at a time. Items marked *Planned* are specified but not yet built.
-
----
-
-## The idea
-
-Most React libraries make you hand-write the same tree, row after row:
-
-```jsx
-<Accordion type="single" collapsible>
-  <AccordionItem value="a">
-    <AccordionTrigger>Shipping</AccordionTrigger>
-    <AccordionContent>Ships in 2 days.</AccordionContent>
-  </AccordionItem>
-  {/* …repeat forever */}
-</Accordion>
-```
-
-Pinfold takes data and gives you a component back:
-
-```jsx
-import { useAccordion } from '@pinfold/react/accordion';
-
-function Support({ items }) {
-  const Faq = useAccordion({ items });   // state, keyboard, ARIA, theme, responsiveness
-  return (
-    <main>
-      <h1>Support</h1>
-      <Faq />
-    </main>
-  );
-}
-```
-
-The value the hook returns is three things at once:
-
-```jsx
-<Faq className="mt-6" />        // 1. a component
-Faq.toggle('shipping')          // 2. its controller: open, close, openAll, focusItem…
-<Faq.Panel id="shipping" />     // 3. its parts, for layouts that config can't express
-```
-
-### Presets: decide the look once
-
-Many buttons, many accordions, rows in a table: define each look once, outside your components,
-and use it in one line. A preset is a plain function call, so it works in loops, conditions and
-Server Components.
-
-```jsx
-// ui/presets.js
-export const Primary = defineButton({ tone: 'primary' });
-export const Danger = defineButton({ variant: 'soft', tone: 'danger' });
-export const Faq = defineAccordion({ variant: 'separated' });
-
-// anywhere
-<Primary label="Save" onClick={save} />
-{rows.map((r) => <Danger key={r.id} label="Delete" onClick={() => remove(r.id)} />)}
-<Faq items={questions} />
-```
-
-Precedence for every option: use-site props, the preset, `defaults.<name>` in your global config,
-the provider, then the library default.
-
-### On the server, too
-
-Server Components can't call hooks, so every component has a non-hook twin with the same config and the same tag:
-
-```jsx
-import { defineAccordion } from '@pinfold/react/accordion';
-
-export default async function Page() {
-  const Faq = defineAccordion({
-    items: await db.faq.findMany(),
-    fields: { id: 'slug', title: 'question', content: 'answer' },
-  });
-  return <Faq />;   // full HTML on the server, hydrated on the client
-}
-```
-
-### One global config
-
-```tsx
-// pinfold.config.ts (or .js)
-import { defineConfig } from '@pinfold/react';
-
-export default defineConfig({
-  theme: 'system',            // 'light' | 'dark' | 'system'
-  radius: 'lg',
-  defaults: { accordion: { variant: 'separated' } },
-});
-
-// app root
-<PinfoldProvider config={config}>{children}</PinfoldProvider>
-
-// with your router: every Pinfold link (breadcrumbs, pages, link tabs, buttons, cards, menu rows)
-// changes page without a reload
-<PinfoldProvider config={config} navigate={router.push}>{children}</PinfoldProvider>
-```
-Precedence, highest first: component config, `defaults.<component>`, the global theme, the library defaults.
-
-## Install
+## In 30 seconds
 
 ```bash
-npx pinfold init              # interactive: language, components, theme, entry file, Tailwind merge
-npx pinfold add accordion     # writes components/ui/accordion.tsx (or .jsx)
-npx shadcn add @pinfold/accordion   # also works through the shadcn CLI
+npx pinfold init          # detects Next.js, Vite or React Router, TypeScript or JavaScript, Tailwind
+npx pinfold add table     # one small file you own, plus every stylesheet it needs
 ```
 
-## What you get
+```tsx
+import { defineTable } from '@pinfold/react/table';
 
-- **A design system in a box.** OKLCH palettes, 7 roles × 11 steps, WCAG contrast reports, and style packs (liquid glass, material, noise, neo-brutalist) that are token recipes over your palette, not forks of the components.
-- **Responsive by default.** Container queries, fluid type, a wrap or truncate policy per slot, and 44px touch targets.
-- **Tailwind wins without effort.** Pinfold's CSS lives in cascade layers, so utilities override it with no `!important` and no `tailwind-merge`. `unstyled: true` makes a component fully headless.
-- **SEO and Core Web Vitals safe.** Server HTML contains all content, layout shift stays at zero, and only a small amount of JS has to hydrate. `hiddenUntilFound` lets Ctrl+F find text inside closed panels.
-- **Accessibility is a build gate.** WAI-ARIA APG patterns, a full keyboard map, `aria-disabled`, and handling for forced colours and reduced motion, plus a published report.
-- **Small and safe.** You ship only what you import. Zero runtime dependencies, no install scripts, and npm provenance on every release.
-- **Built for AI agents.** One JSON-safe config per component. Docs, schema and `llms.txt` ship inside the package. `npx pinfold mcp` runs locally.
+// Define the look once, outside your components. It works in Server Components too.
+export const Orders = defineTable({ sortable: true, filterable: true, toolbar: true });
 
-## Levels of control
+export function OrdersPage({ orders }: { orders: Order[] }) {
+  return <Orders label="Orders" rows={orders} pageSize={25} />;
+}
+```
 
-| Level | You write | You get |
-| --- | --- | --- |
-| 1 | `<Faq />` | everything: styled, accessible, responsive |
-| 2 | `dimensions`, `variant`, `size`… | exact look, keeping the preset for the rest |
-| 3 | `classNames`, `styles`, `slotProps`, `render` | your classes or your markup for one part |
-| 4 | `<Faq.Trigger id>`, `<Faq.Panel id>` | your layout, with our behaviour and ARIA |
-| 5 | `getTriggerProps(item)` and the other getters | your elements, entirely |
+That is a data grid with sorting, filters, a quick search, column hiding, paging, keyboard navigation and
+correct ARIA. The config is typed against your rows, so a misspelt column is a compile error.
 
-The config never changes shape as you go deeper.
+## Why Pinfold
 
-## Docs
+|  | |
+| --- | --- |
+| **Write less** | A component is data, not a tree of nested parts. Shorter to write, easy to diff, and the shape a coding agent gets right first time. |
+| **Accessible, with proof** | Every component follows its WAI-ARIA pattern and is rendered on every build, in every style pack, light and dark. axe must report nothing; keyboard, focus, contrast, forced colours and reduced motion are tested too. |
+| **Never boxed in** | Each part has a name: add a class, merge props, or render it with your own component. A headless hook gives you all the state with no markup. |
+| **Your brand, any format** | `#hex`, `rgb()`, `oklch()` or a hue name. Eleven OKLCH steps per role, and text on every fill that stays readable. |
+| **Server-ready** | `define<Name>()` presets work in Server Components and loops; hooks are there when you need state. Full HTML on the server. |
+| **Only what you use** | One subpath and one stylesheet per component, CSS in cascade layers so Tailwind and your own CSS always win, and zero runtime dependencies. |
+
+## Three ways to use a component
+
+```tsx
+// 1. A preset: one look, used anywhere
+export const Danger = defineButton({ variant: 'soft', tone: 'danger' });
+{rows.map((r) => <Danger key={r.id} label="Delete" onClick={() => remove(r.id)} />)}
+
+// 2. A hook: the component and its controller
+const Faq = useAccordion({ items, mode: 'multiple' });
+<button onClick={Faq.openAll}>Expand all</button>
+<Faq />
+
+// 3. Your own markup: prop getters with every ARIA attribute
+<div {...Faq.getRootProps()}>…</div>
+```
+
+Precedence for every option: the props, the preset, `defaults` in your config, the provider, the library default.
+
+## Components
 
 | | |
-|---|---|
-| [docs/VISION.md](docs/VISION.md) | What Pinfold is, and isn't |
-| [docs/components/accordion.md](docs/components/accordion.md) | Accordion spec |
-| [docs/components/button.md](docs/components/button.md) | Button and Spinner spec |
-| [docs/components/separator.md](docs/components/separator.md) · [kbd.md](docs/components/kbd.md) · [skeleton.md](docs/components/skeleton.md) · [badge.md](docs/components/badge.md) | Separator, Kbd, Skeleton and Badge specs |
-| [alert.md](docs/components/alert.md) · [avatar.md](docs/components/avatar.md) · [card.md](docs/components/card.md) · [progress.md](docs/components/progress.md) | Alert, Avatar, Card and Progress specs |
-| [tooltip.md](docs/components/tooltip.md) · [popover.md](docs/components/popover.md) · [dialog.md](docs/components/dialog.md) · [menu.md](docs/components/menu.md) · [toast.md](docs/components/toast.md) | Tooltip, Popover, Dialog, Menu and Toast specs |
-| [input.md](docs/components/input.md) · [checkbox.md](docs/components/checkbox.md) · [radio.md](docs/components/radio.md) · [switch.md](docs/components/switch.md) | Input, Checkbox, Radio and Switch specs |
-| [toggle.md](docs/components/toggle.md) · [toolbar.md](docs/components/toolbar.md) · [slider.md](docs/components/slider.md) · [number.md](docs/components/number.md) · [otp.md](docs/components/otp.md) | Toggle (and segmented control), Toolbar (and button group), Slider, Number field and One-time code specs |
-| [tabs.md](docs/components/tabs.md) · [breadcrumb.md](docs/components/breadcrumb.md) · [pagination.md](docs/components/pagination.md) · [stepper.md](docs/components/stepper.md) | Tabs, Breadcrumb, Pagination and Stepper specs |
-| [select.md](docs/components/select.md) · [combobox.md](docs/components/combobox.md) | Select and Combobox specs |
-| [tags.md](docs/components/tags.md) · [command.md](docs/components/command.md) | Tag group and Command specs |
-| [calendar.md](docs/components/calendar.md) · [datepicker.md](docs/components/datepicker.md) | Calendar and Date picker specs |
-| [table.md](docs/components/table.md) | Table spec |
-| [rating.md](docs/components/rating.md) · [timeline.md](docs/components/timeline.md) · [empty.md](docs/components/empty.md) | Rating, Timeline and Empty specs |
-| [carousel.md](docs/components/carousel.md) · [resizable.md](docs/components/resizable.md) | Carousel and Resizable specs |
-| [sidebar.md](docs/components/sidebar.md) | Sidebar spec |
-| [navmenu.md](docs/components/navmenu.md) | Navigation menu spec |
-| [colorpicker.md](docs/components/colorpicker.md) | Color picker spec |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
-| [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript/JS, bundlers, SSR frameworks, browsers |
-| [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | Accessibility evidence: the automated report and the screen-reader matrix |
-| [docs/CLI.md](docs/CLI.md) · [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Tooling and packages |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Setup, hard constraints and the component checklist |
+| --- | --- |
+| **Layout** | [App shell](https://pinfold.indranildev.in/docs/appshell) · [Navbar](https://pinfold.indranildev.in/docs/navbar) · [Sidebar](https://pinfold.indranildev.in/docs/sidebar) · [Navigation menu](https://pinfold.indranildev.in/docs/navmenu) · [Tabs](https://pinfold.indranildev.in/docs/tabs) · [Breadcrumb](https://pinfold.indranildev.in/docs/breadcrumb) · [Pagination](https://pinfold.indranildev.in/docs/pagination) · [Stepper](https://pinfold.indranildev.in/docs/stepper) · [Resizable](https://pinfold.indranildev.in/docs/resizable) · [Scroll area](https://pinfold.indranildev.in/docs/scrollarea) |
+| **Data display** | [Table](https://pinfold.indranildev.in/docs/table) · [Card](https://pinfold.indranildev.in/docs/card) · [Accordion](https://pinfold.indranildev.in/docs/accordion) · [Tree view](https://pinfold.indranildev.in/docs/treeview) · [Timeline](https://pinfold.indranildev.in/docs/timeline) · [Carousel](https://pinfold.indranildev.in/docs/carousel) · [Avatar](https://pinfold.indranildev.in/docs/avatar) · [Badge](https://pinfold.indranildev.in/docs/badge) · [Tag group](https://pinfold.indranildev.in/docs/tags) · [Kbd](https://pinfold.indranildev.in/docs/kbd) · [Empty](https://pinfold.indranildev.in/docs/empty) · [Skeleton](https://pinfold.indranildev.in/docs/skeleton) |
+| **Forms** | [Input](https://pinfold.indranildev.in/docs/input) · [Number field](https://pinfold.indranildev.in/docs/number) · [One-time code](https://pinfold.indranildev.in/docs/otp) · [Checkbox](https://pinfold.indranildev.in/docs/checkbox) · [Radio group](https://pinfold.indranildev.in/docs/radio) · [Switch](https://pinfold.indranildev.in/docs/switch) · [Toggle](https://pinfold.indranildev.in/docs/toggle) · [Toolbar](https://pinfold.indranildev.in/docs/toolbar) · [Slider](https://pinfold.indranildev.in/docs/slider) · [Select](https://pinfold.indranildev.in/docs/select) · [Combobox](https://pinfold.indranildev.in/docs/combobox) · [Calendar](https://pinfold.indranildev.in/docs/calendar) · [Date picker](https://pinfold.indranildev.in/docs/datepicker) · [Color picker](https://pinfold.indranildev.in/docs/colorpicker) · [Rating](https://pinfold.indranildev.in/docs/rating) · [File upload](https://pinfold.indranildev.in/docs/fileupload) |
+| **Overlays** | [Dialog](https://pinfold.indranildev.in/docs/dialog) · [Popover](https://pinfold.indranildev.in/docs/popover) · [Tooltip](https://pinfold.indranildev.in/docs/tooltip) · [Menu](https://pinfold.indranildev.in/docs/menu) · [Command](https://pinfold.indranildev.in/docs/command) · [Toast](https://pinfold.indranildev.in/docs/toast) · [Tour](https://pinfold.indranildev.in/docs/tour) |
+| **Feedback** | [Alert](https://pinfold.indranildev.in/docs/alert) · [Progress](https://pinfold.indranildev.in/docs/progress) · [Spinner](https://pinfold.indranildev.in/docs/spinner) |
+| **Actions and effects** | [Button](https://pinfold.indranildev.in/docs/button) · [Separator](https://pinfold.indranildev.in/docs/separator) · [Cursor](https://pinfold.indranildev.in/docs/cursor) |
 
-The website, playground and palette studio live in [pinfold-ui](https://github.com/IndranilBhattacharya/pinfold-ui), served at `pinfold.indranildev.in`.
+Each one has a live playground, examples, the full API and its keyboard and ARIA notes on the site, and a
+spec in [`docs/components`](docs/components).
+
+## For coding agents
+
+A local MCP server answers from the version you installed, so an agent never invents an option.
+
+```bash
+claude mcp add pinfold -- npx -y pinfold mcp
+```
+
+Tools: `search_components`, `list_components`, `get_component`, `get_schema`, `validate_config` and
+`get_install_steps`. `llms.txt`, `llms-full.txt` and a JSON Schema per component ship inside `@pinfold/react`
+and at [pinfold.indranildev.in/llms.txt](https://pinfold.indranildev.in/llms.txt). Setup for Cursor, VS Code and
+Windsurf is in the [AI guide](https://pinfold.indranildev.in/docs/ai).
+
+## With shadcn
+
+```json
+{ "registries": { "@pinfold": "https://pinfold.indranildev.in/r/{name}.json" } }
+```
+
+```bash
+npx shadcn@latest add @pinfold/table
+```
+
+The registry item brings the component file, the packages and every stylesheet it needs.
+`@pinfold/css/shadcn.css` maps shadcn's variables onto Pinfold, so both follow one theme.
+
+## Theming
+
+```bash
+npx pinfold theme --primary "#4f46e5" --style glass --radius lg --check
+```
+
+Seven roles, eleven steps each, generated in OKLCH with sRGB fallbacks and a WCAG report. Style packs (`glass`,
+`material`, `noise`, `brutalist`) restyle surfaces, edges and shadows of every component at once. Tailwind v3 and
+v4 share the same variables. The [palette studio](https://pinfold.indranildev.in/docs/theming) shows it live.
+
+## Packages
+
+| Package | |
+| --- | --- |
+| [`@pinfold/react`](packages/react) | The components: hooks, presets and tags, one subpath each. |
+| [`@pinfold/css`](packages/css) | Tokens, reset and one stylesheet per component, style packs, Tailwind and shadcn bridges. |
+| [`@pinfold/core`](packages/core) | Framework-free rules, metadata and the OKLCH palette engine. |
+| [`pinfold`](packages/cli) | The CLI: `init`, `add`, `theme`, `doctor` and `mcp`. |
+
+React 18 and 19 · TypeScript 4.7+ or JavaScript · Next.js, Vite, React Router, Remix, Gatsby, Astro ·
+browsers from Baseline 2023.
+
+## Docs in this repository
+
+| | |
+| --- | --- |
+| [docs/components](docs/components) | One spec per component |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
+| [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript, bundlers, SSR frameworks, browsers |
+| [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | The accessibility report and the screen-reader matrix |
+| [docs/CLI.md](docs/CLI.md) · [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | The CLI, packages, registry and MCP server |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Setup, constraints and the checklist for a component |
 
 ## Develop
 
 ```bash
 npm install
-npm run verify    # typecheck, tests, build, gzip budget
-npm run size      # gzip report per entry point
+npm run verify    # types, tests, build, bundle budgets
 ```
 
 ## License

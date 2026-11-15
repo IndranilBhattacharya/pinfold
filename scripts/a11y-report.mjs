@@ -446,22 +446,37 @@ for (const scheme of ['light', 'dark']) {
   const landed = await page.evaluate(() => document.activeElement?.id ?? document.activeElement?.textContent);
   check('Tab skips the content of a closed panel', landed !== 'closed-link', `focus landed on ${JSON.stringify(landed)}`);
 
-  const hidden = await page.locator('[aria-label="solid"] [role=region][data-state=closed] > div').first().getAttribute('hidden');
+  const hidden = await page.locator('[aria-label="solid"] .pinfold-accordion__panel[data-state=closed] > div').first().getAttribute('hidden');
   check('Closed panels carry hidden="until-found" (find-in-page)', hidden === 'until-found');
 
+  // One row open, one shut, to see both.
+  const first = page.locator('[aria-label="solid"] button[aria-controls]').first();
+  if ((await first.getAttribute('aria-expanded')) !== 'true') await first.evaluate((b) => b.click());
+  await page.waitForTimeout(400);
   const roles = await page.evaluate(() => {
-    const t = document.querySelector('[aria-label="solid"] button[aria-controls]');
-    const panel = document.getElementById(t.getAttribute('aria-controls'));
-    return { heading: t.parentElement.tagName, labelled: panel.getAttribute('aria-labelledby') === t.id, role: panel.getAttribute('role') };
+    const all = [...document.querySelectorAll('[aria-label="solid"] button[aria-controls]')];
+    const open = all.find((b) => b.getAttribute('aria-expanded') === 'true');
+    const shut = all.find((b) => b.getAttribute('aria-expanded') === 'false');
+    const panel = (b) => document.getElementById(b.getAttribute('aria-controls'));
+    return {
+      heading: open?.parentElement.tagName,
+      labelled: !!open && panel(open).getAttribute('aria-labelledby') === open.id,
+      role: open && panel(open).getAttribute('role'),
+      closedRole: shut ? panel(shut).getAttribute('role') : 'none-closed',
+    };
   });
-  check('Trigger sits in a heading; panel is a region labelled by its trigger', roles.heading === 'H3' && roles.labelled && roles.role === 'region');
+  check(
+    'Trigger sits in a heading; an open panel is a region labelled by its trigger; a closed one is no landmark',
+    roles.heading === 'H3' && roles.labelled && roles.role === 'region' && roles.closedRole === null,
+    JSON.stringify(roles),
+  );
   await page.close();
 }
 
 // 3. Reduced motion.
 {
   const page = await open({ reducedMotion: 'reduce' });
-  const duration = await page.locator('[aria-label="solid"] [role=region]').first().evaluate((el) => getComputedStyle(el).transitionDuration);
+  const duration = await page.locator('[aria-label="solid"] .pinfold-accordion__panel').first().evaluate((el) => getComputedStyle(el).transitionDuration);
   const ms = Math.max(...duration.split(',').map((d) => parseFloat(d) * (d.trim().endsWith('ms') ? 1 : 1000)));
   check('prefers-reduced-motion collapses transitions', ms <= 1, `transition-duration ${duration}`);
   await page.screenshot({ path: join(outDir, 'reduced-motion.png') });
