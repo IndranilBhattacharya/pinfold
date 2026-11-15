@@ -254,22 +254,24 @@ describe('Pagination', () => {
     expect(container.querySelector('a[aria-label="Next page"]')!.getAttribute('href')).toBe('/blog?page=3');
   });
 
-  it('server side: total and page size give the pages and the summary; a size change keeps the first item on screen', () => {
+  it('server side: total and page size give the pages and the summary; a size change keeps the first item on screen', async () => {
     const onChange = vi.fn();
     const { container } = render(<Pagination total={532} defaultPage={3} pageSizes={[20, 50]} showInfo onChange={onChange} />);
     expect(container.querySelector('.pinfold-pagination__info')!.textContent).toBe('41–60 of 532');
     expect(screen.getByRole('button', { name: 'Page 27' })).toBeTruthy();
-    const select = screen.getByRole('combobox', { name: 'Rows per page' });
-    fireEvent.change(select, { target: { value: '50' } });
+    // Rows per page is a Pinfold Select, loaded the first time it shows.
+    fireEvent.click(await screen.findByRole('combobox', { name: /^Rows per page/ }));
+    fireEvent.click(await screen.findByRole('option', { name: '50' }));
     // Item 41 was first; with 50 a page it is on page 1.
     expect(onChange).toHaveBeenLastCalledWith(1, expect.objectContaining({ pageSize: 50, offset: 0, reason: 'pageSize' }));
     expect(container.querySelector('.pinfold-pagination__info')!.textContent).toBe('1–50 of 532');
   });
 
-  it('go to page: Enter jumps, clamped to the range', () => {
+  it('go to page: Enter jumps, clamped to the range', async () => {
     const onChange = vi.fn();
     render(<Pagination count={12} showJump onChange={onChange} />);
-    const field = screen.getByRole('spinbutton', { name: 'Go to page' });
+    // A Pinfold NumberField, loaded the first time it shows.
+    const field = await screen.findByRole('spinbutton', { name: 'Go to page' });
     fireEvent.change(field, { target: { value: '99' } });
     fireEvent.keyDown(field, { key: 'Enter' });
     expect(onChange).toHaveBeenLastCalledWith(12, expect.anything());
