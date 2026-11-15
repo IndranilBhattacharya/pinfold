@@ -27,6 +27,9 @@
     vertical-align: middle;
     color: var(--pinfold-tone-text, var(--pinfold-color-accent));
     filter: var(--pinfold-control-glow, none);
+    /* Its own layer: the parts are drawn on one whole-pixel grid. Placed at a fractional position (inline next
+       to text), each part otherwise snapped on its own and the pulse dot sat up to a pixel off its ring at 1x. */
+    will-change: transform;
   }
   .pinfold-spinner[data-size='sm'] { --pinfold-spn-base: 1rem; }
   .pinfold-spinner[data-size='lg'] { --pinfold-spn-base: 2.25rem; }
