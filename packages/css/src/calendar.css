@@ -235,8 +235,8 @@
   /* Something under a day's number (a price, a dot). */
   .pinfold-calendar__day[data-has-content] { align-content: center; gap: 0.0625rem; line-height: 1.05; }
   .pinfold-calendar__dayContent { font-size: 0.6em; font-weight: var(--pinfold-weight-normal); color: var(--pinfold-color-text-muted); }
-  .pinfold-calendar__day[data-selected] .pinfold-calendar__dayContent,
   .pinfold-calendar__day[data-in-range] .pinfold-calendar__dayContent { color: inherit; opacity: 0.85; }
+  .pinfold-calendar__day[data-selected] .pinfold-calendar__dayContent { color: inherit; opacity: 1; }
   .pinfold-calendar__day[data-has-content][aria-current='date']::after { inset-block: 0.2rem auto; }
 
   @media (forced-colors: active) {

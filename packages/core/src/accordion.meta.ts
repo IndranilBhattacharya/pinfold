@@ -312,7 +312,7 @@ export const accordionMeta: ComponentMeta = {
   aria: [
     'Each trigger is a `<button>` inside a heading with `aria-level`.',
     'Triggers carry `aria-expanded` and `aria-controls` pointing at their panel.',
-    'Each panel is `role="region"` with `aria-labelledby` pointing at its trigger.',
+    'Each open panel is `role="region"` with `aria-labelledby` pointing at its trigger; a closed panel is not a landmark.',
     'Disabled rows use `aria-disabled` and stay focusable.',
     'Closed panels leave the accessibility tree and the tab order.',
   ],

@@ -270,8 +270,10 @@ export function useAccordion(input: AnyAccordionConfig): AccordionApi {
       mergeProps(
         {
           id: item.panelId,
-          role: 'region',
-          'aria-labelledby': item.triggerId,
+          // A named region only while open: a closed panel's content is hidden, and an empty landmark per
+          // closed row would crowd a screen reader's landmark list.
+          role: item.open ? 'region' : undefined,
+          'aria-labelledby': item.open ? item.triggerId : undefined,
           'data-state': item.open ? 'open' : 'closed',
           ref: (node: HTMLElement | null) => trackPanel(panels.current, item, node, appearance.animate),
         },

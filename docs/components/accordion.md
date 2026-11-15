@@ -209,7 +209,8 @@ container-query responsiveness.
 
 ## ARIA
 - Each trigger is a `<button>` inside a heading (`aria-level`), with `aria-expanded` and `aria-controls`.
-- Each panel has `role="region"` and `aria-labelledby` pointing at its trigger.
+- Each open panel has `role="region"` and `aria-labelledby` pointing at its trigger. A closed panel is not a
+  landmark, so a screen reader's list of regions holds only what can be read.
 - Disabled rows use `aria-disabled` and stay focusable.
 
 ## Data attributes

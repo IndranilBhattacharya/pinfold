@@ -27,6 +27,10 @@ describe('Accordion', () => {
     expect(panel).toHaveAttribute('role', 'region');
     expect(panel).toHaveAttribute('aria-labelledby', first.id);
     expect(panel).toHaveAttribute('data-state', 'open');
+    // A closed panel is not a landmark.
+    const closed = document.getElementById(triggers()[1].getAttribute('aria-controls')!)!;
+    expect(closed).not.toHaveAttribute('role');
+    expect(closed).not.toHaveAttribute('aria-labelledby');
   });
 
   it('closes siblings in single mode and reopens on demand', () => {

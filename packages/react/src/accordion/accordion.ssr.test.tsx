@@ -50,7 +50,8 @@ describe('Accordion on the server', () => {
   it('renders complete HTML: every title and every panel body, open or closed', () => {
     const html = renderToString(<App />);
     for (const text of ['Alpha', 'Alpha body', 'Beta body', 'Gamma body', 'First', 'New']) expect(html).toContain(text);
-    expect(html.match(/role="region"/g)).toHaveLength(6);
+    // Open panels are named regions; closed ones are not landmarks (their content is still in the HTML).
+    expect(html.match(/role="region"/g)).toHaveLength(1);
     expect(html).toContain('aria-expanded="true"');
   });
 
