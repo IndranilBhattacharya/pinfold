@@ -74,6 +74,7 @@ export const stepperMeta: ComponentMeta = {
       group: 'appearance',
       control: true,
     },
+    dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { contentGap: { type: 'length', description: 'Space between the steps and the content panel (default 1.25rem).', group: 'appearance' } } },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },
     style: { type: 'object', description: 'Inline style on the root.', group: 'appearance' },

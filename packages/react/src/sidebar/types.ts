@@ -40,6 +40,14 @@ export interface SidebarState {
 }
 
 export interface SidebarDimensions {
+  /** Space inside the sidebar (default 0.5rem). */
+  padding?: Length;
+  /** Space between groups (default 0.75rem). */
+  groupGap?: Length;
+  /** Space between entries (default 1px). */
+  itemGap?: Length;
+  /** How far a section's entries sit in (default 1.1875rem). */
+  indent?: Length;
   /** Default 16rem. */
   width?: Length;
 }

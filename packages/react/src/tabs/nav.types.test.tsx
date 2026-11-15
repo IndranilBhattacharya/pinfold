@@ -48,7 +48,7 @@ export function Checks(): React.ReactElement {
       <Pagination hasNext />
       {/* @ts-expect-error: no such variant */}
       <Pagination count={3} variant="solid" />
-      <Stepper items={['Cart', { label: 'Pay', content: 'x', optional: true }]} variant="dot" onNext={async () => true} />
+      <Stepper items={['Cart', { label: 'Pay', content: 'x', optional: true }]} variant="dot" dimensions={{ contentGap: '1.25rem' }} onNext={async () => true} />
       {/* @ts-expect-error: no such variant */}
       <Stepper items={[{ label: 'Cart' }]} variant="line" />
       {/* @ts-expect-error: onNext returns a boolean or nothing */}

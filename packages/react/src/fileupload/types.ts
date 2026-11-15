@@ -42,6 +42,10 @@ export interface FileUploadState {
 }
 
 export interface FileUploadDimensions {
+  /** Space inside the drop zone (default by size: 1, 1.5, 2rem). */
+  padding?: Length;
+  /** Space between the zone and the file list (default 0.75rem). */
+  gap?: Length;
   /** Least height of the drop zone. */
   minHeight?: Length;
   thumbSize?: Length;

@@ -199,7 +199,7 @@ export const tableMeta: ComponentMeta = {
       type: 'object',
       description: 'Exact measurements. Numbers are px.',
       group: 'appearance',
-      keys: { maxHeight: { type: 'length', description: 'Tallest the body gets before it scrolls.', group: 'appearance' }, height: { type: 'length', description: 'A fixed height (virtual tables need this or `maxHeight`).', group: 'appearance' } },
+      keys: { cellPaddingX: { type: 'length', description: 'Space at the start and end of a cell (default by density: 0.75, 1, 1.25rem).', group: 'appearance' }, cellPaddingY: { type: 'length', description: 'Space above and below a cell\'s text (default by density: 0.4, 0.75, 1rem); rows grow with it.', group: 'appearance' }, toolbarPadding: { type: 'length', description: 'Space above and below the toolbar (default 0.75rem).', group: 'appearance' }, footerPadding: { type: 'length', description: 'Space above and below the footer (default 0.625rem).', group: 'appearance' }, maxHeight: { type: 'length', description: 'Tallest the body gets before it scrolls.', group: 'appearance' }, height: { type: 'length', description: 'A fixed height (virtual tables need this or `maxHeight`).', group: 'appearance' } },
     },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },

@@ -376,6 +376,14 @@ export interface TableItemContext<T = unknown> {
 }
 
 export interface TableDimensions {
+  /** Space at the start and end of a cell (default by density: 0.75, 1, 1.25rem). */
+  cellPaddingX?: Length;
+  /** Space above and below a cell's text (default by density: 0.4, 0.75, 1rem); rows grow with it. */
+  cellPaddingY?: Length;
+  /** Space above and below the toolbar (default 0.75rem). */
+  toolbarPadding?: Length;
+  /** Space above and below the footer (default 0.625rem). */
+  footerPadding?: Length;
   /** Tallest the body gets before it scrolls under a sticky header. */
   maxHeight?: Length;
   /** A fixed height (a virtual table needs one: this, or `maxHeight`). */

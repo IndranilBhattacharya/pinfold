@@ -9,14 +9,14 @@
     --pinfold-fu-radius: calc(var(--pinfold-control-radius-unit, 0.375rem) * var(--pinfold-radius-scale, 1));
     --pinfold-fu-zone-radius: calc(var(--pinfold-control-radius-unit, 0.375rem) * 2 * var(--pinfold-radius-scale, 1));
     --pinfold-fu-min-h: 9.5rem;
-    --pinfold-fu-pad: var(--pinfold-space-6);
+    --pinfold-fu-pad: var(--pinfold-fileupload-padding, var(--pinfold-space-6));
     --pinfold-fu-icon: 2.75rem;
     --pinfold-fu-thumb: var(--pinfold-fileupload-thumb-size, 2.5rem);
     --pinfold-fu-edge: var(--pinfold-control-edge, var(--pinfold-color-border));
 
     display: flex;
     flex-direction: column;
-    gap: var(--pinfold-space-3);
+    gap: var(--pinfold-fileupload-gap, var(--pinfold-space-3));
     box-sizing: border-box;
     inline-size: 100%;
     max-inline-size: 100%;
@@ -26,8 +26,8 @@
     line-height: 1.45;
     color: var(--pinfold-color-text);
   }
-  .pinfold-fileupload[data-size='sm'] { --pinfold-fu-min-h: 7.5rem; --pinfold-fu-pad: var(--pinfold-space-4); --pinfold-fu-icon: 2.25rem; --pinfold-fu-thumb: var(--pinfold-fileupload-thumb-size, 2rem); font-size: var(--pinfold-text-xs); }
-  .pinfold-fileupload[data-size='lg'] { --pinfold-fu-min-h: 12rem; --pinfold-fu-pad: var(--pinfold-space-8); --pinfold-fu-icon: 3.25rem; --pinfold-fu-thumb: var(--pinfold-fileupload-thumb-size, 3rem); font-size: var(--pinfold-text-md); }
+  .pinfold-fileupload[data-size='sm'] { --pinfold-fu-min-h: 7.5rem; --pinfold-fu-pad: var(--pinfold-fileupload-padding, var(--pinfold-space-4)); --pinfold-fu-icon: 2.25rem; --pinfold-fu-thumb: var(--pinfold-fileupload-thumb-size, 2rem); font-size: var(--pinfold-text-xs); }
+  .pinfold-fileupload[data-size='lg'] { --pinfold-fu-min-h: 12rem; --pinfold-fu-pad: var(--pinfold-fileupload-padding, var(--pinfold-space-8)); --pinfold-fu-icon: 3.25rem; --pinfold-fu-thumb: var(--pinfold-fileupload-thumb-size, 3rem); font-size: var(--pinfold-text-md); }
 
   /* The zone. */
   .pinfold-fileupload__zone {

@@ -54,7 +54,7 @@ export const sidebarMeta: ComponentMeta = {
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.sidebar`, the provider, then md.', group: 'appearance', control: true },
     tone: { type: 'enum', values: ['primary', 'neutral', 'success', 'warning', 'danger', 'info'], default: 'primary', description: 'Colour of the current entry. Precedence: this config, `defaults.sidebar`, the provider, then primary.', group: 'appearance', control: true },
-    dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { width: { type: 'length', description: 'Open width (default 16rem).', group: 'appearance' } } },
+    dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { padding: { type: 'length', description: 'Space inside the sidebar (default 0.5rem).', group: 'appearance' }, groupGap: { type: 'length', description: 'Space between groups (default 0.75rem).', group: 'appearance' }, itemGap: { type: 'length', description: 'Space between entries (default 1px).', group: 'appearance' }, indent: { type: 'length', description: 'How far a section\'s entries sit in (default 1.1875rem).', group: 'appearance' }, width: { type: 'length', description: 'Open width (default 16rem).', group: 'appearance' } } },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },
     style: { type: 'object', description: 'Inline style on the root.', group: 'appearance' },

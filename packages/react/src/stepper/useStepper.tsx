@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, inactiveStepperOptions, mergeProps, stepStatus, warnOnce, type PropsBag, type StepStatus, radiusProps } from '@pinfold/core';
+import { cn, dataAttr, inactiveStepperOptions, mergeProps, stepStatus, warnOnce, type PropsBag, type StepStatus, radiusProps, dimensionVars } from '@pinfold/core';
 import { useControllableState, useId } from '../hooks';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
@@ -108,7 +108,7 @@ export function useStepper(input: StepperConfig): StepperComponent {
   const render = (rootProps?: StepperRootProps): React.ReactElement => {
     const slot = (name: StepperSlot, content: React.ReactNode, tag: string, own: PropsBag = {}) =>
       renderSlot(config, name, slotProps(config, name, { className: config.unstyled ? undefined : `pinfold-stepper__${name}`, ...own }), state, content, (p, c) => React.createElement(tag, p, c));
-    const root = slotProps(config, 'root', getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-stepper', config.className), style: config.style }, rootProps)));
+    const root = slotProps(config, 'root', getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-stepper', config.className), style: { ...dimensionVars('stepper', config.dimensions), ...config.style } }, rootProps)));
 
     const actions = () =>
       config.showActions === false || complete

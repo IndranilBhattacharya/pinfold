@@ -27,7 +27,7 @@ config, or `children` on the tag. Every region takes anything: Pinfold's Navbar,
 | `navbarPosition` | `'sticky' \| 'static'` | `'sticky'` |
 | `scroll` | `'page'`: the page scrolls, the bar and sidebar stay in view. `'content'`: the shell has a height and only the page region scrolls (a Navbar in the bar with `shrinkOnScroll` / `hideOnScroll` follows that region by itself) | `'page'` |
 | `dividers` | hairlines between the regions | `true` |
-| `dimensions` | `sidebarWidth`, `asideWidth`, `maxWidth` and `padding` of the page content, `height` | |
+| `dimensions` | `gap`, `sidebarWidth`, `asideWidth`, `maxWidth` and `padding` of the page content, `height` | `0` (gap), none |
 | `labels` | `openSidebar`, `closeSidebar`, `sidebar` | |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots: `root navbar trigger sidebar backdrop main content aside footer` | |
 

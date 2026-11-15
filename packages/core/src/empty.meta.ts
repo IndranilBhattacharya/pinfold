@@ -27,6 +27,7 @@ export const emptyMeta: ComponentMeta = {
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.empty`, the provider, then md.', group: 'appearance', control: true },
     tone: { type: 'enum', values: ['primary', 'neutral', 'success', 'warning', 'danger', 'info'], default: 'primary', description: 'The icon tile and the main action. Precedence: this config, `defaults.empty`, the provider, then primary.', group: 'appearance', control: true },
+    dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { padding: { type: 'length', description: 'Space inside (default by size: 1.25rem 1rem, 2rem 1.5rem, 3rem 2rem).', group: 'appearance' }, gap: { type: 'length', description: 'Space between the media, the text and the actions (default 0.5rem).', group: 'appearance' } } },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },
     style: { type: 'object', description: 'Inline style on the root.', group: 'appearance' },

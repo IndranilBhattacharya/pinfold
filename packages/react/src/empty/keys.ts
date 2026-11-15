@@ -10,6 +10,7 @@ export const EMPTY_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'radius',
   'size',
   'tone',
+  'dimensions',
   'unstyled',
   'className',
   'style',

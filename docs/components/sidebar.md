@@ -39,7 +39,8 @@ Precedence: use-site props, the preset, `defaults.sidebar`, the provider, the li
 | `surface` | the frame: `'panel'` (a hairline), `'floating'` (a card clear of the edges), `'transparent'` | `'panel'` |
 | `variant` | `soft` tint, `plain` edge bar, `solid` fill | `'soft'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
-| `size`, `tone`, `dimensions` | `width` | `'md'`, `'primary'`, `16rem` |
+| `size`, `tone` | | `'md'`, `'primary'` |
+| `dimensions` | `padding`, `groupGap`, `itemGap`, `indent`, `width` | `0.5rem`, `0.75rem`, `1px`, `1.1875rem`, `16rem` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root header body group groupLabel list item link icon badge chevron sublist footer toggle` | |
 
 Entry: `{ label, href?, target?, icon?, badge?, items?, group?, id?, disabled?, onClick? }`. An

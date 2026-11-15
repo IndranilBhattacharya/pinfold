@@ -58,6 +58,7 @@ default.
 | `labelPlacement` | `'bottom' \| 'end'` (names beside the marks) | `'bottom'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | | `'md'`, `'primary'` (provider) |
+| `dimensions` | `contentGap` (steps to panel) | `1.25rem` |
 | `label` | the list's name | `'Progress'` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root summary list step button indicator connector text label description panel actions`) | | |
 

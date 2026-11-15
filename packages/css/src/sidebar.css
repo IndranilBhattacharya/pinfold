@@ -19,7 +19,7 @@
     max-inline-size: 100%;
     block-size: 100%;
     min-block-size: 0;
-    padding: 0.5rem;
+    padding: var(--pinfold-sidebar-padding, 0.5rem);
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-control-text);
     color: var(--pinfold-color-text);
@@ -45,7 +45,7 @@
 
   .pinfold-sidebar__header, .pinfold-sidebar__footer { flex-shrink: 0; min-inline-size: 0; padding: 0.25rem; }
   .pinfold-sidebar__footer { border-block-start: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border)); padding-block-start: 0.5rem; }
-  .pinfold-sidebar__body { display: flex; flex: 1 1 auto; flex-direction: column; gap: 0.75rem; min-block-size: 0; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; }
+  .pinfold-sidebar__body { display: flex; flex: 1 1 auto; flex-direction: column; gap: var(--pinfold-sidebar-group-gap, 0.75rem); min-block-size: 0; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; }
   .pinfold-sidebar__groupLabel {
     padding: 0.25rem 0.625rem;
     font-size: 0.75rem;
@@ -53,7 +53,7 @@
     color: var(--pinfold-color-text-muted);
     white-space: nowrap;
   }
-  .pinfold-sidebar__list { display: flex; flex-direction: column; gap: 1px; margin: 0; padding: 0; list-style: none; }
+  .pinfold-sidebar__list { display: flex; flex-direction: column; gap: var(--pinfold-sidebar-item-gap, 1px); margin: 0; padding: 0; list-style: none; }
   .pinfold-sidebar__item { min-inline-size: 0; }
 
   .pinfold-sidebar__link {
@@ -122,7 +122,7 @@
   .pinfold-sidebar__sublist > .pinfold-sidebar__list {
     min-block-size: 0;
     overflow: hidden;
-    margin-inline-start: calc(0.625rem + 0.5625rem);
+    margin-inline-start: var(--pinfold-sidebar-indent, calc(0.625rem + 0.5625rem));
     padding-block-start: 1px;
     padding-inline-start: 0.5rem;
     border-inline-start: var(--pinfold-border-width) solid var(--pinfold-control-edge, var(--pinfold-color-border));

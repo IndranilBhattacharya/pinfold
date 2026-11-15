@@ -16,7 +16,7 @@
     --pinfold-stp-track: color-mix(in oklab, var(--pinfold-color-text) 12%, transparent);
     display: flex;
     flex-direction: column;
-    gap: var(--pinfold-space-5);
+    gap: var(--pinfold-stepper-content-gap, var(--pinfold-space-5));
     min-inline-size: 0;
     font-family: var(--pinfold-font-sans);
     font-size: var(--pinfold-control-text);

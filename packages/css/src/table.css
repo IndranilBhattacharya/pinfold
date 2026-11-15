@@ -5,8 +5,8 @@
 
 @layer pinfold.components {
   .pinfold-table {
-    --pinfold-tbl-pad-y: 0.75rem;
-    --pinfold-tbl-pad-x: 1rem;
+    --pinfold-tbl-pad-y: var(--pinfold-table-cell-padding-y, 0.75rem);
+    --pinfold-tbl-pad-x: var(--pinfold-table-cell-padding-x, 1rem);
     --pinfold-tbl-solid: var(--pinfold-tone-solid, var(--pinfold-color-accent));
     --pinfold-tbl-edge: var(--pinfold-control-edge, var(--pinfold-color-border));
     --pinfold-tbl-line: color-mix(in oklab, var(--pinfold-color-text) 8%, transparent);
@@ -23,8 +23,8 @@
     font-size: var(--pinfold-text-sm);
     color: var(--pinfold-color-text);
   }
-  .pinfold-table[data-density='compact'] { --pinfold-tbl-pad-y: 0.4rem; --pinfold-tbl-pad-x: 0.75rem; }
-  .pinfold-table[data-density='relaxed'] { --pinfold-tbl-pad-y: 1rem; --pinfold-tbl-pad-x: 1.25rem; }
+  .pinfold-table[data-density='compact'] { --pinfold-tbl-pad-y: var(--pinfold-table-cell-padding-y, 0.4rem); --pinfold-tbl-pad-x: var(--pinfold-table-cell-padding-x, 0.75rem); }
+  .pinfold-table[data-density='relaxed'] { --pinfold-tbl-pad-y: var(--pinfold-table-cell-padding-y, 1rem); --pinfold-tbl-pad-x: var(--pinfold-table-cell-padding-x, 1.25rem); }
   .pinfold-table[data-size='sm'] { font-size: var(--pinfold-text-xs); }
   .pinfold-table[data-size='lg'] { font-size: var(--pinfold-text-md); }
   .pinfold-table[data-variant='card'] {
@@ -272,7 +272,7 @@
   .pinfold-table__groupToggle:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
 
   /* ---- toolbar, chips, footer ---- */
-  .pinfold-table__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; padding: 0.75rem var(--pinfold-tbl-pad-x); }
+  .pinfold-table__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; padding: var(--pinfold-table-toolbar-padding, 0.75rem) var(--pinfold-tbl-pad-x); }
   .pinfold-table[data-variant='plain'] :is(.pinfold-table__toolbar, .pinfold-table__chips, .pinfold-table__footer) { padding-inline: 0; }
   .pinfold-table__searchBox { position: relative; display: flex; flex: 1 1 14rem; max-inline-size: 20rem; }
   /* Search, filters and rows per page are Pinfold Inputs and Selects (input.css, select.css): sized here. */
@@ -328,7 +328,7 @@
   .pinfold-table__chipClear:hover { color: var(--pinfold-color-text); }
   :is(.pinfold-table__chipText, .pinfold-table__chipRemove, .pinfold-table__chipClear):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
 
-  .pinfold-table__footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem 1rem; padding: 0.625rem var(--pinfold-tbl-pad-x); border-block-start: var(--pinfold-border-width) solid var(--pinfold-tbl-line); }
+  .pinfold-table__footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem 1rem; padding: var(--pinfold-table-footer-padding, 0.625rem) var(--pinfold-tbl-pad-x); border-block-start: var(--pinfold-border-width) solid var(--pinfold-tbl-line); }
   .pinfold-table__info { margin-inline-end: auto; color: var(--pinfold-color-text-muted); font-variant-numeric: tabular-nums; }
   .pinfold-table__pageSize { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--pinfold-color-text-muted); }
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, dataAttr, inactiveEmptyOptions, mergeProps, warnOnce, type PropsBag, radiusProps } from '@pinfold/core';
+import { cn, dataAttr, inactiveEmptyOptions, mergeProps, warnOnce, type PropsBag, radiusProps, dimensionVars } from '@pinfold/core';
 import { usePinfold } from '../provider';
 import { usePinfoldComponent } from '../component';
 import { mergeConfig } from '../preset';
@@ -45,7 +45,7 @@ export function useEmpty(input: EmptyConfig): EmptyComponent {
     const cls = (name: string) => (config.unstyled ? undefined : name);
     const slot = (name: EmptySlot, content: React.ReactNode, tag: string, own: PropsBag = {}) =>
       renderSlot(config, name, slotProps(config, name, { className: cls(`pinfold-empty__${name}`), ...own }), state, content, (p, c) => React.createElement(tag, p, c));
-    const root = slotProps(config, 'root', getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-empty', config.className), style: config.style }, rootProps)));
+    const root = slotProps(config, 'root', getRootProps(mergeProps({ className: config.unstyled ? config.className : cn('pinfold pinfold-empty', config.className), style: { ...dimensionVars('empty', config.dimensions), ...config.style } }, rootProps)));
     const level = [2, 3, 4, 5, 6].includes(Number(config.headingLevel)) ? Number(config.headingLevel) : 3;
     const actions = config.actions ?? [];
     const content = (

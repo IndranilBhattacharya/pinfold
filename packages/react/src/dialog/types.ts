@@ -31,6 +31,8 @@ export interface DialogState {
 }
 
 export interface DialogDimensions {
+  /** Space between the header and the body, and the body and the actions (default 0.75rem and 1rem). */
+  gap?: Length;
   width?: Length;
   height?: Length;
   /** Tallest the panel grows before its content scrolls. */

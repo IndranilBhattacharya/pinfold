@@ -59,7 +59,7 @@ the content. Precedence: use-site props, the preset, `defaults.dialog`, the libr
 | `closeOnEscape` | `boolean` | `true` |
 | `initialFocus` | `'panel'`, a CSS selector inside the dialog, or a ref | `[data-autofocus]`, else the first control |
 | `open`, `defaultOpen` | state | uncontrolled, closed |
-| `dimensions` | `width, height, maxHeight, padding, radius` | from the size |
+| `dimensions` | `gap, width, height, maxHeight, padding, radius` | `0.75rem` / `1rem` (header / actions), from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root panel header title description content footer actions close`) | | |
 
 ## Events

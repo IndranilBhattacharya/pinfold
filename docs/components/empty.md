@@ -21,6 +21,7 @@ Precedence: use-site props, the preset, `defaults.empty`, the provider, the libr
 | `headingLevel` | 2 to 6, to fit the page outline | `3` |
 | `variant`, `size`, `tone` | `'plain' \| 'dashed' \| 'card'` | `'plain'`, `'md'`, `'primary'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
+| `dimensions` | `padding`, `gap` | by size (`1.25rem 1rem`, `2rem 1.5rem`, `3rem 2rem`), `0.5rem` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots as in the meta | |
 
 ## Accessibility

@@ -68,7 +68,7 @@ export const fileuploadMeta: ComponentMeta = {
       type: 'object',
       description: 'Exact measurements. Numbers are px.',
       group: 'appearance',
-      keys: { minHeight: len('Least height of the drop zone.'), thumbSize: len('Size of a thumbnail in the list.') },
+      keys: { padding: { type: 'length', description: 'Space inside the drop zone (default by size: 1, 1.5, 2rem).', group: 'appearance' }, gap: { type: 'length', description: 'Space between the zone and the file list (default 0.75rem).', group: 'appearance' }, minHeight: len('Least height of the drop zone.'), thumbSize: len('Size of a thumbnail in the list.') },
     },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.fileupload`, the provider, then md.', group: 'appearance', control: true },

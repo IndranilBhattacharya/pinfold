@@ -50,6 +50,7 @@ export const appshellMeta: ComponentMeta = {
       description: 'Exact measurements. Numbers are px.',
       group: 'appearance',
       keys: {
+        gap: { type: 'length', description: 'Space between the regions (default none: they meet at their edges).', group: 'appearance' },
         sidebarWidth: length('Default: as wide as what is in it (16rem as a drawer).'),
         asideWidth: length('Default 18rem.'),
         maxWidth: length('Widest the page content gets; it is centred beyond that.'),

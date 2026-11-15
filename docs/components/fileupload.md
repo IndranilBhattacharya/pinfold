@@ -32,7 +32,7 @@ Precedence: use-site props, the preset, `defaults.fileupload`, the provider (siz
 | `variant` | `'dropzone'`, `'button'` (a control with the hint beside it), `'compact'` (one line) | `'dropzone'` |
 | `renderItem` | `({ item, props, children }) => node`: the content of each file row | |
 | `labels` | `{ title, browse, drop, remove, retry, dismiss, queued, uploading, done, error, type, size, count }` | English |
-| `dimensions` | `{ minHeight, thumbSize }` | |
+| `dimensions` | `{ padding, gap, minHeight, thumbSize }` | by size (`1rem`, `1.5rem`, `2rem`), `0.75rem`, none |
 | `radius`, `size`, `tone` | | theme, `'md'`, `'primary'` |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots: `root zone icon title description browse input list item thumb info name meta progress actions retry remove rejections rejection` | |
 

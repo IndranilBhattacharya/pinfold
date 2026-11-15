@@ -57,6 +57,7 @@ export const dialogMeta: ComponentMeta = {
       description: 'Exact measurements. Numbers are px.',
       group: 'appearance',
       keys: {
+        gap: { type: 'length', description: 'Space between the header and the body, and the body and the actions (default 0.75rem and 1rem).', group: 'appearance' },
         width: len('Panel width (a centred dialog or a drawer).'),
         height: len('Panel height (a centred dialog, or a top or bottom sheet).'),
         maxHeight: len('Tallest the panel grows before its content scrolls.'),

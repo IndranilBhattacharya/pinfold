@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
+import type { PinfoldSize, PinfoldTone, PropsBag, RadiusOption, Length } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
@@ -63,7 +63,14 @@ export interface StepperState {
 /** One step as you wrote it (strings become `{ label }`), its position and status. `render` overrides of the repeating parts get it as `item`. */
 export type StepperItemContext = StepperItem & { index: number; status: StepperStatus };
 
+/** Exact measurements; numbers are px. */
+export interface StepperDimensions {
+  /** Space between the steps and the content panel (default 1.25rem). */
+  contentGap?: Length;
+}
+
 export interface StepperConfig extends SlotOverrides<StepperSlot, StepperState, StepperItemContext> {
+  dimensions?: StepperDimensions;
   /** One step each; a string is a step with that name. */
   items: ReadonlyArray<StepperItem | string>;
   /** @default 'Progress' */

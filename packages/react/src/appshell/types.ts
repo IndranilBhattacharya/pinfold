@@ -15,6 +15,8 @@ export interface AppShellState {
 }
 
 export interface AppShellDimensions {
+  /** Space between the regions (default none: they meet at their edges). */
+  gap?: Length;
   /** Default: as wide as what is in it (16rem as a drawer). */
   sidebarWidth?: Length;
   /** Default 18rem. */

@@ -83,7 +83,7 @@
     flex-direction: column;
     flex: none;
     gap: var(--pinfold-space-1);
-    padding: var(--pinfold-dlg-pad) var(--pinfold-dlg-pad) var(--pinfold-space-3);
+    padding: var(--pinfold-dlg-pad) var(--pinfold-dlg-pad) var(--pinfold-dialog-gap, var(--pinfold-space-3));
     border-start-start-radius: inherit;
     border-start-end-radius: inherit;
     transition: box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out);
@@ -132,7 +132,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--pinfold-space-2) var(--pinfold-space-3);
-    padding: var(--pinfold-space-4) var(--pinfold-dlg-pad) var(--pinfold-dlg-pad);
+    padding: var(--pinfold-dialog-gap, var(--pinfold-space-4)) var(--pinfold-dlg-pad) var(--pinfold-dlg-pad);
     border-end-start-radius: inherit;
     border-end-end-radius: inherit;
     transition: box-shadow var(--pinfold-duration-md) var(--pinfold-ease-out);

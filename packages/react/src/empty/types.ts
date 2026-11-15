@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { PinfoldSize, PinfoldTone, PropsBag, RadiusOption } from '@pinfold/core';
+import type { PinfoldSize, PinfoldTone, PropsBag, RadiusOption, Length } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { ButtonConfig } from '../button/types';
 import type { SlotOverrides } from '../types';
@@ -18,7 +18,16 @@ export interface EmptyState {
  *   const NoResults = defineEmpty({ variant: 'dashed' });
  *   <NoResults title="No invoices yet" description="Create one to get paid." actions={[{ label: 'New invoice', onClick: create }]} />
  */
+/** Exact measurements; numbers are px. */
+export interface EmptyDimensions {
+  /** Space inside (default by size: 1.25rem 1rem, 2rem 1.5rem, 3rem 2rem). */
+  padding?: Length;
+  /** Space between the media, the text and the actions (default 0.5rem). */
+  gap?: Length;
+}
+
 export interface EmptyConfig extends SlotOverrides<EmptySlot, EmptyState> {
+  dimensions?: EmptyDimensions;
   /** What is missing: "No invoices yet". */
   title: React.ReactNode;
   /** What to do about it. */
