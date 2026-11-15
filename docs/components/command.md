@@ -63,6 +63,25 @@ Inactive (`inactiveCommandOptions`): `open`, `defaultOpen`, `onOpenChange`, `hot
 `closeOnSelect` unless `mode: 'dialog'`; `debounce` without `loadItems`; `hints`, `footerContent`
 with `footer: false`.
 
+## Nested pages
+A row that opens a second list ("Change carrier…" then the carriers) needs no special option: keep a stack of
+pages in your state, give the palette the current page's `items`, and step back on Backspace in an empty field.
+```tsx
+const [stack, setStack] = useState<string[]>([]);
+const [query, setQuery] = useState('');
+const page = stack[stack.length - 1];
+const open = (name: string) => { setStack((s) => [...s, name]); setQuery(''); };
+const items = page === 'carrier'
+  ? carriers.map((c) => ({ label: c.name, onSelect: () => setCarrier(c.id) }))
+  : [{ label: 'Change carrier…', onSelect: () => open('carrier') }, { label: 'Print label', onSelect: print }];
+
+<Palette label={page === 'carrier' ? 'Choose a carrier' : 'Commands'} items={items}
+  inputValue={query} onInputChange={setQuery} closeOnSelect={false}
+  slotProps={{ input: { onKeyDown: (e) => { if (e.key === 'Backspace' && !query && stack.length) setStack((s) => s.slice(0, -1)); } } }} />
+```
+Your `onKeyDown` runs alongside the palette's own keys. In a dialog, `closeOnSelect={false}` keeps it open while
+moving between pages; close it yourself after the final command.
+
 ## Accessibility
 - The search field is a `combobox` named by `label`, controlling a `listbox` of `option`s; focus
   stays in it and `aria-activedescendant` names the active command. The first match is active as

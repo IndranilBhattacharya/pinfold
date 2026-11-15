@@ -78,3 +78,57 @@ describe('Command: async source, rich rows, states, footer', () => {
     expect(inactiveCommandOptions({})).toHaveProperty('debounce');
   });
 });
+
+// The nested pages recipe in docs/components/command.md, kept true by this test.
+function NestedPalette({ onRun }: { onRun: (what: string) => void }) {
+  const [stack, setStack] = React.useState<string[]>([]);
+  const [query, setQuery] = React.useState('');
+  const pageName = stack[stack.length - 1];
+  const open = (name: string) => {
+    setStack((s) => [...s, name]);
+    setQuery('');
+  };
+  const items =
+    pageName === 'carrier'
+      ? ['Maersk', 'MSC', 'CMA CGM'].map((c) => ({ label: c, onSelect: () => onRun(`carrier: ${c}`) }))
+      : [
+          { label: 'Change carrier…', onSelect: () => open('carrier') },
+          { label: 'Print label', onSelect: () => onRun('print') },
+        ];
+  return (
+    <Command
+      label={pageName === 'carrier' ? 'Choose a carrier' : 'Commands'}
+      mode="inline"
+      items={items}
+      inputValue={query}
+      onInputChange={setQuery}
+      slotProps={{
+        input: {
+          onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {
+            if (event.key === 'Backspace' && query === '' && stack.length) setStack((s) => s.slice(0, -1));
+          },
+        },
+      }}
+    />
+  );
+}
+
+describe('Command: nested pages from your own state', () => {
+  it('a row opens a second list, Backspace on an empty field goes back, a row on the second page runs', () => {
+    const onRun = vi.fn();
+    render(<NestedPalette onRun={onRun} />);
+    const input = screen.getByRole('combobox');
+    fireEvent.click(screen.getByRole('option', { name: /Change carrier/ }));
+    expect(screen.getByRole('option', { name: 'MSC' })).toBeTruthy();
+    expect(screen.queryByRole('option', { name: 'Print label' })).toBeNull();
+    fireEvent.change(input, { target: { value: 'ms' } });
+    fireEvent.keyDown(input, { key: 'Backspace' });
+    expect(screen.getByRole('option', { name: 'MSC' })).toBeTruthy();
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyDown(input, { key: 'Backspace' });
+    expect(screen.getByRole('option', { name: 'Print label' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('option', { name: /Change carrier/ }));
+    fireEvent.click(screen.getByRole('option', { name: 'CMA CGM' }));
+    expect(onRun).toHaveBeenCalledWith('carrier: CMA CGM');
+  });
+});

@@ -30,6 +30,21 @@ HTML always shows the defaults).
 
 Controller: `sizes`, `setSizes(sizes)`, `reset()`.
 
+## Nesting
+A panel's `content` can be another group: an editor above a terminal, beside a file tree. Each group has its own
+orientation, handles, keys and `autoSaveId`; moving one never moves the other.
+```tsx
+<Resizable label="Workbench" panels={[
+  { id: 'files', label: 'Files', defaultSize: 25, content: <FileTree /> },
+  { id: 'centre', label: 'Centre', content: (
+    <Resizable label="Centre" orientation="vertical" panels={[
+      { id: 'editor', label: 'Editor', content: <Editor /> },
+      { id: 'terminal', label: 'Terminal', defaultSize: 30, content: <Terminal /> },
+    ]} />
+  ) },
+]} />
+```
+
 ## Accessibility
 - Each handle is a focusable `separator` named "Resize <panel>" with its value, min and max and
   `aria-controls`; arrows move it (left and right follow the reading direction), Home and End go

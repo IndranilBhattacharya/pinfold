@@ -70,6 +70,48 @@ describe('Resizable', () => {
     expect(onResize).toHaveBeenLastCalledWith([30, 70]);
   });
 
+  it('nests: a group in a panel content resizes on its own axis, and neither group moves the other', () => {
+    const outer = vi.fn();
+    const inner = vi.fn();
+    render(
+      <Resizable
+        label="Workbench"
+        onResize={outer}
+        panels={[
+          { id: 'files', label: 'Files', defaultSize: 25, content: 'tree' },
+          {
+            id: 'centre',
+            label: 'Centre',
+            content: (
+              <Resizable
+                label="Centre"
+                orientation="vertical"
+                onResize={inner}
+                panels={[
+                  { id: 'editor', label: 'Editor', content: 'code' },
+                  { id: 'terminal', label: 'Terminal', defaultSize: 30, content: 'shell' },
+                ]}
+              />
+            ),
+          },
+        ]}
+      />,
+    );
+    const outerHandle = screen.getByRole('separator', { name: 'Resize Files' });
+    const innerHandle = screen.getByRole('separator', { name: 'Resize Editor' });
+    expect(outerHandle.getAttribute('aria-orientation')).toBe('vertical');
+    expect(innerHandle.getAttribute('aria-orientation')).toBe('horizontal');
+    fireEvent.keyDown(innerHandle, { key: 'ArrowDown' });
+    expect(inner).toHaveBeenLastCalledWith([75, 25]);
+    expect(outer).not.toHaveBeenCalled();
+    fireEvent.keyDown(outerHandle, { key: 'ArrowRight' });
+    expect(outer).toHaveBeenLastCalledWith([30, 70]);
+    expect(inner).toHaveBeenCalledTimes(1);
+    const controls = [outerHandle, innerHandle].map((h) => h.getAttribute('aria-controls'));
+    expect(new Set(controls).size).toBe(2);
+    for (const id of controls) expect(document.getElementById(id!)).not.toBeNull();
+  });
+
   it('autoSaveId keeps the sizes in this browser; renders the defaults on the server', () => {
     localStorage.setItem('pinfold-resizable:test', JSON.stringify([45, 55]));
     render(<Resizable label="Editor" panels={panels} autoSaveId="test" />);
