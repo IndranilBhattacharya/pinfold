@@ -31,7 +31,8 @@ describe('layout logic', () => {
     expect(keys(full)).toEqual(['autoSaveId', 'defaultSidebarCollapsed', 'onSidebarCollapsedChange', 'sidebarCollapsed']);
     expect(keys({ ...full, sidebarCollapsible: true })).toEqual([]);
     // auto, measured as a drawer: everything applies.
-    expect(keys({ ...full, sidebarCollapsible: true }, true)).toEqual([]);
+    expect(keys({ ...full, sidebarCollapsible: true }, true)).toEqual(['layout']);
+    expect(inactiveAppShellOptions(full, true).layout).toMatch(/drawer lies over the page/);
     // auto, measured wide: the drawer options wait for a narrow shell; collapsible keeps trigger active.
     expect(keys(full, false)).toEqual(['autoSaveId', 'backdrop', 'closeOnNavigate', 'defaultSidebarCollapsed', 'onSidebarCollapsedChange', 'sidebarCollapsed', 'sidebarTrigger']);
     expect(keys({ ...full, sidebarCollapsible: true }, false)).toEqual(['backdrop', 'closeOnNavigate']);
@@ -40,8 +41,8 @@ describe('layout logic', () => {
     expect(keys({ ...full, sidebarBehavior: 'inline' })).toEqual(['autoSaveId', 'backdrop', 'breakpoint', 'closeOnNavigate', 'defaultSidebarCollapsed', 'onSidebarCollapsedChange', 'sidebarCollapsed', 'sidebarTrigger']);
     expect(keys({ ...full, sidebarBehavior: 'inline', sidebarCollapsible: true })).toEqual(['backdrop', 'breakpoint', 'closeOnNavigate']);
     // drawer: always a drawer; breakpoint and desktop collapse unused.
-    expect(keys({ ...full, sidebarBehavior: 'drawer' }, false)).toEqual(['autoSaveId', 'breakpoint', 'defaultSidebarCollapsed', 'onSidebarCollapsedChange', 'sidebarCollapsed', 'sidebarCollapsible']);
-    expect(keys({ ...full, sidebarBehavior: 'drawer', sidebarCollapsible: true }, false)).toEqual(['autoSaveId', 'breakpoint', 'defaultSidebarCollapsed', 'onSidebarCollapsedChange', 'sidebarCollapsed', 'sidebarCollapsible']);
+    expect(keys({ ...full, sidebarBehavior: 'drawer' }, false)).toEqual(['autoSaveId', 'breakpoint', 'defaultSidebarCollapsed', 'layout', 'onSidebarCollapsedChange', 'sidebarCollapsed', 'sidebarCollapsible']);
+    expect(keys({ ...full, sidebarBehavior: 'drawer', sidebarCollapsible: true }, false)).toEqual(['autoSaveId', 'breakpoint', 'defaultSidebarCollapsed', 'layout', 'onSidebarCollapsedChange', 'sidebarCollapsed', 'sidebarCollapsible']);
     expect(inactiveAppShellOptions({ ...full, sidebarBehavior: 'drawer', sidebarCollapsible: true }).autoSaveId).toMatch(/always a drawer/);
     // No sidebar at all.
     expect(keys({ navbar: 'bar' })).toEqual(['autoSaveId', 'backdrop', 'breakpoint', 'closeOnNavigate', 'defaultSidebarCollapsed', 'onSidebarCollapsedChange', 'sidebarBehavior', 'sidebarCollapsed', 'sidebarCollapsible', 'sidebarTrigger']);

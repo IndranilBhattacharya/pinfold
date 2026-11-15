@@ -103,6 +103,7 @@ export function inactiveAppShellOptions(
     out.autoSaveId = why;
   } else {
     if (behavior !== 'auto') out.breakpoint = 'only `sidebarBehavior: "auto"` measures the shell against it.';
+    if (behavior === 'drawer' || drawer === true) out.layout = 'a drawer lies over the page, so the bar spans the width either way.';
     if (behavior === 'drawer') {
       const always = 'with `sidebarBehavior: "drawer"` the sidebar is always a drawer: collapsing applies to an inline sidebar.';
       Object.assign(out, { sidebarCollapsible: always, sidebarCollapsed: always, defaultSidebarCollapsed: always, onSidebarCollapsedChange: always, autoSaveId: always });

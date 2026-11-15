@@ -47,8 +47,10 @@ choosing (it renders while the sidebar is a drawer or `sidebarCollapsible`); set
 - Each use is its own instance: observers and listeners are removed on unmount.
 - Inactive (`inactiveAppShellOptions(config, drawer?)`): with no `sidebar`, the drawer options
   (`sidebarTrigger`, `backdrop`, `closeOnNavigate`) and `sidebarBehavior`, `breakpoint`; with
-  `sidebarBehavior: 'inline'`, the drawer options and `breakpoint`; with `'drawer'`, `breakpoint`; with
-  `'auto'` and a measured shell wider than `breakpoint` (pass `drawer: false`), the drawer options; with no
+  `sidebarBehavior: 'inline'`, the drawer options and `breakpoint`; with `'drawer'`, `breakpoint`, `layout` and
+  the collapse options; with `'auto'` and a measured shell wider than `breakpoint` (pass `drawer: false`), the
+  drawer options, or narrower (`drawer: true`), `layout`; without `sidebarCollapsible`, `sidebarCollapsed`,
+  `defaultSidebarCollapsed`, `onSidebarCollapsedChange` and `autoSaveId`; with no
   `navbar`, `navbarPosition` and `sidebarTrigger` (place `Shell.SidebarTrigger` yourself), and `layout`
   when there is no sidebar either; with `scroll: 'content'`, `navbarPosition`. In development the hook warns
   about the ones the config alone rules out.
