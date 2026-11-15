@@ -33,8 +33,9 @@ describe('table logic', () => {
     expect(inactiveTableOptions({ selection: 'multiple', pageSize: 10, sortable: true, filterable: true, virtual: false, renderDetail: () => null, dimensions: { maxHeight: 400 } })).toEqual({ rowHeight: 'only for a virtual table (rows size to their content otherwise).', onRowReorder: 'only used with `reorderableRows`.' });
     expect(inactiveTableOptions({ stickyHeader: true }).stickyHeader).toMatch(/maxHeight/);
     expect(inactiveTableOptions({ dimensions: { height: 300 } }).stickyHeader).toBeUndefined();
-    expect(inactiveTableOptions({ virtual: true }).stickyHeader).toBeUndefined();
+    expect(inactiveTableOptions({ virtual: true }).stickyHeader).toMatch(/always keeps its header/);
+    expect(inactiveTableOptions({ virtual: true, pageSize: 10 }).pageSize).toBe('a virtual table scrolls instead of paging.');
     expect(inactiveTableOptions({ virtual: true, pageSize: 10, sortable: true, filterable: true, renderDetail: () => null }).page).toBe('a virtual table scrolls instead of paging.');
-    expect(Object.keys(inactiveTableOptions({ dataSource: {}, sortable: true, filterable: true, renderDetail: () => null, selection: 'single' }))).toEqual(['page', 'defaultPage', 'onPageChange', 'total', 'pageSizes', 'onPageSizeChange', 'onRowReorder', 'groupBy', 'defaultGroupBy', 'groupable', 'manualSort', 'manualFilter', 'rows', 'getSubRows', 'reorderableRows']);
+    expect(Object.keys(inactiveTableOptions({ dataSource: {}, sortable: true, filterable: true, renderDetail: () => null, selection: 'single' }))).toEqual(['page', 'defaultPage', 'onPageChange', 'total', 'pageSizes', 'onPageSizeChange', 'pageSize', 'stickyHeader', 'onRowReorder', 'groupBy', 'defaultGroupBy', 'groupable', 'manualSort', 'manualFilter', 'rows', 'loading', 'getSubRows', 'reorderableRows']);
   });
 });

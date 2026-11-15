@@ -89,6 +89,10 @@ export function inactiveTableOptions(config: TableRules): Record<string, string>
     out.filterMode = 'no column filters (`filterable`).';
   }
   if (!virtual) out.rowHeight = 'only for a virtual table (rows size to their content otherwise).';
+  if (virtual) {
+    out.pageSize = 'a virtual table scrolls instead of paging.';
+    out.stickyHeader = 'a virtual table always keeps its header in view.';
+  }
   // The header sticks inside the table's own scroll box, which scrolls only with a height.
   if (!virtual && !config.dimensions?.height && !config.dimensions?.maxHeight) out.stickyHeader = 'needs `dimensions.maxHeight` (or `height`): the header sticks inside the table\'s scroll box.';
   if (!config.renderDetail && !config.subTable && !config.getSubRows) {
@@ -103,7 +107,7 @@ export function inactiveTableOptions(config: TableRules): Record<string, string>
   if (!config.reorderableRows) out.onRowReorder = 'only used with `reorderableRows`.';
   if (config.dataSource) {
     const why = 'a data source sorts, filters and groups on your server.';
-    Object.assign(out, { groupBy: why, defaultGroupBy: why, groupable: why, manualSort: why, manualFilter: why, rows: 'the rows come from `dataSource`.', getSubRows: 'a data source sends flat blocks of rows.', reorderableRows: 'the order is your server\'s.' });
+    Object.assign(out, { groupBy: why, defaultGroupBy: why, groupable: why, manualSort: why, manualFilter: why, rows: 'the rows come from `dataSource`.', loading: 'a data source shows the rows still on their way as loading rows.', getSubRows: 'a data source sends flat blocks of rows.', reorderableRows: 'the order is your server\'s.' });
   }
   return out;
 }

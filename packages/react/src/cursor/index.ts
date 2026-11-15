@@ -4,4 +4,4 @@
 export { Cursor, useCursor } from './client';
 export { Cursor as default } from './client';
 export { defineCursor, type DefinedCursor, type CursorPresetProps } from './define';
-export type { CursorApi, CursorComponent, CursorConfig, CursorRootProps, CursorTagProps, CursorSlot, CursorState, CursorVariant, CursorPointerState } from './types';
+export type { CursorApi, CursorComponent, CursorConfig, CursorRootProps, CursorTagProps, CursorSlot, CursorState, CursorVariant, CursorPointerState, CursorBuiltInState, CursorStateStyle } from './types';

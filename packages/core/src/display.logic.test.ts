@@ -53,7 +53,8 @@ describe('separator and skeleton logic', () => {
 
   it('skeleton: lines only for text, nothing animates once loaded; the last line is shorter', () => {
     expect(Object.keys(inactiveSkeletonOptions({ variant: 'circle' }))).toEqual(['direction', 'lines', 'lastLine', 'rows', 'columns']);
-    expect(Object.keys(inactiveSkeletonOptions({ items: [] }))).toEqual(['variant', 'lines', 'lastLine', 'rows', 'columns']);
+    expect(Object.keys(inactiveSkeletonOptions({ items: [] }))).toEqual(['count', 'variant', 'lines', 'lastLine', 'rows', 'columns']);
+    expect(inactiveSkeletonOptions({ layout: [] }).count).toMatch(/drawn once/);
     expect(Object.keys(inactiveSkeletonOptions({ loading: false })).sort()).toEqual(['animation', 'columns', 'direction', 'lines', 'rows']);
     expect(skeletonLineWidths(3)).toEqual(['100%', '100%', '62%']);
     expect(skeletonLineWidths(1)).toEqual(['100%']);

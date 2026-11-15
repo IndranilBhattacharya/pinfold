@@ -30,8 +30,9 @@ describe('layout logic', () => {
     // auto, width unknown: without sidebarCollapsible, collapsed options are inactive.
     expect(keys(full)).toEqual(['autoSaveId', 'defaultSidebarCollapsed', 'onSidebarCollapsedChange', 'sidebarCollapsed']);
     expect(keys({ ...full, sidebarCollapsible: true })).toEqual([]);
-    // auto, measured as a drawer: everything applies.
-    expect(keys({ ...full, sidebarCollapsible: true }, true)).toEqual(['layout']);
+    // auto, measured as a drawer: the drawer options apply; collapsing waits for a wide shell.
+    expect(keys({ ...full, sidebarCollapsible: true }, true)).toEqual(['autoSaveId', 'defaultSidebarCollapsed', 'layout', 'onSidebarCollapsedChange', 'sidebarCollapsed', 'sidebarCollapsible']);
+    expect(inactiveAppShellOptions({ ...full, sidebarCollapsible: true }, true).sidebarCollapsible).toMatch(/a drawer now/);
     expect(inactiveAppShellOptions(full, true).layout).toMatch(/drawer lies over the page/);
     // auto, measured wide: the drawer options wait for a narrow shell; collapsible keeps trigger active.
     expect(keys(full, false)).toEqual(['autoSaveId', 'backdrop', 'closeOnNavigate', 'defaultSidebarCollapsed', 'onSidebarCollapsedChange', 'sidebarCollapsed', 'sidebarTrigger']);

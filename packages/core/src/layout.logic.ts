@@ -107,6 +107,9 @@ export function inactiveAppShellOptions(
     if (behavior === 'drawer') {
       const always = 'with `sidebarBehavior: "drawer"` the sidebar is always a drawer: collapsing applies to an inline sidebar.';
       Object.assign(out, { sidebarCollapsible: always, sidebarCollapsed: always, defaultSidebarCollapsed: always, onSidebarCollapsedChange: always, autoSaveId: always });
+    } else if (drawer === true) {
+      const now = 'the shell is narrower than `breakpoint`, so the sidebar is a drawer now: collapsing applies once it sits beside the page.';
+      Object.assign(out, { sidebarCollapsible: now, sidebarCollapsed: now, defaultSidebarCollapsed: now, onSidebarCollapsedChange: now, autoSaveId: now });
     } else if (!collapsible) {
       out.sidebarCollapsed = 'only used with `sidebarCollapsible`.';
       out.defaultSidebarCollapsed = 'only used with `sidebarCollapsible`.';

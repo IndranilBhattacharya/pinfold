@@ -311,7 +311,6 @@ export function inactiveCalendarOptions(config: CalendarRules): Record<string, s
 /** Options with no visible effect in the current config (date picker). */
 export function inactiveDatePickerOptions(config: CalendarRules & { time?: unknown }): Record<string, string> {
   const out = inactiveCalendarOptions(config);
-  delete out.weekStart;
   if ((config.granularity ?? 'day') !== 'day') out.time = "a time goes with a day (`granularity: 'day'`).";
   if (!config.time) {
     const why = 'only with `time`.';

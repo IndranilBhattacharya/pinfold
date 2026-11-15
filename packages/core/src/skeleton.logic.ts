@@ -367,11 +367,13 @@ export function inactiveSkeletonOptions(config: SkeletonAppearanceInput): Record
     out.items = layout ? 'a `layout` replaces `items`.' : 'a preset replaces `items`.';
     out.direction = 'only used with `items`.';
     if (layout) out.preset = 'a `layout` replaces the preset (embed one as `{ preset }` instead).';
+    if (layout) out.count = 'a `layout` is drawn once: repeat a node with `grid` inside it.';
     if (layout) {
       out.rows = 'only used with `preset`.';
       out.columns = 'only used with `preset`.';
     }
   } else if (Array.isArray(config.items)) {
+    out.count = '`items` are drawn once: use `layout` with a `grid` to repeat them.';
     out.variant = 'a layout sets it per item.';
     out.lines = 'a layout sets it per item.';
     out.lastLine = 'a layout sets it per item.';

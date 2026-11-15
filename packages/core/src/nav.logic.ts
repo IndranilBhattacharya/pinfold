@@ -144,7 +144,7 @@ export function inactivePaginationOptions(config: { showControls?: boolean; comp
   }
   if (unknown) {
     const why = 'the page count is unknown (`hasNext`): only previous and next show.';
-    Object.assign(out, { showControls: why, siblings: why, boundaries: why, showEdges: why, compact: why });
+    Object.assign(out, { showControls: why, siblings: why, boundaries: why, showEdges: why, compact: why, showPages: why });
   } else {
     const why = 'only used when neither `count` nor `total` is known.';
     if (config.hasNext !== undefined) out.hasNext = why;

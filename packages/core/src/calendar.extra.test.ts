@@ -51,5 +51,8 @@ describe('calendar: weeks, presets, range rules, times', () => {
     expect(inactiveCalendarOptions({ mode: 'range', granularity: 'month' }).showWeekNumbers).toBeDefined();
     expect(inactiveDatePickerOptions({ mode: 'range', granularity: 'year', time: true }).time).toBeDefined();
     expect(inactiveDatePickerOptions({ mode: 'range' }).hourCycle).toBeDefined();
+    // weekStart goes to the calendar only, which shows no weeks when picking a month.
+    expect(inactiveDatePickerOptions({ granularity: 'month' }).weekStart).toMatch(/picking days/);
+    expect(inactiveDatePickerOptions({}).weekStart).toBeUndefined();
   });
 });

@@ -67,7 +67,7 @@ describe('navigation logic', () => {
     expect(Object.keys(inactivePaginationOptions({ count: 5, showControls: false, pageSizes: [10] }))).toEqual(['showEdges', 'showControlLabels']);
     expect(Object.keys(inactivePaginationOptions({ count: 5, showPages: false, hasPrevious: true }))).toEqual(['hasPrevious', 'siblings', 'boundaries', 'renderItem', 'compact', 'showControls']);
     expect(Object.keys(inactivePaginationOptions({ total: 50, compact: true, hasNext: true }))).toEqual(['siblings', 'boundaries', 'showControls', 'hasNext']);
-    expect(Object.keys(inactivePaginationOptions({ hasNext: true, pageSizes: [10] }))).toEqual(['showControls', 'siblings', 'boundaries', 'showEdges', 'compact']);
+    expect(Object.keys(inactivePaginationOptions({ hasNext: true, pageSizes: [10] }))).toEqual(['showControls', 'siblings', 'boundaries', 'showEdges', 'compact', 'showPages']);
     expect(Object.keys(inactiveStepperOptions({ variant: 'bar', onChange: () => {}, items: [{ content: 1 }] }))).toEqual(['orientation', 'labelPlacement', 'icons', 'connector']);
     expect(Object.keys(inactiveStepperOptions({ orientation: 'vertical', items: ['a'] }))).toEqual(['labelPlacement', 'responsive', 'linear', 'showActions', 'doneContent']);
     expect(Object.keys(inactiveTabsOptions({ mode: 'nav', onAdd: 1, onClose: 1, onReorder: 1 }))).toEqual(['keepMounted', 'lazy', 'panelVariant', 'renderPanel', 'activation']);
