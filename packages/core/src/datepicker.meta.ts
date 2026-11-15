@@ -68,7 +68,7 @@ export const datepickerMeta: ComponentMeta = {
     defaultOpen: { type: 'boolean', default: false, description: 'Open at first.', group: 'behaviour' },
     onOpenChange: { type: 'function', description: '`(open) => void`.', group: 'events' },
     placement: { type: 'enum', values: ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end'], default: 'bottom-start', description: 'Where the calendar opens; it flips when there is no room.', group: 'appearance' },
-    variant: { type: 'enum', values: ['outline', 'filled', 'underline'], default: 'outline', description: 'The field: framed, tinted, or a line under it (as Input).', group: 'appearance', control: true },
+    variant: { type: 'enum', values: ['flat', 'outline', 'filled', 'underline'], default: 'flat', description: 'The field: a tint with a line under it, framed, tinted with a frame, or a line under it (as Input).', group: 'appearance', control: true },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.datepicker`, the provider, then md.', group: 'appearance', control: true },
     tone: {
@@ -102,7 +102,7 @@ export const datepickerMeta: ComponentMeta = {
   ],
   dataAttributes: [
     { name: 'data-mode', on: 'root', values: '"single" | "range"' },
-    { name: 'data-variant', on: 'root', values: '"outline" | "filled" | "underline"' },
+    { name: 'data-variant', on: 'root', values: '"flat" | "outline" | "filled" | "underline"' },
     { name: 'data-open / data-filled / data-invalid', on: 'root', values: 'the field\'s state' },
   ],
   cssVariables: ['--pinfold-datepicker-width'],

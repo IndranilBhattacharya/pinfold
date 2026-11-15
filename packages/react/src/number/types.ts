@@ -5,7 +5,7 @@ import type { FieldConfig, FieldStatus, FieldValidationApi, FieldValidationConfi
 import type { SlotOverrides } from '../types';
 
 export type NumberFieldSlot = 'root' | 'label' | 'control' | 'input' | 'decrement' | 'increment' | 'startContent' | 'endContent' | 'description' | 'error' | 'statusIcon' | 'validating';
-export type NumberFieldVariant = 'outline' | 'filled';
+export type NumberFieldVariant = 'flat' | 'outline' | 'filled';
 export type NumberFieldSteppers = 'split' | 'end' | 'none';
 
 /** Passed to slot `render` overrides. */
@@ -70,7 +70,7 @@ export interface NumberFieldConfig extends Omit<FieldConfig, 'error'>, FieldVali
   startContent?: NumberFieldContent;
   /** After the number: a unit. A node or a function of state. */
   endContent?: NumberFieldContent;
-  /** @default 'outline' */
+  /** @default 'flat' */
   variant?: NumberFieldVariant;
   /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
   radius?: RadiusOption;

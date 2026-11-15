@@ -49,7 +49,7 @@ preset, `defaults.input`, the provider (size), the library default. Other tag pr
 | `revealable`, `revealLabel` | password: a toggle button (`aria-pressed`) that shows the text | `false`, `'Show password'` |
 | `showCount`, `countLabel(left)` | a count under the field ("12/80" with `maxLength`); near the limit it turns amber, at it red, and "20 characters left" is read politely once typing pauses | `false`, English |
 | `labelPlacement` | `'outside' \| 'inside'`: above, or in the field rising to its top edge on focus or with a value | `'outside'` |
-| `variant` | `'outline' \| 'filled' \| 'underline'` | `'outline'` |
+| `variant` | `'flat'` (a tint with a 1px line under it at 3:1, no frame) \| `'outline' \| 'filled' \| 'underline'` | `'flat'` |
 | `size` | `'sm' \| 'md' \| 'lg'`, the same heights as a button | `'md'` (provider) |
 | `dimensions` | `width, height, paddingX, radius` | from the size |
 | `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root label control field input startContent endContent clear reveal handle description counter error statusIcon validating`) | | |

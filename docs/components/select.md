@@ -51,7 +51,7 @@ array with `multiple`. Precedence: use-site props, the preset, `defaults.select`
 | `emptyText` | the list with no rows | `'No options'` |
 | `open`, `defaultOpen`, `onOpenChange` | the list | uncontrolled, `false` |
 | `placement` | where the list opens; it flips | `'bottom-start'` |
-| `variant` | `'outline' \| 'filled' \| 'underline'` | `'outline'` |
+| `variant` | `'flat'` (a tint with a 1px line under it at 3:1, no frame) \| `'outline' \| 'filled' \| 'underline'` | `'flat'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size`, `tone` | the tone colours the check and chosen rows | `'md'`, `'primary'` (provider) |
 | `dimensions` | `width`, `maxHeight` | full width, `18rem` |

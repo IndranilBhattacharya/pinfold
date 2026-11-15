@@ -30,7 +30,7 @@ input submits them, a range as "start/end" (ISO 8601). Precedence: use-site prop
 | `clearable`, `placeholder` | | `false`, the locale's pattern ("dd/mm/yyyy") |
 | `labels` | `{ open, clear, invalid, time, startTime, endTime, done }` | English |
 | `open`, `defaultOpen`, `onOpenChange`, `placement` | the popup | `'bottom-start'` |
-| `variant`, `size`, `tone`, `dimensions` | as Input; `width` | `'outline'`, `'md'`, `'primary'` |
+| `variant`, `size`, `tone`, `dimensions` | as Input; `width` | `'flat'`, `'md'`, `'primary'` |
 | `granularity` | `'day' \| 'month' \| 'year'`: what is picked (a month or a year is its first day) | `'day'` |
 | `captionLayout`, `yearRange` | `'buttons' \| 'dropdown' \| 'label'`. `buttons`: the caption's month opens a grid of months and its year a grid of years, in place, so a day, a month and a year are all chosen in one calendar (Escape goes back). `dropdown`: two selects. `label`: text and arrows. The years offered | `'buttons'`, `min`/`max` years or 100 back, 20 ahead |
 | `presets` | quick picks beside the months: names (`'today'`, `'yesterday'`, `'last7'`, `'last30'`, `'last90'`, `'next7'`, `'next30'`, `'thisWeek'`, `'lastWeek'`, `'thisMonth'`, `'lastMonth'`, `'thisYear'`, `'lastYear'`) or `{ label, value }` | none |

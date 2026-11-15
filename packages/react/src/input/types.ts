@@ -6,7 +6,7 @@ import type { SlotOverrides } from '../types';
 
 export type InputSlot = 'root' | 'label' | 'control' | 'field' | 'input' | 'startContent' | 'endContent' | 'clear' | 'reveal' | 'handle' | 'description' | 'counter' | 'error' | 'statusIcon' | 'validating';
 export type InputType = 'text' | 'email' | 'password' | 'search' | 'url' | 'tel';
-export type InputVariant = 'outline' | 'filled' | 'underline';
+export type InputVariant = 'flat' | 'outline' | 'filled' | 'underline';
 export type InputElement = HTMLInputElement | HTMLTextAreaElement;
 
 /** Passed to slot `render` overrides. */
@@ -104,7 +104,7 @@ export interface InputConfig extends Omit<FieldConfig, 'error'>, FieldValidation
    * @default 'outside'
    */
   labelPlacement?: 'outside' | 'inside';
-  /** @default 'outline' */
+  /** @default 'flat' */
   variant?: InputVariant;
   /** @default 'md' */
   size?: PinfoldSize;

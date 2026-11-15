@@ -65,7 +65,7 @@ export function useInput(input: InputConfig): InputComponent {
     warnOnce(!filled(config.label), 'Input: give it a `label` (`hideLabel` keeps it for screen readers only). A placeholder is not a name.');
   }
 
-  const state: InputState = { variant: config.variant ?? 'outline', size: config.size ?? ctx.size, invalid: field.invalid, disabled: !!config.disabled, hasValue, labelPlacement: inside ? 'inside' : 'outside', status: field.status, validating: field.validating, readOnly: !!config.readOnly };
+  const state: InputState = { variant: config.variant ?? 'flat', size: config.size ?? ctx.size, invalid: field.invalid, disabled: !!config.disabled, hasValue, labelPlacement: inside ? 'inside' : 'outside', status: field.status, validating: field.validating, readOnly: !!config.readOnly };
   const node_ = (content: InputConfig['startContent']) => (typeof content === 'function' ? content(state) : content);
 
   const fit = () => {

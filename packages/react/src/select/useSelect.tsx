@@ -61,7 +61,7 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
     warnOnce(new Set(rows.map((r) => r.value)).size !== rows.length, 'Select: every row needs its own `value`.');
   }
 
-  const state: SelectState = { variant: config.variant ?? 'outline', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, open, multiple, invalid: field.invalid, disabled, value, status: field.status, validating: field.validating };
+  const state: SelectState = { variant: config.variant ?? 'flat', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, open, multiple, invalid: field.invalid, disabled, value, status: field.status, validating: field.validating };
 
   const setOpen = (next: boolean, edge?: 'first' | 'last') => {
     if (next === open || (next && disabled)) return;

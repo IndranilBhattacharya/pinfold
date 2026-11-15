@@ -48,7 +48,7 @@ export const numberMeta: ComponentMeta = {
     decrementIcon: { type: 'node', description: 'The − button\'s icon.', group: 'appearance' },
     startContent: { type: 'node', description: 'Before the number: a currency, an icon. A node or a function of state.', group: 'data' },
     endContent: { type: 'node', description: 'After the number: a unit. A node or a function of state.', group: 'data' },
-    variant: { type: 'enum', values: ['outline', 'filled'], default: 'outline', description: 'A frame, or a tinted fill.', group: 'appearance', control: true },
+    variant: { type: 'enum', values: ['flat', 'outline', 'filled'], default: 'flat', description: 'A tint with a line under it (no frame), a frame, or a tinted fill.', group: 'appearance', control: true },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'The same heights as a button and an input. Precedence: this config, `defaults.number`, the provider, then md.', group: 'appearance', control: true },
     dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { width: len('Field width (default 10rem).'), height: len('Control height.') } },
@@ -72,7 +72,7 @@ export const numberMeta: ComponentMeta = {
   ],
   dataAttributes: [
     { name: 'data-steppers', on: 'root', values: '"split" | "end" | "none"' },
-    { name: 'data-variant', on: 'root', values: '"outline" | "filled"' },
+    { name: 'data-variant', on: 'root', values: '"flat" | "outline" | "filled"' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-invalid', on: 'root', values: 'present when invalid' },
     { name: 'data-validity', on: 'root', values: '"error" | "warning" | "success": the resolved status' },

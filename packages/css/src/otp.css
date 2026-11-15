@@ -128,4 +128,25 @@
     .pinfold-otp__slot { border-color: CanvasText; }
     .pinfold-otp__slot[data-active] { outline: 2px solid Highlight; }
   }
+
+  /* flat (the default): tinted boxes with a 1px line under each at 3:1 (WCAG 1.4.11), no frame. */
+  .pinfold-otp[data-variant='flat'] .pinfold-otp__slot {
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, var(--pinfold-control-surface, var(--pinfold-color-surface)));
+    border-color: transparent;
+    border-block-end-color: var(--pinfold-fld-edge);
+    /* Square at the bottom, so the line runs straight to both edges. */
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+    box-shadow: none;
+  }
+  .pinfold-otp[data-variant='flat'] .pinfold-otp__slot[data-filled] { background-color: color-mix(in oklab, var(--pinfold-color-text) 10%, var(--pinfold-control-surface, var(--pinfold-color-surface))); border-block-end-color: color-mix(in oklab, var(--pinfold-color-text) 30%, var(--pinfold-fld-edge)); }
+  .pinfold-otp[data-variant='flat'] .pinfold-otp__slot[data-active] {
+    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
+    border-color: transparent;
+    border-block-end-color: var(--pinfold-otp-accent);
+    box-shadow: var(--pinfold-focus-ring);
+  }
+  .pinfold-otp[data-variant='flat'][data-complete]:not([data-invalid]) .pinfold-otp__slot { background-color: color-mix(in oklab, var(--pinfold-otp-accent) 12%, transparent); border-color: transparent; border-block-end-color: var(--pinfold-otp-accent); }
+  .pinfold-otp[data-variant='flat']:is([data-invalid], [data-validity]) .pinfold-otp__slot { border-color: transparent; border-block-end-color: var(--pinfold-fld-status, var(--pinfold-fld-danger)); }
+
 }

@@ -10,7 +10,7 @@ export type DatePickerSlot = 'root' | 'label' | 'control' | 'input' | 'clear' | 
 /** Passed to slot `render` overrides. */
 export interface DatePickerState {
   mode: 'single' | 'range';
-  variant: 'outline' | 'filled' | 'underline';
+  variant: 'flat' | 'outline' | 'filled' | 'underline';
   size: PinfoldSize;
   tone: PinfoldTone;
   open: boolean;
@@ -122,8 +122,8 @@ interface DatePickerShared extends FieldConfig, SlotOverrides<DatePickerSlot, Da
   onOpenChange?: (open: boolean) => void;
   /** @default 'bottom-start' */
   placement?: OverlayPlacement;
-  /** @default 'outline' */
-  variant?: 'outline' | 'filled' | 'underline';
+  /** @default 'flat' */
+  variant?: 'flat' | 'outline' | 'filled' | 'underline';
   /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
   radius?: RadiusOption;
   /** @default 'md' */

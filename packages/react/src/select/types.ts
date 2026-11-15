@@ -30,7 +30,7 @@ export type SelectSlot =
   | 'error'
   | 'statusIcon'
   | 'validating';
-export type SelectVariant = 'outline' | 'filled' | 'underline';
+export type SelectVariant = 'flat' | 'outline' | 'filled' | 'underline';
 
 /** Passed to slot `render` overrides. */
 export interface SelectState {
@@ -92,7 +92,7 @@ interface SelectShared<V extends string> extends Omit<FieldConfig, 'error'>, Omi
   onOpenChange?: (open: boolean) => void;
   /** @default 'bottom-start' */
   placement?: OverlayPlacement;
-  /** @default 'outline' */
+  /** @default 'flat' */
   variant?: SelectVariant;
   /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
   radius?: RadiusOption;

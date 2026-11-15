@@ -74,7 +74,7 @@ export function useNumberField(input: NumberFieldConfig): NumberFieldComponent {
   const locked = !!config.disabled || !!config.readOnly;
   const atMin = config.min !== undefined && value !== null && value <= config.min;
   const atMax = config.max !== undefined && value !== null && value >= config.max;
-  const state: NumberFieldState = { value, variant: config.variant ?? 'outline', size: config.size ?? ctx.size, invalid: field.invalid, disabled: !!config.disabled, readOnly: !!config.readOnly, status: field.status, validating: field.validating };
+  const state: NumberFieldState = { value, variant: config.variant ?? 'flat', size: config.size ?? ctx.size, invalid: field.invalid, disabled: !!config.disabled, readOnly: !!config.readOnly, status: field.status, validating: field.validating };
   const content_ = (c: NumberFieldConfig['startContent']) => (typeof c === 'function' ? c(state) : c);
 
   const commit = (next: number | null) => {

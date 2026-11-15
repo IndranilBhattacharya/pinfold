@@ -43,7 +43,7 @@ export const listChoiceProps = (name: string): Record<string, PropMeta> => ({
     description: 'Where the list opens; it flips when there is no room.',
     group: 'appearance',
   },
-  variant: { type: 'enum', values: ['outline', 'filled', 'underline'], default: 'outline', description: 'The field: framed, tinted, or a line under it (as Input).', group: 'appearance', control: true },
+  variant: { type: 'enum', values: ['flat', 'outline', 'filled', 'underline'], default: 'flat', description: 'The field: a tint with a line under it, framed, tinted with a frame, or a line under it (as Input).', group: 'appearance', control: true },
   radius: RADIUS_PROP,
   size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: `Precedence: this config, \`defaults.${name}\`, the provider, then md.`, group: 'appearance', control: true },
   tone: {
@@ -109,7 +109,7 @@ export const selectMeta: ComponentMeta = {
     ...VALIDATION_ARIA,
   ],
   dataAttributes: [
-    { name: 'data-variant', on: 'root', values: '"outline" | "filled" | "underline"' },
+    { name: 'data-variant', on: 'root', values: '"flat" | "outline" | "filled" | "underline"' },
     { name: 'data-open', on: 'root', values: 'present while the list is open' },
     { name: 'data-filled', on: 'root', values: 'present when a value is chosen' },
     { name: 'data-multiple', on: 'root', values: 'present with `multiple`' },

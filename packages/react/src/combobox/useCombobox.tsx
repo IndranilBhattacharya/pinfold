@@ -125,7 +125,7 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
     warnOnce(!filled(config.label), 'Combobox: give it a `label` (`hideLabel` keeps it for screen readers only). A placeholder is not a name.');
   }
 
-  const state: ComboboxState = { variant: config.variant ?? 'outline', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, open, multiple, invalid: field.invalid, disabled, loading, value, query, status: field.status, validating: field.validating };
+  const state: ComboboxState = { variant: config.variant ?? 'flat', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, open, multiple, invalid: field.invalid, disabled, loading, value, query, status: field.status, validating: field.validating };
 
   const setOpen = (next: boolean) => {
     if (next === open || (next && disabled)) return;

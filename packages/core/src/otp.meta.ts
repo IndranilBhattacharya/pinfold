@@ -37,7 +37,7 @@ export const otpMeta: ComponentMeta = {
     mask: { type: 'boolean', default: false, description: 'Show dots instead of the characters (and a password input, so it is not read aloud).', group: 'appearance', control: true },
     maskChar: { type: 'node', default: '•', description: 'What a masked box shows.', group: 'appearance' },
     placeholder: { type: 'string', description: 'A faint mark in each empty box, e.g. `\'·\'`.', group: 'appearance' },
-    variant: { type: 'enum', values: ['outline', 'filled', 'underline'], default: 'outline', description: 'Framed boxes, tinted boxes, or a line under each.', group: 'appearance', control: true },
+    variant: { type: 'enum', values: ['flat', 'outline', 'filled', 'underline'], default: 'flat', description: 'Tinted boxes with a line under each, framed boxes, tinted boxes, or a line under each.', group: 'appearance', control: true },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Box size. Precedence: this config, `defaults.otp`, the provider, then md.', group: 'appearance', control: true },
     dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { slotSize: len('Box width and height.'), gap: len('Space between boxes.') } },
@@ -60,7 +60,7 @@ export const otpMeta: ComponentMeta = {
     'The boxes are drawn from its value and hidden from assistive tech.',
   ],
   dataAttributes: [
-    { name: 'data-variant', on: 'root', values: '"outline" | "filled" | "underline"' },
+    { name: 'data-variant', on: 'root', values: '"flat" | "outline" | "filled" | "underline"' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },
     { name: 'data-complete', on: 'root', values: 'present when every box is filled' },
     { name: 'data-validity', on: 'root', values: '"error" | "warning" | "success": the resolved status' },

@@ -52,7 +52,7 @@ export const inputMeta: ComponentMeta = {
     showCount: { type: 'boolean', default: false, description: 'A character count under the field: "12/80" with `maxLength`, and "20 characters left" read politely once typing pauses.', group: 'appearance', control: true },
     countLabel: { type: 'function', description: '`(left) => string`: what is read as the limit nears. Default "20 characters left".', group: 'behaviour' },
     labelPlacement: { type: 'enum', values: ['outside', 'inside'], default: 'outside', description: '`outside`: above the field. `inside`: in the field, rising to its top edge on focus or once it has a value (a floating label).', group: 'appearance', control: true },
-    variant: { type: 'enum', values: ['outline', 'filled', 'underline'], default: 'outline', description: 'A frame, a tinted fill with a frame, or a line under the text that fills in on focus.', group: 'appearance', control: true },
+    variant: { type: 'enum', values: ['flat', 'outline', 'filled', 'underline'], default: 'flat', description: 'A tint with a line under it (no frame), a frame, a tinted fill with a frame, or a line under the text that fills in on focus.', group: 'appearance', control: true },
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'The same heights as a button. Precedence: this config, `defaults.input`, the provider, then md.', group: 'appearance', control: true },
     dimensions: {
       type: 'object',
@@ -71,7 +71,7 @@ export const inputMeta: ComponentMeta = {
   keyboard: [{ keys: 'Tab', action: 'Native: into the field, then the clear button.' }],
   aria: [...FIELD_ARIA, ...VALIDATION_ARIA],
   dataAttributes: [
-    { name: 'data-variant', on: 'root', values: '"outline" | "filled" | "underline"' },
+    { name: 'data-variant', on: 'root', values: '"flat" | "outline" | "filled" | "underline"' },
     { name: 'data-label-placement', on: 'root', values: '"outside" | "inside"' },
     { name: 'data-filled', on: 'root', values: 'present while it has a value' },
     { name: 'data-size', on: 'root', values: 'the resolved size' },

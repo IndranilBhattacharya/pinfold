@@ -29,7 +29,7 @@ Precedence: use-site props, the preset, `defaults.number`, the provider (size), 
 | `incrementLabel`, `decrementLabel` | | `'Increase'`, `'Decrease'` |
 | `startContent`, `endContent` | a currency, a unit; a node or a function of state | none |
 | `incrementIcon`, `decrementIcon` | the buttons' icons | + and − |
-| `variant` | `'outline' \| 'filled'` | `'outline'` |
+| `variant` | `'flat'` (a tint with a 1px line under it at 3:1, no frame) \| `'outline' \| 'filled'` | `'flat'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size` | | `'md'` (provider) |
 | `dimensions` | `width, height` | `10rem`, from the size |

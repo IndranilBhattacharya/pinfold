@@ -5,7 +5,7 @@ import type { FieldConfig, FieldStatus, FieldValidationApi, FieldValidationConfi
 import type { SlotOverrides } from '../types';
 
 export type OtpSlot = 'root' | 'label' | 'control' | 'input' | 'slots' | 'slot' | 'caret' | 'separator' | 'description' | 'error' | 'statusIcon' | 'validating';
-export type OtpVariant = 'outline' | 'filled' | 'underline';
+export type OtpVariant = 'flat' | 'outline' | 'filled' | 'underline';
 
 /** Passed to slot `render` overrides. */
 export interface OtpState {
@@ -66,7 +66,7 @@ export interface OtpConfig extends Omit<FieldConfig, 'error'>, FieldValidationCo
   maskChar?: React.ReactNode;
   /** A faint mark in each empty box, e.g. `'·'`. */
   placeholder?: string;
-  /** @default 'outline' */
+  /** @default 'flat' */
   variant?: OtpVariant;
   /** Corner radius: a preset rescales every corner inside like the theme presets; a length (`12` is px) sets the frame. Default the theme radius. */
   radius?: RadiusOption;

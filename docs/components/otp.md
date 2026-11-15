@@ -26,7 +26,7 @@ Precedence: use-site props, the preset, `defaults.otp`, the provider (size), the
 | `groups`, `separator` | e.g. `[3, 3]`; what sits between: a node or `(index) => node` | none, `'–'` |
 | `mask`, `maskChar` | dots instead of characters (a password input); the mark | `false`, `'•'` |
 | `placeholder` | a faint mark in each empty box, e.g. `'·'` | none |
-| `variant` | `'outline' \| 'filled' \| 'underline'` | `'outline'` |
+| `variant` | `'flat'` (a tint with a 1px line under it at 3:1, no frame) \| `'outline' \| 'filled' \| 'underline'` | `'flat'` |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
 | `size` | | `'md'` (provider) |
 | `dimensions` | `slotSize, gap` | from the size |

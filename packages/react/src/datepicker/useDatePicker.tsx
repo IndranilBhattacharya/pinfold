@@ -134,7 +134,7 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
   };
   const message = typedError ?? field.message;
   const invalid = field.invalid || !!typedError;
-  const state: DatePickerState = { mode: range ? 'range' : 'single', variant: config.variant ?? 'outline', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, open, invalid, disabled };
+  const state: DatePickerState = { mode: range ? 'range' : 'single', variant: config.variant ?? 'flat', size: config.size ?? ctx.size, tone: config.tone ?? ctx.tone, open, invalid, disabled };
 
   const setOpen = (next: boolean) => {
     if (next === open || (next && disabled)) return;

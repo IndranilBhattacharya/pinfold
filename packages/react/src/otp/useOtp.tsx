@@ -52,7 +52,7 @@ export function useOtp(input: OtpConfig): OtpComponent {
   }, []);
 
   const complete = value.length === length;
-  const state: OtpState = { value, complete, variant: config.variant ?? 'outline', size: config.size ?? ctx.size, invalid: field.invalid, focused, status: field.status, validating: field.validating };
+  const state: OtpState = { value, complete, variant: config.variant ?? 'flat', size: config.size ?? ctx.size, invalid: field.invalid, focused, status: field.status, validating: field.validating };
   // Typing always goes at the end: the caret is kept there, so the boxes fill in order.
   const toEnd = () => {
     const el = node.current;
