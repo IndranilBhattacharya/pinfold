@@ -104,12 +104,16 @@
     --pinfold-color-accent: var(--pinfold-primary-600);
     --pinfold-color-accent-hover: var(--pinfold-primary-700);
     --pinfold-color-accent-subtle: color-mix(in oklab, var(--pinfold-color-accent) 10%, transparent);
-    --pinfold-color-accent-contrast: oklch(1 0 0);
+    --pinfold-color-accent-contrast: var(--pinfold-accent-on-light, oklch(1 0 0));
     /* Status colours for text and fills: flip with the scheme, like the accent. */
-    --pinfold-color-success: oklch(0.52 0.135 155);
-    --pinfold-color-warning: oklch(0.53 0.125 62);
-    --pinfold-color-danger: oklch(0.53 0.19 25);
-    --pinfold-color-info: oklch(0.52 0.15 245);
+    --pinfold-color-success: var(--pinfold-success-light, oklch(0.52 0.135 155));
+    --pinfold-success-on: var(--pinfold-success-on-light);
+    --pinfold-color-warning: var(--pinfold-warning-light, oklch(0.53 0.125 62));
+    --pinfold-warning-on: var(--pinfold-warning-on-light);
+    --pinfold-color-danger: var(--pinfold-danger-light, oklch(0.53 0.19 25));
+    --pinfold-danger-on: var(--pinfold-danger-on-light);
+    --pinfold-color-info: var(--pinfold-info-light, oklch(0.52 0.15 245));
+    --pinfold-info-on: var(--pinfold-info-on-light);
     --pinfold-color-status-contrast: oklch(1 0 0);
 
     --pinfold-color-ring: var(--pinfold-primary-500);
@@ -231,12 +235,16 @@
          contrast without glowing. */
       --pinfold-color-accent: var(--pinfold-primary-400);
       --pinfold-color-accent-hover: var(--pinfold-primary-300);
-      --pinfold-color-accent-contrast: var(--pinfold-neutral-950);
+      --pinfold-color-accent-contrast: var(--pinfold-accent-on-dark, var(--pinfold-neutral-950));
       /* Status colours for text and fills: flip with the scheme, like the accent. */
-      --pinfold-color-success: oklch(0.79 0.13 155);
-      --pinfold-color-warning: oklch(0.83 0.12 80);
-      --pinfold-color-danger: oklch(0.76 0.14 22);
-      --pinfold-color-info: oklch(0.78 0.11 240);
+      --pinfold-color-success: var(--pinfold-success-dark, oklch(0.79 0.13 155));
+    --pinfold-success-on: var(--pinfold-success-on-dark);
+      --pinfold-color-warning: var(--pinfold-warning-dark, oklch(0.83 0.12 80));
+    --pinfold-warning-on: var(--pinfold-warning-on-dark);
+      --pinfold-color-danger: var(--pinfold-danger-dark, oklch(0.76 0.14 22));
+    --pinfold-danger-on: var(--pinfold-danger-on-dark);
+      --pinfold-color-info: var(--pinfold-info-dark, oklch(0.78 0.11 240));
+    --pinfold-info-on: var(--pinfold-info-on-dark);
       --pinfold-color-status-contrast: var(--pinfold-neutral-950);
       --pinfold-color-ring: var(--pinfold-primary-400);
       --pinfold-shadow-color: oklch(0 0 0);
@@ -274,12 +282,16 @@
     --pinfold-color-text-disabled: var(--pinfold-neutral-600);
     --pinfold-color-accent: var(--pinfold-primary-400);
     --pinfold-color-accent-hover: var(--pinfold-primary-300);
-    --pinfold-color-accent-contrast: var(--pinfold-neutral-950);
+    --pinfold-color-accent-contrast: var(--pinfold-accent-on-dark, var(--pinfold-neutral-950));
     /* Status colours for text and fills: flip with the scheme, like the accent. */
-    --pinfold-color-success: oklch(0.79 0.13 155);
-    --pinfold-color-warning: oklch(0.83 0.12 80);
-    --pinfold-color-danger: oklch(0.76 0.14 22);
-    --pinfold-color-info: oklch(0.78 0.11 240);
+    --pinfold-color-success: var(--pinfold-success-dark, oklch(0.79 0.13 155));
+    --pinfold-success-on: var(--pinfold-success-on-dark);
+    --pinfold-color-warning: var(--pinfold-warning-dark, oklch(0.83 0.12 80));
+    --pinfold-warning-on: var(--pinfold-warning-on-dark);
+    --pinfold-color-danger: var(--pinfold-danger-dark, oklch(0.76 0.14 22));
+    --pinfold-danger-on: var(--pinfold-danger-on-dark);
+    --pinfold-color-info: var(--pinfold-info-dark, oklch(0.78 0.11 240));
+    --pinfold-info-on: var(--pinfold-info-on-dark);
     --pinfold-color-status-contrast: var(--pinfold-neutral-950);
     --pinfold-color-ring: var(--pinfold-primary-400);
     --pinfold-shadow-color: oklch(0 0 0);
@@ -329,12 +341,16 @@
     --pinfold-color-text-disabled: var(--pinfold-neutral-400);
     --pinfold-color-accent: var(--pinfold-primary-600);
     --pinfold-color-accent-hover: var(--pinfold-primary-700);
-    --pinfold-color-accent-contrast: oklch(1 0 0);
+    --pinfold-color-accent-contrast: var(--pinfold-accent-on-light, oklch(1 0 0));
     /* Status colours for text and fills: flip with the scheme, like the accent. */
-    --pinfold-color-success: oklch(0.52 0.135 155);
-    --pinfold-color-warning: oklch(0.53 0.125 62);
-    --pinfold-color-danger: oklch(0.53 0.19 25);
-    --pinfold-color-info: oklch(0.52 0.15 245);
+    --pinfold-color-success: var(--pinfold-success-light, oklch(0.52 0.135 155));
+    --pinfold-success-on: var(--pinfold-success-on-light);
+    --pinfold-color-warning: var(--pinfold-warning-light, oklch(0.53 0.125 62));
+    --pinfold-warning-on: var(--pinfold-warning-on-light);
+    --pinfold-color-danger: var(--pinfold-danger-light, oklch(0.53 0.19 25));
+    --pinfold-danger-on: var(--pinfold-danger-on-light);
+    --pinfold-color-info: var(--pinfold-info-light, oklch(0.52 0.15 245));
+    --pinfold-info-on: var(--pinfold-info-on-light);
     --pinfold-color-status-contrast: oklch(1 0 0);
     --pinfold-color-ring: var(--pinfold-primary-500);
     --pinfold-shadow-color: var(--pinfold-neutral-900);
@@ -432,22 +448,22 @@
   }
   [data-tone="success"] {
     --pinfold-tone-solid: var(--pinfold-color-success);
-    --pinfold-tone-on: var(--pinfold-color-status-contrast);
+    --pinfold-tone-on: var(--pinfold-success-on, var(--pinfold-color-status-contrast));
     --pinfold-tone-text: var(--pinfold-color-success);
   }
   [data-tone="warning"] {
     --pinfold-tone-solid: var(--pinfold-color-warning);
-    --pinfold-tone-on: var(--pinfold-color-status-contrast);
+    --pinfold-tone-on: var(--pinfold-warning-on, var(--pinfold-color-status-contrast));
     --pinfold-tone-text: var(--pinfold-color-warning);
   }
   [data-tone="danger"] {
     --pinfold-tone-solid: var(--pinfold-color-danger);
-    --pinfold-tone-on: var(--pinfold-color-status-contrast);
+    --pinfold-tone-on: var(--pinfold-danger-on, var(--pinfold-color-status-contrast));
     --pinfold-tone-text: var(--pinfold-color-danger);
   }
   [data-tone="info"] {
     --pinfold-tone-solid: var(--pinfold-color-info);
-    --pinfold-tone-on: var(--pinfold-color-status-contrast);
+    --pinfold-tone-on: var(--pinfold-info-on, var(--pinfold-color-status-contrast));
     --pinfold-tone-text: var(--pinfold-color-info);
   }
 

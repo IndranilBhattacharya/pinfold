@@ -1,6 +1,19 @@
 /* OKLCH to linear sRGB (Björn Ottosson's matrices), shared by the palette engine and the colour
    picker without either pulling in the other. */
 
+/** Linear sRGB (0..1) to OKLCH: [L 0..1, C, H degrees]. A grey gets hue 0. */
+export function linearRgbToOklch(r: number, g: number, b: number): [number, number, number] {
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const L = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
+  const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+  const B = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+  const C = Math.hypot(A, B);
+  const H = C < 0.0005 ? 0 : (((Math.atan2(B, A) * 180) / Math.PI) + 360) % 360;
+  return [L, C, H];
+}
+
 /** OKLCH to linear sRGB, unclamped. */
 export function oklchToRgb(L: number, C: number, H: number): [number, number, number] {
   const h = (H * Math.PI) / 180;

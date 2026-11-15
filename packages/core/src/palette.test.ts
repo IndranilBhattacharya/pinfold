@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { contrastRatio, createTheme, luminance, oklchToHex, resolveHue } from './palette';
+import { contrastRatio, createTheme, luminance, oklchToHex, resolveHue, roleFromColor } from './palette';
+import { parseColor } from './color.logic';
 
 describe('palette engine', () => {
   it('converts OKLCH to sRGB hex', () => {
@@ -58,5 +59,77 @@ describe('toDTCG', () => {
     expect(token.$value.components).toHaveLength(3);
     expect(Object.keys(tokens.pinfold.color)).toEqual(['primary', 'accent', 'neutral', 'success', 'warning', 'danger', 'info']);
     expect(tokens.pinfold.radius.scale.$value).toBe(1.5);
+  });
+});
+
+describe('palette: your own colours', () => {
+  const channelGap = (a: string, b: string) => {
+    const x = parseColor(a)!, y = parseColor(b)!;
+    return Math.max(Math.abs(x.r - y.r), Math.abs(x.g - y.g), Math.abs(x.b - y.b)) * 255;
+  };
+
+  it('a role takes any CSS colour; the nearest step is that colour, the rest follow the curve', () => {
+    for (const color of ['#4f46e5', 'rgb(234 88 12)', 'hsl(160 84% 39%)', 'oklch(0.62 0.19 300)']) {
+      const theme = createTheme({ primary: color });
+      const anchor = theme.anchors.primary!;
+      expect(anchor).toBeDefined();
+      // Exact, unless it is the solid fill and had to move for its text (then the anchor says so).
+      if (anchor.step !== 600 && anchor.step !== 400) expect(channelGap(anchor.color, color)).toBeLessThanOrEqual(2);
+      expect(theme.vars[`--pinfold-primary-${anchor.step}`]).toBe(anchor.color);
+      // Steps still run light to dark.
+      const L = [50, 300, 600, 950].map((s) => luminance(theme.vars[`--pinfold-primary-${s}`]));
+      expect(L).toEqual([...L].sort((a, b) => b - a));
+    }
+    // Hue names and numbers still work; a word that is neither falls back.
+    expect(createTheme({ primary: 'emerald' }).anchors).toEqual({});
+    expect(createTheme({ primary: 145 }).vars['--pinfold-primary-500']).toBe(createTheme({ primary: '145' }).vars['--pinfold-primary-500']);
+    expect(roleFromColor('not a colour')).toBeNull();
+    expect(roleFromColor('#808080')!.role.intensity).toBeLessThan(0.01);
+  });
+
+  it('text on solid fills: black or white, whichever reads, for yellow, near black, near white, grey and neon green', () => {
+    for (const color of ['#facc15', '#111111', '#f5f5f5', '#808080', '#39ff14']) {
+      const theme = createTheme({ primary: color });
+      for (const [fill, on] of [['600', 'light'], ['400', 'dark']] as const) {
+        const bg = theme.vars[`--pinfold-primary-${fill}`];
+        const text = theme.vars[`--pinfold-accent-on-${on}`];
+        const other = text === '#ffffff' ? theme.vars['--pinfold-neutral-950'] : '#ffffff';
+        // The better of the two, at 5:1 or more: a fill where neither reaches it moves until one does.
+        expect(contrastRatio(bg, text)).toBeGreaterThanOrEqual(contrastRatio(bg, other));
+        expect(contrastRatio(bg, text)).toBeGreaterThanOrEqual(5);
+      }
+    }
+    // A yellow brand fills its light-mode buttons with a dark yellow: white was fixed before; now the pick is measured.
+    const yellow = createTheme({ primary: '#facc15' });
+    expect(yellow.vars['--pinfold-accent-on-dark']).toBe(yellow.vars['--pinfold-neutral-950']);
+  });
+
+  it('status roles reach components: only the ones you set, with their own light and dark colour and text', () => {
+    const plain = createTheme({ primary: 'violet' });
+    expect(plain.vars['--pinfold-success-light']).toBeUndefined();
+    const theme = createTheme({ primary: 'violet', success: '#16a34a', warning: '#facc15' });
+    expect(theme.vars['--pinfold-success-light']).toBe(theme.vars['--pinfold-success-600']);
+    expect(theme.vars['--pinfold-success-dark']).toBe(theme.vars['--pinfold-success-300']);
+    for (const role of ['success', 'warning'])
+      for (const mode of ['light', 'dark'])
+        expect(contrastRatio(theme.vars[`--pinfold-${role}-${mode}`], theme.vars[`--pinfold-${role}-on-${mode}`])).toBeGreaterThanOrEqual(5);
+    // A grey brand keeps the tuned neutral hue.
+    expect(createTheme({ primary: '#808080' }).vars['--pinfold-neutral-500']).toBe(createTheme({ primary: 'violet', neutral: 'slate' }).vars['--pinfold-neutral-500']);
+    expect(theme.vars['--pinfold-danger-light']).toBeUndefined();
+    expect(theme.vars['--pinfold-warning-on-dark']).toBe(theme.vars['--pinfold-neutral-950']);
+    expect(theme.css).toContain('--pinfold-success-light:');
+  });
+
+  it('tokens.css reads those values in both modes and keeps its tuned defaults without them', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const css = readFileSync(join(__dirname, '../../css/src/tokens.css'), 'utf8');
+    for (const role of ['success', 'warning', 'danger', 'info']) {
+      expect(css.split(`--pinfold-color-${role}: var(--pinfold-${role}-light, oklch(`).length - 1).toBe(2);
+      expect(css.split(`--pinfold-color-${role}: var(--pinfold-${role}-dark, oklch(`).length - 1).toBe(2);
+      expect(css).toContain(`--pinfold-tone-on: var(--pinfold-${role}-on, var(--pinfold-color-status-contrast));`);
+    }
+    expect(css.split('var(--pinfold-accent-on-light, oklch(1 0 0))').length - 1).toBe(2);
+    expect(css.split('var(--pinfold-accent-on-dark, var(--pinfold-neutral-950))').length - 1).toBe(2);
   });
 });

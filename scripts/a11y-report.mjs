@@ -369,6 +369,20 @@ for (const scheme of ['light', 'dark']) {
       .map((el) => `${el.tagName.toLowerCase()}${el.getAttribute('role') ? `[role=${el.getAttribute('role')}]` : ''} "${(el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 40)}" -> ${el.getAttribute('aria-controls')}`),
   );
   check(`open controls name a part that exists (aria-controls), ${scheme} mode`, dangling.length === 0, dangling.join('; ') || 'all resolve');
+  // Your own colours: the hardest brand colours, applied as a theme, must keep every text readable.
+  const { createTheme } = await import(pathToFileURL(join(root, 'packages/core/dist/palette.js')).href);
+  const stress = [
+    { primary: '#facc15' }, { primary: '#111111' }, { primary: '#f5f5f5' }, { primary: '#808080' }, { primary: '#39ff14' },
+    { primary: '#4f46e5', success: '#a3e635', warning: '#facc15', danger: '#f43f5e', info: '#22d3ee' },
+  ];
+  for (const palette of stress) {
+    await page.evaluate((css) => { let s = document.getElementById('stress-theme'); if (!s) { s = document.createElement('style'); s.id = 'stress-theme'; document.head.append(s); } s.textContent = css; }, createTheme(palette).css);
+    await page.waitForTimeout(150);
+    const run = await page.evaluate(() => window.axe.run(document, { runOnly: { type: 'rule', values: ['color-contrast'] } }));
+    const bad = run.violations.flatMap((v) => v.nodes.slice(0, 3).map((n) => `${n.target.join(' ')}: ${(n.any[0]?.message || '').slice(0, 90)}`));
+    check(`your colours ${JSON.stringify(palette)}: text contrast, ${scheme} mode`, bad.length === 0, bad.join(' | ') || `${run.passes[0]?.nodes.length ?? 0} elements pass`);
+  }
+  await page.evaluate(() => document.getElementById('stress-theme')?.remove());
   await page.screenshot({ path: join(outDir, `${scheme}.png`), fullPage: true });
   results.snapshots.push(`${scheme}.png`);
   await page.close();

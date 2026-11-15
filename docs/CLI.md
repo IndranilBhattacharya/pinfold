@@ -46,6 +46,7 @@ webpack apps, requires the second run to change nothing, and then builds them.
 ## `theme`
 - With no flags it's interactive. With flags it's scriptable; the site's theme studio builds the command for you.
   Example: `--primary emerald --neutral 264 --style glass --radius lg --out src/theme.css --format css|tailwind|dtcg`.
+  Any role also takes your own colour: `--primary "#4f46e5" --success "rgb(22 163 74)"` (quote it in the shell).
 - The palette is stored in the theme file's first line (`/* pinfold-theme {...} */`), so each run changes only the flags given.
 - `--format dtcg` writes `<theme>.tokens.json` (W3C design tokens); `--format tailwind` prepends the Tailwind v4 import.
 - `--check` exits non-zero if the accent text steps (600 on light surfaces, 400 on dark ones) miss WCAG AA (4.5:1).

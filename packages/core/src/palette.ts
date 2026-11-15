@@ -12,7 +12,8 @@
  * colour rather than a broken one.
  */
 
-import { oklchToRgb } from './oklab';
+import { linearRgbToOklch, oklchToRgb } from './oklab';
+import { parseColor } from './color.logic';
 
 /* ------------------------------------------------------------------ types */
 
@@ -30,7 +31,8 @@ export interface RoleConfig {
   lightness?: number;
 }
 
-/** A hue angle, a built-in hue name, or a full role config. */
+/** A hue angle, a built-in hue name, any CSS colour (`'#4f46e5'`, `rgb()`, `hsl()`, `oklch()`), or a full role config.
+ * A colour sets the hue, intensity and lightness so its nearest ramp step is that colour. */
 export type HueValue = number | HueName | (string & {}) | RoleConfig;
 
 export interface PaletteConfig {
@@ -64,6 +66,8 @@ export interface Theme {
   /** Full stylesheet: hex first, OKLCH upgraded behind `@supports`. */
   css: string;
   contrast: ContrastCheck[];
+  /** Roles given as a colour: the ramp step that colour landed on (`primary: { step: 600, color: '#4f46e5' }`). */
+  anchors: Partial<Record<PaletteRole, { step: RampStep; color: string }>>;
 }
 
 /* ------------------------------------------------------------------ ramps */
@@ -141,8 +145,28 @@ export function resolveHue(value: number | string | undefined, fallback: number)
   return Number.isFinite(parsed) ? ((parsed % 360) + 360) % 360 : fallback;
 }
 
-function toRole(value: HueValue | undefined, fallback: RoleConfig): RoleConfig {
+/**
+ * A CSS colour as a role: its hue, and an intensity so the ramp is as colourful as the colour at the step nearest its
+ * lightness. The ramp keeps the tuned lightness curve (components rely on it for contrast); the colour itself is
+ * placed on that one step.
+ */
+export function roleFromColor(input: string, neutral = false): { role: RoleConfig; step: RampStep; oklch: [number, number, number] } | null {
+  const rgba = parseColor(input);
+  if (!rgba) return null;
+  const lin = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const [L, Ch, H] = linearRgbToOklch(lin(rgba.r), lin(rgba.g), lin(rgba.b));
+  const curve = neutral ? NEUTRAL_CURVE : CURVE;
+  let best = curve[0];
+  for (const row of curve) if (Math.abs(row[1] - L) < Math.abs(best[1] - L)) best = row;
+  const [step, , c] = best;
+  return { role: { hue: round(H, 2), intensity: round(Ch / c, 4) }, step, oklch: [L, Ch, H] };
+}
+
+const isColor = (value: string) => !(value in HUES) && !Number.isFinite(Number(value)) && parseColor(value) !== null;
+
+function toRole(value: HueValue | undefined, fallback: RoleConfig, neutral = false): RoleConfig {
   if (value == null) return fallback;
+  if (typeof value === 'string' && isColor(value)) return roleFromColor(value, neutral)!.role;
   if (typeof value === 'number' || typeof value === 'string')
     return { ...fallback, hue: resolveHue(value, fallback.hue) };
   return { ...fallback, ...value, hue: resolveHue(value.hue, fallback.hue) };
@@ -163,22 +187,23 @@ export function buildRamp(role: RoleConfig, neutral = false, globalIntensity = 1
 
 /* ---------------------------------------------------- OKLCH → sRGB → hex */
 
-/** OKLCH to sRGB hex, gamut mapped by reducing chroma until it fits. */
-export function oklchToHex(L: number, C: number, H: number): string {
+/** The largest chroma at or under C that sRGB can show at this lightness and hue. */
+export function sRgbChroma(L: number, C: number, H: number): number {
+  if (inGamut(oklchToRgb(L, C, H))) return C;
   let lo = 0;
   let hi = C;
-  let rgb = oklchToRgb(L, C, H);
-  if (!inGamut(rgb)) {
-    // 16 bisection steps put the error well below one 8-bit level.
-    for (let i = 0; i < 16; i++) {
-      const mid = (lo + hi) / 2;
-      const candidate = oklchToRgb(L, mid, H);
-      if (inGamut(candidate)) lo = mid;
-      else hi = mid;
-    }
-    rgb = oklchToRgb(L, lo, H);
+  // 16 bisection steps put the error well below one 8-bit level.
+  for (let i = 0; i < 16; i++) {
+    const mid = (lo + hi) / 2;
+    if (inGamut(oklchToRgb(L, mid, H))) lo = mid;
+    else hi = mid;
   }
-  return '#' + rgb.map((v) => channelToHex(v)).join('');
+  return lo;
+}
+
+/** OKLCH to sRGB hex, gamut mapped by reducing chroma until it fits. */
+export function oklchToHex(L: number, C: number, H: number): string {
+  return '#' + oklchToRgb(L, sRgbChroma(L, C, H), H).map((v) => channelToHex(v)).join('');
 }
 
 
@@ -232,7 +257,9 @@ export function createTheme(config: PaletteConfig): Theme {
   const globalIntensity = config.intensity ?? 1;
   const primary = toRole(config.primary, { hue: HUES.violet, intensity: 1 });
   const accent = toRole(config.accent, primary);
-  const neutral = toRole(config.neutral, { ...ROLE_DEFAULTS.neutral, hue: primary.hue });
+  // Neutrals take the brand's hue, unless the brand is (nearly) grey: then its hue is noise, keep the tuned slate.
+  const neutralHue = (primary.intensity ?? 1) < 0.1 ? ROLE_DEFAULTS.neutral.hue : primary.hue;
+  const neutral = toRole(config.neutral, { ...ROLE_DEFAULTS.neutral, hue: neutralHue }, true);
 
   const roles: Record<PaletteRole, { role: RoleConfig; neutral: boolean }> = {
     primary: { role: primary, neutral: false },
@@ -260,13 +287,75 @@ export function createTheme(config: PaletteConfig): Theme {
       const hex = oklchToHex(L, c * intensity, role.hue);
       vars[`--pinfold-${name}-${step}`] = hex;
       oklchVars[`--pinfold-${name}-${step}`] = ramps[name][step];
-
-      if (step === 500 || step === 600 || step === 400) {
-        contrast.push(check(name, step, hex, LIGHT_SURFACE, 'light-surface'));
-        contrast.push(check(name, step, hex, DARK_SURFACE, 'dark-surface'));
-      }
     }
   }
+
+  // Your colour on its own step, exactly (gamut mapped for the hex fallback).
+  const anchors: Theme['anchors'] = {};
+  for (const name of Object.keys(roles) as PaletteRole[]) {
+    const given = config[name];
+    if (typeof given !== 'string' || !isColor(given)) continue;
+    const found = roleFromColor(given, roles[name].neutral)!;
+    const [L, Ch, H] = found.oklch;
+    const key = `--pinfold-${name}-${found.step}`;
+    vars[key] = oklchToHex(L, Ch, H);
+    oklchVars[key] = ramps[name][found.step] = `oklch(${round(L, 3)} ${round(Ch, 4)} ${round(H, 2)})`;
+    anchors[name] = { step: found.step, color: vars[key] };
+  }
+
+  // Text on solid fills: white or the darkest neutral, whichever reads better. A fill where even the better one is
+  // under 5:1 (a mid yellow: both sit near 4.5) moves darker or lighter until it reaches 5:1; the margin covers the
+  // tinted fills built from it (a selected tab is 90% of it). Light mode fills with step 600, dark mode with 400;
+  // status roles you set fill with 600 / 300 and replace the tuned defaults in tokens.css.
+  const ink = vars['--pinfold-neutral-950'];
+  const better = (fill: string) => (contrastRatio(fill, '#ffffff') >= contrastRatio(fill, ink) ? '#ffffff' : ink);
+  const solid = (name: PaletteRole, step: RampStep) => {
+    const key = `--pinfold-${name}-${step}`;
+    const { role } = roles[name];
+    const [, l, c] = CURVE.find(([s]) => s === step)!;
+    const chroma = c * (role.intensity ?? 1) * globalIntensity;
+    let L = l + (role.lightness ?? 0);
+    // A fill carries text, so its OKLCH value is the sRGB one: a wider-gamut screen showing a more vivid fill than
+    // the one measured here could lose the contrast.
+    const write = () => {
+      const fit = sRgbChroma(L, chroma, role.hue);
+      oklchVars[key] = ramps[name][step] = `oklch(${round(L, 3)} ${round(fit, 4)} ${round(role.hue, 2)})`;
+      return oklchToHex(L, fit, role.hue);
+    };
+    let fill = anchors[name]?.step === step ? vars[key] : write();
+    const text = better(fill);
+    for (let i = 0; i < 40 && contrastRatio(fill, text) < 5; i++) {
+      L = clamp(L + (text === '#ffffff' ? -0.01 : 0.01), 0, 1);
+      fill = write();
+    }
+    vars[key] = fill;
+    if (anchors[name]?.step === step) anchors[name] = { step, color: fill };
+    return { fill, text };
+  };
+  const modeVars: Record<string, string> = {
+    '--pinfold-accent-on-light': solid('primary', 600).text,
+    '--pinfold-accent-on-dark': solid('primary', 400).text,
+  };
+  for (const name of ['success', 'warning', 'danger', 'info'] as const) {
+    if (config[name] == null) continue;
+    const light = solid(name, 600);
+    const dark = solid(name, 300);
+    Object.assign(modeVars, {
+      [`--pinfold-${name}-light`]: light.fill,
+      [`--pinfold-${name}-dark`]: dark.fill,
+      [`--pinfold-${name}-on-light`]: light.text,
+      [`--pinfold-${name}-on-dark`]: dark.text,
+    });
+  }
+  Object.assign(vars, modeVars);
+  Object.assign(oklchVars, modeVars);
+
+  // The report reads the final values (your colour placed, solid fills moved for their text).
+  for (const name of Object.keys(roles) as PaletteRole[])
+    for (const step of [300, 400, 500, 600] as const) {
+      contrast.push(check(name, step, vars[`--pinfold-${name}-${step}`], LIGHT_SURFACE, 'light-surface'));
+      contrast.push(check(name, step, vars[`--pinfold-${name}-${step}`], DARK_SURFACE, 'dark-surface'));
+    }
 
   if (config.radius) {
     const scale = { none: 0, sm: 0.6, md: 1, lg: 1.5, full: 2.4 }[config.radius];
@@ -274,7 +363,7 @@ export function createTheme(config: PaletteConfig): Theme {
     oklchVars['--pinfold-radius-scale'] = String(scale);
   }
 
-  return { config, ramps, vars, contrast, css: toCss(vars, oklchVars) };
+  return { config, ramps, vars, contrast, anchors, css: toCss(vars, oklchVars) };
 }
 
 function check(

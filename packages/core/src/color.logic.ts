@@ -2,7 +2,7 @@
    sRGB is the working space (what a screen shows and what hex holds); OKLCH comes in and goes out
    through the palette engine's matrices. */
 
-import { oklchToRgb } from './oklab';
+import { linearRgbToOklch, oklchToRgb } from './oklab';
 
 export interface Rgba {
   r: number;
@@ -17,6 +17,7 @@ export interface Hsva {
   a: number;
 }
 export type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'oklch';
+
 
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
 const round = (n: number, places = 0) => Math.round(n * 10 ** places) / 10 ** places;
@@ -92,17 +93,9 @@ export function formatColor(c: Rgba, format: ColorFormat = 'hex'): string {
     return `hsl(${round(h)} ${round(sl * 100)}% ${round(l * 100)}%${a < 1 ? ` / ${a}` : ''})`;
   }
   if (format === 'oklch') {
-    const [r, g, b] = [c.r, c.g, c.b].map(toLinear);
-    const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
-    const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
-    const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
-    const L = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
-    const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
-    const B = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
-    const C = Math.hypot(A, B);
-    // A grey has no hue: write 0 rather than noise.
-    const H = C < 0.0005 ? 0 : (Math.atan2(B, A) * 180) / Math.PI;
-    return `oklch(${round(L * 100, 1)}% ${round(C, 3)} ${round((H + 360) % 360, 1)}${a < 1 ? ` / ${a}` : ''})`;
+    // A grey has no hue: 0 rather than noise.
+    const [L, C, H] = linearRgbToOklch(...([c.r, c.g, c.b].map(toLinear) as [number, number, number]));
+    return `oklch(${round(L * 100, 1)}% ${round(C, 3)} ${round(H, 1)}${a < 1 ? ` / ${a}` : ''})`;
   }
   const hex = '#' + [c.r, c.g, c.b].map((n) => byte(n).toString(16).padStart(2, '0')).join('');
   return a < 1 ? hex + byte(a).toString(16).padStart(2, '0') : hex;

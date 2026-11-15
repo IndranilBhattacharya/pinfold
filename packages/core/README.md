@@ -39,4 +39,20 @@ toDTCG(theme);   // W3C design tokens
 
 Seven roles × eleven OKLCH steps, gamut-mapped, with sRGB hex fallbacks.
 
+Each role takes a hue name, a hue angle, or your own colour in any CSS syntax:
+
+```js
+const brand = createTheme({ primary: '#4f46e5', success: 'rgb(22 163 74)', warning: 'oklch(0.85 0.17 90)' });
+brand.anchors.primary; // { step: 600, color: '#4f46e5' }: your colour sits on its nearest step
+```
+
+- The ramp keeps Pinfold's lightness curve and takes the hue and colourfulness from your colour; your colour
+  itself is placed on the step nearest its lightness.
+- Text on solid fills (buttons, badges, selected tabs) is white or near black, whichever reads better. A fill
+  where even the better one is under 5:1 moves darker or lighter until it reaches 5:1, so a yellow or neon
+  brand keeps readable buttons in both modes.
+- `success`, `warning`, `danger` and `info` reach every component's tones once you set them; unset, they
+  keep the tuned defaults.
+- A grey brand keeps the tuned slate neutrals.
+
 MIT © Indranil Bhattacharya
