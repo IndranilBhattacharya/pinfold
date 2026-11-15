@@ -142,7 +142,7 @@ export function useBreadcrumb(input: BreadcrumbConfig): BreadcrumbComponent {
         return (
           <li key="gap" className={config.unstyled ? undefined : 'pinfold-breadcrumb__item'} data-crumb="">
             {(config.collapse ?? 'menu') === 'menu' ? (
-              <Menu trigger={trigger as React.ReactElement} items={menuItems(hidden, before)} size={state.size} />
+              <Menu trigger={trigger as React.ReactElement} items={menuItems(hidden, before)} size={state.size} offset={config.menuOffset} />
             ) : (
               React.cloneElement(trigger as React.ReactElement, {
                 onClick: () => {
@@ -167,6 +167,7 @@ export function useBreadcrumb(input: BreadcrumbConfig): BreadcrumbComponent {
               trigger={slot('menuButton', <>{text(item)}{CHEVRON_DOWN_ICON}</>, 'button', { type: 'button', 'data-crumb-trigger': '' }) as React.ReactElement}
               items={menuItems(menu)}
               size={state.size}
+              offset={config.menuOffset}
             />
           )
         : link
@@ -174,7 +175,7 @@ export function useBreadcrumb(input: BreadcrumbConfig): BreadcrumbComponent {
           : slot('link', text(item), 'span', { 'aria-current': current ? 'page' : undefined, 'aria-disabled': item.disabled || undefined, title: tip(item), 'data-icon-only': dataAttr(item.iconOnly), tabIndex: -1 });
       const toggle =
         menu && !own ? (
-          <Menu trigger={slot('menuButton', CHEVRON_DOWN_ICON, 'button', { type: 'button', 'aria-label': menuLabel, title: menuLabel }) as React.ReactElement} items={menuItems(menu)} size={state.size} />
+          <Menu trigger={slot('menuButton', CHEVRON_DOWN_ICON, 'button', { type: 'button', 'aria-label': menuLabel, title: menuLabel }) as React.ReactElement} offset={config.menuOffset} items={menuItems(menu)} size={state.size} />
         ) : null;
       return (
         <React.Fragment key={index}>

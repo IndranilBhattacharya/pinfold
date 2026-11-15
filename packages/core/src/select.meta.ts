@@ -55,6 +55,7 @@ export const listChoiceProps = (name: string): Record<string, PropMeta> => ({
     group: 'appearance',
     control: true,
   },
+  offset: { type: 'number', min: 0, max: 48, step: 1, unit: 'px', default: 6, description: 'Gap between the field and its list, in px.', group: 'appearance', control: true },
   dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { width: len('Width of the field (default the full width).'), maxHeight: len('Tallest the list gets before it scrolls.') } },
   unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
   className: { type: 'string', description: 'Class on the root.', group: 'appearance' },

@@ -104,6 +104,8 @@ export interface TourConfig extends SlotOverrides<TourSlot, TourState, TourDotCo
   onComplete?: () => void;
   onSkip?: (index: number, step: TourStep) => void;
   labels?: TourLabels;
+  /** Gap between a step's target and its card, in px. @default 12 */
+  offset?: number;
   dimensions?: TourDimensions;
   /** Corner radius: a preset rescales the card's corners; a length sets them. Default the theme radius. */
   radius?: RadiusOption;

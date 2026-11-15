@@ -20,6 +20,7 @@ export const BREADCRUMB_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'radius',
   'size',
   'tone',
+  'menuOffset',
   'dimensions',
   'unstyled',
   'className',

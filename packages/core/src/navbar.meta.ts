@@ -100,6 +100,7 @@ export const navbarMeta: ComponentMeta = {
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.navbar`, the provider, then md.', group: 'appearance', control: true },
     tone: { type: 'enum', values: ['primary', 'neutral', 'success', 'warning', 'danger', 'info'], default: 'primary', description: 'Colour of the current link\'s marker. Precedence: this config, `defaults.navbar`, the provider, then primary.', group: 'appearance', control: true },
+    menuOffset: { type: 'number', min: 0, max: 48, step: 1, unit: 'px', default: 4, description: 'Gap between a link and its dropdown (and "More"), in px.', group: 'appearance', control: true },
     dimensions: {
       type: 'object',
       description: 'Exact measurements. Numbers are px.',

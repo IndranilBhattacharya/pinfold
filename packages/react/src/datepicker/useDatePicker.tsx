@@ -181,7 +181,7 @@ export function useDatePicker(input: DatePickerConfig): DatePickerComponent {
     setTypedError(config.labels?.invalid ?? `Enter a date like ${p}${range ? ' – ' + p : ''}.`);
   };
 
-  useFloating({ open: open && mounted, anchor: () => control.current, floating: popup, placement: config.placement ?? 'bottom-start', offset: 6 });
+  useFloating({ open: open && mounted, anchor: () => control.current, floating: popup, placement: config.placement ?? 'bottom-start', offset: config.offset ?? 6 });
   useOverlayLayer(
     open,
     (node) => !!control.current?.contains(node) || !!popup.current?.contains(node),

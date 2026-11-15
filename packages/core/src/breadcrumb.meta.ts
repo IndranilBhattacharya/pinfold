@@ -81,6 +81,7 @@ export const breadcrumbMeta: ComponentMeta = {
       group: 'appearance',
       control: true,
     },
+    menuOffset: { type: 'number', min: 0, max: 48, step: 1, unit: 'px', default: 4, description: 'Gap between a crumb and its menu, in px.', group: 'appearance', control: true },
     dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { itemWidth: { type: 'length', description: 'Longest a crumb gets before its text is cut (default 22ch). The full text is its tooltip.', group: 'appearance' } } },
     unstyled: { type: 'boolean', default: false, description: 'Drop Pinfold classes; keep the behaviour, roles and data attributes.', group: 'appearance' },
     className: { type: 'string', description: 'Class on the root.', group: 'appearance' },

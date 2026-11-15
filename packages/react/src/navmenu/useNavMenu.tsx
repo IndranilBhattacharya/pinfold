@@ -173,7 +173,7 @@ export function useNavMenu(input: NavMenuConfig): NavMenuComponent {
     const cls = (name: string) => (config.unstyled ? undefined : name);
     const slot = (name: NavMenuSlot, content: React.ReactNode, tag: string, own: PropsBag = {}) =>
       renderSlot(config, name, slotProps(config, name, { className: cls(`pinfold-navmenu__${name}`), ...own }), state, content, (p, c) => React.createElement(tag, p, c));
-    const vars = dimensionVars('navmenu', config.dimensions);
+    const vars = config.offset === undefined ? dimensionVars('navmenu', config.dimensions) : { ...dimensionVars('navmenu', config.dimensions), '--pinfold-nm-offset': `${config.offset}px` };
     const rootEl = slotProps(
       config,
       'root',

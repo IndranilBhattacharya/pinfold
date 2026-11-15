@@ -102,6 +102,8 @@ interface SelectShared<V extends string> extends Omit<FieldConfig, 'error'>, Omi
   size?: PinfoldSize;
   /** @default 'primary' */
   tone?: PinfoldTone;
+  /** Gap between the field and its list, in px. @default 6 */
+  offset?: number;
   dimensions?: SelectDimensions;
   /** @default false */
   unstyled?: boolean;

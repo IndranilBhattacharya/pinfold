@@ -234,7 +234,7 @@ export function useTour(input: TourConfig = {}): TourComponent {
     },
     floating: card,
     placement: current?.placement ?? config.placement ?? 'bottom',
-    offset: 12,
+    offset: config.offset ?? 12,
     key: `${placed}:${!!target}`,
   });
 

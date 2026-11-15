@@ -213,7 +213,7 @@ export function useCombobox<V extends string = string>(input: ComboboxConfig<V>)
   }, [query, open]); // eslint-disable-line react-hooks/exhaustive-deps
   // Chips under the field stay in view while the list is open: it opens under them.
   const chipsBox = React.useRef<HTMLDivElement | null>(null);
-  useFloating({ open: open && mounted, anchor: () => (placement === 'below' && chipsBox.current) || control.current, floating: popup, placement: config.placement ?? 'bottom-start', offset: 6, key: value.length });
+  useFloating({ open: open && mounted, anchor: () => (placement === 'below' && chipsBox.current) || control.current, floating: popup, placement: config.placement ?? 'bottom-start', offset: config.offset ?? 6, key: value.length });
   useIsomorphicLayoutEffect(() => {
     if (open && control.current && popup.current) popup.current.style.minWidth = `${control.current.offsetWidth}px`;
   }, [open]);

@@ -130,6 +130,8 @@ interface DatePickerShared extends FieldConfig, SlotOverrides<DatePickerSlot, Da
   size?: PinfoldSize;
   /** @default 'primary' */
   tone?: PinfoldTone;
+  /** Gap between the field and its calendar, in px. @default 6 */
+  offset?: number;
   dimensions?: DatePickerDimensions;
   /** @default false */
   unstyled?: boolean;

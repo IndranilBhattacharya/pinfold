@@ -28,6 +28,7 @@ export const NAVBAR_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'radius',
   'size',
   'tone',
+  'menuOffset',
   'dimensions',
   'unstyled',
   'className',

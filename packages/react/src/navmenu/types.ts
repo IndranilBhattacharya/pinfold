@@ -44,6 +44,8 @@ export interface NavMenuState {
 export interface NavMenuDimensions {
   /** Width of one link column (default 14rem). */
   columnWidth?: Length;
+  /** Space inside an open panel (default 0.5rem). */
+  panelPadding?: Length;
 }
 
 /**
@@ -87,6 +89,8 @@ export interface NavMenuConfig extends SlotOverrides<NavMenuSlot, NavMenuState> 
   size?: PinfoldSize;
   /** @default 'primary' */
   tone?: PinfoldTone;
+  /** Gap between the bar and an open panel, in px (the hover bridge follows it). Default 8, or more where a pack draws a heavy edge. */
+  offset?: number;
   dimensions?: NavMenuDimensions;
   /** @default false */
   unstyled?: boolean;

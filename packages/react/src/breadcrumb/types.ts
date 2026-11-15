@@ -103,6 +103,8 @@ export interface BreadcrumbConfig extends SlotOverrides<BreadcrumbSlot, Breadcru
   size?: PinfoldSize;
   /** @default 'primary' */
   tone?: PinfoldTone;
+  /** Gap between a crumb and its menu, in px. @default 4 */
+  menuOffset?: number;
   dimensions?: BreadcrumbDimensions;
   /** @default false */
   unstyled?: boolean;

@@ -19,6 +19,7 @@ export const NAVMENU_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'radius',
   'size',
   'tone',
+  'offset',
   'dimensions',
   'unstyled',
   'className',

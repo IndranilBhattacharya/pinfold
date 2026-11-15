@@ -210,6 +210,8 @@ interface ComboboxShared<V extends string> extends Omit<FieldConfig, 'error'>, O
   size?: PinfoldSize;
   /** @default 'primary' */
   tone?: PinfoldTone;
+  /** Gap between the field and its list, in px. @default 6 */
+  offset?: number;
   dimensions?: ComboboxDimensions;
   /** @default false */
   unstyled?: boolean;

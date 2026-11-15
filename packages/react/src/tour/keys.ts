@@ -23,6 +23,7 @@ export const TOUR_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'onComplete',
   'onSkip',
   'labels',
+  'offset',
   'dimensions',
   'radius',
   'size',

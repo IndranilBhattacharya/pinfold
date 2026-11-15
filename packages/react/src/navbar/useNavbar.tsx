@@ -283,6 +283,7 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
         <Menu
           items={menuRows(item.items)}
           size={state.size}
+          offset={config.menuOffset}
           trigger={slot('link', linkContent(item, true), 'button', { type: 'button', ...common }) as React.ReactElement}
         />
       ) : item.href !== undefined ? (
@@ -310,6 +311,7 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
           <Menu
             items={menuRows(items.slice(shown))}
             size={state.size}
+            offset={config.menuOffset}
             placement="bottom-end"
             trigger={slot('more', <><span>{config.labels?.more ?? 'More'}</span><span className={cls('pinfold-navbar__caret')}>{CHEVRON_DOWN_ICON}</span></>, 'button', { type: 'button', 'data-current': dataAttr(currentIndex >= shown) }) as React.ReactElement}
           />
@@ -375,7 +377,7 @@ export function useNavbar(input: NavbarConfig): NavbarComponent {
         if (tool.href !== undefined) followLink(event, tool.href, config.onNavigate ? (href) => config.onNavigate!(href, event) : ctx.navigate, tool.target);
       };
       const control = tool.menu?.length ? (
-        <Menu items={tool.menu} size={state.size} placement="bottom-end" trigger={slot('tool', inner, 'button', { type: 'button', ...own }) as React.ReactElement} />
+        <Menu items={tool.menu} size={state.size} offset={config.menuOffset} placement="bottom-end" trigger={slot('tool', inner, 'button', { type: 'button', ...own }) as React.ReactElement} />
       ) : tool.href !== undefined ? (
         slot('tool', inner, 'a', { href: tool.disabled ? undefined : tool.href, target: tool.target, ...own, onClick: press })
       ) : (

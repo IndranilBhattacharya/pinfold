@@ -72,6 +72,7 @@ export const tourMeta: ComponentMeta = {
         tour: { type: 'string', description: 'Names the card when a step has no title. Default "Tour".', group: 'data' },
       },
     },
+    offset: { type: 'number', min: 0, max: 48, step: 1, unit: 'px', default: 12, description: 'Gap between a step\'s target and its card, in px.', group: 'appearance', control: true },
     dimensions: { type: 'object', description: 'Exact measurements. Numbers are px.', group: 'appearance', keys: { width: len('The card\'s width.') } },
     radius: RADIUS_PROP,
     size: { type: 'enum', values: ['sm', 'md', 'lg'], default: 'md', description: 'Precedence: this config, `defaults.tour`, the provider, then md.', group: 'appearance', control: true },

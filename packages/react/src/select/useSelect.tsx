@@ -108,7 +108,7 @@ export function useSelect<V extends string = string>(input: SelectConfig<V>): Se
     return () => form.removeEventListener('reset', onReset);
   });
 
-  useFloating({ open: open && mounted, anchor: () => trigger.current, floating: popup, placement: config.placement ?? 'bottom-start', offset: 6 });
+  useFloating({ open: open && mounted, anchor: () => trigger.current, floating: popup, placement: config.placement ?? 'bottom-start', offset: config.offset ?? 6 });
   // The list is at least as wide as the field.
   useIsomorphicLayoutEffect(() => {
     if (open && trigger.current && popup.current) popup.current.style.minWidth = `${trigger.current.offsetWidth}px`;

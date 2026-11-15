@@ -56,6 +56,7 @@ export const COMBOBOX_KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set([
   'radius',
   'size',
   'tone',
+  'offset',
   'dimensions',
   'unstyled',
   'className',

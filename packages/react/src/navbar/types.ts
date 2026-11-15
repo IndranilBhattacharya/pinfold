@@ -174,6 +174,8 @@ export interface NavbarConfig extends SlotOverrides<NavbarSlot, NavbarState, Nav
   size?: PinfoldSize;
   /** @default 'primary' */
   tone?: PinfoldTone;
+  /** Gap between a link and its dropdown (and "More"), in px. @default 4 */
+  menuOffset?: number;
   dimensions?: NavbarDimensions;
   /** @default false */
   unstyled?: boolean;
