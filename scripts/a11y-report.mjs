@@ -358,8 +358,17 @@ for (const scheme of ['light', 'dark']) {
       why: v.nodes[0]?.failureSummary,
     })),
     incomplete: res.incomplete.map((v) => v.id),
+    // Where each "needs review" rule looked: a rule that used to pass and now lands here is a regression.
+    incompleteNodes: res.incomplete.map((v) => ({ id: v.id, nodes: v.nodes.slice(0, 5).map((n) => ({ target: n.target, why: [...(n.any || []), ...(n.all || []), ...(n.none || [])].map((c) => c.message).join(" | "), html: n.html.slice(0, 160) })) })),
   };
   check(`axe WCAG 2.2 AA + best practices, ${scheme} mode`, res.violations.length === 0, `${res.passes.length} rules pass, ${res.violations.length} violations`);
+  // axe only says "needs review" when an open control points at an id that is not in the page: fail on it here.
+  const dangling = await page.evaluate(() =>
+    [...document.querySelectorAll('[aria-controls]')]
+      .filter((el) => el.getAttribute('aria-expanded') === 'true' && el.getAttribute('aria-controls').split(/\s+/).some((id) => !document.getElementById(id)))
+      .map((el) => `${el.tagName.toLowerCase()}${el.getAttribute('role') ? `[role=${el.getAttribute('role')}]` : ''} "${(el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 40)}" -> ${el.getAttribute('aria-controls')}`),
+  );
+  check(`open controls name a part that exists (aria-controls), ${scheme} mode`, dangling.length === 0, dangling.join('; ') || 'all resolve');
   await page.screenshot({ path: join(outDir, `${scheme}.png`), fullPage: true });
   results.snapshots.push(`${scheme}.png`);
   await page.close();
