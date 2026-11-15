@@ -28,7 +28,7 @@ installed version (the consumer smoke test checks they are in the tarball):
 
 ## Local MCP server
 `npx pinfold mcp` speaks the Model Context Protocol over stdio and answers from the installed meta:
-`list_components`, `get_component`, `get_schema`, `validate_config` and `get_install_steps`, plus
+`search_components`, `list_components`, `get_component`, `get_schema`, `validate_config` and `get_install_steps` (all read-only), plus
 each component's reference as a resource. Nothing is hosted.
 
 ```json

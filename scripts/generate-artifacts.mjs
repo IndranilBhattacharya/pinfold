@@ -19,7 +19,7 @@ const root = resolve(import.meta.dirname, '..');
 const out = join(root, 'packages/react');
 const load = (p) => import(pathToFileURL(join(root, p)).href);
 const { componentMetas, metaToMarkdown, toJsonSchema } = await load('packages/core/dist/meta.js');
-const { componentFile } = await load('packages/cli/lib/commands.mjs');
+const { componentFile, stylesFor } = await load('packages/cli/lib/commands.mjs');
 const { version } = JSON.parse(readFileSync(join(out, 'package.json'), 'utf8'));
 const SITE = 'https://pinfold.indranildev.in';
 const json = (v) => JSON.stringify(v, null, 2) + '\n';
@@ -31,7 +31,9 @@ for (const dir of ['registry', 'schema']) {
 
 const items = componentMetas.map((meta) => {
   // App code may import CSS (unlike the library), so the registry file brings its styles along.
-  const content = `import '@pinfold/css/core.css';\nimport '@pinfold/css/${meta.name}.css';\n\n${componentFile(meta.name, 'ts')}`;
+  // Its own stylesheet and those of every component it draws inside (a table's checkboxes, pages, menus).
+  const styles = ['core', ...stylesFor(meta.name)].map((s) => `import '@pinfold/css/${s}.css';`).join('\n');
+  const content = `${styles}\n\n${componentFile(meta.name, 'ts')}`;
   return {
     $schema: 'https://ui.shadcn.com/schema/registry-item.json',
     name: meta.name,
@@ -91,7 +93,7 @@ writeFileSync(
     '',
     `- [Full reference](${SITE}/llms-full.txt): every option of every component (also \`llms-full.txt\` in this package)`,
     `- [Theming](${SITE}/docs/theming): \`npx pinfold theme\`, style packs (glass, material, noise, brutalist), DTCG tokens`,
-    '- Local MCP server: `npx pinfold mcp` (tools: list_components, get_component, get_schema, validate_config, get_install_steps)',
+    '- Local MCP server: `npx pinfold mcp` (tools: search_components, list_components, get_component, get_schema, validate_config, get_install_steps)',
     '',
   ].join('\n'),
 );

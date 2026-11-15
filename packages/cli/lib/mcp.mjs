@@ -8,13 +8,44 @@
  */
 import { createInterface } from 'node:readline';
 import { componentMetas, metaToMarkdown, toJsonSchema, validateConfig } from '@pinfold/core/meta';
+import { stylesFor } from './commands.mjs';
 
 const VERSION = '1.0.0';
 const byName = (name) => componentMetas.find((m) => m.name === name);
 const names = () => componentMetas.map((m) => m.name);
 const nameArg = { type: 'object', properties: { name: { type: 'string', enum: names() } }, required: ['name'] };
 
+const fold = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+/** Components ranked by how well their name, title and description match the words of a query. */
+export function searchComponents(query) {
+  const words = fold(query).split(/[^a-z0-9]+/).filter(Boolean);
+  if (!words.length) return [];
+  return componentMetas
+    .map((m) => {
+      const name = fold(`${m.name} ${m.displayName}`);
+      const text = fold(`${m.description} ${Object.keys(m.props).join(' ')}`);
+      const score = words.reduce((s, w) => s + (name.includes(w) ? 3 : 0) + (text.includes(w) ? 1 : 0), 0);
+      return { m, score };
+    })
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8)
+    .map((r) => r.m);
+}
+
+const READ_ONLY = { readOnlyHint: true, openWorldHint: false };
+
 const TOOLS = [
+  {
+    name: 'search_components',
+    description: 'Find the components for a need in plain words ("date range", "searchable select", "file drop"). Returns names to pass to get_component.',
+    inputSchema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] },
+    run: ({ query }) => {
+      const found = searchComponents(String(query ?? ''));
+      return found.length ? found.map((m) => `- ${m.name}: ${m.description}`).join('\n') : 'No match. Call list_components for every component.';
+    },
+  },
   {
     name: 'list_components',
     description: 'List every Pinfold component with its import path and one-line description.',
@@ -48,17 +79,29 @@ const TOOLS = [
   },
   {
     name: 'get_install_steps',
-    description: 'How to add Pinfold (optionally one component) to a project.',
-    inputSchema: { type: 'object', properties: { name: { type: 'string' } } },
-    run: ({ name } = {}) =>
-      [
-        '1. `npx pinfold init` (detects Next.js/Vite/React Router, TS or JS, Tailwind; writes config, theme, CSS imports). Non-interactive: `--yes`.',
-        `2. \`npx pinfold add ${name ?? '<component>'}\` writes components/ui/${name ?? '<component>'}.tsx (or .jsx) and its CSS import.`,
-        '3. Client Component: `const X = use<Name>({ items }); return <X />`. Server Component: `define<Name>({ items })`.',
-        '4. `npx pinfold doctor` checks the setup.',
-      ].join('\n'),
+    description: 'How to add Pinfold to a project, or one component: the commands, and the exact stylesheets it needs.',
+    inputSchema: { type: 'object', properties: { name: { type: 'string', enum: names() } } },
+    run: ({ name } = {}) => {
+      const meta = name ? required(name) : null;
+      const n = meta?.name ?? '<component>';
+      const pascal = meta ? meta.pascal ?? meta.displayName.replace(/\s+/g, '') : '<Name>';
+      const css = meta ? ['core', ...stylesFor(meta.name)] : ['core', '<component>'];
+      return [
+        'With the CLI (detects Next.js, Vite or React Router, TypeScript or JavaScript, Tailwind):',
+        '1. `npx pinfold init` (add `--yes` to accept the defaults).',
+        `2. \`npx pinfold add ${n}\` writes components/ui/${n}.tsx (or .jsx) and imports its stylesheets.`,
+        '3. `npx pinfold doctor` checks the setup.',
+        '',
+        'By hand:',
+        '1. `npm install @pinfold/react @pinfold/css`',
+        `2. In the app entry, once: ${css.map((s) => `import '@pinfold/css/${s}.css';`).join(' ')}`,
+        `3. Client Component: \`const X = use${pascal}({ ... }); return <X />\`. Anywhere, Server Components included: \`export const X = define${pascal}({ ... })\`. Import from \`${meta?.importPath ?? '@pinfold/react/<component>'}\`.`,
+        '',
+        `With shadcn: add \`"registries": { "@pinfold": "https://pinfold.indranildev.in/r/{name}.json" }\` to components.json, then \`npx shadcn add @pinfold/${n}\`.`,
+      ].join('\n');
+    },
   },
-];
+].map((tool) => ({ ...tool, annotations: READ_ONLY }));
 
 function required(name) {
   const meta = byName(name);
@@ -78,7 +121,7 @@ export function handle(message) {
         protocolVersion: params.protocolVersion ?? '2025-06-18',
         capabilities: { tools: {}, resources: {} },
         serverInfo: { name: 'pinfold', version: VERSION },
-        instructions: 'Pinfold UI reference. Call list_components, then get_component before writing Pinfold code; validate_config to check a config.',
+        instructions: 'Pinfold UI reference for the installed version. Find components with search_components (or list_components), read get_component before writing Pinfold code, check a config with validate_config, and use get_install_steps for commands and stylesheets.',
       });
     case 'ping':
       return reply({});

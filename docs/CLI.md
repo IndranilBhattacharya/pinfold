@@ -81,7 +81,7 @@ Checks:
 Each problem is printed with its fix. Errors exit with status 1; warnings (no theme file, old browser targets, no entry) do not.
 
 ## `mcp`
-Runs a local stdio MCP server (newline-delimited JSON-RPC 2.0) that serves the meta, schema and docs from the installed packages. Nothing is hosted. Tools: `list_components`, `get_component`, `get_schema`, `validate_config`, `get_install_steps`. See [DISTRIBUTION.md](DISTRIBUTION.md).
+Runs a local stdio MCP server (newline-delimited JSON-RPC 2.0) that serves the meta, schema and docs from the installed packages. Nothing is hosted. Tools (all read-only): `search_components`, `list_components`, `get_component`, `get_schema`, `validate_config`, `get_install_steps`. Add it to Claude Code with `claude mcp add pinfold -- npx -y pinfold mcp`, or to Cursor, VS Code or Windsurf with `{ "mcpServers": { "pinfold": { "command": "npx", "args": ["-y", "pinfold", "mcp"] } } }`. See [DISTRIBUTION.md](DISTRIBUTION.md).
 
 ## `new <name>` (contributors only)
 Scaffolds a component that already passes conformance. See [CONTRIBUTING.md](../CONTRIBUTING.md).
