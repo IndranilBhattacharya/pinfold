@@ -42,7 +42,7 @@ library default.
 | `count` / `total` / `hasNext` | pages; or items (pages = total / page size); or, with no total, whether there is a next page | one of them |
 | `hasPrevious` | with no total: whether there is a previous page | any page after the first |
 | `page`, `defaultPage` | from 1 | none, `1` |
-| `pageSize`, `defaultPageSize`, `pageSizes` | items per page; the sizes offered in a "Rows per page" select | none, `10` (or the first of `pageSizes`) |
+| `pageSize`, `defaultPageSize`, `pageSizes` | items per page; the sizes offered in a "Rows per page" Pinfold Select (loaded the first time it shows; import `@pinfold/css/select.css`) | none, `10` (or the first of `pageSizes`) |
 | `onChange` | `(page, { pageSize, offset, reason, event })`: a page or the page size changed | none |
 | `onPageSizeChange` | `(pageSize, event)`: the page size changed (before `onChange`) | none |
 | `renderItem` | `({ page, current }) => node`: the inside of each page button; `render.item` also gets `item` | none |
@@ -51,7 +51,7 @@ library default.
 | `showInfo` | "21–40 of 532", or "Page 3 of 20"; `labels.info` formats it | `false` |
 | `showPages` | numbered pages; `false`: a simple pager (previous and next only) | `true` |
 | `showControlLabels` | "Previous" / "Next" written beside the chevrons (`labels.previousText`, `labels.nextText`) | `false` |
-| `showJump` | a "Go to page" field | `false` |
+| `showJump` | a "Go to page" Pinfold NumberField (loaded the first time it shows; `number.css`) | `false` |
 | `compact` | previous, "3 / 20", next | `false` |
 | `loading` | the cursor pulses, controls wait, `aria-busy` | `false` |
 | `siblings`, `boundaries` | pages either side of the current one; pages at each end | `1`, `1` |
@@ -60,7 +60,7 @@ library default.
 | `size`, `tone` | the current page is the tone's sliding cursor | `'md'`, `'primary'` (provider) |
 | `disabled`, `label` | | `false`, `'Pagination'` |
 | `labels` | `{ previous, next, first, last, previousText, nextText, page(n), info({ from, to, total, page, count }), pageSize, jump }` | English |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root info list cursor item gap previous next first last status size jump`) | | |
+| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` (slots `root info list cursor item gap previous next first last status size pageSize jump jumpInput`) | `pageSize` and `jumpInput` are the fields themselves: `render.pageSize` gets `props` = `{ label, value, options, onChange, disabled }` (`jumpInput` also `placeholder`, `inputProps`) for your own control | |
 
 The current page's cursor glides between pages (`--pinfold-ease-glide`: no overshoot past the
 neighbouring buttons). A page-size change keeps the first item on screen (`pageAt` in core). Controller: `page`,

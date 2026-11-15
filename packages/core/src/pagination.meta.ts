@@ -1,6 +1,6 @@
 import type { ComponentMeta, PropMeta } from './meta';
 
-const SLOTS = ['root', 'info', 'list', 'cursor', 'item', 'gap', 'previous', 'next', 'first', 'last', 'status', 'size', 'jump'] as const;
+const SLOTS = ['root', 'info', 'list', 'cursor', 'item', 'gap', 'previous', 'next', 'first', 'last', 'status', 'size', 'pageSize', 'jump', 'jumpInput'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -11,6 +11,8 @@ const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
 export const paginationMeta: ComponentMeta = {
   name: 'pagination',
   displayName: 'Pagination',
+  // Rows per page and go to page are a Select and a NumberField, loaded the first time they show.
+  requires: ['number', 'select'],
   description:
     'Move between pages of results, client or server side: numbered pages with a sliding current-page cursor, a page-size select, go to page, a "21–40 of 532" summary, a loading state, and a compact or cursor-paged form.',
   pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/navigation.html',

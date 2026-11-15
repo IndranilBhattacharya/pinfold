@@ -45,6 +45,8 @@ import { ITEM, renderSlot, slotProps } from '../slots';
 import { VISUALLY_HIDDEN } from '../a11y';
 import { Pagination } from '../pagination/Pagination';
 import { CellEditor, FilterControl, PausedInput } from './parts';
+import { CheckMark } from '../checkmark';
+import { SubSelect, type SubSelectProps } from '../subcontrols';
 import { ColumnMenu, ColumnsPanel, ICON } from './menu';
 import { useVirtualRows } from './virtual';
 import type { TableApi, TableCellContext, TableColumn, TableColumnState, TableComponent, TableConfig, TableItemContext, TableResolvedColumn, TableRootProps, TableRowContext, TableSlot, TableState } from './types';
@@ -801,9 +803,10 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
           <>
             {tb.search !== false ? (
               <span className={cls('pinfold-table__searchBox')}>
-                {ICON.search}
                 {slot('search', null, PausedInput as unknown as string, {
                   type: 'search',
+                  tone: state.tone,
+                  startContent: ICON.search,
                   'aria-label': L.search ?? 'Search',
                   placeholder: L.search ?? 'Search',
                   value: search,
@@ -970,6 +973,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                 ) : (
                   <FilterControl
                     type={c.type}
+                    tone={state.tone}
                     label={label}
                     filter={filter}
                     options={optionsOf(c)}
@@ -996,9 +1000,9 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
               'th',
               -1,
               name === 'select' && selection === 'multiple' && !source ? (
-                <input
+                <CheckMark
                   ref={headerBox}
-                  type="checkbox"
+                  tone={state.tone}
                   tabIndex={grid ? -1 : undefined}
                   aria-label={L.selectAll ?? 'Select all rows'}
                   checked={boxState === 'all'}
@@ -1145,8 +1149,9 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                   'td',
                   r,
                   leadName === 'select' ? (
-                    <input
+                    <CheckMark
                       type={selection === 'single' ? 'radio' : 'checkbox'}
+                      tone={state.tone}
                       name={selection === 'single' ? `${base}-row` : undefined}
                       tabIndex={grid ? -1 : undefined}
                       aria-label={L.selectRow ? L.selectRow(toText(columns[0]?.read(row))) : `Select ${toText(columns[0]?.read(row))}`}
@@ -1229,7 +1234,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                         ? c.editor({ row, value, column: c, commit, cancel, error: editError })
                         : slot(
                             'editor',
-                            <CellEditor type={c.type} editor={c.editor} label={`${c.title}`} value={value} options={optionsOf(c)} error={editError} errorId={errorId} commit={commit} cancel={cancel} className={cls('pinfold-table__editorInput')} />,
+                            <CellEditor type={c.type} editor={c.editor} tone={state.tone} label={`${c.title}`} value={value} options={optionsOf(c)} error={editError} errorId={errorId} commit={commit} cancel={cancel} className={cls('pinfold-table__editorInput')} />,
                             'span',
                           )}
                       {editError ? (
@@ -1398,24 +1403,27 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
               {rangeText}
             </span>
             {config.pageSizes && !virtual ? (
-              <label className={cls('pinfold-table__pageSize')}>
-                <span>{L.pageSize ?? 'Rows per page'}</span>
-                <select
-                  value={pageSize}
-                  onChange={(e) => {
-                    const n = Number(e.target.value);
-                    setPicked({ size: n, from: config.pageSize });
-                    config.onPageSizeChange?.(n);
-                    setPage(1);
-                  }}
-                >
-                  {config.pageSizes.map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className={cls('pinfold-table__pageSize')}>
+                <span aria-hidden="true">{L.pageSize ?? 'Rows per page'}</span>
+                {renderSlot(
+                  config,
+                  'pageSize',
+                  slotProps(config, 'pageSize', {
+                    label: L.pageSize ?? 'Rows per page',
+                    value: String(pageSize),
+                    options: config.pageSizes.map((n) => ({ value: String(n), label: String(n) })),
+                    onChange: (value: string) => {
+                      const n = Number(value);
+                      setPicked({ size: n, from: config.pageSize });
+                      config.onPageSizeChange?.(n);
+                      setPage(1);
+                    },
+                  }),
+                  state,
+                  null,
+                  (p) => <SubSelect {...(p as unknown as SubSelectProps)} tone={state.tone} className={cls('pinfold-table__pageSizeSelect')} />,
+                )}
+              </div>
             ) : null}
             {pageSize > 0 && !virtual && pageCount > 1 ? (
               <Pagination
@@ -1504,6 +1512,7 @@ export function useTable<T extends object>(input: TableConfig<T>): TableComponen
                   filter={filter}
                   setFilter={canFilter ? setter : undefined}
                   custom={canFilter && c.filter ? c.filter({ column: c, filter, setFilter: setter }) : undefined}
+                  renderCondition={config.render?.filterCondition ? (p) => renderSlot(config, 'filterCondition', slotProps(config, 'filterCondition', p as unknown as PropsBag), state, null, () => null) : undefined}
                   values={
                     canFilter && !source
                       ? () => distinctValues(rows, filterRowIndices(rows, { filters: filters.filter((f) => f.key !== c.key), logic: config.filterLogic, search, columns: rules }), c.read, c.type, c.filterKey)

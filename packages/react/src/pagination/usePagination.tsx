@@ -8,7 +8,11 @@ import { mergeConfig } from '../preset';
 import { ITEM, renderSlot, slotProps } from '../slots';
 import { followLink } from '../link';
 import { VISUALLY_HIDDEN } from '../a11y';
-import { CHEVRON_DOWN_ICON, CHEVRON_ICON, CHEVRONS_ICON, MORE_ICON } from '../nav-icons';
+import { CHEVRON_ICON, CHEVRONS_ICON, MORE_ICON } from '../nav-icons';
+import { SubInput, SubSelect } from '../subcontrols';
+import type { SubInputProps, SubSelectProps } from '../subcontrols';
+type SubSelectArgs = Omit<SubSelectProps, 'size' | 'tone'>;
+type SubInputArgs = Omit<SubInputProps, 'size' | 'tone' | 'type'>;
 import type { PaginationApi, PaginationChange, PaginationComponent, PaginationConfig, PaginationRootProps, PaginationSlot, PaginationState } from './types';
 
 /**
@@ -209,50 +213,61 @@ export function usePagination(input: PaginationConfig): PaginationComponent {
           ? slot(
               'size',
               <>
-                <span>{labels.pageSize ?? 'Rows per page'}</span>
-                <span className={config.unstyled ? undefined : 'pinfold-pagination__field'}>
-                  <select value={size} disabled={blocked} onChange={(event) => resize(Number(event.target.value), event)}>
-                    {sizes.map((n) => (
-                      <option key={n} value={n}>
-                        {n}
-                      </option>
-                    ))}
-                  </select>
-                  {CHEVRON_DOWN_ICON}
-                </span>
+                <span aria-hidden="true">{labels.pageSize ?? 'Rows per page'}</span>
+                {renderSlot(
+                  config,
+                  'pageSize',
+                  slotProps(config, 'pageSize', {
+                    label: labels.pageSize ?? 'Rows per page',
+                    value: String(size),
+                    options: sizes.map((n) => ({ value: String(n), label: String(n) })),
+                    onChange: (value: string, event?: React.SyntheticEvent) => resize(Number(value), event),
+                    disabled: blocked,
+                  }),
+                  state,
+                  null,
+                  (p) => <SubSelect {...(p as unknown as SubSelectArgs)} size="sm" tone={state.tone} className={config.unstyled ? undefined : 'pinfold-pagination__select'} />,
+                )}
               </>,
-              'label',
+              'div',
             )
           : null}
         {config.showJump
           ? slot(
               'jump',
               <>
-                <span>{labels.jump ?? 'Go to page'}</span>
-                <span className={config.unstyled ? undefined : 'pinfold-pagination__field'}>
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    min={1}
-                    max={count}
-                    placeholder={String(page)}
-                    value={jump}
-                    disabled={blocked}
-                    onChange={(event) => setJump(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key !== 'Enter' || jump === '') return;
-                      event.preventDefault();
-                      go(Number(jump), event);
-                      setJump('');
-                    }}
-                    onBlur={(event) => {
-                      if (jump !== '') go(Number(jump), event);
-                      setJump('');
-                    }}
-                  />
-                </span>
+                <span aria-hidden="true">{labels.jump ?? 'Go to page'}</span>
+                {renderSlot(
+                  config,
+                  'jumpInput',
+                  slotProps(config, 'jumpInput', {
+                    label: labels.jump ?? 'Go to page',
+                    value: jump,
+                    placeholder: String(page),
+                    onChange: (value: string) => setJump(value),
+                    disabled: blocked,
+                    inputProps: {
+                      inputMode: 'numeric',
+                      min: 1,
+                      max: count,
+                      onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {
+                        if (event.key !== 'Enter' || jump === '') return;
+                        event.preventDefault();
+                        go(Number(jump), event);
+                        setJump('');
+                      },
+                      onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+                        if (jump !== '') go(Number(jump), event);
+                        setJump('');
+                      },
+                    },
+                  }),
+                  state,
+                  null,
+                  (p) => <SubInput {...(p as unknown as SubInputArgs)} type="number" size="sm" tone={state.tone} className={config.unstyled ? undefined : 'pinfold-pagination__input'} />,
+                )}
               </>,
-              'label',
+              'div',
             )
           : null}
       </>

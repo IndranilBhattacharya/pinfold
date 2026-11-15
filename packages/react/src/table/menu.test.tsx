@@ -104,8 +104,16 @@ describe('Table column menu', () => {
     expect(titles()).toHaveLength(4);
   });
 
-  it('a value list only offers what the other filters let through; a condition filters by type', () => {
-    vi.useFakeTimers();
+  it('a condition picked before any value stays chosen', async () => {
+    render(<Table label="Tasks" rows={tasks} filterable columns={['title', 'points']} />);
+    openMenu('Points');
+    fireEvent.click(await within(screen.getByRole('dialog')).findByRole('combobox'));
+    fireEvent.click(await screen.findByRole('option', { name: 'between' }));
+    expect(within(screen.getByRole('dialog')).getByRole('combobox').textContent).toContain('between');
+    expect(await within(screen.getByRole('dialog')).findAllByRole('spinbutton')).toHaveLength(2);
+  });
+
+  it('a value list only offers what the other filters let through; a condition filters by type', async () => {
     render(<Table label="Tasks" rows={tasks} filterable defaultFilters={[{ key: 'points', op: 'gt', value: 3 }]} columns={['title', 'points', 'tags']} />);
     expect(titles()).toEqual(['Build', 'Test']);
     openMenu('Tags');
@@ -116,8 +124,14 @@ describe('Table column menu', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
     openMenu('Points');
     const dialog = screen.getByRole('dialog');
-    fireEvent.change(within(dialog).getByRole('combobox'), { target: { value: 'between' } });
-    fireEvent.change(within(dialog).getByRole('spinbutton', { name: /value/ }), { target: { value: '4' } });
+    // The condition is a Pinfold Select inside the menu: choosing in it keeps the menu open.
+    fireEvent.click(await within(dialog).findByRole('combobox'));
+    fireEvent.click(await screen.findByRole('option', { name: 'between' }));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    const from = await within(screen.getByRole('dialog')).findByRole('spinbutton', { name: /value/ });
+    await within(screen.getByRole('dialog')).findByRole('spinbutton', { name: /: to/ });
+    vi.useFakeTimers();
+    fireEvent.change(from, { target: { value: '4' } });
     act(() => void vi.advanceTimersByTime(300));
     fireEvent.change(within(screen.getByRole('dialog')).getByRole('spinbutton', { name: /: to/ }), { target: { value: '6' } });
     act(() => void vi.advanceTimersByTime(300));

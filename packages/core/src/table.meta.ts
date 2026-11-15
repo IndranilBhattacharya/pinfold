@@ -1,7 +1,7 @@
 import type { ComponentMeta, PropMeta } from './meta';
 import { RADIUS_PROP } from './meta-shared';
 
-const SLOTS = ['root', 'toolbar', 'search', 'caption', 'scroll', 'table', 'head', 'header', 'sort', 'resizer', 'filters', 'filter', 'menuButton', 'chips', 'body', 'row', 'cell', 'select', 'expand', 'handle', 'detail', 'group', 'editor', 'empty', 'loading', 'totals', 'footer'] as const;
+const SLOTS = ['root', 'toolbar', 'search', 'caption', 'scroll', 'table', 'head', 'header', 'sort', 'resizer', 'filters', 'filter', 'menuButton', 'chips', 'body', 'row', 'cell', 'select', 'expand', 'handle', 'detail', 'group', 'editor', 'filterCondition', 'pageSize', 'empty', 'loading', 'totals', 'footer'] as const;
 const perSlot = (description: string, type: PropMeta['type']): PropMeta => ({
   type: 'object',
   description,
@@ -18,7 +18,8 @@ export const tableMeta: ComponentMeta = {
     'A data grid from your rows or your server: typed columns (paths reach into objects); sorting by one key or several; a menu on each header that sorts, pins, hides, groups and filters by a condition or by a searchable list of the column\'s values, drawn as its cells draw them; a quick search; pages or a virtual body for any number of rows (a billion included); columns that resize, reorder, pin and hide; rows that reorder, resize, expand into details, sub-tables or rows of their own to any depth, and group with totals; cells, headers, rows and filters you draw; editing; CSV export and remembered layouts.',
   pattern: 'https://www.w3.org/WAI/ARIA/apg/patterns/grid/examples/data-grids/',
   importPath: '@pinfold/react/table',
-  requires: ['pagination'],
+  // Fields inside the grid (loaded on first use): Select, Input, NumberField, DatePicker; and the Checkbox and Radio boxes.
+  requires: ['checkbox', 'datepicker', 'input', 'number', 'pagination', 'radio', 'select'],
   slots: SLOTS,
   props: {
     label: { type: 'node', required: true, description: 'Names the table: its caption.', group: 'data' },

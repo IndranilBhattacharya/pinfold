@@ -24,6 +24,22 @@
     color: var(--pinfold-color-text);
   }
   .pinfold-field[data-disabled] { opacity: 0.6; }
+  .pinfold-checkmark { display: inline-flex; flex: none; vertical-align: middle; }
+  .pinfold-checkmark > .pinfold-choice__control { min-block-size: 0; }
+  /* Holds the place of a field another component loads on first use (rows per page, a filter). */
+  .pinfold-subcontrol {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-inline-size: 4.5rem;
+    block-size: var(--pinfold-control-height);
+    padding-inline: 0.625rem;
+    font-family: var(--pinfold-font-sans);
+    font-size: var(--pinfold-control-text);
+    color: var(--pinfold-color-text-muted);
+    background-color: color-mix(in oklab, var(--pinfold-color-text) 6%, var(--pinfold-color-surface));
+    border-radius: var(--pinfold-radius-md);
+  }
   .pinfold-field__label {
     padding: 0;
     font-weight: var(--pinfold-weight-medium);

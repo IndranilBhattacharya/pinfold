@@ -139,33 +139,12 @@
     color: var(--pinfold-color-text-muted);
     white-space: nowrap;
   }
-  .pinfold-pagination__field { position: relative; display: inline-flex; align-items: center; }
-  .pinfold-pagination__field > :is(select, input) {
-    box-sizing: border-box;
-    block-size: var(--pinfold-pgn-h);
-    margin: 0;
-    padding-inline: 0.625rem;
-    font: inherit;
-    font-weight: var(--pinfold-weight-medium);
-    font-variant-numeric: tabular-nums;
-    color: var(--pinfold-color-text);
-    background-color: var(--pinfold-control-surface, var(--pinfold-color-surface));
-    border: var(--pinfold-border-width) solid var(--pinfold-field-edge, var(--pinfold-color-border));
-    border-radius: var(--pinfold-pgn-radius);
-    box-shadow: var(--pinfold-control-shadow, var(--pinfold-shadow-xs));
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  .pinfold-pagination__field > select { padding-inline-end: 1.75rem; cursor: pointer; }
-  .pinfold-pagination__field > input { inline-size: 4.5em; -moz-appearance: textfield; }
-  .pinfold-pagination__field > input::-webkit-inner-spin-button,
-  .pinfold-pagination__field > input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-  .pinfold-pagination__field > svg { position: absolute; inset-inline-end: 0.5rem; inline-size: 0.875em; block-size: 0.875em; color: var(--pinfold-color-text-muted); pointer-events: none; }
-  .pinfold-pagination__field > :is(select, input):disabled { opacity: 0.5; cursor: not-allowed; }
+  /* The fields are a Pinfold Select and Input (select.css, input.css): only their width is set here. */
+  .pinfold-pagination__select { inline-size: 5.5rem; color: var(--pinfold-color-text); }
+  .pinfold-pagination__input { inline-size: 5rem; color: var(--pinfold-color-text); }
 
   /* After the variants: the ring always shows. */
-  .pinfold-pagination[data-variant] [data-pagination-control][data-pagination-control]:focus-visible,
-  .pinfold-pagination__field > :is(select, input):focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
+  .pinfold-pagination[data-variant] [data-pagination-control][data-pagination-control]:focus-visible { outline: none; box-shadow: var(--pinfold-focus-ring); }
 
   @media (forced-colors: active) {
     .pinfold-pagination__cursor { forced-color-adjust: none; background: Highlight; }

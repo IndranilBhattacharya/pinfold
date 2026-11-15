@@ -109,6 +109,12 @@ metadata"):
    how many chips), and add `silent: true` when it only changes behaviour (a delay, a limit); a value
    that is data or state (the current page, a value) is never a control. `meta.test.ts` fails on a
    number with no range or a default outside it.
+9. **Fields inside a component are Pinfold fields.** A select, text, number or date field that a
+   component draws inside itself (rows per page, a filter) is `SubSelect` / `SubInput` from
+   `react/src/subcontrols.tsx`: the real Select, Input, NumberField or DatePicker, loaded the first
+   time it shows. A checkbox or radio box is `CheckMark` (`react/src/checkmark.tsx`). Each is a named
+   slot whose `render` gets `props` = `{ label, value, options, onChange }`, and `meta.requires` lists
+   the components behind it (`requires.test.ts` checks).
 
 ## Typed API
 

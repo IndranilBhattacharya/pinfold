@@ -37,13 +37,51 @@ describe('Pagination layouts and events', () => {
     expect(screen.getByRole('button', { name: 'Next page' }).getAttribute('aria-disabled')).toBe('true');
   });
 
-  it('onPageSizeChange reports the new size; onChange still does', () => {
+  it('rows per page is a Pinfold Select; onPageSizeChange reports the new size; onChange still does', async () => {
     const onPageSizeChange = vi.fn();
     const onChange = vi.fn();
-    render(<Pagination total={240} pageSizes={[25, 50]} onPageSizeChange={onPageSizeChange} onChange={onChange} />);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Rows per page' }), { target: { value: '50' } });
+    const { container } = render(<Pagination total={240} pageSizes={[25, 50]} onPageSizeChange={onPageSizeChange} onChange={onChange} />);
+    const field = await screen.findByRole('combobox', { name: /^Rows per page/ });
+    expect(container.querySelector('.pinfold-select')).not.toBeNull();
+    fireEvent.click(field);
+    fireEvent.click(await screen.findByRole('option', { name: '50' }));
     expect(onPageSizeChange).toHaveBeenCalledWith(50, expect.anything());
     expect(onChange).toHaveBeenLastCalledWith(1, expect.objectContaining({ pageSize: 50, reason: 'pageSize' }));
+  });
+
+  it('go to page is a Pinfold NumberField: Enter goes there', async () => {
+    const onChange = vi.fn();
+    const { container } = render(<Pagination count={9} showJump onChange={onChange} />);
+    const input = await screen.findByRole('spinbutton', { name: 'Go to page' });
+    expect(container.querySelector('.pinfold-number')).not.toBeNull();
+    fireEvent.change(input, { target: { value: '7' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onChange).toHaveBeenLastCalledWith(7, expect.objectContaining({ reason: 'page' }));
+  });
+
+  it('render.pageSize swaps the field for your own control with the value, options and onChange', () => {
+    const onPageSizeChange = vi.fn();
+    render(
+      <Pagination
+        total={240}
+        pageSizes={[25, 50]}
+        onPageSizeChange={onPageSizeChange}
+        render={{
+          pageSize: ({ props }) => {
+            const p = props as unknown as { label: string; value: string; options: { value: string }[]; onChange: (v: string) => void };
+            return (
+              <button type="button" aria-label={p.label} onClick={() => p.onChange(p.options[1].value)}>
+                {p.value}
+              </button>
+            );
+          },
+        }}
+      />,
+    );
+    const mine = screen.getByRole('button', { name: 'Rows per page' });
+    expect(mine.textContent).toBe('25');
+    fireEvent.click(mine);
+    expect(onPageSizeChange).toHaveBeenCalledWith(50, undefined);
   });
 
   it('renderItem draws inside each page button, which keeps its name and current state; render.item gets the page', () => {

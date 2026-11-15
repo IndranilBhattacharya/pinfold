@@ -14,6 +14,11 @@ const orders: Order[] = [
 ];
 const names = () => Array.from(document.querySelectorAll('td[data-col="customer.name"]')).map((td) => td.textContent);
 
+const pick = async (field: HTMLElement, name: string) => {
+  fireEvent.click(field);
+  fireEvent.click(await screen.findByRole('option', { name }));
+};
+
 describe('Table as a data grid', () => {
   it('paths into objects, types from values, formatting, a header from the path', () => {
     render(<Table label="Orders" rows={orders} columns={['customer.name', { key: 'total', format: { style: 'currency', currency: 'USD', maximumFractionDigits: 0 } }, 'paid']} />);
@@ -39,9 +44,13 @@ describe('Table as a data grid', () => {
   });
 
   it('the filter row filters by type: text, number range, a value list, yes or no', async () => {
-    vi.useFakeTimers();
     const onFiltersChange = vi.fn();
     render(<Table label="Orders" rows={orders} filterable filterMode="row" columns={['customer.name', 'total', 'paid', { key: 'status', type: 'enum' }]} onFiltersChange={onFiltersChange} />);
+    // Pinfold fields, loaded on first use.
+    const paid = await screen.findByRole('combobox', { name: /^Filter Paid/ });
+    const status = await screen.findByRole('combobox', { name: /^Filter Status/ });
+    await screen.findByRole('searchbox', { name: 'Filter Customer name' });
+    vi.useFakeTimers();
     fireEvent.change(screen.getByRole('searchbox', { name: 'Filter Customer name' }), { target: { value: 'emi' } });
     await act(async () => {
       await vi.advanceTimersByTimeAsync(250);
@@ -53,19 +62,18 @@ describe('Table as a data grid', () => {
       await vi.advanceTimersByTimeAsync(250);
     });
     expect(names()).toEqual(['Émile', 'Cy']);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Filter Paid' }), { target: { value: 'false' } });
+    vi.useRealTimers();
+    await pick(paid, 'No');
     expect(names()).toEqual(['Cy']);
     expect(onFiltersChange).toHaveBeenLastCalledWith([
       { key: 'total', op: 'between', value: ['100', ''] },
       { key: 'paid', op: 'equals', value: false },
     ]);
-    const status = screen.getByRole('combobox', { name: 'Filter Status' }) as HTMLSelectElement;
-    expect([...status.options].map((o) => o.value)).toEqual(['', 'pending', 'returned', 'shipped']);
-    vi.useRealTimers();
+    fireEvent.click(status);
+    expect((await screen.findAllByRole('option')).map((o) => o.textContent)).toEqual(['Any', 'pending', 'returned', 'shipped']);
   });
 
   it('a toolbar: quick search across columns, columns to hide and pin, CSV of what is shown', async () => {
-    vi.useFakeTimers();
     let api: ReturnType<typeof useTable> | null = null;
     function Grid() {
       const T = useTable({ label: 'Orders', rows: orders, toolbar: { search: true, columns: true, export: true }, columns: ['id', 'customer.name', 'customer.city'] });
@@ -73,7 +81,9 @@ describe('Table as a data grid', () => {
       return <T />;
     }
     render(<Grid />);
-    fireEvent.change(screen.getByRole('searchbox', { name: 'Search' }), { target: { value: 'paris bo' } });
+    const search = await screen.findByRole('searchbox', { name: 'Search' });
+    vi.useFakeTimers();
+    fireEvent.change(search, { target: { value: 'paris bo' } });
     await act(async () => {
       await vi.advanceTimersByTimeAsync(250);
     });
@@ -232,11 +242,11 @@ describe('Table as a data grid', () => {
     expect(screen.getByRole('columnheader', { name: /Total/ }).getAttribute('aria-sort')).toBe('ascending');
   });
 
-  it('page sizes to pick from, and the range shown', () => {
+  it('page sizes to pick from (a Pinfold Select), and the range shown', async () => {
     const many = Array.from({ length: 60 }, (_, i) => ({ id: i, name: `P${i}` }));
     render(<Table label="People" rows={many} pageSize={10} pageSizes={[10, 25]} />);
     expect(screen.getByText('1–10 of 60')).toBeTruthy();
-    fireEvent.change(screen.getByRole('combobox', { name: 'Rows per page' }), { target: { value: '25' } });
+    await pick(await screen.findByRole('combobox', { name: /^Rows per page/ }), '25');
     expect(screen.getByText('1–25 of 60')).toBeTruthy();
   });
 });

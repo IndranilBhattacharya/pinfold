@@ -3,7 +3,12 @@ import type { PinfoldSize, PinfoldTone, PropsBag } from '@pinfold/core';
 import type { PinfoldComponent } from '../component';
 import type { SlotOverrides } from '../types';
 
-export type PaginationSlot = 'root' | 'info' | 'list' | 'cursor' | 'item' | 'gap' | 'previous' | 'next' | 'first' | 'last' | 'status' | 'size' | 'jump';
+/**
+ * `pageSize` and `jumpInput` are the controls themselves (a Pinfold Select and Input): a `render`
+ * override gets `props` = `{ label, value, options, onChange, disabled }` (the input also
+ * `placeholder`, `inputProps`), to hand to your own control.
+ */
+export type PaginationSlot = 'root' | 'info' | 'list' | 'cursor' | 'item' | 'gap' | 'previous' | 'next' | 'first' | 'last' | 'status' | 'size' | 'pageSize' | 'jump' | 'jumpInput';
 export type PaginationVariant = 'soft' | 'ghost' | 'outline' | 'panel';
 export type PaginationRadius = 'sm' | 'md' | 'full';
 

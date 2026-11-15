@@ -1,13 +1,24 @@
 import * as React from 'react';
-import { toText, type GridColumnType, type GridFilter, type GridFilterOp } from '@pinfold/core';
+import { toText, type GridColumnType, type GridFilter, type GridFilterOp, type PinfoldTone } from '@pinfold/core';
+import { CheckMark } from '../checkmark';
+import { SubInput, SubSelect } from '../subcontrols';
 
 /**
  * The table's built-in controls: a filter per column type, an editor per column type, and an input
  * that commits after typing pauses (filters and search on large data).
  */
 
-/** An input that keeps its own text and reports it after a pause (or at once on Enter). */
-export function PausedInput({ value, onCommit, delay = 180, ...rest }: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & { value: string; onCommit: (v: string) => void; delay?: number }) {
+type PausedInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'type' | 'size'> & {
+  value: string;
+  onCommit: (v: string) => void;
+  delay?: number;
+  type?: 'text' | 'search' | 'number' | 'date';
+  tone?: PinfoldTone;
+  startContent?: React.ReactNode;
+};
+
+/** A Pinfold Input that keeps its own text and reports it after a pause (or at once on Enter). */
+export function PausedInput({ value, onCommit, delay = 180, type, placeholder, className, tone, startContent, 'aria-label': ariaLabel, onKeyDown, ...rest }: PausedInputProps) {
   const [text, setText] = React.useState(value);
   const timer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const last = React.useRef(value);
@@ -23,18 +34,25 @@ export function PausedInput({ value, onCommit, delay = 180, ...rest }: Omit<Reac
     onCommit(v);
   };
   return (
-    <input
-      {...rest}
+    <SubInput
+      label={ariaLabel ?? placeholder ?? ''}
+      type={type}
+      placeholder={placeholder}
+      className={className}
+      tone={tone}
+      startContent={startContent}
       value={text}
-      onChange={(e) => {
-        const v = e.target.value;
+      onChange={(v) => {
         setText(v);
         clearTimeout(timer.current);
         timer.current = setTimeout(() => commit(v), delay);
       }}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') commit(text);
-        rest.onKeyDown?.(e);
+      inputProps={{
+        ...rest,
+        onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+          if (e.key === 'Enter') commit(text);
+          onKeyDown?.(e);
+        },
       }}
     />
   );
@@ -42,6 +60,7 @@ export function PausedInput({ value, onCommit, delay = 180, ...rest }: Omit<Reac
 
 export interface FilterControlProps {
   type: GridColumnType;
+  tone?: PinfoldTone;
   label: string;
   filter: GridFilter | null;
   options: ReadonlyArray<{ value: string; label: string }>;
@@ -51,7 +70,10 @@ export interface FilterControlProps {
 }
 
 /** The filter row's control for one column, by its type. */
-export function FilterControl({ type, label, filter, options, setFilter, className, labels }: FilterControlProps): React.ReactElement {
+/** Select rows cannot be empty strings: "any" is this value. */
+const ANY = '\u0000any';
+
+export function FilterControl({ type, tone, label, filter, options, setFilter, className, labels }: FilterControlProps): React.ReactElement {
   const cls = className ?? (() => undefined);
   const v = filter?.value;
   if (type === 'number' || type === 'date') {
@@ -60,42 +82,29 @@ export function FilterControl({ type, label, filter, options, setFilter, classNa
     const set = (a: unknown, b: unknown) => setFilter(a === '' && b === '' ? undefined : [a, b], 'between');
     return (
       <span className={cls('pinfold-table__range')}>
-        <PausedInput type={kind} aria-label={`${label} ${labels.from}`} placeholder={type === 'number' ? labels.from : undefined} value={toText(from ?? '')} onCommit={(a) => set(a, to ?? '')} className={cls('pinfold-table__filterInput')} />
-        <PausedInput type={kind} aria-label={`${label} ${labels.to}`} placeholder={type === 'number' ? labels.to : undefined} value={toText(to ?? '')} onCommit={(b) => set(from ?? '', b)} className={cls('pinfold-table__filterInput')} />
+        <PausedInput type={kind} tone={tone} aria-label={`${label} ${labels.from}`} placeholder={type === 'number' ? labels.from : undefined} value={toText(from ?? '')} onCommit={(a) => set(a, to ?? '')} className={cls('pinfold-table__filterInput')} />
+        <PausedInput type={kind} tone={tone} aria-label={`${label} ${labels.to}`} placeholder={type === 'number' ? labels.to : undefined} value={toText(to ?? '')} onCommit={(b) => set(from ?? '', b)} className={cls('pinfold-table__filterInput')} />
       </span>
     );
   }
   if (type === 'boolean' || type === 'enum') {
     const current = type === 'boolean' ? (v === undefined || v === null ? '' : String(v)) : Array.isArray(v) ? toText(v[0] ?? '') : toText(v ?? '');
     return (
-      <select
-        aria-label={label}
+      <SubSelect
+        label={label}
+        tone={tone}
         className={cls('pinfold-table__filterInput')}
-        value={current}
-        onChange={(e) => {
-          const next = e.target.value;
-          if (!next) setFilter(undefined);
+        value={current || ANY}
+        options={[{ value: ANY, label: labels.any }, ...(type === 'boolean' ? [{ value: 'true', label: labels.yes }, { value: 'false', label: labels.no }] : options)]}
+        onChange={(next) => {
+          if (next === ANY) setFilter(undefined);
           else if (type === 'boolean') setFilter(next === 'true', 'equals');
           else setFilter([next], 'in');
         }}
-      >
-        <option value="">{labels.any}</option>
-        {type === 'boolean' ? (
-          <>
-            <option value="true">{labels.yes}</option>
-            <option value="false">{labels.no}</option>
-          </>
-        ) : (
-          options.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))
-        )}
-      </select>
+      />
     );
   }
-  return <PausedInput type="search" aria-label={label} placeholder={labels.placeholder} className={cls('pinfold-table__filterInput')} value={toText(v ?? '')} onCommit={(t) => setFilter(t || undefined, 'contains')} />;
+  return <PausedInput type="search" tone={tone} aria-label={label} placeholder={labels.placeholder} className={cls('pinfold-table__filterInput')} value={toText(v ?? '')} onCommit={(t) => setFilter(t || undefined, 'contains')} />;
 }
 
 export interface EditorProps {
@@ -109,10 +118,11 @@ export interface EditorProps {
   commit: (value: unknown) => void;
   cancel: () => void;
   className?: string;
+  tone?: PinfoldTone;
 }
 
 /** A cell's editor by type: Enter or leaving saves, Escape cancels, focus starts in it. */
-export function CellEditor({ type, editor, label, value, options, error, errorId, commit, cancel, className }: EditorProps): React.ReactElement {
+export function CellEditor({ type, editor, label, value, options, error, errorId, commit, cancel, className, tone }: EditorProps): React.ReactElement {
   const kind = editor ?? (type === 'number' ? 'number' : type === 'date' ? 'date' : type === 'boolean' ? 'checkbox' : type === 'enum' && options.length ? 'select' : 'text');
   const ref = React.useRef<HTMLInputElement & HTMLSelectElement>(null);
   const done = React.useRef(false);
@@ -148,17 +158,23 @@ export function CellEditor({ type, editor, label, value, options, error, errorId
       done.current = false;
     },
   };
+  // A choice saves when picked; Escape, or leaving without a pick, cancels.
   if (kind === 'select')
     return (
-      <select {...common} defaultValue={toText(value)}>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
+      <span
+        className="pinfold-table__editorSelect"
+        onKeyDown={(e) => {
+          e.stopPropagation();
+          if (e.key === 'Escape' && !(e.target as HTMLElement).closest('[aria-expanded="true"]')) cancel();
+        }}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) cancel();
+        }}
+      >
+        <SubSelect label={label} tone={tone} autoFocus value={toText(value)} options={options} onChange={(next) => commit(next)} />
+      </span>
     );
-  if (kind === 'checkbox') return <input {...common} type="checkbox" defaultChecked={!!value} />;
+  if (kind === 'checkbox') return <CheckMark {...common} tone={tone} defaultChecked={!!value} />;
   const text = kind === 'date' && typeof value === 'string' ? value.slice(0, 10) : value instanceof Date ? value.toISOString().slice(0, 10) : toText(value);
   return <input {...common} type={kind} defaultValue={text} />;
 }

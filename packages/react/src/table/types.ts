@@ -29,6 +29,10 @@ export type TableSlot =
   | 'detail'
   | 'group'
   | 'editor'
+  /** The condition field of a column's filter menu: `render.filterCondition` gets `props` = `{ label, value, options, onChange }`. */
+  | 'filterCondition'
+  /** The rows-per-page field in the footer: `render.pageSize` gets `props` = `{ label, value, options, onChange }`. */
+  | 'pageSize'
   | 'empty'
   | 'loading'
   | 'totals'

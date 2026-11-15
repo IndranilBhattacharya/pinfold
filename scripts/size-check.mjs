@@ -69,7 +69,7 @@ const BUDGETS = [
   ['packages/react/dist/empty/index.js', 6],
   ['packages/react/dist/timeline/index.js', 6],
   ['packages/react/dist/rating/index.js', 6],
-  ['packages/react/dist/table/index.js', 35], // a data grid: filters, groups, virtual rows, editing, column state
+  ['packages/react/dist/table/index.js', 38.7], // a data grid: filters, groups, virtual rows, editing, column state; 2026-11-15 Pinfold fields inside (loader for Select/Input, CheckMark): 33.97 -> 35.22
   ['packages/react/dist/datepicker/index.js', 23.5],
   ['packages/react/dist/calendar/index.js', 10],
   ['packages/react/dist/command/index.js', 10],
@@ -77,7 +77,7 @@ const BUDGETS = [
   ['packages/react/dist/combobox/index.js', 22.5], // the select's listbox engine plus the overlay layer
   ['packages/react/dist/select/index.js', 19.5], // the overlay layer (top layer, flip, dismiss stack), shared with menu, which also carries the trigger button
   ['packages/react/dist/stepper/index.js', 8], // renders Pinfold buttons (Back, Next, Finish) and the step panels
-  ['packages/react/dist/pagination/index.js', 7], // page size select, go to page, summary, sliding cursor, cursor-paged mode
+  ['packages/react/dist/pagination/index.js', 8.3], // page size select, go to page, summary, sliding cursor, cursor-paged mode; 2026-11-15 the fields load a Pinfold Select/Input on first use: 6.90 -> 7.54
   ['packages/react/dist/breadcrumb/index.js', 17], // renders Pinfold menus (crumb menus, collapsed crumbs), with the overlay layer
   ['packages/react/dist/tabs/index.js', 9.9], // close and add, link tabs, overflow fades; mouse drag and wheel scrolling, reveal without moving the page (8.99 measured)
   ['packages/react/dist/otp/index.js', 9.5],
@@ -134,7 +134,7 @@ const BUDGETS = [
   ['packages/css/dist/tabs.css', 3.4], // five variants, four placements, overflow fades, close and add; room for the indicator's shadow, drag rules (3.06 measured)
   ['packages/css/dist/otp.css', 2],
   ['packages/css/dist/number.css', 2],
-  ['packages/css/dist/slider.css', 2.5], // three variants (line, bar, minimal), step dots, marks, value bubble
+  ['packages/css/dist/slider.css', 2.8], // pack edge and depth on the knob (2026-11-15: 2.52); three variants (line, bar, minimal), step dots, marks, value bubble
   ['packages/css/dist/toolbar.css', 2],
   ['packages/css/dist/toggle.css', 2],
   ['packages/css/dist/switch.css', 2],

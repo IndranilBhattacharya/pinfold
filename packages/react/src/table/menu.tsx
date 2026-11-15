@@ -2,6 +2,8 @@ import * as React from 'react';
 import { GRID_FILTER_OPS, foldText, toText, type GridColumnType, type GridDistinct, type GridFilter, type GridFilterOp } from '@pinfold/core';
 import { restoreFocus, useFloating, useMounted, useOverlayLayer } from '../overlay';
 import { PausedInput } from './parts';
+import { CheckMark } from '../checkmark';
+import { SubInput, SubSelect, type SubSelectProps } from '../subcontrols';
 import type { TableLabels } from './types';
 
 /**
@@ -112,6 +114,8 @@ export interface ColumnMenuProps {
   renderValue?: (item: GridDistinct) => React.ReactNode;
   /** Your own filter control in place of the built-in one. */
   custom?: React.ReactNode;
+  /** The condition field (`render.filterCondition`), else a Pinfold Select. */
+  renderCondition?: (props: SubSelectProps) => React.ReactNode;
 }
 
 const MAX_VALUES = 400;
@@ -126,7 +130,7 @@ export function ColumnMenu(props: ColumnMenuProps): React.ReactElement | null {
   );
 }
 
-function MenuBody({ title, type, cls, labels: L, onClose, sort, onSort, pinned, onPin, onHide, grouped, onGroup, filter, setFilter, values, renderValue, custom }: ColumnMenuProps): React.ReactElement {
+function MenuBody({ title, type, cls, labels: L, onClose, sort, onSort, pinned, onPin, onHide, grouped, onGroup, filter, setFilter, values, renderValue, custom, renderCondition }: ColumnMenuProps): React.ReactElement {
   const item = (icon: React.ReactNode, text: string, onClick: () => void, pressed?: boolean, keep?: boolean) => (
     <button
       type="button"
@@ -161,7 +165,7 @@ function MenuBody({ title, type, cls, labels: L, onClose, sort, onSort, pinned, 
       ) : null}
       {setFilter ? (
         <div role="group" aria-label={L.filter ? L.filter(title) : `Filter ${title}`} className={cls('pinfold-table__menuFilter')}>
-          {custom ?? <FilterBody type={type} title={title} cls={cls} labels={L} filter={filter} setFilter={setFilter} values={values} renderValue={renderValue} />}
+          {custom ?? <FilterBody type={type} title={title} cls={cls} labels={L} filter={filter} setFilter={setFilter} values={values} renderValue={renderValue} renderCondition={renderCondition} />}
           {filter ? (
             <button type="button" className={cls('pinfold-table__menuClear')} onClick={() => setFilter(undefined)}>
               {L.clearFilter ?? 'Clear filter'}
@@ -173,13 +177,15 @@ function MenuBody({ title, type, cls, labels: L, onClose, sort, onSort, pinned, 
   );
 }
 
-interface FilterBodyProps extends Pick<ColumnMenuProps, 'type' | 'title' | 'cls' | 'labels' | 'filter' | 'values' | 'renderValue'> {
+interface FilterBodyProps extends Pick<ColumnMenuProps, 'type' | 'title' | 'cls' | 'labels' | 'filter' | 'values' | 'renderValue' | 'renderCondition'> {
   setFilter: (value: unknown, op?: GridFilterOp) => void;
 }
 
 /** A condition (by type) over a searchable list of the column's values with checkboxes. */
-function FilterBody({ type, title, cls, labels: L, filter, setFilter, values, renderValue }: FilterBodyProps): React.ReactElement {
+function FilterBody({ type, title, cls, labels: L, filter, setFilter, values, renderValue, renderCondition }: FilterBodyProps): React.ReactElement {
   const [query, setQuery] = React.useState('');
+  // A condition picked before its value is typed: there is no filter yet to hold it.
+  const [pendingOp, setPendingOp] = React.useState<GridFilterOp | null>(null);
   // Read once per opening: the list must not reshuffle while boxes are being ticked.
   const all = React.useMemo(() => (values ? values() : []), []); // eslint-disable-line react-hooks/exhaustive-deps
   const listed = filter && (filter.op === 'in' || (filter.op === undefined && Array.isArray(filter.value))) ? new Set((filter.value as unknown[]).map((v) => foldText(toText(v)))) : null;
@@ -204,10 +210,11 @@ function FilterBody({ type, title, cls, labels: L, filter, setFilter, values, re
 
   const ops = GRID_FILTER_OPS[type].filter((o) => o !== 'in' && o !== 'notIn');
   const conditional = !!filter && !listed && !excluded;
-  const op: GridFilterOp = conditional ? filter!.op ?? ops[0] : ops[0];
+  const op: GridFilterOp = conditional ? filter!.op ?? ops[0] : pendingOp ?? ops[0];
   const input = type === 'number' ? 'number' : type === 'date' ? 'date' : 'text';
   const [a, b] = conditional ? (Array.isArray(filter!.value) ? (filter!.value as unknown[]) : [filter!.value, '']) : ['', ''];
   const setCondition = (nextOp: GridFilterOp, first: unknown, second: unknown) => {
+    setPendingOp(nextOp);
     if (nextOp === 'empty' || nextOp === 'notEmpty') return setFilter(true, nextOp);
     if (nextOp === 'between') return setFilter(first === '' && second === '' ? undefined : [first, second], nextOp);
     setFilter(first === '' || first === undefined ? undefined : type === 'boolean' ? first === 'true' : first, nextOp);
@@ -218,13 +225,16 @@ function FilterBody({ type, title, cls, labels: L, filter, setFilter, values, re
     <>
       {type !== 'boolean' && type !== 'enum' ? (
         <div className={cls('pinfold-table__menuCondition')}>
-          <select aria-label={`${label}: ${L.condition ?? 'condition'}`} className={cls('pinfold-table__filterInput')} value={op} onChange={(e) => setCondition(e.target.value as GridFilterOp, a ?? '', b ?? '')}>
-            {ops.map((o) => (
-              <option key={o} value={o}>
-                {L.operators?.[o] ?? OP_LABEL[o]}
-              </option>
-            ))}
-          </select>
+          {(() => {
+            const condition: SubSelectProps = {
+              label: `${label}: ${L.condition ?? 'condition'}`,
+              className: cls('pinfold-table__filterInput'),
+              value: op,
+              options: ops.map((o) => ({ value: o, label: L.operators?.[o] ?? OP_LABEL[o] })),
+              onChange: (next) => setCondition(next as GridFilterOp, a ?? '', b ?? ''),
+            };
+            return renderCondition ? renderCondition(condition) : <SubSelect {...condition} />;
+          })()}
           {op === 'empty' || op === 'notEmpty' ? null : (
             <PausedInput type={input} aria-label={`${label}: ${L.value ?? 'value'}`} placeholder={L.value ?? 'Value'} className={cls('pinfold-table__filterInput')} value={toText(a ?? '')} onCommit={(v) => setCondition(op, v, b ?? '')} />
           )}
@@ -236,12 +246,11 @@ function FilterBody({ type, title, cls, labels: L, filter, setFilter, values, re
       {values ? (
         <>
           {all.length > 8 ? (
-            <input type="search" aria-label={`${L.searchValues ?? 'Search values'}: ${title}`} placeholder={L.searchValues ?? 'Search values'} className={cls('pinfold-table__filterInput')} value={query} onChange={(e) => setQuery(e.target.value)} />
+            <SubInput type="search" label={`${L.searchValues ?? 'Search values'}: ${title}`} placeholder={L.searchValues ?? 'Search values'} className={cls('pinfold-table__filterInput')} value={query} onChange={setQuery} />
           ) : null}
           <label className={cls('pinfold-table__menuValue')} data-all="">
-            <input
+            <CheckMark
               ref={head}
-              type="checkbox"
               checked={allOn}
               disabled={!shown.length}
               onChange={() => {
@@ -256,8 +265,7 @@ function FilterBody({ type, title, cls, labels: L, filter, setFilter, values, re
           <div className={cls('pinfold-table__menuValues')} role="group" aria-label={L.values ?? 'Values'} tabIndex={-1}>
             {visible.map((d) => (
               <label key={d.key} className={cls('pinfold-table__menuValue')}>
-                <input
-                  type="checkbox"
+                <CheckMark
                   checked={isOn(d)}
                   onChange={() => {
                     const on = current();
@@ -298,12 +306,12 @@ export function ColumnsPanel({ cls, labels: L, anchor, open, onClose, columns, o
   const shown = q ? columns.filter((c) => foldText(c.title).includes(q)) : columns;
   return (
     <FloatingPanel open={open} anchor={anchor} onClose={onClose} label={L.columns ?? 'Columns'} placement="bottom-end" className={cls('pinfold-table__menu')}>
-      {columns.length > 8 ? <input type="search" aria-label={L.searchColumns ?? 'Search columns'} placeholder={L.searchColumns ?? 'Search columns'} className={cls('pinfold-table__filterInput')} value={query} onChange={(e) => setQuery(e.target.value)} /> : null}
+      {columns.length > 8 ? <SubInput type="search" label={L.searchColumns ?? 'Search columns'} placeholder={L.searchColumns ?? 'Search columns'} className={cls('pinfold-table__filterInput')} value={query} onChange={setQuery} /> : null}
       <div className={cls('pinfold-table__menuValues')} role="group" aria-label={L.columns ?? 'Columns'}>
         {shown.map((c) => (
           <div key={c.key} className={cls('pinfold-table__menuValue')}>
             <label>
-              <input type="checkbox" checked={!c.hidden} disabled={c.locked} onChange={(e) => onToggle(c.key, e.target.checked)} />
+              <CheckMark checked={!c.hidden} disabled={c.locked} onChange={(e) => onToggle(c.key, e.target.checked)} />
               <span className={cls('pinfold-table__menuValueText')}>{c.title}</span>
             </label>
             {(['start', 'end'] as const).map((side) => (
