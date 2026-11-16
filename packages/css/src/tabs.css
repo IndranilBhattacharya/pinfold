@@ -110,7 +110,7 @@ the panel. */
   :is([data-overflow-end], [data-overflow-bottom]) > .pinfold-tabs__scrollButton[data-scroll='forward'] { display: inline-grid; }
   [dir='rtl'] .pinfold-tabs__list { --pinfold-tab-md: to left; }
   /* A column scrolls up and down: its room for shadows is at the sides. */
-  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__list { --pinfold-tab-md: to bottom; flex-direction: column; overflow: hidden auto; padding-block: 0; margin-block: 0; padding-inline: var(--pinfold-tab-bleed); margin-inline: calc(var(--pinfold-tab-bleed) * -1); scroll-padding-block: 2.5rem; overscroll-behavior-block: contain; }
+  .pinfold-tabs[data-orientation='vertical'] .pinfold-tabs__list { --pinfold-tab-md: to bottom; flex-direction: column; overflow: hidden auto; padding-block: 0; margin-block: 0; padding-inline: var(--pinfold-tab-bleed); margin-inline: calc(var(--pinfold-tab-bleed) * -1); scroll-padding-block: 2.5rem; }
 
   .pinfold-tabs__tab {
     position: relative;

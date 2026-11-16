@@ -52,7 +52,6 @@ config writes `--pinfold-accordion-*` which wins through the var() fallback. */
   /* `dimensions.maxHeight` caps the root and scrolls the rows. */
   .pinfold-accordion[data-clamp] {
     overflow-y: auto;
-    overscroll-behavior: contain;
   }
 
   /* ------------------------------------------------------------------ sizes */
@@ -422,7 +421,6 @@ config writes `--pinfold-accordion-*` which wins through the var() fallback. */
   .pinfold-accordion[data-scroll] .pinfold-accordion__panel[data-state='open'] .pinfold-accordion__panel-inner {
     max-height: var(--pinfold-accordion-panel-max-height);
     overflow-y: auto;
-    overscroll-behavior: contain;
   }
 
   .pinfold-accordion__content {

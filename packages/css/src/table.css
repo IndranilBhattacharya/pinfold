@@ -45,7 +45,8 @@ figures. */
     block-size: var(--pinfold-table-height, auto);
     max-block-size: var(--pinfold-table-max-height, none);
     outline: none;
-    overscroll-behavior: contain;
+    /* Sideways only: a table never traps the page's own scrolling (a both-axes contain would, even with nothing to scroll). */
+    overscroll-behavior-x: contain;
     scrollbar-width: thin;
     scrollbar-color: color-mix(in oklab, var(--pinfold-color-text) 22%, transparent) transparent;
   }

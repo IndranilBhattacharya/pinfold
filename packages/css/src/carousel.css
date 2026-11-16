@@ -77,7 +77,7 @@ current one stretches into a pill in the tone. */
 
   /* vertical: a column that moves up and down. */
   .pinfold-carousel[data-orientation='vertical'] .pinfold-carousel__viewport { block-size: var(--pinfold-carousel-height, 24rem); }
-  .pinfold-carousel[data-orientation='vertical'] .pinfold-carousel__track { flex-direction: column; block-size: 100%; overflow: hidden auto; overscroll-behavior: contain; scroll-snap-type: y mandatory; }
+  .pinfold-carousel[data-orientation='vertical'] .pinfold-carousel__track { flex-direction: column; block-size: 100%; overflow: hidden auto; scroll-snap-type: y mandatory; }
   .pinfold-carousel[data-orientation='vertical'] .pinfold-carousel__slide { min-block-size: 0; }
   .pinfold-carousel[data-orientation='vertical']:is([data-variant='center'], [data-variant='coverflow'], [data-variant='stagger']) .pinfold-carousel__track { padding-block: 0; }
   .pinfold-carousel[data-orientation='vertical'][data-variant='coverflow'] .pinfold-carousel__slide[data-side='before'] { transform: translateY(18%) rotateX(-38deg) scale(0.82); }

@@ -21,7 +21,6 @@
     max-inline-size: var(--pinfold-scrollarea-max-width, 100%);
     padding: var(--pinfold-scrollarea-padding, 0);
     overflow: hidden auto;
-    overscroll-behavior: contain;
     border-radius: inherit;
     scrollbar-width: thin;
     scrollbar-color: color-mix(in oklab, var(--pinfold-color-text) 24%, transparent) transparent;
