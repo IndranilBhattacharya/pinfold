@@ -4,7 +4,7 @@
 
 # @pinfold/react
 
-**Build accessible React interfaces from a single config.**
+**Configure once. Ship everywhere.** The typed React component library driven by a single config object. Fully accessible, endlessly themeable, zero friction.
 
 [Documentation](https://pinfold.indranildev.in/docs) · [Components](https://pinfold.indranildev.in/docs/table) · [Theming](https://pinfold.indranildev.in/docs/theming) · [GitHub](https://github.com/IndranilBhattacharya/pinfold)
 

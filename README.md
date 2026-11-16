@@ -4,10 +4,9 @@
 
 # Pinfold
 
-**Build accessible React interfaces from a single config.**
+## Configure once. Ship everywhere.
 
-A typed component library for React. Each of its 51 accessible components, from data grids to date pickers,
-is driven by one configuration object: server-ready, themeable in any colour format, and customisable down to every part.
+The typed React component library driven by a single config object. Fully accessible, endlessly themeable, zero friction.
 
 [![npm](https://img.shields.io/npm/v/@pinfold/react?color=7c3aed&label=%40pinfold%2Freact)](https://www.npmjs.com/package/@pinfold/react)
 [![license](https://img.shields.io/npm/l/@pinfold/react?color=4f46e5)](LICENSE)
@@ -17,7 +16,7 @@ is driven by one configuration object: server-ready, themeable in any colour for
 
 [**Documentation**](https://pinfold.indranildev.in/docs) · [**Components**](https://pinfold.indranildev.in/docs/table) · [**Theming**](https://pinfold.indranildev.in/docs/theming) · [**AI and MCP**](https://pinfold.indranildev.in/docs/ai)
 
-<img src=".github/assets/banner.png" alt="Pinfold: build accessible React interfaces from a single config" width="100%" />
+<img src=".github/assets/banner.png" alt="Pinfold: configure once, ship everywhere" width="100%" />
 
 </div>
 
