@@ -1,6 +1,6 @@
-/* Pinfold — style packs. css'; <PinfoldProvider stylePack="glass"> (or data-pinfold-style="glass" on any
-element) A pack is only a token recipe: it re-points shape, depth, border, surface and texture tokens, so
-every component follows it with no per-component CSS. */
+/* Pinfold — style packs. import '@pinfold/css/core.css'; import '@pinfold/css/packs.css'; <PinfoldProvider
+stylePack="glass"> (or data-pinfold-style="glass" on any element) A pack is only a token recipe: it re-points
+shape, depth, border, surface and texture tokens, so every component follows it with no per-component CSS. */
 
 @layer pinfold.tokens, pinfold.reset, pinfold.components, pinfold.packs;
 

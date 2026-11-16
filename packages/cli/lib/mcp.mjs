@@ -1,7 +1,4 @@
-/**
- * 0). It answers from the installed @pinfold/core meta, so the docs always match the installed version and
- * nothing is hosted.
- */
+/** `npx pinfold mcp`: a local Model Context Protocol server over stdio (newline-delimited JSON-RPC 2.0). */
 import { createInterface } from 'node:readline';
 import { componentMetas, metaToMarkdown, toJsonSchema, validateConfig } from '@pinfold/core/meta';
 import { stylesFor } from './commands.mjs';

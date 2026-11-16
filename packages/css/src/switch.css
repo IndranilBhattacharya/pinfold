@@ -1,4 +1,5 @@
-/* Pinfold — switch. css): this is the track and thumb. */
+/* Pinfold — switch. The row, the input and the shared box are in field.css (core.css): this is the track and
+thumb. */
 
 @layer pinfold.components {
   .pinfold-switch {

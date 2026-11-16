@@ -1,4 +1,5 @@
-/* Pinfold — command palette. css, so import both), and key hints. */
+/* Pinfold — command palette. A raised panel on the surface tokens (packs reach it): a search row, the list (its
+rows and marks come from select.css, so import both), and key hints. */
 
 @layer pinfold.components {
   .pinfold-command {

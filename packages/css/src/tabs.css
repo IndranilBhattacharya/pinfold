@@ -1,6 +1,8 @@
 /* Pinfold — tabs. One indicator slides to the selected tab: the script writes its box
 (--pinfold-tab-ix/iy/iw/ih) on the list and marks it data-placed; until then (first paint, no script) the
-selected tab draws the indicator itself. */
+selected tab draws the indicator itself. segmented: a raised pill in a tray. underline: a bar under a
+hairline. pills: the tone's solid fill. soft: a tint of the tone. enclosed: folder tabs over a card that holds
+the panel. */
 
 @layer pinfold.components {
   .pinfold-tabs {
@@ -43,8 +45,10 @@ selected tab draws the indicator itself. */
     flex: 0 1 auto;
     gap: 0.25rem;
     min-inline-size: 0;
-    /* A scrolling box clips at its padding edge. Never along the row: a box reaching past the tabs' ends would
-    make a scrolling container around the tabs scroll sideways. */
+    /* A scrolling box clips at its padding edge. Across the row (above and below it) the list keeps room for the
+    indicator's shadow and the focus ring: padding taken back by a negative margin, so the tabs sit where they
+    did. Never along the row: a box reaching past the tabs' ends would make a scrolling container around the
+    tabs scroll sideways. */
     --pinfold-tab-bleed: 0.75rem;
     --pinfold-tab-mask: linear-gradient(var(--pinfold-tab-md, to right), transparent, currentColor var(--pinfold-tab-fs), currentColor calc(100% - var(--pinfold-tab-fe)), transparent);
     padding-block: var(--pinfold-tab-bleed);

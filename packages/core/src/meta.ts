@@ -1,4 +1,7 @@
-/** `@pinfold/core/meta`. txt, playground) imports it directly. */
+/**
+ * `@pinfold/core/meta`. A separate entry so apps never ship it: the React adapter loads it only in
+ * development, and tooling (docs, CLI, schema, llms.txt, playground) imports it directly.
+ */
 
 import { accordionMeta } from './accordion.meta';
 import { buttonMeta } from './button.meta';

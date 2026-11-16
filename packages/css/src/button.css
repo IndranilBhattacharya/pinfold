@@ -72,7 +72,8 @@ values). */
   }
 
   /* ---------------------------------------------------------------- variants */
-  /* css): edge, depth, the pane under tinted variants, the pressed transform, the backdrop and the texture. */
+  /* Style packs reach buttons through the control tokens (packs.css): edge, depth, the pane under tinted
+  variants, the pressed transform, the backdrop and the texture. */
   /* Solid: the tone fill with a faint sheen toward the top, a hairline highlight on the top edge
      and a two-layer shadow tinted with the tone, so it sits on the page instead of on top of it. */
   .pinfold-button[data-variant='solid'] {

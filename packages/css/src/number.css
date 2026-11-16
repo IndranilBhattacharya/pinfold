@@ -86,7 +86,8 @@ number or side by side after it. */
 
   .pinfold-number__decrement,
   .pinfold-number__increment {
-    --pinfold-num-b: calc(var(--pinfold-num-h) - var(--pinfold-num-inset) * 2 - var(--pinfold-border-width) * 2);
+    /* Never under 24px, the WCAG 2.2 target size, even in a small field. */
+    --pinfold-num-b: max(1.5rem, calc(var(--pinfold-num-h) - var(--pinfold-num-inset) * 2 - var(--pinfold-border-width) * 2));
     display: inline-grid;
     flex-shrink: 0;
     place-items: center;

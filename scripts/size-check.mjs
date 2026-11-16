@@ -111,7 +111,7 @@ const BUDGETS = [
   ['packages/css/dist/fileupload.css', 3],
   ['packages/css/dist/treeview.css', 3],
   ['packages/css/dist/cursor.css', 2.5],
-  ['packages/css/dist/navbar.css', 3],
+  ['packages/css/dist/navbar.css', 3.2], // panels inside a blurring bar sit on the page colour (3.05)
   ['packages/css/dist/appshell.css', 2],
   ['packages/css/dist/scrollarea.css', 2],
   ['packages/css/dist/navmenu.css', 2.5],

@@ -54,6 +54,16 @@
     -webkit-backdrop-filter: saturate(1.6) blur(14px);
     backdrop-filter: saturate(1.6) blur(14px);
   }
+  /* A panel inside a bar that blurs what is under it cannot blur the page (a nested backdrop-filter only sees
+     the bar), so a translucent surface would show the page sharp: the surface sits on the page colour. */
+  .pinfold-navbar:is([data-variant='glass'], [data-variant='floating']) {
+    --pinfold-panel-base: var(--pinfold-color-bg);
+    --pinfold-panel-overlay: linear-gradient(var(--pinfold-control-surface, var(--pinfold-color-raised)) 0 0);
+  }
+  .pinfold-navbar:is([data-variant='glass'], [data-variant='floating']) .pinfold-navbar__panel {
+    background-color: var(--pinfold-panel-base);
+    background-image: var(--pinfold-texture, none), var(--pinfold-panel-overlay);
+  }
   /* A floating bar that shrinks draws in toward the middle. */
   .pinfold-navbar[data-variant='floating'][data-shrink][data-scrolled] .pinfold-navbar__inner { max-inline-size: min(var(--pinfold-navbar-max-width, 64rem), 46rem); box-shadow: var(--pinfold-shadow-lg); }
   @media (prefers-reduced-transparency: reduce) {

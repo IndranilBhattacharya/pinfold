@@ -1,7 +1,4 @@
-/**
- * md). Each builds a Plan from what `detect()` found, prints it, and applies it only with consent (`--yes` or
- * a prompt).
- */
+/** init, add, theme and doctor (docs/CLI.md). */
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, posix, relative } from 'node:path';

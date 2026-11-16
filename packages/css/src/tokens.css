@@ -386,8 +386,8 @@
   [data-pinfold-density="comfortable"] { --pinfold-density: 1; }
   [data-pinfold-density="spacious"] { --pinfold-density: 1.25; }
 
-  /* Control sizes, shared by every control. <name>`, then the provider, then md), which redeclares the whole set
-  on it. */
+  /* Control sizes, shared by every control. Each component writes its resolved size as `data-size` (config, then
+  `defaults.<name>`, then the provider, then md), which redeclares the whole set on it. */
   :root,
   [data-size="md"] {
     --pinfold-control-height: 2.5rem;

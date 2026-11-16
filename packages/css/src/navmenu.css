@@ -100,8 +100,9 @@ descriptions. */
     inline-size: max-content;
     max-inline-size: calc(100vw - 1rem);
     padding: var(--pinfold-navmenu-panel-padding, 0.5rem);
-    background-color: var(--pinfold-control-surface, var(--pinfold-color-raised));
-    background-image: var(--pinfold-texture);
+    /* Inside a bar that blurs (it sets --pinfold-panel-base), the surface sits on the page colour. */
+    background-color: var(--pinfold-panel-base, var(--pinfold-control-surface, var(--pinfold-color-raised)));
+    background-image: var(--pinfold-texture, none), var(--pinfold-panel-overlay, none);
     border: var(--pinfold-border-width) solid var(--pinfold-nm-edge);
     border-radius: calc(var(--pinfold-nm-radius) + 0.5rem);
     box-shadow: var(--pinfold-shadow-lg);
