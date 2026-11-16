@@ -54,6 +54,8 @@ number or side by side after it. */
     flex: 1 1 auto;
     box-sizing: border-box;
     inline-size: 100%;
+    /* The whole height of the field: a press anywhere in it lands in the input (WCAG 2.2 target size). */
+    align-self: stretch;
     min-inline-size: 2ch;
     margin: 0;
     padding-inline: calc(var(--pinfold-control-pad-x) * 0.6);
