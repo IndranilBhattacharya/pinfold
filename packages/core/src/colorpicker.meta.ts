@@ -94,7 +94,7 @@ export const colorpickerMeta: ComponentMeta = {
   examples: [
     {
       title: 'Presets in rows, checked for contrast',
-      code: "<BrandColor label=\"Accent\" description=\"Used for buttons and links.\"\n  swatches={[{ label: 'Brand', colors: [{ value: '#4f46e5', label: 'Indigo' }, '#0ea5e9'] }, { label: 'Neutrals', colors: ['#0f172a', '#64748b', '#e2e8f0'] }]}\n  validate={(c) => (contrast(c, '#fff') < 3 ? { status: 'warning', message: 'Low contrast on white' } : null)} />",
+      code: "import { defineColorPicker } from '@pinfold/react/colorpicker';\n\nconst BrandColor = defineColorPicker();\n\n<BrandColor label=\"Accent\" description=\"Used for buttons and links.\"\n  swatches={[{ label: 'Brand', colors: [{ value: '#4f46e5', label: 'Indigo' }, '#0ea5e9'] }, { label: 'Neutrals', colors: ['#0f172a', '#64748b', '#e2e8f0'] }]}\n  validate={(c) => (contrast(c, '#fff') < 3 ? { status: 'warning', message: 'Low contrast on white' } : null)} />",
     },
     {
       title: 'A brand colour in OKLCH',

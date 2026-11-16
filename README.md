@@ -4,10 +4,10 @@
 
 # Pinfold
 
-**Config in. Interfaces out.**
+**Build accessible React interfaces from a single config.**
 
-Accessible React components from one typed object: data grids, date pickers, command palettes and more.
-Every part stays yours to restyle.
+A typed component library for React. Each of its 51 accessible components, from data grids to date pickers,
+is driven by one configuration object: server-ready, themeable in any colour format, and customisable down to every part.
 
 [![npm](https://img.shields.io/npm/v/@pinfold/react?color=7c3aed&label=%40pinfold%2Freact)](https://www.npmjs.com/package/@pinfold/react)
 [![license](https://img.shields.io/npm/l/@pinfold/react?color=4f46e5)](LICENSE)
@@ -17,7 +17,7 @@ Every part stays yours to restyle.
 
 [**Documentation**](https://pinfold.indranildev.in/docs) · [**Components**](https://pinfold.indranildev.in/docs/table) · [**Theming**](https://pinfold.indranildev.in/docs/theming) · [**AI and MCP**](https://pinfold.indranildev.in/docs/ai)
 
-<img src=".github/assets/banner.png" alt="Pinfold: config in, interfaces out" width="100%" />
+<img src=".github/assets/banner.png" alt="Pinfold: build accessible React interfaces from a single config" width="100%" />
 
 </div>
 
@@ -56,11 +56,11 @@ correct ARIA. The config is typed against your rows, so a misspelt column is a c
 ## Three ways to use a component
 
 ```tsx
-// 1. A preset: one look, used anywhere
+// 1. A preset (the default): one look, used anywhere, Server Components included
 export const Danger = defineButton({ variant: 'soft', tone: 'danger' });
 {rows.map((r) => <Danger key={r.id} label="Delete" onClick={() => remove(r.id)} />)}
 
-// 2. A hook: the component and its controller
+// 2. A hook, in a client component: the component and its controller
 const Faq = useAccordion({ items, mode: 'multiple' });
 <button onClick={Faq.openAll}>Expand all</button>
 <Faq />

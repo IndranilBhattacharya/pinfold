@@ -4,7 +4,7 @@
 
 # @pinfold/react
 
-**Config in. Interfaces out.** Accessible React components from one typed object.
+**Build accessible React interfaces from a single config.**
 
 [Documentation](https://pinfold.indranildev.in/docs) · [Components](https://pinfold.indranildev.in/docs/table) · [Theming](https://pinfold.indranildev.in/docs/theming) · [GitHub](https://github.com/IndranilBhattacharya/pinfold)
 
@@ -48,7 +48,7 @@ Every component has the same three forms with the same config:
 | | |
 | --- | --- |
 | `define<Name>(config)` | A preset you use as a tag. Server Components included. |
-| `use<Name>(config)` | The component and its controller, e.g. `Faq.openAll()`, `Grid.downloadCsv()`. |
+| `use<Name>(config)` | In a client component: the component and its controller, e.g. `Faq.openAll()`, `Grid.downloadCsv()`. Hooks cannot run in Server Components. |
 | `<Name {...config} />` | The plain tag, when one instance is all you need. |
 
 ## Make it yours

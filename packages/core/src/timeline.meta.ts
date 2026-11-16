@@ -101,7 +101,7 @@ export const timelineMeta: ComponentMeta = {
   ],
   cssVariables: ['--pinfold-timeline-marker-size', '--pinfold-timeline-line-width', '--pinfold-timeline-gap', '--pinfold-timeline-opposite-width'],
   examples: [
-    { title: 'Progress with a status per event', code: "<History label=\"Deployment\" variant=\"icon\" connector=\"joined\" items={[\n  { title: 'Build', status: 'complete' },\n  { title: 'Tests', status: 'error', description: '2 failed' },\n  { title: 'Deploy', status: 'upcoming' },\n]} />" },
+    { title: 'Progress with a status per event', code: "import { defineTimeline } from '@pinfold/react/timeline';\n\nconst History = defineTimeline();\n\n<History label=\"Deployment\" variant=\"icon\" connector=\"joined\" items={[\n  { title: 'Build', status: 'complete' },\n  { title: 'Tests', status: 'error', description: '2 failed' },\n  { title: 'Deploy', status: 'upcoming' },\n]} />" },
     { title: 'Times on the other side', code: "<History label=\"Activity\" timePlacement=\"opposite\" items={events} />" },
     { title: 'Order history', code: "import { defineTimeline } from '@pinfold/react/timeline';\n\nexport const History = defineTimeline();\n\n<History label=\"Order history\" pending items={[\n  { title: 'Ordered', time: '2026-11-02T10:15' },\n  { title: 'Shipped', time: '2026-11-04', tone: 'success' },\n  { title: 'Out for delivery' },\n]} />" },
   ],

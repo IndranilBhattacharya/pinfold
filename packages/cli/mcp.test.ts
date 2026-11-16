@@ -42,6 +42,9 @@ describe('pinfold mcp', () => {
     expect(text).toContain("import '@pinfold/css/pagination.css';");
     expect(text).toContain('npx shadcn add @pinfold/table');
     expect(text).toContain('defineTable');
+    // The preset comes first, and the hook is named as the client-only choice.
+    expect(text.indexOf('defineTable')).toBeLessThan(text.indexOf('useTable'));
+    expect(text).toMatch(/client component that needs the controller/);
     expect(call('get_install_steps').content[0].text).toContain('npx pinfold init');
   });
 

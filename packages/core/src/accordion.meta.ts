@@ -344,8 +344,8 @@ export const accordionMeta: ComponentMeta = {
       code: "import { defineAccordion } from '@pinfold/react/accordion';\n\nexport const Faq = defineAccordion({ variant: 'separated', mode: 'multiple' });\n\n// a loop, a Server Component, anywhere\n{categories.map((c) => <Faq key={c.id} items={c.questions} />)}",
     },
     {
-      title: 'Client hook',
-      code: "import { useAccordion } from '@pinfold/react/accordion';\n\nexport function Faq() {\n  const Faq = useAccordion({ items: [{ title: 'What is Pinfold?', content: 'Config in, accessible UI out.' }] });\n  return <Faq />;\n}",
+      title: 'Hook: the controller, in a client component',
+      code: "'use client';\nimport { useAccordion } from '@pinfold/react/accordion';\n\n// Hooks run in client components only. The hook also returns a controller: openAll, closeAll, toggle, value…\nexport function FaqPage() {\n  const Faq = useAccordion({ mode: 'multiple', items: [{ title: 'What is Pinfold?', content: 'Accessible React components from one typed config.' }] });\n  return (\n    <>\n      <button onClick={Faq.openAll}>Expand all</button>\n      <Faq />\n    </>\n  );\n}",
     },
     {
       title: 'Server Component',

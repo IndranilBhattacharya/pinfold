@@ -105,7 +105,7 @@ export const spinnerMeta: ComponentMeta = {
   examples: [
     { title: 'Preset', code: "import { defineSpinner } from '@pinfold/react/spinner';\n\nexport const InlineSpinner = defineSpinner({ variant: 'dots', label: '', tone: 'current', size: 'sm' });\n// <p><InlineSpinner /> Loading results…</p>" },
     { title: 'Variants', code: "export const Track = defineSpinner({ variant: 'track', thickness: 'thick' });\nexport const Calm = defineSpinner({ variant: 'pulse', speed: 'slow', tone: 'neutral' });" },
-    { title: 'Client hook', code: "import { useSpinner } from '@pinfold/react/spinner';\n\nconst Loading = useSpinner({ label: 'Loading invoices' });\nreturn <Loading />;" },
-    { title: 'Decorative, next to text', code: "const Loading = useSpinner({ label: '', tone: 'current' });\nreturn <p><Loading /> Loading results…</p>;" },
+    { title: 'Named, so a screen reader announces it', code: "import { defineSpinner } from '@pinfold/react/spinner';\n\nconst Loading = defineSpinner({ label: 'Loading invoices' });\n\n<Loading />" },
+    { title: 'Decorative, next to text', code: "const Loading = defineSpinner({ label: '', tone: 'current' });\n\n<p><Loading /> Loading results…</p>" },
   ],
 };

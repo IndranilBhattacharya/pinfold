@@ -47,7 +47,7 @@ const TOOLS = [
   },
   {
     name: 'get_component',
-    description: 'Full reference for one component: usage (client hook and Server Component), every option with defaults, rows, slots, keyboard, ARIA.',
+    description: 'Full reference for one component: usage (a preset for anywhere, a hook for a client component that needs the controller), every option with defaults, rows, slots, keyboard, ARIA.',
     inputSchema: nameArg,
     run: ({ name }) => metaToMarkdown(required(name)),
   },
@@ -88,7 +88,7 @@ const TOOLS = [
         'By hand:',
         '1. `npm install @pinfold/react @pinfold/css`',
         `2. In the app entry, once: ${css.map((s) => `import '@pinfold/css/${s}.css';`).join(' ')}`,
-        `3. Client Component: \`const X = use${pascal}({ ... }); return <X />\`. Anywhere, Server Components included: \`export const X = define${pascal}({ ... })\`. Import from \`${meta?.importPath ?? '@pinfold/react/<component>'}\`.`,
+        `3. Default, anywhere (Server Components included): \`export const X = define${pascal}({ ... })\`, defined once outside components, then \`<X />\`. Only in a client component that needs the controller: \`const X = use${pascal}({ ... })\`. Import from \`${meta?.importPath ?? '@pinfold/react/<component>'}\`.`,
         '',
         `With shadcn: add \`"registries": { "@pinfold": "https://pinfold.indranildev.in/r/{name}.json" }\` to components.json, then \`npx shadcn add @pinfold/${n}\`.`,
       ].join('\n');
@@ -114,7 +114,7 @@ export function handle(message) {
         protocolVersion: params.protocolVersion ?? '2025-06-18',
         capabilities: { tools: {}, resources: {} },
         serverInfo: { name: 'pinfold', version: VERSION },
-        instructions: 'Pinfold UI reference for the installed version. Find components with search_components (or list_components), read get_component before writing Pinfold code, check a config with validate_config, and use get_install_steps for commands and stylesheets.',
+        instructions: 'Pinfold UI reference for the installed version. Find components with search_components (or list_components), read get_component before writing Pinfold code, check a config with validate_config, and use get_install_steps for commands and stylesheets. Prefer a define<Name> preset, defined once outside components: it works everywhere, Server Components included. Use the use<Name> hook only in a client component that needs the controller; hooks cannot run in Server Components.',
       });
     case 'ping':
       return reply({});

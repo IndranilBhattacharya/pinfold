@@ -140,6 +140,6 @@ export const menuMeta: ComponentMeta = {
       title: 'Managed selection, search, rich rows',
       code: "<Menu\n  trigger={{ label: 'Assign' }}\n  searchable\n  selectionMode=\"multiple\"\n  value={assignees}\n  onValueChange={setAssignees}\n  header={<strong>Assign to</strong>}\n  items={people.map((p) => ({ id: p.id, label: p.name, description: p.email, startContent: <Avatar name={p.name} size=\"sm\" /> }))}\n/>",
     },
-    { title: 'Context menu', code: "const Canvas = useMenu({ mode: 'context', label: 'Canvas', trigger: <div className=\"canvas\" tabIndex={0} />, items });\nreturn <Canvas />;" },
+    { title: 'Context menu', code: "const Canvas = defineMenu({ mode: 'context' });\n\n<Canvas label=\"Canvas\" trigger={<div className=\"canvas\" tabIndex={0} />} items={items} />" },
   ],
 };
