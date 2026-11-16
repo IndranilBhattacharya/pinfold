@@ -39,7 +39,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@clack/prompts": "^1.8.1",
+    "@clack/prompts": "^1.9.0",
     "@pinfold/core": "1.1.0"
   }
 }
