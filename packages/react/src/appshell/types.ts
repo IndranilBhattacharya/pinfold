@@ -21,6 +21,8 @@ export interface AppShellDimensions {
   gap?: Length;
   /** Default: as wide as what is in it (16rem as a drawer). */
   sidebarWidth?: Length;
+  /** Width in collapsed inline mode (default 3.5rem). */
+  sidebarCollapsedWidth?: Length;
   /** Default 18rem. */
   asideWidth?: Length;
   /** Widest the page content gets; it is centred beyond that. */

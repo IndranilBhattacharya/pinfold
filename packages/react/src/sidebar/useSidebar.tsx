@@ -169,6 +169,7 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
           followLink(event, item.href, own ? (href) => own(href, event) : ctx.navigate, item.target);
         }
       };
+      const itemCtx = { ...item, key, depth, current: isCurrent, open: section ? open : undefined };
       const common = {
         className: cls('pinfold-sidebar__link'),
         title: collapsed && depth === 0 ? item.label : undefined,
@@ -177,6 +178,7 @@ export function useSidebar(input: SidebarConfig): SidebarComponent {
         'data-holds-current': dataAttr(section && trail.includes(key)),
         'data-depth': depth,
         onClick,
+        [ITEM]: itemCtx,
       };
       const control =
         item.href !== undefined && !section && !item.disabled

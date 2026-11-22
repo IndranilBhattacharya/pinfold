@@ -10,8 +10,17 @@ import { useOverlayLayer } from '../overlay';
 import type { AppShellApi, AppShellComponent, AppShellConfig, AppShellRootProps, AppShellSlot, AppShellState } from './types';
 
 const MENU_ICON = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" focusable="false" aria-hidden="true">
-    <path d="M4 7h16M4 12h16M4 17h16" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" focusable="false" aria-hidden="true">
+    <line x1="4" x2="20" y1="12" y2="12" />
+    <line x1="4" x2="20" y1="6" y2="6" />
+    <line x1="4" x2="20" y1="18" y2="18" />
+  </svg>
+);
+
+const PANEL_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" focusable="false" aria-hidden="true">
+    <rect width="18" height="18" x="3" y="3" rx="2" />
+    <path d="M9 3v18" />
   </svg>
 );
 
@@ -210,10 +219,8 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
     const { children, ...rest } = rootProps ?? {};
     const slot = (name: AppShellSlot, content: React.ReactNode, tag: string, own: PropsBag = {}) =>
       renderSlot(config, name, slotProps(config, name, { className: cls(`pinfold-appshell__${name}`), ...own }), state, content, (p, c) => React.createElement(tag, p, c));
-    const isInlineCollapsed = !drawer && Boolean(config.sidebarCollapsible) && collapsed;
-    const collapseStyle = isInlineCollapsed ? { '--pinfold-appshell-sidebar-width': 'auto' } : undefined;
     const vars = dimensionVars('appshell', config.dimensions);
-    const combinedStyle = vars || config.style || collapseStyle ? { ...vars, ...collapseStyle, ...config.style } : undefined;
+    const combinedStyle = vars || config.style ? { ...vars, ...config.style } : undefined;
     const rootBag = slotProps(
       config,
       'root',
@@ -226,7 +233,7 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
           ? slot(
               'navbar',
               <>
-                {showBuiltinTrigger ? slot('trigger', MENU_ICON, 'button', getTriggerProps()) : null}
+                {showBuiltinTrigger ? slot('trigger', !drawer && config.sidebarCollapsible ? PANEL_ICON : MENU_ICON, 'button', getTriggerProps()) : null}
                 {config.navbar}
               </>,
               'header',
@@ -273,7 +280,7 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
     (props) => render(props),
     () => ({
       /** A menu button of your own placing: there while the sidebar is a drawer, or to collapse an inline sidebar. */
-      SidebarTrigger: (props) => (live.current.canTrigger ? <button {...(live.current.getTriggerProps({ className: 'pinfold-appshell__trigger', ...props } as PropsBag) as React.ButtonHTMLAttributes<HTMLButtonElement>)}>{props.children ?? MENU_ICON}</button> : null),
+      SidebarTrigger: (props) => (live.current.canTrigger ? <button {...(live.current.getTriggerProps({ className: 'pinfold-appshell__trigger', ...props } as PropsBag) as React.ButtonHTMLAttributes<HTMLButtonElement>)}>{props.children ?? (live.current.drawer ? MENU_ICON : PANEL_ICON)}</button> : null),
     }),
   );
 }

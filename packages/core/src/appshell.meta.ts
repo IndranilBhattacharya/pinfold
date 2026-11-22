@@ -59,6 +59,7 @@ export const appshellMeta: ComponentMeta = {
       keys: {
         gap: { type: 'length', description: 'Space between the regions (default none: they meet at their edges).', group: 'appearance' },
         sidebarWidth: length('Default: as wide as what is in it (16rem as a drawer).'),
+        sidebarCollapsedWidth: length('Default 3.5rem in collapsed rail mode.'),
         asideWidth: length('Default 18rem.'),
         maxWidth: length('Widest the page content gets; it is centred beyond that.'),
         padding: length('Space around the page content.'),
@@ -87,7 +88,7 @@ export const appshellMeta: ComponentMeta = {
     { name: 'data-drawer', on: 'root', values: 'present while the sidebar is a drawer' },
     { name: 'data-sidebar-open', on: 'root', values: 'present while the drawer is open' },
   ],
-  cssVariables: ['--pinfold-appshell-sidebar-width', '--pinfold-appshell-aside-width', '--pinfold-appshell-max-width', '--pinfold-appshell-padding', '--pinfold-appshell-height'],
+  cssVariables: ['--pinfold-appshell-sidebar-width', '--pinfold-appshell-sidebar-collapsed-width', '--pinfold-appshell-aside-width', '--pinfold-appshell-max-width', '--pinfold-appshell-padding', '--pinfold-appshell-height'],
   examples: [
     {
       title: 'A bar, a sidebar and the page',

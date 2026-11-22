@@ -29,10 +29,17 @@
     grid-area: sidebar;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
     inline-size: var(--pinfold-appshell-sidebar-width, auto);
     min-inline-size: 0;
     outline: none;
     background-color: var(--pinfold-color-bg);
+  }
+  .pinfold-appshell[data-sidebar-collapsed]:not([data-drawer]) > .pinfold-appshell__sidebar {
+    inline-size: var(--pinfold-appshell-sidebar-collapsed-width, 3.5rem);
+  }
+  .pinfold-appshell[data-animate]:not([data-drawer]) > .pinfold-appshell__sidebar {
+    transition: inline-size var(--pinfold-duration-slow) var(--pinfold-ease-out);
   }
   .pinfold-appshell__sidebar > * { flex: 1 1 auto; min-block-size: 0; }
   /* The page scrolls: the sidebar stays under the bar, as tall as what is left of the viewport. */
