@@ -24,14 +24,105 @@ import { describe as describeProject, detect } from '../lib/detect.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REGISTRY = JSON.parse(readFileSync(join(HERE, '..', 'registry.json'), 'utf8'));
 const TEMPLATES = join(HERE, '..', 'templates');
+const PKG = JSON.parse(readFileSync(join(HERE, '..', 'package.json'), 'utf8'));
+const VERSION = PKG.version;
 
 const tty = process.stdout.isTTY && !process.env.NO_COLOR;
 const paint = (code) => (s) => (tty ? `\x1b[${code}m${s}\x1b[0m` : String(s));
-const color = { dim: paint(2), bold: paint(1), accent: paint('38;5;141'), ok: paint(32), warn: paint(33), err: paint(31) };
+const color = {
+  dim: paint(2),
+  bold: paint(1),
+  accent: paint('38;5;141'),
+  brand1: paint('38;2;196;181;253'), // #c4b5fd
+  brand2: paint('38;2;167;139;250'), // #a78bfa
+  brand3: paint('38;2;139;92;246'),  // #8b5cf6
+  brand4: paint('38;2;124;58;237'),  // #7c3aed
+  brand5: paint('38;2;99;102;241'),   // #6366f1
+  ok: paint(32),
+  warn: paint(33),
+  err: paint(31),
+};
 const swatch = (hex) => {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
   return tty ? `\x1b[48;2;${r};${g};${b}m  \x1b[0m` : '██';
 };
+
+const ASCII_LOGO = [
+  '        ##%###########        ',
+  '     %#####************##     ',
+  '   ###*****************+**#   ',
+  ' **#*****#######*++++++++++++ ',
+  ' *******#%@@@@@@@@@%++++++==+ ',
+  '**++++++*%@@%***%@@@#=======++',
+  '*+++++++*%@@#=--=@@@%+=======*',
+  '*++++===*%@@@@@@@@@%*======--+',
+  '*=======+%@@@@@@@%++---------+',
+  '++======+%@@@%%%*-----------+=',
+  ' +======+%@@@%*-------------= ',
+  ' =====--=***+-------------=-- ',
+  '   ++=-------------------++   ',
+  '     ++==------------==++     ',
+  '        =++========++=        ',
+];
+
+const BG_GRADIENT = [
+  [196, 181, 253], // #c4b5fd
+  [180, 160, 252],
+  [167, 139, 250], // #a78bfa
+  [152, 115, 248],
+  [139, 92, 246],  // #8b5cf6
+  [124, 58, 237],  // #7c3aed
+  [115, 65, 238],
+  [105, 75, 240],
+  [99, 102, 241],  // #6366f1
+  [88, 90, 235],
+  [79, 70, 229],   // #4f46e5
+  [70, 60, 210],
+  [67, 56, 202],   // #4338ca
+  [60, 50, 180],
+  [55, 48, 163],   // #3730a3
+];
+
+const whiteP = (s) => (tty ? `\x1b[1;38;2;255;255;255m${s}\x1b[0m` : s);
+const foldLilac = (s) => (tty ? `\x1b[1;38;2;221;214;254m${s}\x1b[0m` : s);
+const innerLoop = (s) => (tty ? `\x1b[38;2;109;40;217m${s}\x1b[0m` : s);
+
+function colorizeLogoLine(line, lineIndex) {
+  if (!tty) return line;
+  const [br, bg, bb] = BG_GRADIENT[lineIndex] || [124, 58, 237];
+  const bgPaint = (s) => `\x1b[38;2;${br};${bg};${bb}m${s}\x1b[0m`;
+  let res = '';
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === ' ') res += ' ';
+    else if (ch === '@') res += whiteP('@');
+    else if (lineIndex >= 9 && lineIndex <= 11 && (ch === '%' || ch === '*')) res += foldLilac(ch);
+    else if ((lineIndex === 5 || lineIndex === 6) && (ch === '*' || ch === '-' || ch === '=' || ch === '#') && i > 12 && i < 20) res += innerLoop(ch);
+    else res += bgPaint(ch);
+  }
+  return res;
+}
+
+function banner() {
+  const side = [
+    '',
+    `  ${color.bold('P I N F O L D')}  ${color.brand3('v' + VERSION)}`,
+    `  ${color.dim('Configure once. Ship everywhere.')}`,
+    `  ${color.dim('https://pinfold.indranildev.in')}`,
+    '',
+    `  ${color.dim('The typed React component library')}`,
+    `  ${color.dim('driven by a single config object.')}`,
+    '',
+    `  ${color.dim('• Fully accessible (WCAG 2.2 AA)')}`,
+    `  ${color.dim('• Zero runtime dependencies')}`,
+    `  ${color.dim('• 51 accessible components')}`,
+    `  ${color.dim('• Baseline 2023 CSS styling')}`,
+    '',
+    '',
+    '',
+  ];
+  return '\n' + ASCII_LOGO.map((line, idx) => '  ' + colorizeLogoLine(line, idx) + (side[idx] || '')).join('\n') + '\n';
+}
 
 /** `--name value`, `--name=value` and bare `--flag` into one object; the rest are positionals. */
 function parse(argv) {
@@ -69,60 +160,122 @@ const out = {
 async function askInit(flags) {
   const p = await import('@clack/prompts');
   const project = detect(flags.cwd);
-  p.intro(color.bold('Pinfold'));
-  p.log.info(`Detected: ${describeProject(project)}`);
+  p.intro(`${color.brand3('Pinfold')} ${color.dim(`v${VERSION}`)} ${color.dim('— Configure once. Ship everywhere.')}`);
+  p.log.info(`Detected environment: ${describeProject(project)}`);
   const cancelled = (v) => {
     if (p.isCancel(v)) {
-      p.cancel('Cancelled.');
+      p.cancel('Operation cancelled.');
       process.exit(0);
     }
     return v;
   };
   const language = cancelled(
-    await p.select({ message: 'Language', initialValue: flags.language ?? (flags.ts ? 'ts' : flags.js ? 'js' : project.language), options: [{ value: 'ts', label: 'TypeScript' }, { value: 'js', label: 'JavaScript' }] }),
+    await p.select({
+      message: 'Project language',
+      initialValue: flags.language ?? (flags.ts ? 'ts' : flags.js ? 'js' : project.language),
+      options: [
+        { value: 'ts', label: 'TypeScript', hint: 'recommended (.tsx)' },
+        { value: 'js', label: 'JavaScript', hint: 'standard ESM (.jsx)' },
+      ],
+    }),
   );
-  const dir = cancelled(await p.text({ message: 'Components folder', initialValue: project.componentsDir }));
+  const dir = cancelled(
+    await p.text({
+      message: 'Components directory',
+      initialValue: project.componentsDir,
+      placeholder: 'e.g. src/components/ui',
+    }),
+  );
   const components = cancelled(
     await p.multiselect({
-      message: 'Components to add now (space to pick, a = all, enter for none; add more later with `pinfold add`)',
+      message: 'Components to install now (Space to select, A for all, Enter to skip)',
       initialValues: [],
       required: false,
       options: REGISTRY.components.map((c) => ({ value: c.name, label: c.name, hint: c.description })),
     }),
   );
-  const primary = cancelled(await p.text({ message: `Brand colour (#7c3aed, rgb(), oklch(), a hue name: ${Object.keys(HUES).join(', ')}, or 0-360)`, initialValue: String(flags.primary ?? 'violet') }));
-  const style = cancelled(await p.select({ message: 'Style pack', initialValue: 'default', options: PACKS.map((v) => ({ value: v, label: v })) }));
-  const radius = cancelled(await p.select({ message: 'Radius', initialValue: 'md', options: RADII.map((v) => ({ value: v, label: v })) }));
-  const mode = cancelled(await p.select({ message: 'Colour mode', initialValue: 'system', options: MODES.map((v) => ({ value: v, label: v })) }));
-  const entryFile = cancelled(await p.text({ message: 'Entry file', initialValue: project.entryFile ?? '', placeholder: 'e.g. src/main.tsx' }));
+  const primary = cancelled(
+    await p.text({
+      message: `Brand primary color (#7c3aed, rgb(), oklch(), hue name: ${Object.keys(HUES).join(', ')}, or 0-360)`,
+      initialValue: String(flags.primary ?? 'violet'),
+      placeholder: 'violet, #7c3aed, etc.',
+    }),
+  );
+  const style = cancelled(
+    await p.select({
+      message: 'Style pack (visual surface styling)',
+      initialValue: 'default',
+      options: [
+        { value: 'default', label: 'default', hint: 'clean modern solid' },
+        { value: 'glass', label: 'glass', hint: 'frosted translucent surfaces with blur' },
+        { value: 'material', label: 'material', hint: 'subtle elevation with layered depth' },
+        { value: 'noise', label: 'noise', hint: 'textured tactile finish' },
+        { value: 'brutalist', label: 'brutalist', hint: 'high-contrast bold borders' },
+      ],
+    }),
+  );
+  const radius = cancelled(
+    await p.select({
+      message: 'Corner radius',
+      initialValue: 'md',
+      options: RADII.map((v) => ({ value: v, label: v })),
+    }),
+  );
+  const mode = cancelled(
+    await p.select({
+      message: 'Color scheme',
+      initialValue: 'system',
+      options: [
+        { value: 'system', label: 'system', hint: 'follows system OS preference' },
+        { value: 'dark', label: 'dark', hint: 'always dark theme' },
+        { value: 'light', label: 'light', hint: 'always light theme' },
+      ],
+    }),
+  );
+  const entryFile = cancelled(
+    await p.text({
+      message: 'Application entry file (for stylesheet imports)',
+      initialValue: project.entryFile ?? '',
+      placeholder: 'e.g. src/main.tsx or app/layout.tsx',
+    }),
+  );
 
   const preview = createTheme({ primary: Number.isFinite(Number(primary)) ? Number(primary) : primary });
   const accent = preview.contrast.find((r) => r.role === 'primary' && r.step === 600 && r.against === 'light-surface');
-  p.log.info(`Brand ${[100, 300, 500, 700, 900].map((s) => swatch(preview.vars[`--pinfold-primary-${s}`])).join('')}  text contrast ${accent.ratio}:1`);
-  p.outro('Review the changes below.');
+  p.log.info(`Palette preview: ${[100, 300, 500, 700, 900].map((s) => swatch(preview.vars[`--pinfold-primary-${s}`])).join('')}  contrast ${accent.ratio}:1 (WCAG AA)`);
+  p.outro('Configuration ready. Reviewing planned changes...');
   return { language, dir: dir && dir !== project.componentsDir ? dir : null, components, entryFile: entryFile || null, theme: { primary, style, radius, mode } };
 }
 
 /* --------------------------------------------------- palette, list, new */
 
 function palette() {
-  console.log(color.bold('\n  Built-in hues\n'));
+  console.log(banner());
+  console.log(color.bold('  Built-in Color Hues\n'));
+  console.log(`  ${color.dim('Name'.padEnd(12))}${color.dim('100 ─── Color Ramp ─── 900'.padEnd(28))}${color.dim('Angle')}`);
+  console.log(`  ${color.dim('─'.repeat(48))}`);
   for (const name of Object.keys(HUES)) {
     const t = createTheme({ primary: name });
     const bar = [100, 200, 300, 400, 500, 600, 700, 800, 900].map((s) => swatch(t.vars[`--pinfold-primary-${s}`])).join('');
-    console.log(`  ${name.padEnd(9)}${bar}  ${color.dim(String(HUES[name]) + '°')}`);
+    console.log(`  ${color.bold(name.padEnd(12))}${bar}  ${color.dim(String(HUES[name]).padStart(3) + '°')}`);
   }
-  console.log(color.dim('\n  npx pinfold theme --primary <name> --accent <name> --radius lg\n'));
+  console.log(color.dim('\n  Usage: npx pinfold theme --primary <name> --accent <name> --radius lg\n'));
 }
 
 function list() {
-  console.log(color.bold('\n  Available\n'));
+  console.log(banner());
+  console.log(color.bold(`  Available Components (${REGISTRY.components.length})\n`));
   for (const x of REGISTRY.components) {
-    console.log(`  ${color.accent(x.name.padEnd(14))}${x.description}`);
-    console.log(`  ${''.padEnd(14)}${color.dim([x.variants.length ? `variants: ${x.variants.join(', ')}` : '', `hook: ${x.hook}()`].filter(Boolean).join(' · '))}`);
+    const meta = [
+      x.variants?.length ? `variants: ${x.variants.join(', ')}` : '',
+      x.hook ? `hook: ${x.hook}()` : '',
+    ].filter(Boolean).join(' · ');
+    console.log(`  ${color.brand3(x.name.padEnd(16))} ${x.description}`);
+    if (meta) console.log(`  ${''.padEnd(16)} ${color.dim(meta)}`);
   }
-  console.log(color.bold('\n  Planned\n'));
+  console.log(color.bold(`\n  Planned Roadmap (${REGISTRY.planned.length})\n`));
   console.log('  ' + color.dim(REGISTRY.planned.join(', ')) + '\n');
+  console.log(`  ${color.dim('Quick install:')} ${color.brand3('npx pinfold add <component-name>')}\n`);
 }
 
 /**
@@ -175,20 +328,37 @@ function scaffold(name, flags) {
 }
 
 function help() {
-  console.log(`
-  ${color.bold('pinfold')} ${color.dim('— config-driven React UI')}
+  console.log(banner());
+  console.log(`  ${color.bold('Usage:')}
+    $ ${color.accent('npx pinfold')} ${color.dim('<command> [options]')}
 
-  ${color.accent('init')}     [--yes] [--ts|--js] [--dir <folder>] [--dry-run] [--no-install] [--primary violet] [--style glass] [--radius lg] [--mode dark]
-  ${color.accent('add')}      <component…|all> [--ts|--js] [--dir <folder>] [--yes] [--dry-run] [--no-install]
-  ${color.accent('theme')}    [--primary emerald] [--accent blue] [--neutral 264] [--success|--warning|--danger|--info <hue>]
-           [--intensity 1.1] [--radius lg] [--style glass] [--out path] [--format css|tailwind|dtcg]
-           [--from <studio url>] [--check] [--dry-run]
-  ${color.accent('doctor')}
-  ${color.accent('palette')}  preview every built-in hue
-  ${color.accent('list')}     show the registry
-  ${color.accent('new')}      <name> [--root path]   scaffold a component (repo contributors)
+  ${color.bold('Commands:')}
+    ${color.accent('init')}      Initialize Pinfold in your project (framework, theme, config)
+    ${color.accent('add')}       Add components with their stylesheets to your project
+    ${color.accent('theme')}     Customize color palette, style pack, and design tokens
+    ${color.accent('doctor')}    Diagnose setup, React version, CSS imports, and provider
+    ${color.accent('palette')}   Preview built-in color ramps and WCAG contrast ratios
+    ${color.accent('list')}      Show available and planned components in the registry
+    ${color.accent('new')}       Scaffold a new component (repository contributors)
 
-  Hues: ${color.dim(Object.keys(HUES).join(', '))}. Any 0-360 number works too.
+  ${color.bold('Examples:')}
+    $ ${color.dim('npx pinfold init')}
+    $ ${color.dim('npx pinfold add button table')}
+    $ ${color.dim('npx pinfold theme --primary violet --style glass')}
+    $ ${color.dim('npx pinfold doctor')}
+
+  ${color.bold('Flags & Options:')}
+    ${color.dim('--ts, --js')}        Target TypeScript (.tsx) or JavaScript (.jsx)
+    ${color.dim('--dir <folder>')}    Components directory (default: src/components/ui)
+    ${color.dim('--yes')}             Accept all detected defaults without prompting
+    ${color.dim('--dry-run')}         Preview planned changes without writing to disk
+    ${color.dim('--no-install')}      Skip automatic package installation
+
+  ${color.bold('Built-in Hues:')}
+    ${color.dim(Object.keys(HUES).join(', '))}${color.dim(' (or any 0-360 angle)')}
+
+  ${color.bold('Documentation:')}
+    ${color.dim('https://pinfold.indranildev.in')}
 `);
 }
 

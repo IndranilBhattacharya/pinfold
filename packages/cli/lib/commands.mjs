@@ -191,7 +191,10 @@ export async function add(names, flags, out, registry) {
   for (const name of wanted) planComponent(plan, project, name);
   if (!project.entryFile) plan.note(`no entry file found: import '@pinfold/css/core.css' and each component's CSS yourself`);
   ensurePackages(project, flags, out);
-  await commit(plan, flags, out);
+  if (await commit(plan, flags, out)) {
+    out.log(`\n  ${out.color.ok('✔')} Added ${wanted.length} component${wanted.length > 1 ? 's' : ''} to ${project.componentsDir}`);
+    out.log(`  ${out.color.dim('Usage:')}  import { ${pascalOf(wanted[0])} } from '${project.componentsDir}/${wanted[0]}';\n`);
+  }
 }
 
 export async function init(flags, out, registry, answers = {}) {
@@ -287,8 +290,16 @@ export async function init(flags, out, registry, answers = {}) {
   if (project.tailwind === 3 && project.tailwindConfig) plan.update(project.tailwindConfig, addTailwindPreset);
 
   ensurePackages(project, flags, out);
-  if (await commit(plan, flags, out))
-    out.log(components.length ? `\n  Next: import { ${pascalOf(components[0])} } from your ${project.componentsDir}/${components[0]}\n` : `\n  Next: ${out.color.accent('npx pinfold add button')} (any component; \`npx pinfold list\` shows them)\n`);
+  if (await commit(plan, flags, out)) {
+    if (components.length) {
+      out.log(`\n  ${out.color.ok('✔')} Pinfold configured with ${components.length} component(s)!`);
+      out.log(`  ${out.color.dim('Import:')} import { ${pascalOf(components[0])} } from '${project.componentsDir}/${components[0]}';`);
+      out.log(`  ${out.color.dim('Next:')}   ${out.color.accent('npx pinfold add button')} (any component; \`npx pinfold list\` shows them)\n`);
+    } else {
+      out.log(`\n  ${out.color.ok('✔')} Pinfold configured successfully!`);
+      out.log(`  ${out.color.dim('Next:')}   ${out.color.accent('npx pinfold add button')} (any component; \`npx pinfold list\` shows them)\n`);
+    }
+  }
 }
 
 function wrapProvider(plan, project, entry, configPath) {
