@@ -22,13 +22,11 @@ as data. The library owns markup, ARIA, keyboard behaviour, responsiveness, moti
 
 ## Promises
 
-| # | Promise | Proof |
-|---|---|---|
-| 1 | **Hooks first, uncluttered JSX**, on both client (`use*`) and server (`define*`) | The API reference: one config object, one tag |
-| 2 | **A design system in a box**: OKLCH palettes, style packs, global config | Contrast reports for every style, in light and dark mode |
-| 3 | **Accessibility with proof** | Generated APG checklist, keyboard tests and screen-reader matrix in every release |
-| 4 | **Runs everywhere in React 18+**: SSR, RSC, ISR, JS or TS, with or without the compiler | The CI matrix in [COMPATIBILITY.md](COMPATIBILITY.md) |
-| 5 | **Cheap for AI agents** | `llms.txt`, schema and meta shipped in the package; a local MCP server |
+1. **Hooks first, uncluttered JSX** — On both client (`use*`) and server (`define*`). One typed config object, clean tags, zero clutter.
+2. **A design system in a box** — OKLCH palettes, style packs, and global config. Contrast reports for every style in light and dark modes.
+3. **Accessibility with proof** — WCAG 2.2 AA compliant. Automated APG checks, keyboard navigation tests, and screen-reader test matrix.
+4. **Runs everywhere in React 18+** — SSR, RSC, ISR, JavaScript or TypeScript, with or without the React Compiler.
+5. **Built for AI coding agents** — `llms.txt`, full schemas, and rich metadata shipped in every package; local MCP server included.
 
 Also guaranteed:
 - You ship only what you import.

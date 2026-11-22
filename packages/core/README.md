@@ -1,10 +1,18 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/logo.svg" width="56" height="56" alt="Pinfold" />
+<img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/logo.svg" width="64" height="64" alt="Pinfold" />
 
 # @pinfold/core
 
-The framework-free heart of [Pinfold](https://pinfold.indranildev.in): component rules, metadata and the OKLCH palette engine.
+The framework-free engine of [Pinfold](https://pinfold.indranildev.in): component state logic, design tokens, metadata, and the OKLCH palette system.
+
+[![npm](https://img.shields.io/npm/v/@pinfold/core?color=7c3aed&label=%40pinfold%2Fcore)](https://www.npmjs.com/package/@pinfold/core)
+[![license](https://img.shields.io/npm/l/@pinfold/core?color=4f46e5)](LICENSE)
+[![dependencies](https://img.shields.io/badge/dependencies-0-16a34a)](package.json)
+
+[Documentation](https://pinfold.indranildev.in/docs) · [Theming](https://pinfold.indranildev.in/docs/theming) · [GitHub](https://github.com/IndranilBhattacharya/pinfold)
+
+<img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="Pinfold Core" width="100%" />
 
 </div>
 

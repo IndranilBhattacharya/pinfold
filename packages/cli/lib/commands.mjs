@@ -60,6 +60,9 @@ export function paletteFrom(flags, base = {}) {
 /** Packages missing from package.json, installed with the project's own package manager. */
 function ensurePackages(project, flags, out) {
   const missing = ['@pinfold/react', '@pinfold/css'].filter((n) => !(n in project.deps));
+  if (!('react' in project.deps) && project.framework !== 'next' && project.framework !== 'gatsby') {
+    missing.unshift('react', 'react-dom');
+  }
   if (!missing.length) return;
   const pm = project.packageManager;
   const cmd = pm === 'npm' ? `npm install ${missing.join(' ')}` : `${pm} add ${missing.join(' ')}`;
@@ -179,7 +182,11 @@ export async function add(names, flags, out, registry) {
   if (!names.length) throw new Error('name the components to add, e.g. `npx pinfold add button table`. `npx pinfold list` shows them all.');
   const wanted = resolveNames(names, registry);
   const project = detect(flags.cwd);
+  if (flags.language) project.language = flags.language;
+  else if (flags.ts) project.language = 'ts';
+  else if (flags.js) project.language = 'js';
   if (typeof flags.dir === 'string') project.componentsDir = toPosix(flags.dir);
+  if (typeof flags.entry === 'string') project.entryFile = toPosix(flags.entry);
   const plan = new Plan(project.cwd);
   for (const name of wanted) planComponent(plan, project, name);
   if (!project.entryFile) plan.note(`no entry file found: import '@pinfold/css/core.css' and each component's CSS yourself`);
@@ -189,6 +196,9 @@ export async function add(names, flags, out, registry) {
 
 export async function init(flags, out, registry, answers = {}) {
   const project = detect(flags.cwd);
+  if (flags.language) project.language = flags.language;
+  else if (flags.ts) project.language = 'ts';
+  else if (flags.js) project.language = 'js';
   if (answers.language) project.language = answers.language;
   if (answers.entryFile) project.entryFile = answers.entryFile;
   out.log(`  ${out.color.dim('Detected:')} ${describeProject(project)}`);
@@ -222,13 +232,38 @@ export async function init(flags, out, registry, answers = {}) {
     ].join('\n'),
   );
 
-  // The components folder, when chosen, is remembered for every later `add`.
-  if (dir && project.pkg?.pinfold?.components !== project.componentsDir)
+  // The components folder, language and settings are remembered for every later `add`.
+  const pinfoldSettings = {
+    language: project.language,
+    components: project.componentsDir,
+    ...(project.entryFile ? { entry: project.entryFile } : {}),
+  };
+
+  const hasPkg = project.pkg && Object.keys(project.pkg).length > 0;
+  if (!hasPkg) {
+    const cwdBase = project.cwd.split(/[\\/]/).filter(Boolean).pop() || 'my-app';
+    plan.create(
+      'package.json',
+      JSON.stringify(
+        {
+          name: cwdBase,
+          version: '0.1.0',
+          type: 'module',
+          scripts: {},
+          dependencies: {},
+          pinfold: pinfoldSettings,
+        },
+        null,
+        2,
+      ) + '\n',
+    );
+  } else {
     plan.update('package.json', (src) => {
       const pkg = JSON.parse(src);
-      pkg.pinfold = { ...pkg.pinfold, components: project.componentsDir };
+      pkg.pinfold = { ...pkg.pinfold, ...pinfoldSettings };
       return JSON.stringify(pkg, null, 2) + '\n';
     });
+  }
 
   // 2. Theme CSS (Pinfold owns and regenerates it), imported after core and component CSS.
   const themeFile = themePath(project);

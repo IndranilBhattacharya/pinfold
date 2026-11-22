@@ -34,52 +34,59 @@ and `cell`, `value`, `compare` get the row's type. Precedence: use-site props, t
 `defaults.table`, the provider (size, tone), the library default.
 
 ## Config
-| Key | Type | Default |
-|---|---|---|
-| `label`, `hideLabel` | the caption | required, `false` |
-| `rows`, `columns`, `rowKey` | your data; keys, paths or column objects (below); a key or `(row) => string` | every key; `id`, else the position |
-| `dataSource` | `{ rowCount, getRows({ start, end, sort, filters, search, signal }), blockSize }`: blocks load as they scroll into view, stale requests are aborted, a few hundred blocks are kept; `getRows` may return `{ rows, rowCount }` | none, `blockSize` `100` |
-| `sortable`, `sort`, `defaultSort`, `onSortChange`, `multiSort`, `manualSort` | every column sorts; one `{ key, direction }` or several; a press cycles ascending, descending, off; Shift adds a key (numbered in the header) | `false`, none, `true`, `false` |
-| `filterable`, `filterMode`, `filters`, `defaultFilters`, `onFiltersChange`, `filterLogic`, `manualFilter` | every column filters by its type: from its header menu (`'menu'`: a condition and a searchable list of its values with counts, drawn as its cells draw them) or in a row of controls under the headers (`'row'`); `[{ key, op, value }]` | `false`, `'menu'`, `'and'` |
-| `columnMenu` | a menu on each header: sort, pin to the start or end, hide, group, filter | on when columns sort, filter or group, or there is a toolbar |
-| `search`, `defaultSearch`, `onSearchChange` | quick search: every word somewhere in the searchable columns (accents and case ignored) | `''` |
-| `toolbar` | `true` or `{ search, columns, export, chips, start, end, render }`: the quick search, a panel to show, hide and pin columns, a CSV download (a string names the file), the active filters as chips with a remove button each, your own controls before and after the built-in ones, or `render(tools)` for a toolbar of your own (see below) | none |
-| `pageSize`, `pageSizes`, `onPageSizeChange`, `page`, `defaultPage`, `onPageChange`, `total` | pages with Pagination and the range ("1–25 of 240"); sizes to pick; `total` for server pages | no pages |
-| `virtual`, `rowHeight` | only the rows in view are drawn (needs a height) | `false`, by density 36 / 44 / 52 |
-| `resizableColumns`, `reorderableColumns`, `resizableRows` | drag column edges (double-click fits, Alt + arrows), drag headers (Ctrl or Cmd + Shift + arrows), drag a row's bottom edge anywhere along the row (double-click goes back to the table's row height) | `false` |
-| `columnState`, `defaultColumnState`, `onColumnStateChange`, `autoSaveId` | `{ order, widths, hidden, pinned }`; remembered with the sort and filters under an id | none |
-| `selection`, `selected`, `defaultSelected`, `onSelectionChange` | `'none' \| 'single' \| 'multiple'`; Shift + click picks a span | `'none'` |
-| `renderDetail`, `subTable`, `getSubRows`, `expandIcon`, `expanded`, `defaultExpanded`, `onExpandedChange` | a row opens: your panel (`(row) => node`), a table of its own (`(row) => table config`, which can open tables to any depth and wears this table's look), or its rows underneath (`(row) => rows`, to any depth; they sort and filter with their parents and a parent stays while a child matches). The icon is a node or `({ row, expanded, depth, expandable }) => node` | none; a chevron that turns |
-| `groupBy`, `defaultGroupBy`, `onGroupByChange`, `groupable` | a column key: every filtered row grouped by its value; a folding row per group with its count and the columns' totals; the grouped list is paged | none |
-| `reorderableRows`, `onRowReorder` | rows drag by a handle (Alt + arrow up or down on it); `({ row, rowKey, from, to, rows })` hands back `rows` in the new order. Paused while the rows are sorted, filtered or searched | `false` |
-| `onCellEdit` | `({ row, rowKey, key, value, previous }) => void \| false \| Promise`: save it; `false` or a rejection keeps the editor | none |
-| `onRowAction`, `onCellClick`, `rowClassName`, `rowProps`, `cellProps` | `(row, event)`: click or Enter on a row's cell; `(cell, event)`; `(row, index) => class`; `(row context) => props` and `(cell context) => props` for the element itself: handlers (they chain with the table's), `data-*`, a ref, drag-and-drop attributes | none |
-| `loading`, `emptyText` | shimmering rows while there are none, busy | `false`, `'Nothing to show'` |
-| `labels` | `{ selectAll, selectRow(text), search, columns, export, filter(header), expand, resize, pageSize, notSaved, range(from, to, total), columnMenu(header), sortAscending, sortDescending, pinStart, pinEnd, unpin, hideColumn, groupBy, ungroup, clearFilter, clearFilters, operators, searchValues, selectAllValues, blanks, selectedCount(n), ... }` | English |
-| `variant`, `density`, `striped`, `stickyHeader` | `'card' \| 'plain' \| 'outline'`; `'compact' \| 'normal' \| 'relaxed'`; the head (and filter row) stick inside the table's scroll box, so `stickyHeader` needs `dimensions.maxHeight` (or `height`) and is listed inactive without one; always on in a virtual table | `'card'`, `'normal'`, `false`, `false` |
-| `lines`, `hoverable`, `scrollIndicator` | `'rows' \| 'grid' \| 'none'`; rows tint under the pointer; how an edge shows that it hides rows or columns: `'shadow' \| 'fade' \| 'none'` | `'rows'`, `true`, `'shadow'` |
-| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` or a length; a preset rescales every corner inside, a length sets the frame | the theme radius |
-| `size`, `tone` | | `'md'`, `'primary'` (provider) |
-| `dimensions` | `cellPaddingX`, `cellPaddingY`, `toolbarPadding`, `footerPadding`, `maxHeight`, `height` | by density (0.75/1/1.25rem, 0.4/0.75/1rem), `0.75rem`, `0.625rem`, none |
-| `unstyled`, `className`, `style`, `classNames` / `styles` / `slotProps` / `render` | slots `root toolbar search caption scroll table head header sort resizer filters filter menuButton chips body row cell select expand handle detail group editor filterCondition pageSize empty loading totals footer`; rows, cells, headers, filters, details and group rows pass `item` (`{ row, rowKey, rowIndex, column, value, selected, expanded, group }`); `render.pageSize` and `render.filterCondition` get `props` = `{ label, value, options, onChange }` for your own control | |
+
+### Data & Columns
+- **`label`**, **`hideLabel`** — Table caption for accessibility (`required`, default `false`).
+- **`rows`**, **`columns`**, **`rowKey`** — Data items; keys, paths or column objects; row identity key or `(row) => string` (defaults: all keys; `id`, else row index).
+- **`dataSource`** — `{ rowCount, getRows({ start, end, sort, filters, search, signal }), blockSize }`: blocks load as they scroll into view, stale requests are aborted, a few hundred blocks are kept (default: `blockSize 100`).
+
+### Sorting & Searching
+- **`sortable`**, **`sort`**, **`defaultSort`**, **`onSortChange`**, **`multiSort`**, **`manualSort`** — Column sorting. Cycle ascending, descending, off; Shift+click multi-sorts (defaults: `false`, none, `true`, `false`).
+- **`search`**, **`defaultSearch`**, **`onSearchChange`** — Quick search across all searchable columns (case and accents normalized, default `''`).
+
+### Filtering & Toolbar
+- **`filterable`**, **`filterMode`**, **`filters`**, **`defaultFilters`**, **`onFiltersChange`**, **`filterLogic`**, **`manualFilter`** — Type-aware filtering from header menus (`'menu'`) or inline filter controls (`'row'`) (defaults: `false`, `'menu'`, `'and'`).
+- **`columnMenu`** — Context menu on each column header: sort, pin, hide, group, filter.
+- **`toolbar`** — Built-in quick search, columns drawer, CSV download, filter chips, or custom `render(tools)`.
+
+### Pagination & Virtualization
+- **`pageSize`**, **`pageSizes`**, **`onPageSizeChange`**, **`page`**, **`defaultPage`**, **`onPageChange`**, **`total`** — Paging controls with page size selector and server total.
+- **`virtual`**, **`rowHeight`** — Windowed rendering for large datasets (defaults: `false`, row height by density: 36 / 44 / 52 px).
+
+### Interaction & Layout
+- **`resizableColumns`**, **`reorderableColumns`**, **`resizableRows`** — Interactive drag-to-resize and drag-to-reorder for columns and rows (default `false`).
+- **`columnState`**, **`defaultColumnState`**, **`onColumnStateChange`**, **`autoSaveId`** — Persistent column order, widths, visibility, and pinning.
+- **`selection`**, **`selected`**, **`defaultSelected`**, **`onSelectionChange`** — Row selection (`'none' | 'single' | 'multiple'`, default `'none'`).
+- **`renderDetail`**, **`subTable`**, **`getSubRows`**, **`expandIcon`**, **`expanded`**, **`defaultExpanded`**, **`onExpandedChange`** — Expandable row details, nested tables, or hierarchical trees.
+- **`groupBy`**, **`defaultGroupBy`**, **`onGroupByChange`**, **`groupable`** — Multi-row grouping with group summaries and foldable rows.
+- **`reorderableRows`**, **`onRowReorder`** — Row reordering with keyboard and drag support (default `false`).
+- **`onCellEdit`** — Inline editable cell handlers `({ row, rowKey, key, value, previous }) => void | false | Promise`.
+- **`onRowAction`**, **`onCellClick`**, **`rowClassName`**, **`rowProps`**, **`cellProps`** — Row and cell event hooks, classes, and props.
+- **`loading`**, **`emptyText`** — Loading skeleton state and empty state label (defaults: `false`, `'Nothing to show'`).
+- **`labels`** — Localization dictionary for all assistive text and UI controls.
+
+### Appearance & Slots
+- **`variant`**, **`density`**, **`striped`**, **`stickyHeader`** — Appearance variant (`'card' | 'plain' | 'outline'`), density (`'compact' | 'normal' | 'relaxed'`), zebra striping, and pinned headers.
+- **`lines`**, **`hoverable`**, **`scrollIndicator`** — Border grid lines (`'rows' | 'grid' | 'none'`), hover highlights, and edge shadows (`'shadow' | 'fade' | 'none'`).
+- **`radius`**, **`size`**, **`tone`** — Corner radius, scale, and color tone.
+- **`dimensions`** — Fine-grained padding and height overrides (`cellPaddingX`, `cellPaddingY`, `toolbarPadding`, `footerPadding`, `maxHeight`, `height`).
+- **`unstyled`**, **`className`**, **`style`**, **`classNames`**, **`styles`**, **`slotProps`**, **`render`** — Slot overrides across all 24 table parts.
 
 The fields inside the grid are Pinfold components: search and text filters are an Input, number filters a NumberField, date filters a DatePicker, the filter condition, enum filters, an enum cell editor and rows per page a Select, and the selection and value boxes the Checkbox's and Radio's own boxes (in the table's tone). Select, Input, NumberField and DatePicker load the first time a grid shows one, so a grid without a toolbar, filters or page sizes never downloads them; import their stylesheets with the table's (`checkbox`, `datepicker`, `input`, `number`, `pagination`, `radio`, `select`). The in-cell text, number and date editors stay a bare input inside the cell's frame. A condition picked before its value is typed stays chosen.
 
-### A column
-| Key | What it does | Default |
-|---|---|---|
-| `key` | the value's path (`'customer.name'`), or any id when `value` reads it | required |
-| `header` | a node or `({ column, sort, filter }) => node` | the key made readable |
-| `value`, `cell` | `(row) => value` (computed columns); `({ row, value, formatted, rowKey, rowIndex, column, selected, edit, depth, expanded, toggleExpanded }) => node` | the path; the formatted value |
-| `type`, `format`, `options` | `'text' \| 'number' \| 'date' \| 'boolean' \| 'enum'`; `Intl` options or `(value, row) => node`; an enum's values | from the values |
-| `sortable`, `compare` | this column sorts; your own ascending order | the table's |
-| `filterable`, `filterFn`, `filter`, `searchable` | this column filters; `(row, filter) => boolean`; `({ column, filter, setFilter }) => node`; in the quick search | the table's, `true` |
-| `filterKey`, `filterItem` | the identity of a value in the menu's list (`(user) => user.id`, so two people with one name stay two entries; lists then match by that identity); how a value reads there, `({ value, row, count, column, formatted }) => node` | its text; exactly as its cell is drawn |
-| `pinnable`, `groupable` | can be pinned from its menu; its menu offers grouping | `true`, the table's |
-| `width`, `minWidth`, `maxWidth`, `resizable` | px or any CSS width; resize bounds | auto (by type in a fixed layout), `64` |
-| `pinned`, `hidden`, `hideable`, `align` | `'start' \| 'end'`; starts hidden; can be hidden; `'start' \| 'center' \| 'end'` | none, `false`, `true`, end for numbers |
-| `editable`, `editor`, `validate` | `true` or `(row) => boolean`; `'text' \| 'number' \| 'date' \| 'select' \| 'checkbox'` or your component; `(value, row) => message` | by type |
-| `aggregate`, `className` | `'sum' \| 'avg' \| 'min' \| 'max' \| 'count' \| 'countDistinct'` or `(rows) => node`, in the footer and group rows; a class per cell | none |
+### Column Definition
+- **`key`** — Property path (e.g. `'customer.name'`) or custom identifier (`required`).
+- **`header`** — Header text or render function `({ column, sort, filter }) => node`.
+- **`value`**, **`cell`** — Custom getter and custom cell renderer.
+- **`type`**, **`format`**, **`options`** — Column type (`'text' | 'number' | 'date' | 'boolean' | 'enum'`), format options, and enum values.
+- **`sortable`**, **`compare`** — Column sort configuration and custom comparator.
+- **`filterable`**, **`filterFn`**, **`filter`**, **`searchable`** — Filtering logic and custom filter UI.
+- **`filterKey`**, **`filterItem`** — Custom identity and representation in the filter menu.
+- **`pinnable`**, **`groupable`** — Pinning and grouping capability (default `true`).
+- **`width`**, **`minWidth`**, **`maxWidth`**, **`resizable`** — Width constraints and resize behavior.
+- **`pinned`**, **`hidden`**, **`hideable`**, **`align`** — Column pinning (`'start' | 'end'`), visibility, and text alignment.
+- **`editable`**, **`editor`**, **`validate`** — Inline editing configuration, editor type, and validation.
+- **`aggregate`**, **`className`** — Footer aggregation calculation (`'sum' | 'avg' | 'min' | 'max' | 'count' | 'countDistinct'`) and custom class.
 
 Controller: `visibleRows`, `filteredRows`, `sort`, `filters`, `search`, `selected`, `columnState`,
 `setSort`, `setFilters`, `setFilter(key, value, op)`, `setSearch`, `setSelected`, `setColumnState`,

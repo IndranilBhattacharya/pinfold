@@ -1,10 +1,18 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/logo.svg" width="56" height="56" alt="Pinfold" />
+<img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/logo.svg" width="64" height="64" alt="Pinfold" />
 
 # @pinfold/css
 
-All of [Pinfold](https://pinfold.indranildev.in)'s styling: tokens, a scoped reset, one stylesheet per component, style packs, and the Tailwind and shadcn bridges.
+The styling layer of [Pinfold](https://pinfold.indranildev.in): tokens, scoped reset, modular component stylesheets, style packs, and Tailwind / shadcn bridges.
+
+[![npm](https://img.shields.io/npm/v/@pinfold/css?color=7c3aed&label=%40pinfold%2Fcss)](https://www.npmjs.com/package/@pinfold/css)
+[![license](https://img.shields.io/npm/l/@pinfold/css?color=4f46e5)](LICENSE)
+[![dependencies](https://img.shields.io/badge/dependencies-0-16a34a)](package.json)
+
+[Documentation](https://pinfold.indranildev.in/docs) · [Theming](https://pinfold.indranildev.in/docs/theming) · [GitHub](https://github.com/IndranilBhattacharya/pinfold)
+
+<img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="Pinfold CSS" width="100%" />
 
 </div>
 

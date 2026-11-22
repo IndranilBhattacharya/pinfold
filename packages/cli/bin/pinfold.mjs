@@ -48,6 +48,8 @@ function parse(argv) {
     else if (argv[i + 1] && !argv[i + 1].startsWith('--')) flags[key] = argv[++i];
     else flags[key] = true;
   }
+  if (flags.ts) flags.language = 'ts';
+  if (flags.js) flags.language = 'js';
   return { flags, positional };
 }
 
@@ -77,7 +79,7 @@ async function askInit(flags) {
     return v;
   };
   const language = cancelled(
-    await p.select({ message: 'Language', initialValue: project.language, options: [{ value: 'ts', label: 'TypeScript' }, { value: 'js', label: 'JavaScript' }] }),
+    await p.select({ message: 'Language', initialValue: flags.language ?? (flags.ts ? 'ts' : flags.js ? 'js' : project.language), options: [{ value: 'ts', label: 'TypeScript' }, { value: 'js', label: 'JavaScript' }] }),
   );
   const dir = cancelled(await p.text({ message: 'Components folder', initialValue: project.componentsDir }));
   const components = cancelled(
@@ -88,7 +90,7 @@ async function askInit(flags) {
       options: REGISTRY.components.map((c) => ({ value: c.name, label: c.name, hint: c.description })),
     }),
   );
-  const primary = cancelled(await p.text({ message: `Brand colour (#4f46e5, rgb(), oklch(), a hue name: ${Object.keys(HUES).join(', ')}, or 0-360)`, initialValue: String(flags.primary ?? 'violet') }));
+  const primary = cancelled(await p.text({ message: `Brand colour (#7c3aed, rgb(), oklch(), a hue name: ${Object.keys(HUES).join(', ')}, or 0-360)`, initialValue: String(flags.primary ?? 'violet') }));
   const style = cancelled(await p.select({ message: 'Style pack', initialValue: 'default', options: PACKS.map((v) => ({ value: v, label: v })) }));
   const radius = cancelled(await p.select({ message: 'Radius', initialValue: 'md', options: RADII.map((v) => ({ value: v, label: v })) }));
   const mode = cancelled(await p.select({ message: 'Colour mode', initialValue: 'system', options: MODES.map((v) => ({ value: v, label: v })) }));
@@ -176,8 +178,8 @@ function help() {
   console.log(`
   ${color.bold('pinfold')} ${color.dim('— config-driven React UI')}
 
-  ${color.accent('init')}     [--yes] [--dry-run] [--no-install] [--primary violet] [--style glass] [--radius lg] [--mode dark]
-  ${color.accent('add')}      <component…|all> [--yes] [--dry-run] [--no-install]
+  ${color.accent('init')}     [--yes] [--ts|--js] [--dir <folder>] [--dry-run] [--no-install] [--primary violet] [--style glass] [--radius lg] [--mode dark]
+  ${color.accent('add')}      <component…|all> [--ts|--js] [--dir <folder>] [--yes] [--dry-run] [--no-install]
   ${color.accent('theme')}    [--primary emerald] [--accent blue] [--neutral 264] [--success|--warning|--danger|--info <hue>]
            [--intensity 1.1] [--radius lg] [--style glass] [--out path] [--format css|tailwind|dtcg]
            [--from <studio url>] [--check] [--dry-run]

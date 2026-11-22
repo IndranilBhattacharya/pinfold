@@ -3,12 +3,15 @@
 Status: all four packages are published to npm under the `@pinfold` scope (and `pinfold` for the CLI).
 
 ## Packages
-| Package | Contents | Imports |
-|---|---|---|
-| `@pinfold/core` | Framework-free: logic for each component, keyboard navigation, ids, palette engine, meta (validator, JSON schema, docs renderer), config types | `@pinfold/core`, `@pinfold/core/palette`, `@pinfold/core/meta` |
-| `@pinfold/css` | tokens, reset, style packs, the CSS for each component, the shadcn variable bridge, Tailwind v3/v4 | `@pinfold/css/core.css`, `@pinfold/css/accordion.css`, `@pinfold/css/packs.css`, `@pinfold/css/shadcn.css`, `@pinfold/css/all.css` |
-| `@pinfold/react` | hooks, `define*`, tags, `PinfoldProvider`, `defineConfig`, views | `@pinfold/react`, `@pinfold/react/accordion` |
-| `pinfold` | the CLI and the local MCP server | `npx pinfold …`, `npx pinfold mcp` |
+
+- **`@pinfold/core`** — Framework-free component logic, keyboard navigation, unique ids, OKLCH palette engine, metadata, and config types.
+  - *Imports:* `@pinfold/core`, `@pinfold/core/palette`, `@pinfold/core/meta`
+- **`@pinfold/css`** — Design tokens, scoped reset, style packs, modular component stylesheets, shadcn token bridge, and Tailwind v3/v4 presets.
+  - *Imports:* `@pinfold/css/core.css`, `@pinfold/css/<name>.css`, `@pinfold/css/packs.css`, `@pinfold/css/tailwind.css`, `@pinfold/css/shadcn.css`, `@pinfold/css/all.css`
+- **`@pinfold/react`** — Presets (`define*`), headless hooks (`use*`), tags, `PinfoldProvider`, `defineConfig`, and component views.
+  - *Imports:* `@pinfold/react`, `@pinfold/react/<name>`
+- **`pinfold`** — The developer CLI and local MCP server for AI coding agents.
+  - *Commands:* `npx pinfold init`, `npx pinfold add`, `npx pinfold theme`, `npx pinfold doctor`, `npx pinfold mcp`
 
 - **Subpath exports** and `sideEffects: ["*.css"]` mean an unused component adds 0 bytes to the app bundle.
 - **ESM and CJS builds**, plus `.d.ts`, `typesVersions` and a stub folder per subpath for older toolchains ([COMPATIBILITY.md](COMPATIBILITY.md)).

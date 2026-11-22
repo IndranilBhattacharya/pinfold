@@ -197,7 +197,7 @@ describe('pinfold CLI', () => {
     const cwd = viteTs();
     await init(yes(cwd, { dir: 'src/ui', components: 'button' }), quiet(), registry);
     expect(read(cwd, 'src/ui/button.tsx')).toContain("from '@pinfold/react/button'");
-    expect(JSON.parse(read(cwd, 'package.json')).pinfold).toEqual({ components: 'src/ui' });
+    expect(JSON.parse(read(cwd, 'package.json')).pinfold).toMatchObject({ components: 'src/ui', language: 'ts' });
     await add(['badge'], yes(cwd), quiet(), registry);
     expect(existsSync(join(cwd, 'src/ui/badge.tsx'))).toBe(true);
     await add(['kbd'], yes(cwd, { dir: 'src/elsewhere' }), quiet(), registry);
@@ -213,5 +213,49 @@ describe('pinfold CLI', () => {
     await init(yes(app, { components: 'button' }), quiet(), registry);
     expect(read(app, 'src/components/ui/button.tsx')).toContain('useButton');
     expect(read(app, 'src/main.tsx')).toContain("import '@pinfold/css/button.css';");
+  });
+
+  it('detects no framework in a blank folder and initializes clean package.json with remembered context', async () => {
+    const cwd = project({});
+    const p = detect(cwd);
+    expect(p.framework).toBeNull();
+    expect(p.entryFile).toBeNull();
+    expect(p.language).toBe('js');
+
+    // Init in blank folder with TS chosen
+    const out = quiet();
+    await init(yes(cwd, { ts: true, components: 'button' }), out, registry);
+    expect(existsSync(join(cwd, 'package.json'))).toBe(true);
+    const pkg = JSON.parse(read(cwd, 'package.json'));
+    expect(pkg.pinfold).toMatchObject({ language: 'ts', components: 'components/ui' });
+    expect(read(cwd, 'components/ui/button.tsx')).toContain("from '@pinfold/react/button'");
+    expect(existsSync(join(cwd, 'pinfold.config.ts'))).toBe(true);
+
+    // Later addition with add remembers ts without needing tsconfig.json!
+    await add(['card'], yes(cwd), quiet(), registry);
+    expect(existsSync(join(cwd, 'components/ui/card.tsx'))).toBe(true);
+  });
+
+  it('remembers JavaScript configuration on later additions without losing context', async () => {
+    const cwd = project({
+      'package.json': JSON.stringify({ dependencies: { react: '^19', 'react-dom': '^19' } }),
+      'src/index.js': '// app\n',
+    });
+    const p = detect(cwd);
+    expect(p.framework).toBe('react');
+    expect(p.language).toBe('js');
+
+    await init(yes(cwd, { js: true, components: 'badge' }), quiet(), registry);
+    expect(existsSync(join(cwd, 'src/components/ui/badge.jsx'))).toBe(true);
+    expect(JSON.parse(read(cwd, 'package.json')).pinfold.language).toBe('js');
+
+    // Later addition with add: remembers js and outputs .jsx
+    await add(['avatar'], yes(cwd), quiet(), registry);
+    expect(existsSync(join(cwd, 'src/components/ui/avatar.jsx'))).toBe(true);
+    expect(existsSync(join(cwd, 'src/components/ui/avatar.tsx'))).toBe(false);
+
+    // Explicit flag override works too
+    await add(['spinner'], yes(cwd, { ts: true }), quiet(), registry);
+    expect(existsSync(join(cwd, 'src/components/ui/spinner.tsx'))).toBe(true);
   });
 });

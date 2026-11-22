@@ -45,11 +45,9 @@ export function OrdersPage({ orders }: { orders: Order[] }) {
 
 Every component has the same three forms with the same config:
 
-| | |
-| --- | --- |
-| `define<Name>(config)` | A preset you use as a tag. Server Components included. |
-| `use<Name>(config)` | In a client component: the component and its controller, e.g. `Faq.openAll()`, `Grid.downloadCsv()`. Hooks cannot run in Server Components. |
-| `<Name {...config} />` | The plain tag, when one instance is all you need. |
+- **`define<Name>(config)`** — A preset you use directly as a tag. Runs anywhere, Server Components and loops included.
+- **`use<Name>(config)`** — In client components: returns the component and its imperative controller (e.g. `Faq.openAll()`, `Grid.downloadCsv()`).
+- **`<Name {...config} />`** — The direct tag when a single instance is all you need.
 
 ## Make it yours
 

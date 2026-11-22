@@ -43,14 +43,12 @@ correct ARIA. The config is typed against your rows, so a misspelt column is a c
 
 ## Why Pinfold
 
-|  | |
-| --- | --- |
-| **Write less** | A component is data, not a tree of nested parts. Shorter to write, easy to diff, and the shape a coding agent gets right first time. |
-| **Accessible, with proof** | Every component follows its WAI-ARIA pattern and is rendered on every build, in every style pack, light and dark. axe must report nothing; keyboard, focus, contrast, forced colours and reduced motion are tested too. |
-| **Never boxed in** | Each part has a name: add a class, merge props, or render it with your own component. A headless hook gives you all the state with no markup. |
-| **Your brand, any format** | `#hex`, `rgb()`, `oklch()` or a hue name. Eleven OKLCH steps per role, and text on every fill that stays readable. |
-| **Server-ready** | `define<Name>()` presets work in Server Components and loops; hooks are there when you need state. Full HTML on the server. |
-| **Only what you use** | One subpath and one stylesheet per component, CSS in cascade layers so Tailwind and your own CSS always win, and zero runtime dependencies. |
+- **Write less** — A component is data, not a tree of nested parts. Shorter to write, easy to diff, and the exact shape a coding agent gets right on the first try.
+- **Accessible, with proof** — Every component follows its WAI-ARIA pattern and is tested on every build in every style pack, light and dark. WCAG 2.2 AA compliant: zero axe violations, full keyboard navigation, focus management, contrast, forced colours, and reduced motion.
+- **Never boxed in** — Each part has a semantic name: add a class, merge props, or render with custom components. A headless hook gives you all state and behavior with zero markup.
+- **Your brand, any format** — `#hex`, `rgb()`, `oklch()`, or hue names. Eleven OKLCH steps per role with automatic contrast-safe text colors on every fill.
+- **Server-ready** — `define<Name>()` presets work in Server Components and loops; hooks are there when you need client state. Full HTML rendered on the server.
+- **Zero runtime dependencies** — One subpath and one stylesheet per component. CSS in native cascade layers so your styles and Tailwind utilities always win, with zero runtime dependencies.
 
 ## Three ways to use a component
 
@@ -72,17 +70,13 @@ Precedence for every option: the props, the preset, `defaults` in your config, t
 
 ## Components
 
-| | |
-| --- | --- |
-| **Layout** | [App shell](https://pinfold.indranildev.in/docs/appshell) · [Navbar](https://pinfold.indranildev.in/docs/navbar) · [Sidebar](https://pinfold.indranildev.in/docs/sidebar) · [Navigation menu](https://pinfold.indranildev.in/docs/navmenu) · [Tabs](https://pinfold.indranildev.in/docs/tabs) · [Breadcrumb](https://pinfold.indranildev.in/docs/breadcrumb) · [Pagination](https://pinfold.indranildev.in/docs/pagination) · [Stepper](https://pinfold.indranildev.in/docs/stepper) · [Resizable](https://pinfold.indranildev.in/docs/resizable) · [Scroll area](https://pinfold.indranildev.in/docs/scrollarea) |
-| **Data display** | [Table](https://pinfold.indranildev.in/docs/table) · [Card](https://pinfold.indranildev.in/docs/card) · [Accordion](https://pinfold.indranildev.in/docs/accordion) · [Tree view](https://pinfold.indranildev.in/docs/treeview) · [Timeline](https://pinfold.indranildev.in/docs/timeline) · [Carousel](https://pinfold.indranildev.in/docs/carousel) · [Avatar](https://pinfold.indranildev.in/docs/avatar) · [Badge](https://pinfold.indranildev.in/docs/badge) · [Tag group](https://pinfold.indranildev.in/docs/tags) · [Kbd](https://pinfold.indranildev.in/docs/kbd) · [Empty](https://pinfold.indranildev.in/docs/empty) · [Skeleton](https://pinfold.indranildev.in/docs/skeleton) |
-| **Forms** | [Input](https://pinfold.indranildev.in/docs/input) · [Number field](https://pinfold.indranildev.in/docs/number) · [One-time code](https://pinfold.indranildev.in/docs/otp) · [Checkbox](https://pinfold.indranildev.in/docs/checkbox) · [Radio group](https://pinfold.indranildev.in/docs/radio) · [Switch](https://pinfold.indranildev.in/docs/switch) · [Toggle](https://pinfold.indranildev.in/docs/toggle) · [Toolbar](https://pinfold.indranildev.in/docs/toolbar) · [Slider](https://pinfold.indranildev.in/docs/slider) · [Select](https://pinfold.indranildev.in/docs/select) · [Combobox](https://pinfold.indranildev.in/docs/combobox) · [Calendar](https://pinfold.indranildev.in/docs/calendar) · [Date picker](https://pinfold.indranildev.in/docs/datepicker) · [Color picker](https://pinfold.indranildev.in/docs/colorpicker) · [Rating](https://pinfold.indranildev.in/docs/rating) · [File upload](https://pinfold.indranildev.in/docs/fileupload) |
-| **Overlays** | [Dialog](https://pinfold.indranildev.in/docs/dialog) · [Popover](https://pinfold.indranildev.in/docs/popover) · [Tooltip](https://pinfold.indranildev.in/docs/tooltip) · [Menu](https://pinfold.indranildev.in/docs/menu) · [Command](https://pinfold.indranildev.in/docs/command) · [Toast](https://pinfold.indranildev.in/docs/toast) · [Tour](https://pinfold.indranildev.in/docs/tour) |
-| **Feedback** | [Alert](https://pinfold.indranildev.in/docs/alert) · [Progress](https://pinfold.indranildev.in/docs/progress) · [Spinner](https://pinfold.indranildev.in/docs/spinner) |
-| **Actions and effects** | [Button](https://pinfold.indranildev.in/docs/button) · [Separator](https://pinfold.indranildev.in/docs/separator) · [Cursor](https://pinfold.indranildev.in/docs/cursor) |
+51 components, each with a live playground, examples, complete API, keyboard map, and ARIA patterns on the [documentation site](https://pinfold.indranildev.in/docs) and in [`docs/components`](docs/components).
 
-Each one has a live playground, examples, the full API and its keyboard and ARIA notes on the site, and a
-spec in [`docs/components`](docs/components).
+- **Layout** — [App shell](https://pinfold.indranildev.in/docs/appshell) · [Navbar](https://pinfold.indranildev.in/docs/navbar) · [Sidebar](https://pinfold.indranildev.in/docs/sidebar) · [Navigation menu](https://pinfold.indranildev.in/docs/navmenu) · [Tabs](https://pinfold.indranildev.in/docs/tabs) · [Breadcrumb](https://pinfold.indranildev.in/docs/breadcrumb) · [Pagination](https://pinfold.indranildev.in/docs/pagination) · [Stepper](https://pinfold.indranildev.in/docs/stepper) · [Resizable](https://pinfold.indranildev.in/docs/resizable) · [Scroll area](https://pinfold.indranildev.in/docs/scrollarea)
+- **Data display** — [Table](https://pinfold.indranildev.in/docs/table) · [Card](https://pinfold.indranildev.in/docs/card) · [Accordion](https://pinfold.indranildev.in/docs/accordion) · [Tree view](https://pinfold.indranildev.in/docs/treeview) · [Timeline](https://pinfold.indranildev.in/docs/timeline) · [Carousel](https://pinfold.indranildev.in/docs/carousel) · [Avatar](https://pinfold.indranildev.in/docs/avatar) · [Badge](https://pinfold.indranildev.in/docs/badge) · [Tag group](https://pinfold.indranildev.in/docs/tags) · [Kbd](https://pinfold.indranildev.in/docs/kbd) · [Empty](https://pinfold.indranildev.in/docs/empty) · [Skeleton](https://pinfold.indranildev.in/docs/skeleton)
+- **Forms** — [Input](https://pinfold.indranildev.in/docs/input) · [Number field](https://pinfold.indranildev.in/docs/number) · [One-time code](https://pinfold.indranildev.in/docs/otp) · [Checkbox](https://pinfold.indranildev.in/docs/checkbox) · [Radio group](https://pinfold.indranildev.in/docs/radio) · [Switch](https://pinfold.indranildev.in/docs/switch) · [Toggle](https://pinfold.indranildev.in/docs/toggle) · [Toolbar](https://pinfold.indranildev.in/docs/toolbar) · [Slider](https://pinfold.indranildev.in/docs/slider) · [Select](https://pinfold.indranildev.in/docs/select) · [Combobox](https://pinfold.indranildev.in/docs/combobox) · [Calendar](https://pinfold.indranildev.in/docs/calendar) · [Date picker](https://pinfold.indranildev.in/docs/datepicker) · [Color picker](https://pinfold.indranildev.in/docs/colorpicker) · [Rating](https://pinfold.indranildev.in/docs/rating) · [File upload](https://pinfold.indranildev.in/docs/fileupload)
+- **Overlays** — [Dialog](https://pinfold.indranildev.in/docs/dialog) · [Popover](https://pinfold.indranildev.in/docs/popover) · [Tooltip](https://pinfold.indranildev.in/docs/tooltip) · [Menu](https://pinfold.indranildev.in/docs/menu) · [Command](https://pinfold.indranildev.in/docs/command) · [Toast](https://pinfold.indranildev.in/docs/toast) · [Tour](https://pinfold.indranildev.in/docs/tour)
+- **Feedback & Actions** — [Alert](https://pinfold.indranildev.in/docs/alert) · [Progress](https://pinfold.indranildev.in/docs/progress) · [Spinner](https://pinfold.indranildev.in/docs/spinner) · [Button](https://pinfold.indranildev.in/docs/button) · [Separator](https://pinfold.indranildev.in/docs/separator) · [Cursor](https://pinfold.indranildev.in/docs/cursor)
 
 ## For coding agents
 
@@ -122,26 +116,21 @@ v4 share the same variables. The [palette studio](https://pinfold.indranildev.in
 
 ## Packages
 
-| Package | |
-| --- | --- |
-| [`@pinfold/react`](packages/react) | The components: hooks, presets and tags, one subpath each. |
-| [`@pinfold/css`](packages/css) | Tokens, reset and one stylesheet per component, style packs, Tailwind and shadcn bridges. |
-| [`@pinfold/core`](packages/core) | Framework-free rules, metadata and the OKLCH palette engine. |
-| [`pinfold`](packages/cli) | The CLI: `init`, `add`, `theme`, `doctor` and `mcp`. |
+- **[`@pinfold/react`](packages/react)** — The components: presets, hooks, and tags with one subpath each.
+- **[`@pinfold/css`](packages/css)** — Tokens, reset, per-component stylesheets, style packs, and Tailwind / shadcn bridges.
+- **[`@pinfold/core`](packages/core)** — Framework-free rules, metadata, and the OKLCH palette engine.
+- **[`pinfold`](packages/cli)** — The CLI: `init`, `add`, `theme`, `doctor`, and `mcp`.
 
-React 18 and 19 · TypeScript 4.7+ or JavaScript · Next.js, Vite, React Router, Remix, Gatsby, Astro ·
-browsers from Baseline 2023.
+React 18 and 19 · TypeScript 4.7+ or JavaScript · Next.js, Vite, React Router, Remix, Gatsby, Astro · browsers from Baseline 2023.
 
 ## Docs in this repository
 
-| | |
-| --- | --- |
-| [docs/components](docs/components) | One spec per component |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | The contract every component follows |
-| [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | React, TypeScript, bundlers, SSR frameworks, browsers |
-| [docs/a11y/screen-readers.md](docs/a11y/screen-readers.md) | The accessibility report and the screen-reader matrix |
-| [docs/CLI.md](docs/CLI.md) · [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | The CLI, packages, registry and MCP server |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Setup, constraints and the checklist for a component |
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) — The contract and principles every component follows.
+- [`docs/components`](docs/components) — Component specifications and design tokens.
+- [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) — React, TypeScript, bundlers, SSR frameworks, and browser support.
+- [`docs/a11y/screen-readers.md`](docs/a11y/screen-readers.md) — Accessibility verification and screen-reader test matrix.
+- [`docs/CLI.md`](docs/CLI.md) · [`docs/DISTRIBUTION.md`](docs/DISTRIBUTION.md) — CLI reference, packaging, registry, and MCP server.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — Local development, guidelines, and component checklist.
 
 ## Develop
 
