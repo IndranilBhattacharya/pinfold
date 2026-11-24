@@ -1,41 +1,55 @@
-<div align="center">
+<p align="center">
+  <a href="https://pinfold.indranildev.in">
+    <img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="@pinfold/react" width="100%" />
+  </a>
+</p>
 
-<img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/logo.svg" width="64" height="64" alt="Pinfold" />
+<p align="center">
+  <strong>The typed React component library driven by a single config object.</strong><br />
+  51 components &bull; WCAG 2.2 AA compliant &bull; Zero runtime dependencies &bull; Server Components ready
+</p>
 
-# @pinfold/react
+<p align="center">
+  <a href="https://www.npmjs.com/package/@pinfold/react"><img src="https://img.shields.io/npm/v/@pinfold/react?color=7c3aed&label=%40pinfold%2Freact" alt="npm version" /></a>
+  <a href="https://github.com/IndranilBhattacharya/pinfold/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@pinfold/react?color=4f46e5" alt="license" /></a>
+  <a href="https://www.npmjs.com/package/@pinfold/react"><img src="https://img.shields.io/badge/npm-provenance-0ea5e9" alt="provenance" /></a>
+  <a href="https://github.com/IndranilBhattacharya/pinfold/blob/main/docs/a11y/screen-readers.md"><img src="https://img.shields.io/badge/WCAG-2.2%20AA-16a34a" alt="WCAG 2.2 AA" /></a>
+  <a href="https://www.npmjs.com/package/@pinfold/react"><img src="https://img.shields.io/badge/runtime%20dependencies-0-16a34a" alt="runtime dependencies: 0" /></a>
+</p>
 
-**Configure once. Ship everywhere.** The typed React component library driven by a single config object. Fully accessible, endlessly themeable, zero friction.
+<p align="center">
+  <a href="https://pinfold.indranildev.in/docs"><strong>Documentation</strong></a> &nbsp;&bull;&nbsp;
+  <a href="https://pinfold.indranildev.in/docs/table"><strong>Components</strong></a> &nbsp;&bull;&nbsp;
+  <a href="https://pinfold.indranildev.in/docs/theming"><strong>Theming</strong></a> &nbsp;&bull;&nbsp;
+  <a href="https://pinfold.indranildev.in/docs/ai"><strong>AI & MCP</strong></a> &nbsp;&bull;&nbsp;
+  <a href="https://github.com/IndranilBhattacharya/pinfold"><strong>GitHub</strong></a>
+</p>
 
-[Documentation](https://pinfold.indranildev.in/docs) · [Components](https://pinfold.indranildev.in/docs/table) · [Theming](https://pinfold.indranildev.in/docs/theming) · [GitHub](https://github.com/IndranilBhattacharya/pinfold)
+<br />
 
-<img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="Pinfold" width="100%" />
+51 accessible components, from a button to a high-performance data grid that virtualizes a billion rows. Every component implements verified WAI-ARIA patterns, supports keyboard navigation, and passes automated axe tests on every commit. One dedicated subpath per component ensures zero bundle bloat.
 
-</div>
-
-51 components, from a button to a data grid that scrolls a billion rows. Each one follows its WAI-ARIA pattern,
-works with the keyboard alone, and is checked with axe on every build. One subpath per component, so what you
-don't import never reaches your bundle. React 18 and 19, TypeScript or JavaScript, zero runtime dependencies.
-
-## Install
+## Quickstart
 
 ```bash
-npx pinfold init        # sets everything up, or by hand:
+npx pinfold init        # automated setup with environment detection
+# or manual installation:
 npm install @pinfold/react @pinfold/css
 ```
 
-Import the styles once, in your app entry: the core, then each component you use.
+Import required stylesheets in your application root:
 
 ```ts
 import '@pinfold/css/core.css';
 import '@pinfold/css/table.css';
 ```
 
-## Use
+## Component Usage Paradigms
 
 ```tsx
 import { defineTable } from '@pinfold/react/table';
 
-// A preset: define the look once, outside components. Works in Server Components and loops.
+// 1. Preset (Recommended): define look once outside components. Server Components ready.
 export const Orders = defineTable({ sortable: true, filterable: true, toolbar: true });
 
 export function OrdersPage({ orders }: { orders: Order[] }) {
@@ -43,26 +57,25 @@ export function OrdersPage({ orders }: { orders: Order[] }) {
 }
 ```
 
-Every component has the same three forms with the same config:
+| Pattern | API Signature | Primary Use Case | Server Components |
+| :--- | :--- | :--- | :---: |
+| **Preset (Default)** | `define<Name>(config)` | Shared design system presets, loops, static pages | Yes |
+| **Headless Hook** | `use<Name>(config)` | Interactive views needing imperative controller APIs (e.g. `openAll`, `downloadCsv`) | Client only |
+| **Direct Tag** | `<Name {...config} />` | Isolated, one-off component instances | Yes |
 
-- **`define<Name>(config)`** — A preset you use directly as a tag. Runs anywhere, Server Components and loops included.
-- **`use<Name>(config)`** — In client components: returns the component and its imperative controller (e.g. `Faq.openAll()`, `Grid.downloadCsv()`).
-- **`<Name {...config} />`** — The direct tag when a single instance is all you need.
+## Slot Customization
 
-## Make it yours
-
-Every part has a name. Style it, merge props into it, or draw it with your own component; Pinfold keeps the
-keys, focus and ARIA working.
+Every DOM slot has a semantic identifier. Customize classes, merge props, or render custom nodes without compromising accessibility or keyboard roving:
 
 ```tsx
 <Faq
-  classNames={{ trigger: 'px-6 text-base' }}
-  slotProps={{ panel: { 'data-analytics': 'faq' } }}
+  classNames={{ trigger: 'px-6 text-base font-medium' }}
+  slotProps={{ panel: { 'data-analytics': 'faq-expanded' } }}
   render={{ indicator: ({ item }) => (item.open ? <Minus /> : <Plus />) }}
 />
 ```
 
-## Provider (optional)
+## Global Provider (Optional)
 
 ```tsx
 import { PinfoldProvider } from '@pinfold/react';
@@ -73,28 +86,28 @@ import '@pinfold/css/packs.css';
 </PinfoldProvider>
 ```
 
-Precedence for every option: the props, the preset, `defaults` in your config, the provider, the library default.
+Resolution precedence for every option: **props** &gt; **preset** &gt; **`defaults` in config** &gt; **provider** &gt; **library default**.
 
 ## Components
 
-**Layout** App shell, Navbar, Sidebar, Navigation menu, Tabs, Breadcrumb, Pagination, Stepper, Resizable,
-Scroll area · **Data display** Table, Card, Accordion, Tree view, Timeline, Carousel, Avatar, Badge, Tag group,
-Kbd, Empty, Skeleton · **Forms** Input, Number field, One-time code, Checkbox, Radio group, Switch, Toggle,
-Toolbar, Slider, Select, Combobox, Calendar, Date picker, Color picker, Rating, File upload · **Overlays**
-Dialog, Popover, Tooltip, Menu, Command, Toast, Tour · **Feedback** Alert, Progress, Spinner · **Actions**
-Button, Separator, Cursor.
+| Category | Components | Count |
+| :--- | :--- | :---: |
+| **Layout** | [`App shell`](https://pinfold.indranildev.in/docs/appshell) &bull; [`Navbar`](https://pinfold.indranildev.in/docs/navbar) &bull; [`Sidebar`](https://pinfold.indranildev.in/docs/sidebar) &bull; [`Navigation menu`](https://pinfold.indranildev.in/docs/navmenu) &bull; [`Tabs`](https://pinfold.indranildev.in/docs/tabs) &bull; [`Breadcrumb`](https://pinfold.indranildev.in/docs/breadcrumb) &bull; [`Pagination`](https://pinfold.indranildev.in/docs/pagination) &bull; [`Stepper`](https://pinfold.indranildev.in/docs/stepper) &bull; [`Resizable`](https://pinfold.indranildev.in/docs/resizable) &bull; [`Scroll area`](https://pinfold.indranildev.in/docs/scrollarea) | 10 |
+| **Data display** | [`Table`](https://pinfold.indranildev.in/docs/table) &bull; [`Card`](https://pinfold.indranildev.in/docs/card) &bull; [`Accordion`](https://pinfold.indranildev.in/docs/accordion) &bull; [`Tree view`](https://pinfold.indranildev.in/docs/treeview) &bull; [`Timeline`](https://pinfold.indranildev.in/docs/timeline) &bull; [`Carousel`](https://pinfold.indranildev.in/docs/carousel) &bull; [`Avatar`](https://pinfold.indranildev.in/docs/avatar) &bull; [`Badge`](https://pinfold.indranildev.in/docs/badge) &bull; [`Tag group`](https://pinfold.indranildev.in/docs/tags) &bull; [`Kbd`](https://pinfold.indranildev.in/docs/kbd) &bull; [`Empty`](https://pinfold.indranildev.in/docs/empty) &bull; [`Skeleton`](https://pinfold.indranildev.in/docs/skeleton) | 12 |
+| **Forms** | [`Input`](https://pinfold.indranildev.in/docs/input) &bull; [`Number field`](https://pinfold.indranildev.in/docs/number) &bull; [`One-time code`](https://pinfold.indranildev.in/docs/otp) &bull; [`Checkbox`](https://pinfold.indranildev.in/docs/checkbox) &bull; [`Radio group`](https://pinfold.indranildev.in/docs/radio) &bull; [`Switch`](https://pinfold.indranildev.in/docs/switch) &bull; [`Toggle`](https://pinfold.indranildev.in/docs/toggle) &bull; [`Toolbar`](https://pinfold.indranildev.in/docs/toolbar) &bull; [`Slider`](https://pinfold.indranildev.in/docs/slider) &bull; [`Select`](https://pinfold.indranildev.in/docs/select) &bull; [`Combobox`](https://pinfold.indranildev.in/docs/combobox) &bull; [`Calendar`](https://pinfold.indranildev.in/docs/calendar) &bull; [`Date picker`](https://pinfold.indranildev.in/docs/datepicker) &bull; [`Color picker`](https://pinfold.indranildev.in/docs/colorpicker) &bull; [`Rating`](https://pinfold.indranildev.in/docs/rating) &bull; [`File upload`](https://pinfold.indranildev.in/docs/fileupload) | 16 |
+| **Overlays** | [`Dialog`](https://pinfold.indranildev.in/docs/dialog) &bull; [`Popover`](https://pinfold.indranildev.in/docs/popover) &bull; [`Tooltip`](https://pinfold.indranildev.in/docs/tooltip) &bull; [`Menu`](https://pinfold.indranildev.in/docs/menu) &bull; [`Command`](https://pinfold.indranildev.in/docs/command) &bull; [`Toast`](https://pinfold.indranildev.in/docs/toast) &bull; [`Tour`](https://pinfold.indranildev.in/docs/tour) | 7 |
+| **Feedback & Actions** | [`Alert`](https://pinfold.indranildev.in/docs/alert) &bull; [`Progress`](https://pinfold.indranildev.in/docs/progress) &bull; [`Spinner`](https://pinfold.indranildev.in/docs/spinner) &bull; [`Button`](https://pinfold.indranildev.in/docs/button) &bull; [`Separator`](https://pinfold.indranildev.in/docs/separator) &bull; [`Cursor`](https://pinfold.indranildev.in/docs/cursor) | 6 |
 
-Import each from its own path: `@pinfold/react/<name>`, e.g. `@pinfold/react/datepicker`.
+Import each component directly: `@pinfold/react/<name>` (e.g. `@pinfold/react/datepicker`).
 
-## For coding agents
+## Ecosystem
 
-`llms.txt`, `llms-full.txt` and a JSON Schema per component (`schema/<name>.json`) ship in this package and
-match its version. `npx pinfold mcp` runs a local MCP server over them.
+| Package | Role & Scope | Version |
+| :--- | :--- | :--- |
+| [`@pinfold/css`](https://www.npmjs.com/package/@pinfold/css) | Design tokens, scoped reset, modular stylesheets, and Tailwind presets | [![npm](https://img.shields.io/npm/v/@pinfold/css?color=7c3aed)](https://www.npmjs.com/package/@pinfold/css) |
+| [`@pinfold/core`](https://www.npmjs.com/package/@pinfold/core) | Framework-free logic, metadata, and OKLCH palette engine | [![npm](https://img.shields.io/npm/v/@pinfold/core?color=7c3aed)](https://www.npmjs.com/package/@pinfold/core) |
+| [`pinfold`](https://www.npmjs.com/package/pinfold) | Enterprise developer CLI, component registry, and local MCP server | [![npm](https://img.shields.io/npm/v/pinfold?color=7c3aed)](https://www.npmjs.com/package/pinfold) |
 
-## Links
+---
 
-- [Docs and playgrounds](https://pinfold.indranildev.in/docs)
-- [Changelog and releases](https://github.com/IndranilBhattacharya/pinfold/releases)
-- [`@pinfold/css`](https://www.npmjs.com/package/@pinfold/css) · [`@pinfold/core`](https://www.npmjs.com/package/@pinfold/core) · [`pinfold` CLI](https://www.npmjs.com/package/pinfold)
-
-MIT © Indranil Bhattacharya
+[MIT](https://github.com/IndranilBhattacharya/pinfold/blob/main/LICENSE) &copy; 2026 Indranil Bhattacharya &bull; [Documentation](https://pinfold.indranildev.in/docs) &bull; [GitHub](https://github.com/IndranilBhattacharya/pinfold)

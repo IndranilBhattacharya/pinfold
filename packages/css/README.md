@@ -1,80 +1,100 @@
-<div align="center">
+<p align="center">
+  <a href="https://pinfold.indranildev.in">
+    <img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="@pinfold/css" width="100%" />
+  </a>
+</p>
 
-<img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/logo.svg" width="64" height="64" alt="Pinfold" />
+<p align="center">
+  <strong>The styling layer of <a href="https://pinfold.indranildev.in">Pinfold</a></strong><br />
+  Tokens &bull; Cascade layers &bull; Modular component stylesheets &bull; Style packs &bull; Tailwind & shadcn bridges
+</p>
 
-# @pinfold/css
+<p align="center">
+  <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/npm/v/@pinfold/css?color=7c3aed&label=%40pinfold%2Fcss" alt="npm version" /></a>
+  <a href="https://github.com/IndranilBhattacharya/pinfold/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@pinfold/css?color=4f46e5" alt="license" /></a>
+  <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/badge/npm-provenance-0ea5e9" alt="provenance" /></a>
+  <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/badge/dependencies-0-16a34a" alt="dependencies: 0" /></a>
+  <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/badge/Baseline-2023-blue" alt="Baseline 2023" /></a>
+</p>
 
-The styling layer of [Pinfold](https://pinfold.indranildev.in): tokens, scoped reset, modular component stylesheets, style packs, and Tailwind / shadcn bridges.
+<p align="center">
+  <a href="https://pinfold.indranildev.in/docs"><strong>Documentation</strong></a> &nbsp;&bull;&nbsp;
+  <a href="https://pinfold.indranildev.in/docs/theming"><strong>Theming</strong></a> &nbsp;&bull;&nbsp;
+  <a href="https://pinfold.indranildev.in/docs/table"><strong>Components</strong></a> &nbsp;&bull;&nbsp;
+  <a href="https://github.com/IndranilBhattacharya/pinfold"><strong>GitHub</strong></a>
+</p>
 
-[![npm](https://img.shields.io/npm/v/@pinfold/css?color=7c3aed&label=%40pinfold%2Fcss)](https://www.npmjs.com/package/@pinfold/css)
-[![license](https://img.shields.io/npm/l/@pinfold/css?color=4f46e5)](LICENSE)
-[![dependencies](https://img.shields.io/badge/dependencies-0-16a34a)](package.json)
+<br />
 
-[Documentation](https://pinfold.indranildev.in/docs) · [Theming](https://pinfold.indranildev.in/docs/theming) · [GitHub](https://github.com/IndranilBhattacharya/pinfold)
-
-<img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="Pinfold CSS" width="100%" />
-
-</div>
-
-Plain CSS in cascade layers (`@layer pinfold.*`), so your own CSS and every Tailwind utility override it with no
-`!important`. Framework-free, Baseline 2023, and only the stylesheets you import.
+Pure CSS organized into standard cascade layers (`@layer pinfold.*`). Your application CSS and Tailwind utility classes override default styles effortlessly with zero `!important`. Framework-free, Baseline 2023 compliant, and modular.
 
 ```ts
-import '@pinfold/css/core.css';    // reset and tokens, once
-import '@pinfold/css/table.css';   // per component you use
-// or everything: import '@pinfold/css/all.css';
+import '@pinfold/css/core.css';    // global reset and design tokens
+import '@pinfold/css/table.css';   // individual component styles as needed
+// or import all components at once:
+import '@pinfold/css/all.css';
 ```
 
-Styling every part yourself with `unstyled`? Import only `@pinfold/css/tokens.css`, or nothing.
+## Cascade Layers Architecture
 
-## Style packs
+| Layer | Priority Order | Purpose & Contents |
+| :--- | :---: | :--- |
+| `@layer pinfold.tokens` | 1 | Global theme design tokens (`--pinfold-*`), colors, typography, and radii |
+| `@layer pinfold.reset` | 2 | Scoped semantic element reset (box-sizing, standard focus outlines) |
+| `@layer pinfold.base` | 3 | Component structural layout, flex/grid positions, and ARIA states |
+| `@layer pinfold.components`| 4 | Component slot variants, visual tones, and hover/active states |
+| `@layer pinfold.packs` | 5 | Style pack surface, edge, and elevation transformations |
+
+Because Pinfold declares its rules inside `@layer pinfold.*`, unlayered consumer rules and Tailwind utilities automatically take precedence regardless of import order.
+
+## Style Packs
 
 ```ts
 import '@pinfold/css/packs.css';
-// <PinfoldProvider stylePack="glass">, or data-pinfold-style="glass" on any element
+// Apply via provider: <PinfoldProvider stylePack="glass">
+// Or via attribute on any DOM subtree: data-pinfold-style="glass"
 ```
 
-`glass`, `material`, `noise` and `brutalist` change surfaces, edges, depth and texture of every component at once,
-never its colours or layout. Every colour a pack sets is mixed from your palette. Each pack yields to
-`prefers-reduced-transparency`, `prefers-contrast: more` and forced colours, and glass surfaces are tested to keep
-body text at WCAG AA over white, black and brand-coloured backdrops.
+| Pack | Visual Characteristics | Contrast & Accessibility |
+| :--- | :--- | :--- |
+| `default` | Clean, crisp, modern SaaS aesthetic with subtle border definitions | Baseline contrast safe, system light/dark |
+| `glass` | Frosted backdrop blur, subtle translucent surface highlights | Tested against WCAG AA over dark, light, and brand fills |
+| `material` | Layered elevation shadows, subtle surface tints | Tactile hierarchy with elevated depth |
+| `noise` | Micro-grain texture overlay for tactile depth | Neutral opacity preserving underlying contrast |
+| `brutalist` | Hard unblurred drop shadows, bold dark borders | Ultra-high contrast exceeding WCAG AAA |
 
-## Tailwind
+Every style pack strictly respects `prefers-reduced-transparency`, `prefers-contrast: more`, and system forced-colors modes.
+
+## Tailwind CSS Integration
+
+### Tailwind v4
 
 ```css
-/* v4 */
 @import "tailwindcss";
 @import "@pinfold/css/core.css";
 @import "@pinfold/css/tailwind.css";
 ```
 
+### Tailwind v3
+
 ```js
-// v3: tailwind.config.js
-module.exports = { presets: [require('@pinfold/css/tailwind')] };
+// tailwind.config.js
+module.exports = {
+  presets: [require('@pinfold/css/tailwind')]
+};
 ```
 
-`bg-primary-600`, `text-content-muted`, `border-line`, `rounded-lg`, `shadow-md` and `ease-pinfold-out` resolve to
-`--pinfold-*` variables, so they follow `npx pinfold theme`, dark mode and any runtime override. Variants such as
-`open:`, `closed:` and `disabled-row:` map to the `data-*` attributes components already set.
+Classes like `bg-primary-600`, `text-content-muted`, `border-line`, `rounded-lg`, and `shadow-md` map directly to Pinfold tokens. Variants such as `open:`, `closed:`, and `disabled-row:` match data attributes emitted by components.
 
-## shadcn
+## shadcn/ui Compatibility
 
 ```css
 @import "@pinfold/css/core.css";
-@import "@pinfold/css/shadcn.css";   /* after shadcn's own variables */
+@import "@pinfold/css/shadcn.css";   /* maps shadcn CSS variables to Pinfold tokens */
 ```
 
-Points shadcn's variables (`--background`, `--primary`, `--ring`, `--radius`, …) at Pinfold's tokens, so both
-libraries share one theme. For dark mode set both `.dark` and `data-pinfold-theme`, e.g. next-themes
-`attribute={['class', 'data-pinfold-theme']}`.
+Bridges shadcn variables (`--background`, `--primary`, `--ring`, `--radius`) to Pinfold tokens, allowing both design systems to coexist under a unified theme.
 
-## Your theme
+---
 
-```bash
-npx pinfold theme --primary "#4f46e5" --radius lg --check
-```
-
-Writes the theme CSS from your colours in any CSS format, with a contrast check. See
-[Theming](https://pinfold.indranildev.in/docs/theming).
-
-MIT © Indranil Bhattacharya · [Docs](https://pinfold.indranildev.in/docs) · [GitHub](https://github.com/IndranilBhattacharya/pinfold)
+[MIT](https://github.com/IndranilBhattacharya/pinfold/blob/main/LICENSE) &copy; 2026 Indranil Bhattacharya &bull; [Documentation](https://pinfold.indranildev.in/docs) &bull; [GitHub](https://github.com/IndranilBhattacharya/pinfold)
