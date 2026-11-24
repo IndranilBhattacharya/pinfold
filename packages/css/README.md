@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/npm/v/@pinfold/css?color=7c3aed&label=%40pinfold%2Fcss" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/npm/v/@pinfold/css?color=7c3aed&label=%40pinfold%2Fcss" alt="@pinfold/css npm version" /></a>
   <a href="https://github.com/IndranilBhattacharya/pinfold/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@pinfold/css?color=4f46e5" alt="license" /></a>
   <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/badge/npm-provenance-0ea5e9" alt="provenance" /></a>
   <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/badge/dependencies-0-16a34a" alt="dependencies: 0" /></a>

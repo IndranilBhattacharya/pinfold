@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@pinfold/react"><img src="https://img.shields.io/npm/v/@pinfold/react?color=7c3aed&label=%40pinfold%2Freact" alt="@pinfold/react npm" /></a>
+  <a href="https://www.npmjs.com/package/@pinfold/react"><img src="https://img.shields.io/npm/v/@pinfold/react?color=7c3aed&label=%40pinfold%2Freact" alt="@pinfold/react npm version" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/npm/l/@pinfold/react?color=4f46e5" alt="license" /></a>
   <a href="https://www.npmjs.com/package/@pinfold/react"><img src="https://img.shields.io/badge/npm-provenance-0ea5e9" alt="provenance" /></a>
   <a href="docs/a11y/screen-readers.md"><img src="https://img.shields.io/badge/WCAG-2.2%20AA-16a34a" alt="WCAG 2.2 AA" /></a>
@@ -122,10 +122,10 @@ Seven semantic roles with eleven steps each generated in OKLCH with sRGB fallbac
 
 | Package | Purpose & Scope | Installation | Links |
 | :--- | :--- | :--- | :--- |
-| [`@pinfold/react`](packages/react) | The 51 accessible components: presets, headless hooks, and tags with individual subpaths. | `npm i @pinfold/react` | [![npm](https://img.shields.io/npm/v/@pinfold/react?color=7c3aed&label=)](https://www.npmjs.com/package/@pinfold/react) [Docs](https://pinfold.indranildev.in/docs) |
-| [`@pinfold/css`](packages/css) | Tokens, scoped reset, component stylesheets, style packs, and Tailwind / shadcn bridges. | `npm i @pinfold/css` | [![npm](https://img.shields.io/npm/v/@pinfold/css?color=7c3aed&label=)](https://www.npmjs.com/package/@pinfold/css) [Docs](https://pinfold.indranildev.in/docs/theming) |
-| [`@pinfold/core`](packages/core) | Framework-free state logic, metadata, WAI-ARIA roving-focus maps, and OKLCH palette engine. | `npm i @pinfold/core` | [![npm](https://img.shields.io/npm/v/@pinfold/core?color=7c3aed&label=)](https://www.npmjs.com/package/@pinfold/core) [Docs](https://pinfold.indranildev.in/docs/theming) |
-| [`pinfold`](packages/cli) | Developer CLI: project setup (`init`), component scaffolding (`add`), theming (`theme`), health audit (`doctor`), and MCP server (`mcp`). | `npx pinfold` | [![npm](https://img.shields.io/npm/v/pinfold?color=7c3aed&label=)](https://www.npmjs.com/package/pinfold) [Docs](https://pinfold.indranildev.in/docs/cli) |
+| [`@pinfold/react`](packages/react) | The 51 accessible components: presets, headless hooks, and tags with individual subpaths. | `npm i @pinfold/react` | [npm Package](https://www.npmjs.com/package/@pinfold/react) &bull; [Documentation](https://pinfold.indranildev.in/docs) |
+| [`@pinfold/css`](packages/css) | Tokens, scoped reset, component stylesheets, style packs, and Tailwind / shadcn bridges. | `npm i @pinfold/css` | [npm Package](https://www.npmjs.com/package/@pinfold/css) &bull; [Theming Guide](https://pinfold.indranildev.in/docs/theming) |
+| [`@pinfold/core`](packages/core) | Framework-free state logic, metadata, WAI-ARIA roving-focus maps, and OKLCH palette engine. | `npm i @pinfold/core` | [npm Package](https://www.npmjs.com/package/@pinfold/core) &bull; [Theming Engine](https://pinfold.indranildev.in/docs/theming) |
+| [`pinfold`](packages/cli) | Developer CLI: project setup (`init`), component scaffolding (`add`), theming (`theme`), health audit (`doctor`), and MCP server (`mcp`). | `npx pinfold` | [npm Package](https://www.npmjs.com/package/pinfold) &bull; [CLI Reference](https://pinfold.indranildev.in/docs/cli) |
 
 *React 18 &amp; 19 &bull; TypeScript 4.7+ or JavaScript &bull; Next.js, Vite, React Router, Remix, Gatsby, Astro &bull; Baseline 2023 browsers.*
 

@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@pinfold/react"><img src="https://img.shields.io/npm/v/@pinfold/react?color=7c3aed&label=%40pinfold%2Freact" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@pinfold/react"><img src="https://img.shields.io/npm/v/@pinfold/react?color=7c3aed&label=%40pinfold%2Freact" alt="@pinfold/react npm version" /></a>
   <a href="https://github.com/IndranilBhattacharya/pinfold/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@pinfold/react?color=4f46e5" alt="license" /></a>
   <a href="https://www.npmjs.com/package/@pinfold/react"><img src="https://img.shields.io/badge/npm-provenance-0ea5e9" alt="provenance" /></a>
   <a href="https://github.com/IndranilBhattacharya/pinfold/blob/main/docs/a11y/screen-readers.md"><img src="https://img.shields.io/badge/WCAG-2.2%20AA-16a34a" alt="WCAG 2.2 AA" /></a>
@@ -102,11 +102,11 @@ Import each component directly: `@pinfold/react/<name>` (e.g. `@pinfold/react/da
 
 ## Ecosystem
 
-| Package | Role & Scope | Version |
-| :--- | :--- | :--- |
-| [`@pinfold/css`](https://www.npmjs.com/package/@pinfold/css) | Design tokens, scoped reset, modular stylesheets, and Tailwind presets | [![npm](https://img.shields.io/npm/v/@pinfold/css?color=7c3aed)](https://www.npmjs.com/package/@pinfold/css) |
-| [`@pinfold/core`](https://www.npmjs.com/package/@pinfold/core) | Framework-free logic, metadata, and OKLCH palette engine | [![npm](https://img.shields.io/npm/v/@pinfold/core?color=7c3aed)](https://www.npmjs.com/package/@pinfold/core) |
-| [`pinfold`](https://www.npmjs.com/package/pinfold) | Enterprise developer CLI, component registry, and local MCP server | [![npm](https://img.shields.io/npm/v/pinfold?color=7c3aed)](https://www.npmjs.com/package/pinfold) |
+| Package | Role & Scope | Installation | Links |
+| :--- | :--- | :--- | :--- |
+| [`@pinfold/css`](https://www.npmjs.com/package/@pinfold/css) | Design tokens, scoped reset, modular stylesheets, and Tailwind presets | `npm i @pinfold/css` | [npm Package](https://www.npmjs.com/package/@pinfold/css) &bull; [Docs](https://pinfold.indranildev.in/docs/theming) |
+| [`@pinfold/core`](https://www.npmjs.com/package/@pinfold/core) | Framework-free logic, metadata, and OKLCH palette engine | `npm i @pinfold/core` | [npm Package](https://www.npmjs.com/package/@pinfold/core) &bull; [Docs](https://pinfold.indranildev.in/docs/theming) |
+| [`pinfold`](https://www.npmjs.com/package/pinfold) | Enterprise developer CLI, component registry, and local MCP server | `npx pinfold` | [npm Package](https://www.npmjs.com/package/pinfold) &bull; [Docs](https://pinfold.indranildev.in/docs/cli) |
 
 ---
 
