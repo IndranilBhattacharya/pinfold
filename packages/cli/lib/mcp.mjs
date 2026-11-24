@@ -3,7 +3,7 @@ import { createInterface } from 'node:readline';
 import { componentMetas, metaToMarkdown, toJsonSchema, validateConfig } from '@pinfold/core/meta';
 import { stylesFor } from './commands.mjs';
 
-const VERSION = '1.2.1';
+const VERSION = '1.2.2';
 const byName = (name) => componentMetas.find((m) => m.name === name);
 const names = () => componentMetas.map((m) => m.name);
 const nameArg = { type: 'object', properties: { name: { type: 'string', enum: names() } }, required: ['name'] };
