@@ -115,7 +115,7 @@ function banner() {
     '',
     `  ${color.dim('• Fully accessible (WCAG 2.2 AA)')}`,
     `  ${color.dim('• Zero runtime dependencies')}`,
-    `  ${color.dim('• 51 accessible components')}`,
+    `  ${color.dim(`• ${Object.keys(REGISTRY.components || {}).length} accessible components`)}`,
     `  ${color.dim('• Baseline 2023 CSS styling')}`,
     '',
     '',
