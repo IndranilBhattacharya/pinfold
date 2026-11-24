@@ -1,31 +1,22 @@
-<p align="center">
-  <a href="https://pinfold.indranildev.in">
-    <img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="Pinfold: Configure once. Ship everywhere." width="100%" />
-  </a>
-</p>
+<a href="https://pinfold.indranildev.in">
+  <img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="Pinfold: Configure once. Ship everywhere." width="100%" />
+</a>
 
-<p align="center">
-  <strong>The typed React component library driven by a single config object.</strong><br />
-  Fully accessible &bull; Endlessly themeable &bull; Baseline 2023 &bull; Zero runtime dependencies
-</p>
+The typed React component library driven by a single config object. Fully accessible, endlessly themeable, zero friction.
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/@pinfold/react"><img src="https://img.shields.io/npm/v/@pinfold/react?color=7c3aed&label=%40pinfold%2Freact" alt="@pinfold/react npm version" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/npm/l/@pinfold/react?color=4f46e5" alt="license" /></a>
-  <a href="https://www.npmjs.com/package/@pinfold/react"><img src="https://img.shields.io/badge/npm-provenance-0ea5e9" alt="provenance" /></a>
-  <a href="docs/a11y/screen-readers.md"><img src="https://img.shields.io/badge/WCAG-2.2%20AA-16a34a" alt="WCAG 2.2 AA" /></a>
-  <a href="packages/react/package.json"><img src="https://img.shields.io/badge/runtime%20dependencies-0-16a34a" alt="runtime dependencies: 0" /></a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@pinfold/react?color=7c3aed&label=%40pinfold%2Freact)](https://www.npmjs.com/package/@pinfold/react)
+[![license](https://img.shields.io/npm/l/@pinfold/react?color=4f46e5)](LICENSE)
+[![provenance](https://img.shields.io/badge/npm-provenance-0ea5e9)](https://www.npmjs.com/package/@pinfold/react)
+[![WCAG 2.2 AA](https://img.shields.io/badge/WCAG-2.2%20AA-16a34a)](docs/a11y/screen-readers.md)
+[![runtime dependencies: 0](https://img.shields.io/badge/runtime%20dependencies-0-16a34a)](packages/react/package.json)
 
-<p align="center">
-  <a href="https://pinfold.indranildev.in/docs"><strong>Documentation</strong></a> &nbsp;&bull;&nbsp;
-  <a href="https://pinfold.indranildev.in/docs/table"><strong>Components</strong></a> &nbsp;&bull;&nbsp;
-  <a href="https://pinfold.indranildev.in/docs/theming"><strong>Theming</strong></a> &nbsp;&bull;&nbsp;
-  <a href="https://pinfold.indranildev.in/docs/ai"><strong>AI & MCP</strong></a> &nbsp;&bull;&nbsp;
-  <a href="https://github.com/IndranilBhattacharya/pinfold"><strong>GitHub</strong></a>
-</p>
+[**Documentation**](https://pinfold.indranildev.in/docs) &nbsp;&bull;&nbsp;
+[**Components**](https://pinfold.indranildev.in/docs/table) &nbsp;&bull;&nbsp;
+[**Theming**](https://pinfold.indranildev.in/docs/theming) &nbsp;&bull;&nbsp;
+[**AI & MCP**](https://pinfold.indranildev.in/docs/ai) &nbsp;&bull;&nbsp;
+[**GitHub**](https://github.com/IndranilBhattacharya/pinfold)
 
-<br />
+---
 
 ## In 30 seconds
 

@@ -1,29 +1,20 @@
-<p align="center">
-  <a href="https://pinfold.indranildev.in">
-    <img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="@pinfold/core" width="100%" />
-  </a>
-</p>
+<a href="https://pinfold.indranildev.in">
+  <img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="@pinfold/core" width="100%" />
+</a>
 
-<p align="center">
-  <strong>The framework-free core engine of <a href="https://pinfold.indranildev.in">Pinfold</a></strong><br />
-  Component logic &bull; Metadata specifications &bull; WAI-ARIA roving-focus &bull; OKLCH palette engine
-</p>
+The framework-free core engine of [Pinfold](https://pinfold.indranildev.in): component state logic, design tokens, metadata, and the OKLCH palette system.
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/@pinfold/core"><img src="https://img.shields.io/npm/v/@pinfold/core?color=7c3aed&label=%40pinfold%2Fcore" alt="@pinfold/core npm version" /></a>
-  <a href="https://github.com/IndranilBhattacharya/pinfold/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@pinfold/core?color=4f46e5" alt="license" /></a>
-  <a href="https://www.npmjs.com/package/@pinfold/core"><img src="https://img.shields.io/badge/npm-provenance-0ea5e9" alt="provenance" /></a>
-  <a href="https://www.npmjs.com/package/@pinfold/core"><img src="https://img.shields.io/badge/dependencies-0-16a34a" alt="dependencies: 0" /></a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@pinfold/core?color=7c3aed&label=%40pinfold%2Fcore)](https://www.npmjs.com/package/@pinfold/core)
+[![license](https://img.shields.io/npm/l/@pinfold/core?color=4f46e5)](https://github.com/IndranilBhattacharya/pinfold/blob/main/LICENSE)
+[![provenance](https://img.shields.io/badge/npm-provenance-0ea5e9)](https://www.npmjs.com/package/@pinfold/core)
+[![dependencies: 0](https://img.shields.io/badge/dependencies-0-16a34a)](https://www.npmjs.com/package/@pinfold/core)
 
-<p align="center">
-  <a href="https://pinfold.indranildev.in/docs"><strong>Documentation</strong></a> &nbsp;&bull;&nbsp;
-  <a href="https://pinfold.indranildev.in/docs/theming"><strong>Theming</strong></a> &nbsp;&bull;&nbsp;
-  <a href="https://pinfold.indranildev.in/docs/ai"><strong>AI & MCP</strong></a> &nbsp;&bull;&nbsp;
-  <a href="https://github.com/IndranilBhattacharya/pinfold"><strong>GitHub</strong></a>
-</p>
+[**Documentation**](https://pinfold.indranildev.in/docs) &nbsp;&bull;&nbsp;
+[**Theming**](https://pinfold.indranildev.in/docs/theming) &nbsp;&bull;&nbsp;
+[**AI & MCP**](https://pinfold.indranildev.in/docs/ai) &nbsp;&bull;&nbsp;
+[**GitHub**](https://github.com/IndranilBhattacharya/pinfold)
 
-<br />
+---
 
 Zero runtime dependencies and zero framework imports: an automated test fails the build if any framework dependency is ever referenced in core. Used directly by `@pinfold/react` and available independently to generate themes, inspect component metadata, or create custom framework adapters.
 

@@ -1,30 +1,21 @@
-<p align="center">
-  <a href="https://pinfold.indranildev.in">
-    <img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="@pinfold/css" width="100%" />
-  </a>
-</p>
+<a href="https://pinfold.indranildev.in">
+  <img src="https://raw.githubusercontent.com/IndranilBhattacharya/pinfold/main/.github/assets/banner.png" alt="@pinfold/css" width="100%" />
+</a>
 
-<p align="center">
-  <strong>The styling layer of <a href="https://pinfold.indranildev.in">Pinfold</a></strong><br />
-  Tokens &bull; Cascade layers &bull; Modular component stylesheets &bull; Style packs &bull; Tailwind & shadcn bridges
-</p>
+The styling layer of [Pinfold](https://pinfold.indranildev.in): tokens, scoped reset, modular component stylesheets, style packs, and Tailwind / shadcn bridges.
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/npm/v/@pinfold/css?color=7c3aed&label=%40pinfold%2Fcss" alt="@pinfold/css npm version" /></a>
-  <a href="https://github.com/IndranilBhattacharya/pinfold/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@pinfold/css?color=4f46e5" alt="license" /></a>
-  <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/badge/npm-provenance-0ea5e9" alt="provenance" /></a>
-  <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/badge/dependencies-0-16a34a" alt="dependencies: 0" /></a>
-  <a href="https://www.npmjs.com/package/@pinfold/css"><img src="https://img.shields.io/badge/Baseline-2023-blue" alt="Baseline 2023" /></a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@pinfold/css?color=7c3aed&label=%40pinfold%2Fcss)](https://www.npmjs.com/package/@pinfold/css)
+[![license](https://img.shields.io/npm/l/@pinfold/css?color=4f46e5)](https://github.com/IndranilBhattacharya/pinfold/blob/main/LICENSE)
+[![provenance](https://img.shields.io/badge/npm-provenance-0ea5e9)](https://www.npmjs.com/package/@pinfold/css)
+[![dependencies: 0](https://img.shields.io/badge/dependencies-0-16a34a)](https://www.npmjs.com/package/@pinfold/css)
+[![Baseline 2023](https://img.shields.io/badge/Baseline-2023-blue)](https://www.npmjs.com/package/@pinfold/css)
 
-<p align="center">
-  <a href="https://pinfold.indranildev.in/docs"><strong>Documentation</strong></a> &nbsp;&bull;&nbsp;
-  <a href="https://pinfold.indranildev.in/docs/theming"><strong>Theming</strong></a> &nbsp;&bull;&nbsp;
-  <a href="https://pinfold.indranildev.in/docs/table"><strong>Components</strong></a> &nbsp;&bull;&nbsp;
-  <a href="https://github.com/IndranilBhattacharya/pinfold"><strong>GitHub</strong></a>
-</p>
+[**Documentation**](https://pinfold.indranildev.in/docs) &nbsp;&bull;&nbsp;
+[**Theming**](https://pinfold.indranildev.in/docs/theming) &nbsp;&bull;&nbsp;
+[**Components**](https://pinfold.indranildev.in/docs/table) &nbsp;&bull;&nbsp;
+[**GitHub**](https://github.com/IndranilBhattacharya/pinfold)
 
-<br />
+---
 
 Pure CSS organized into standard cascade layers (`@layer pinfold.*`). Your application CSS and Tailwind utility classes override default styles effortlessly with zero `!important`. Framework-free, Baseline 2023 compliant, and modular.
 
