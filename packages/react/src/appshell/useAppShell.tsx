@@ -233,7 +233,7 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
           ? slot(
               'navbar',
               <>
-                {showBuiltinTrigger ? slot('trigger', !drawer && config.sidebarCollapsible ? PANEL_ICON : MENU_ICON, 'button', getTriggerProps()) : null}
+                {showBuiltinTrigger ? slot('trigger', PANEL_ICON, 'button', getTriggerProps()) : null}
                 {config.navbar}
               </>,
               'header',
@@ -280,7 +280,7 @@ export function useAppShell(input: AppShellConfig = {}): AppShellComponent {
     (props) => render(props),
     () => ({
       /** A menu button of your own placing: there while the sidebar is a drawer, or to collapse an inline sidebar. */
-      SidebarTrigger: (props) => (live.current.canTrigger ? <button {...(live.current.getTriggerProps({ className: 'pinfold-appshell__trigger', ...props } as PropsBag) as React.ButtonHTMLAttributes<HTMLButtonElement>)}>{props.children ?? (live.current.drawer ? MENU_ICON : PANEL_ICON)}</button> : null),
+      SidebarTrigger: (props) => (live.current.canTrigger ? <button {...(live.current.getTriggerProps({ className: 'pinfold-appshell__trigger', ...props } as PropsBag) as React.ButtonHTMLAttributes<HTMLButtonElement>)}>{props.children ?? PANEL_ICON}</button> : null),
     }),
   );
 }
