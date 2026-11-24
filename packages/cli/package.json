@@ -1,6 +1,6 @@
 {
   "name": "pinfold",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Pinfold CLI: set up, add components, generate themes and check a project.",
   "author": "Indranil Bhattacharya",
   "keywords": [
@@ -40,6 +40,6 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.9.0",
-    "@pinfold/core": "1.2.0"
+    "@pinfold/core": "1.2.1"
   }
 }

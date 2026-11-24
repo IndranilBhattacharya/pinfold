@@ -160,7 +160,7 @@ const out = {
 async function askInit(flags) {
   const p = await import('@clack/prompts');
   const project = detect(flags.cwd);
-  p.intro(`${color.brand3('Pinfold')} ${color.dim(`v${VERSION}`)} ${color.dim('— Configure once. Ship everywhere.')}`);
+  p.intro(`${color.brand3('Pinfold')} ${color.dim(`v${VERSION}`)} ${color.dim('— Setup wizard')}`);
   p.log.info(`Detected environment: ${describeProject(project)}`);
   const cancelled = (v) => {
     if (p.isCancel(v)) {
@@ -369,17 +369,23 @@ const { flags, positional } = parse(rest);
 try {
   switch (command) {
     case 'init': {
+      if (flags.help) { help(); break; }
+      if (!flags.quiet) console.log(banner());
       const interactive = process.stdin.isTTY && !flags.yes && !flags['dry-run'];
       await init(flags, out, REGISTRY, interactive ? await askInit(flags) : {});
       break;
     }
     case 'add':
+      if (flags.help) { help(); break; }
       await add(positional, flags, out, REGISTRY);
       break;
     case 'theme':
+      if (flags.help) { help(); break; }
       process.exitCode = await theme(flags, out);
       break;
     case 'doctor':
+      if (flags.help) { help(); break; }
+      if (process.stdout.isTTY || process.stdin.isTTY) console.log(banner());
       process.exitCode = doctor(flags, out);
       break;
     case 'palette':
